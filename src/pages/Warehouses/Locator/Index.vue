@@ -59,12 +59,15 @@
 					<q-item v-for="(loc,idx) in product.locations" :key="idx">
 						<q-item-section>{{ loc.path }}</q-item-section>
 						<q-item-section avatar actions align="right">
+							<q-btn  @click="remove(loc.id,idx)" flat icon="remove" color="red-13"/>
+						</q-item-section>
+						<!-- <q-item-section avatar actions align="right">
 							<q-btn v-if="!confirmremove" @click="confirmremove=true" flat icon="remove" color="red-13"/>
 							<template v-else>
 								<q-btn  @click="confirmremove=false" flat label="cancelar" color="amber-13"/>
 								<q-btn  @click="remove(loc.id,idx)" flat label="Eliminar" color="red-13"/>
 							</template>
-						</q-item-section>
+						</q-item-section> -->
 					</q-item>
 				</q-list>
 			</q-card>
