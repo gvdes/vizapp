@@ -190,6 +190,7 @@
                         <div class="text-h3">{{wndLog.order.from.alias}} {{wndLog.order.id}}</div>
                         <div class="text-h6">
                             <div>{{ordersize(wndLog.order.products)[0]}}m {{ordersize(wndLog.order.products)[1]}}p</div>
+                            <q-btn icon="print" flat color="green-13" v-if="wndLog.order.printed" @click="reprint" :loading="print.state" :disable="print.state"/>
                         </div>
                     </div>
                     <q-timeline dark color="green-13">
@@ -262,6 +263,7 @@ export default {
                 order:undefined
             },
             moving:false,
+            print:{state:false}
         }
     },
     async beforeMount(){        
@@ -307,6 +309,18 @@ export default {
         });
     },
     methods:{
+        reprint(){
+            console.log("reimprimiendo");
+            let data = {"_requisition":this.wndLog.order.id};
+            
+            this.print.state=true;
+            dbreqs.reprint(data).then(success=>{
+                console.log(success);
+                this.print.state=false;
+            }).catch(fail=>{
+                console.log(fail);
+            });
+        },
         showLog(orderid){
             let idx = this.ordersdb.findIndex(item=>{return item.id==orderid});
             this.wndLog.order=this.ordersdb[idx];
