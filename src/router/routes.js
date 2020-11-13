@@ -1,19 +1,39 @@
 
 const routes = [
-  {
-    path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/Index.vue') }
-    ]
-  },
+	{ path: '/', redirect:'/lanzador' },
+	{ path:'/lanzador', component: () => import('layouts/LauncherLy') },
+	{ path: '/acceso', component: () => import('layouts/SigninLy.vue') },
+	{
+		path: '/almacen', component: () => import('layouts/WarehousesLy.vue'),
+		children:[
+			{ path: '', component: () => import('pages/Warehouses/Index.vue') },
+			{ path: 'admin', component: () => import('pages/Warehouses/Admin.vue') },
+			{ path: 'contador', component: () => import('pages/Warehouses/Counter/Index.vue') },
+			{ path: 'ubicador', component: () => import('pages/Warehouses/Locator/Index.vue') },
+			{ path: 'minymax', component: () => import('pages/Warehouses/Minymax/Index.vue') },
+			{ path: 'existencias', component: () => import('pages/Warehouses/Existences/Index.vue') }
+		]
+	},
+	{
+		path:'/pedidos',
+		component: () => import('layouts/RequisitionsLy.vue'),
+		children:[
+			{ path:'',component: () => import('pages/Requisitions/Index.vue') },
+			{ path:'dashboard',component: () => import('pages/Requisitions/Dashboard/Index.vue') },
+			{ path:':id',component: () => import('pages/Requisitions/Orders/Order.vue') },
+		]
+	},
+	{
+		path:'/qdev',
+		component: () => import('layouts/TestLy.vue'),
+	},
 
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: '*',
-    component: () => import('pages/Error404.vue')
-  }
+	// Always leave this as last one,
+	// but you can also remove it
+	{
+		path: '*',
+		component: () => import('pages/Error404.vue')
+	}
 ]
 
 export default routes

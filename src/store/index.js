@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-// import example from './module-example'
+import Account from './Account'
+import Warehouse from './Warehouse'
+import Layout from './Layout'
 
 Vue.use(Vuex)
 
@@ -17,12 +19,14 @@ Vue.use(Vuex)
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
-      // example
+      Account,
+      Warehouse,
+      Layout
     },
 
     // enable strict mode (adds overhead!)
     // for dev mode only
-    strict: process.env.DEBUGGING
+    strict: process.env.DEV
   })
 
   return Store

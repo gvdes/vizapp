@@ -1,1 +1,61 @@
-// app global css in SCSS form
+// app global css in SCSS form// app global css in SCSS form
+@font-face {
+    font-family: "exo";
+    src: url("./fonts/exo/Exo-Regular.ttf");
+}
+
+@font-face {
+    font-family: "exo-thin";
+    src: url("./fonts/exo/Exo-Thin.ttf");
+}
+
+@font-face {
+    font-family: "exo-medium";
+    src: url("./fonts/exo/Exo-Medium.ttf");
+}
+
+.ds{border:1px solid red;}
+.bg-none{ background:none!important;}
+
+.bg-darktransl0{ background: rgba(#22252A, 0.8)!important; }
+
+.bg-darkgradient{
+    background: -moz-linear-gradient(top, #2d3035 0%, #22252a 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #2d3035 0%,#22252a 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #2d3035 0%,#22252a 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3035', endColorstr='#22252a',GradientType=0 );
+}
+
+.bg-redgradient{
+    background: #e52d27;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #b31217, #e52d27);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #b31217, #e52d27); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.bg-none{ background:none!important;}
+.bg-darkl0{ background: #22252A; }
+.bg-darkl1{ background: #2D3035; }
+.bg-darkl2{ background: #3E4148; }
+
+// .bg-darkl0{ background: #111; }
+// .bg-darkl1{ background: #22252A; }
+// .bg-darkl2{ background: #2D3035; }
+
+.bg-darkl3{ background: #8A8D93; }
+
+.text-darkl3{ color: #8A8D93; }
+.text-owngrey{ color: #8A8D93; }
+.text-darkl0{ color: #22252A; }
+
+.exo{ font-family: 'exo'; }
+.exo-thin{ font-family: 'exo-thin'; }
+.exo-med{ font-family: 'exo-medium'; }
+
+.text--1{ font-size:.9em!important; }
+.text--2{ font-size:.8em!important; }
+.text-sz-lg{ font-size:1.5em; }
+
+.otherdark{background-color: #171717;}
+.otherdark2{background-color: #0a0a0a;}
+
+.ipt-search{border-radius:20px; overflow:hidden;}

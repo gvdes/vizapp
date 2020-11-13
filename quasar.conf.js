@@ -18,8 +18,10 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
-      
+      'ezcudo',
       'axios',
+      'vizapi',
+      'vsocket'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -31,7 +33,7 @@ module.exports = function (/* ctx */) {
     extras: [
       // 'ionicons-v4',
       // 'mdi-v5',
-      // 'fontawesome-v5',
+      'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
@@ -76,7 +78,7 @@ module.exports = function (/* ctx */) {
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
       iconSet: 'material-icons', // Quasar icon set
-      lang: 'en-us', // Quasar language pack
+      lang: 'es', // Quasar language pack
       config: {},
 
       // Possible values for "importStrategy":
@@ -92,7 +94,7 @@ module.exports = function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [ 'Notify', 'Loading' ]
     },
 
     // animations: 'all', // --- includes all animations
@@ -109,9 +111,9 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `Vizcarra Applications`,
-        short_name: `Vizcarra Applications`,
-        description: `Soluciones a problemas comunes`,
+        name: `Counter`,
+        short_name: `Counter`,
+        description: `Aplicacion para conteo rapido de mercancia`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -176,7 +178,7 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'vizapp'
+        appId: 'counter'
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
