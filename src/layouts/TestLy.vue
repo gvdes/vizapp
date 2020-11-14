@@ -1,7 +1,7 @@
 <template>
 	<q-layout view="hHh Lpr fFf"> <!-- Be sure to play with the Layout demo on docs -->
         <q-page-container class="bg-darkl0 exo text-grey-5">
-            
+
             <q-page padding>
                 <div class="q-pa-md">
                     <div class="q-gutter-md row">
@@ -12,7 +12,7 @@
                             @filter="filterFn"
                             @input-value="setModel"
                             style="width: 250px; padding-bottom: 32px"
-                            v-model="selection"
+                            v-model="selection" hide-dropdown-icon
                         >
                             <template v-slot:no-option>
                                 <q-item>
@@ -59,6 +59,7 @@ export default {
     },
     methods:{
         filterFn (val, update, abort) {
+			console.log(val);
             update(() => {
                 const needle = val.toLocaleLowerCase()
                 this.options = this.stoptions.filter(v => v.label.toLocaleLowerCase().indexOf(needle) > -1)

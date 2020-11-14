@@ -6,7 +6,7 @@
 				<q-toolbar class="row justify-center">
 					<!-- <q-btn flat round dense icon="arrow_back" @click="$router.push('/')" /> -->
 					<q-form class="row q-py-sm">
-						<q-input dark filled color="green-13"
+						<!-- <q-input dark filled color="green-13"
 							:type="iptsearch.type" dense
 							v-model="iptsearch.value"
 							autocomplete="off" capitalize="off"
@@ -23,7 +23,35 @@
 									@click="locsOf"
 								/>
 							</template>
-						</q-input>
+						</q-input> -->
+						<q-select dark dense filled fill-input color="green-13"
+                                use-input hide-selected class="text-uppercase" hide-dropdown-icon
+                                input-debounce="0" option-value="id" option-label="code"
+                                :value="autocom.model"
+                                :options="autocom.options" 
+                                @filter="autocomplete"
+                                @input="locsOf"
+                                :type="iptsearch.type" behavior="menu" >
+                                <template v-slot:no-option>
+                                    <q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
+                                </template>
+
+                                <template v-slot:prepend>
+                                    <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
+                                </template>
+
+                                <template v-slot:option="scope">
+                                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+                                        <!-- <q-item-section avatar>
+                                            <q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
+                                        </q-item-section> -->
+                                        <q-item-section>
+                                            <q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
+                                            <q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
+                                        </q-item-section>
+                                    </q-item>
+                                </template>
+                            </q-select>
 					</q-form>
 				</q-toolbar>
 				<q-separator/>
@@ -98,6 +126,7 @@
 </template>
 
 <script>
+import dbproduct from '../../../API/Product'
 import vizapi from '../../../API/warehouses'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
 
@@ -123,17 +152,22 @@ export default {
 			sectModels:[],
 			removes:[],
 			settingloc:false,
-			confirmremove:false
+			confirmremove:false,
+			autocom:{model:null,options:undefined}
 		}
 	},
 	mounted(){ 
-		this.$refs.iptsearch.focus();
 		this.loadIndex();
 	},
 	methods:{
-		clearWndAddLoc(){
-			this.sections.splice(idx+1);//elimina secciones
-		},
+		autocomplete (val, update, abort) {
+            let data={params:{ "code": val.trim() }};
+            dbproduct.autocomplete(data).then(success=>{
+                let resp = success.data;
+                update(() => { this.autocom.options=resp; });
+            }).catch(fail=>{ console.log(fail); });
+        },
+		clearWndAddLoc(){ this.sections.splice(idx+1);},//elimina secciones
 		remove(id,pos){
 			let data = { "_product":this.product.id, "_section":[id] };
 			console.log(data,pos);
@@ -161,9 +195,6 @@ export default {
 			}).catch(fail=>{ console.log(fail); });
 		},
 		loadSections(section,idx){
-			// console.log(this.sections);
-			// console.log(this.sectModels);
-
 			this.sections.splice(idx+1);//elimina secciones
 			this.sectModels.splice(idx+1);//elimina los modelos
 
@@ -192,11 +223,11 @@ export default {
 				this.sectModels.push({label:"Seleccione",value:null});
 			}).catch(fail=>{ console.log(fail); });
 		},
-		locsOf(){
+		locsOf(opt){
 			this.product=undefined;
 			this.iptsearch.processing=true;
-			console.log(`ubicaciones para ${this.iptsearch.value}`);
-			let codeart = this.iptsearch.value;
+			console.log(`ubicaciones para ${opt.code}`);
+			let codeart = opt.code;
 			let data = { params:{ code:codeart } }
 
 			vizapi.product(data).then(success=>{
@@ -216,12 +247,7 @@ export default {
 					});
 				}
 				this.iptsearch.processing=false;
-
-			}).catch(fail=>{
-				console.log(fail);
-			});
-			
-			console.log(data);
+			}).catch(fail=>{ console.log(fail); });
 		},
 		toogleIptSearch(){
 			switch (this.iptsearch.type) {

@@ -40,8 +40,11 @@
                             <q-img src="../../../assets/_defprod.png" style="height: 50px; width: 50px"/>
                         </div>
                         <div class="col q-pl-md">
-                            <div class="col text-light-blue">S: {{prod.ordered.amount}}</div>
-                            <div :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'" class="col" v-if="order.status.id>1">
+                            <div class="col">
+                                <span class="text-light-blue text-bold text-h6">S: {{prod.ordered.amount}}</span>
+                                <span>{{prod.units.alias}}</span>
+                            </div>
+                            <div :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'" class="col text-h6" v-if="order.status.id>1">
                                 E: {{prod.ordered.stock}}
                             </div>
                         </div>
@@ -52,56 +55,7 @@
                 </q-card>
             </div>
         </div>
-
-        <q-dialog v-model="wndSelItem.state" position="bottom">
-            <q-card class="bg-darkl0 text-grey-6 exo">
-                <div v-if="autocom.opts.length" class="q-pa-sm">
-                    <q-scroll-area style="height:300px; width:100%;">
-                        <div class="row">
-                            <div class="col-6 q-pa-xs" v-for="(opt,idx) in autocom.opts" :key="idx">
-                                <q-card class="bg-darkl1 q-pa-sm" v-ripple @click="selItem(opt)">
-                                    <div class="row justify-between">
-                                        <div class="text-white">{{opt.code}}</div>
-                                        <div class="text-grey-4">{{opt.name}}</div>
-                                    </div>
-                                    <div class="row items-center">
-                                        <!-- <div class="q-pr-xs"><q-img src="../../../assets/_defprod.png" style="height: 40px; width: 40px"/></div> -->
-                                        <div class="col text--2">{{opt.description}}</div>
-                                    </div>
-                                    <div v-if="isduplicate(opt.code)" class="text-center text-amber-13">ya esta en la lista</div>
-                                </q-card>
-                            </div>
-                        </div>
-                    </q-scroll-area>
-                </div>
-                <div class="row justify-center q-py-sm exo">
-                    <q-form>
-                        <div v-if="autocom.key" class="text-center text--2 text-green-13">{{autocom.opts.length}} {{autocom.opts.length==1?'coincidencia':'coincidencias'}} con:</div>
-                        <q-input dark filled color="green-13"
-                            :type="iptsearch.type" dense
-                            v-model.trim="autocom.key" autofocus
-                            autocomplete="off" capitalize="off"
-                            :ref="domselectors[0]" class="text-uppercase col ipt-search"
-                            @input="autocomplete"
-                            @keydown.down.prevent='navdown'
-                            @keydown.up.prevent='navup'
-                        >
-                            <template v-slot:prepend>
-                                <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-                            </template>
-                            <template v-slot:append>
-                                <q-btn flat size="sm"
-                                    icon="search" color="grey-6" 
-                                    type="submit" dense
-                                    :loading="iptsearch.processing"
-                                />
-                            </template>
-                        </q-input>
-                    </q-form>
-                </div>
-            </q-card>
-        </q-dialog>
-
+  
         <q-dialog v-model="wndSetItem.state" position="bottom" @hide="wndSetItemReset">
             <q-card v-if="wndSetItem.art" class="exo bg-darkl0 text-grey-5">
                 <q-card-section>
@@ -140,13 +94,12 @@
                             <q-btn v-else dark flat color="pink-13" @click="removeProduct" class="bg-none" :label="'eliminar '+wndSetItem.art.code" :disable="erasing.state" :loading="erasing.state"/>
                         </template>
                         <q-btn v-if="deleteitem=='ask'" dark flat color="green-13" 
-                            @click="addProduct"
+                            @click="addProduct" type="submit"
                             class="bg-none" icon="done"
                             :loading="wndSetItem.adding"
                             :disable="wndSetItem.adding"
                         />
                         <q-btn v-else dark flat color="amber-13" class="bg-none" label="cancelar" @click="deleteitem='ask'"/>
-                        
                     </q-card-actions>
                 </q-form>
             </q-card>
@@ -195,7 +148,34 @@
                         </template>
                         <template v-else>
                             <q-btn flat color="red-13" icon="fas fa-archive" @click="archive.state=true"/>
-                            <q-btn flat color="white" icon="add" @click="wndSelItem.state=true"/>
+                            <q-select dark dense filled fill-input color="green-13"
+                                use-input hide-selected class="text-uppercase" hide-dropdown-icon
+                                input-debounce="0" option-value="id" option-label="code"
+                                :value="autocom.model"
+                                :options="autocom.options" 
+                                @filter="autocomplete"
+                                @input="selItem"
+                                :type="iptsearch.type" behavior="menu" >
+                                <template v-slot:no-option>
+                                    <q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
+                                </template>
+
+                                <template v-slot:prepend>
+                                    <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
+                                </template>
+
+                                <template v-slot:option="scope">
+                                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+                                        <!-- <q-item-section avatar>
+                                            <q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
+                                        </q-item-section> -->
+                                        <q-item-section>
+                                            <q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
+                                            <q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
+                                        </q-item-section>
+                                    </q-item>
+                                </template>
+                            </q-select>
                             <q-btn flat color="green-13" icon="done" @click="nextstep.value='confirm'" :disable="!products.length"/>
                         </template>    
                     </template>
@@ -251,8 +231,6 @@ export default {
             products:[],
             leftdrawer:true,
             order:undefined,
-            wndSelItem:{ state:false, opts:[] },
-            autocom:{key:undefined,opts:[]},
             iptsearch:{
 				value:'',
 				processing:false,
@@ -272,7 +250,6 @@ export default {
                 state:false,
                 order:undefined
             },
-            domselectors:['iptsearch'],
             deleteitem:'ask',
             erasing:{state:false},
             nextstep:{value:'ask',state:false},
@@ -280,7 +257,8 @@ export default {
             archive:{state:false},
             tostock:{state:false},
             duplicate:false,
-            print:{state:false}
+            print:{state:false},
+            autocom:{model:null,options:undefined}
         }
     },
     async beforeMount(){
@@ -307,8 +285,13 @@ export default {
     },
     beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
     methods:{
-        navdown(){ console.log("Se ha navegado hacia abajo");},
-        navup(){ console.log("Se ha navegado hacia arriba"); },
+        autocomplete (val, update, abort) {
+            let data={params:{ "code": val.trim() }};
+            dbproduct.autocomplete(data).then(success=>{
+                let resp = success.data;
+                update(() => { this.autocom.options=resp; });
+            }).catch(fail=>{ console.log(fail); });
+        },
         showLog(){
             this.wndLog.order=this.order;
             this.wndLog.state=true;
@@ -422,9 +405,8 @@ export default {
                 }else{ this.products.unshift(resp); }// el articulo fue agregado
 
                 this.wndSetItem.state=false;
-                this.autocom.opts=[];
-                this.autocom.key="";
-                this.$refs.iptsearch.focus();
+                this.autocom.options=undefined;
+                this.autocom.model=null;
             }).catch(fail=>{ console.log(fail); });
         },
         selItem(opt){
@@ -446,14 +428,6 @@ export default {
             }
 
             this.wndSetItem.state=true;
-        },
-        autocomplete(){
-            let data={params:{ "code": this.autocom.key.trim() }};
-            dbproduct.autocomplete(data).then(success=>{
-                this.autocom.opts = success.data;
-            }).catch(fail=>{
-                console.log(fail);
-            });
         },
         toogleIptSearch(){
 			switch (this.iptsearch.type) {
