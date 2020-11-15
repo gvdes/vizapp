@@ -41,6 +41,7 @@
 			</q-card-section>
 
 			<q-card-section v-if="setproduct.state">
+				<div class="text-h6">{{ setproduct.code }}</div>
 				<div>{{ setproduct.description }}</div>
 				<q-form class="row q-gutter-lg">
 					<q-input dense borderless readonly dark label="Stock" v-model="setproduct.stock" class="col"/>
@@ -102,30 +103,21 @@ export default{
 			let codeart = opt.code;
 			let data = { params:{ code:codeart } }
 
+			this.setproduct.code = opt.code;
+			this.setproduct.description = opt.description;
+			this.setproduct.state = true;
+
 			vizapi.product(data).then(success=>{
 				let resp = success.data;
-				if(resp.id){ 
-					this.setproduct.code = resp.code;
-					this.setproduct.stock = resp.stock;
-					this.setproduct.min = resp.min;
-					this.setproduct.max = resp.max;
-					this.setproduct.currmin = resp.min;
-					this.setproduct.currmax = resp.max;
-					this.setproduct.description = resp.description;
-					this.setproduct.state = true;
-				}else{
-					this.setproduct.state = false;
-					this.$q.notify({
-						message:`Sin coincidencias para ${codeart.toUpperCase()}`,
-						timeout:1500, color:'negative', position:'center',
-						icon:"fas fa-exclamation-triangle"
-					});
-				}
+				this.setproduct.stock = resp.stock;
+				this.setproduct.min = resp.min;
+				this.setproduct.max = resp.max;
+				this.setproduct.currmin = resp.min;
+				this.setproduct.currmax = resp.max;
 				this.iptsearch.processing=false;
-
 			}).catch(fail=>{
                 this.$q.notify({
-					message:"Error de red, sin conexion al servidor :(",
+					message:"Raios!!, esto no ha funcionado!!",
 					timeout:3000, color:'deep-orange-14', position:'center',
 					icon:"fas fa-exclamation-triangle"
 				});
