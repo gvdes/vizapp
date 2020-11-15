@@ -41,8 +41,7 @@
                         </div>
                         <div class="col q-pl-md">
                             <div class="col">
-                                <span class="text-light-blue text-bold text-h6">S: {{prod.ordered.amount}}</span>
-                                <span>{{prod.units.alias}}</span>
+                                <span class="text-light-blue text-bold text-h6">{{prod.units.name}}s: {{prod.ordered.amount}}</span>
                             </div>
                             <div :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'" class="col text-h6" v-if="order.status.id>1">
                                 E: {{prod.ordered.stock}}

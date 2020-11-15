@@ -3,57 +3,38 @@
 		<q-header class="bg-darkl0 text-grey-5 q-pa-sm">
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Ubicador"/>
-				<q-toolbar class="row justify-center">
-					<!-- <q-btn flat round dense icon="arrow_back" @click="$router.push('/')" /> -->
-					<q-form class="row q-py-sm">
-						<!-- <q-input dark filled color="green-13"
-							:type="iptsearch.type" dense
-							v-model="iptsearch.value"
-							autocomplete="off" capitalize="off"
-							ref="iptsearch" class="text-uppercase col ipt-search"
-						>
+				<q-card-section>
+					<q-form class="q-py-sm">
+						<q-select dark dense filled fill-input color="green-13"
+							use-input hide-selected class="text-uppercase" hide-dropdown-icon
+							input-debounce="0" option-value="id" option-label="code"
+							:value="autocom.model"
+							:options="autocom.options" 
+							@filter="autocomplete"
+							@input="locsOf"
+							:type="iptsearch.type" behavior="menu">
+							<template v-slot:no-option>
+								<q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
+							</template>
+
 							<template v-slot:prepend>
 								<q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
 							</template>
-							<template v-slot:append>
-								<q-btn flat size="sm" dense
-									icon="search" color="grey-6" 
-									type="submit" :disabled="cansearch"
-									:loading="iptsearch.processing"
-									@click="locsOf"
-								/>
+
+							<template v-slot:option="scope">
+								<q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+									<!-- <q-item-section avatar>
+										<q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
+									</q-item-section> -->
+									<q-item-section>
+										<q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
+										<q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
+									</q-item-section>
+								</q-item>
 							</template>
-						</q-input> -->
-						<q-select dark dense filled fill-input color="green-13"
-                                use-input hide-selected class="text-uppercase" hide-dropdown-icon
-                                input-debounce="0" option-value="id" option-label="code"
-                                :value="autocom.model"
-                                :options="autocom.options" 
-                                @filter="autocomplete"
-                                @input="locsOf"
-                                :type="iptsearch.type" behavior="menu" >
-                                <template v-slot:no-option>
-                                    <q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
-                                </template>
-
-                                <template v-slot:prepend>
-                                    <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-                                </template>
-
-                                <template v-slot:option="scope">
-                                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
-                                        <!-- <q-item-section avatar>
-                                            <q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
-                                        </q-item-section> -->
-                                        <q-item-section>
-                                            <q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
-                                            <q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
-                                        </q-item-section>
-                                    </q-item>
-                                </template>
-                            </q-select>
+						</q-select>
 					</q-form>
-				</q-toolbar>
+				</q-card-section>
 				<q-separator/>
 				<q-toolbar v-if="product" class="row justify-between">
 					<q-btn flat icon="close" class="col" @click="product=undefined"/>

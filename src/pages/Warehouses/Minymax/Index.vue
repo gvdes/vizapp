@@ -10,25 +10,34 @@
 			<q-toolbar>Ajuste</q-toolbar>
 			<q-separator/>
 			<q-card-section>
-				<q-form class="row">
-					<q-input dark filled color="green-13"
-						:type="iptsearch.type" dense
-						v-model="iptsearch.value"
-						autocomplete="off" capitalize="off"
-						ref="iptsearch" class="text-uppercase col ipt-search"
-					>
-						<template v-slot:prepend>
-							<q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-						</template>
-						<template v-slot:append>
-							<q-btn flat size="sm" @click="get"
-								icon="search" color="grey-6" 
-								type="submit" :disabled="cansearch"
-								:loading="iptsearch.processing" dense
-							/>
-						</template>
-					</q-input>
-				</q-form>
+				<q-select dark dense filled fill-input color="green-13" behavior="menu"
+					use-input hide-selected class="text-uppercase" hide-dropdown-icon
+					input-debounce="0" option-value="id" option-label="code"
+					:value="autocom.model"
+					:options="autocom.options" 
+					@filter="autocomplete"
+					@input="get" ref="iptsearch"
+					:type="iptsearch.type">
+					<template v-slot:no-option>
+						<q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
+					</template>
+
+					<template v-slot:prepend>
+						<q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
+					</template>
+
+					<template v-slot:option="scope">
+						<q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+							<!-- <q-item-section avatar>
+								<q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
+							</q-item-section> -->
+							<q-item-section>
+								<q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
+								<q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
+							</q-item-section>
+						</q-item>
+					</template>
+				</q-select>
 			</q-card-section>
 
 			<q-card-section v-if="setproduct.state">
@@ -40,16 +49,13 @@
 					<q-btn v-if="canset" rounded flat class="bg-darkl1 shadow-1" color="green-13" icon="done" :loading="setproduct.setting" @click="set"/>
 				</q-form>
 			</q-card-section>
-		</q-card>
-
-		<q-card flat class="bg-darkl1 q-mt-md">
-			<q-toolbar>Reportes</q-toolbar>
 		</q-card>		
     </q-page>
 </template>
 
 <script>
 import vizapi from '../../../API/warehouses'
+import dbproduct from '../../../API/Product'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
 export default{
 	components:{
@@ -62,12 +68,19 @@ export default{
 				processing:false,
 				type:"text",
 				icon:'fas fa-hashtag'
-            },
+			},
+			autocom:{model:null,options:undefined},
 			setproduct:{state:false,setting:false,code:undefined,min:0,max:0,currmin:0,currmax:0,stock:undefined,description:undefined}
         }
 	},
-	mounted(){ this.$refs.iptsearch.focus(); },
     methods:{
+		autocomplete (val, update, abort) {
+            let data={params:{ "code": val.trim() }};
+            dbproduct.autocomplete(data).then(success=>{
+                let resp = success.data;
+                update(() => { this.autocom.options=resp; });
+            }).catch(fail=>{ console.log(fail); });
+        },
         toogleIptSearch(){
 			switch (this.iptsearch.type) {
 				case "text": 
@@ -82,10 +95,11 @@ export default{
 
 			this.$refs.iptsearch.focus();
         },
-        get(){
+        get(opt){
+			console.log(opt);
             this.setproduct.state = false;
 			this.iptsearch.processing=true;
-			let codeart = this.iptsearch.value;
+			let codeart = opt.code;
 			let data = { params:{ code:codeart } }
 
 			vizapi.product(data).then(success=>{
