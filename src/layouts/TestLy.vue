@@ -1,7 +1,6 @@
 <template>
 	<q-layout view="hHh Lpr fFf"> <!-- Be sure to play with the Layout demo on docs -->
         <q-page-container class="bg-darkl0 exo text-grey-5">
-
             <q-page padding>
                 <div class="q-pa-md">
                     <div class="q-gutter-md row">
@@ -14,11 +13,13 @@
                             style="width: 250px; padding-bottom: 32px"
                             v-model="selection" hide-dropdown-icon
                         >
-                            <template v-slot:no-option>
+                            <template>
                                 <q-item>
                                     <q-item-section class="text-grey">No results</q-item-section>
                                 </q-item>
                             </template>
+
+							
 
                             <template v-slot:option="scope">
                                 <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">

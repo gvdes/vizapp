@@ -111,9 +111,9 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `Counter`,
-        short_name: `Counter`,
-        description: `Aplicacion para conteo rapido de mercancia`,
+        name: `Vizapp`,
+        short_name: `VizApp`,
+        description: `VizApp`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -178,7 +178,7 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'counter'
+        appId: 'vizapp'
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration

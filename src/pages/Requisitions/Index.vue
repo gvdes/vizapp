@@ -40,6 +40,7 @@
 						<q-select class="col" dark color="green-13" label="Tipo" v-model="neworder.type" :options="comboreqstypes" :disable="comboreqstypes.length==1"/>
 						<q-select class="col" dark color="green-13" label="Destino" v-model="neworder.dest" :options="combowkps"/>
 					</div>
+					<q-input dark color="green-13" label="notas" v-model="neworder.notes" />
 				</q-card-section>
 				<q-card-actions align="right">
 					<q-btn rounded flat color="green-13" class="bg-darkl1 shadow-1" icon="done" @click="tryCreate" :loading="wndSetOrder.creating" :disable="wndSetOrder.creating"/>
@@ -86,6 +87,7 @@ export default {
 			},
 			"wndSetOrder":{ "state":false, "creating":false },
 			"neworder":{
+				"notes":"",
 				"type":{"label":"Manual","value":1},
 				"dest":{"label":"CEDISSAP","value":1}
 			},
@@ -133,6 +135,7 @@ export default {
 			let data = new Object();
 			data._workpoint_to=this.neworder.dest.value;
 			data._type=this.neworder.type.value;
+			data.notes=this.neworder.notes;
 
 			if(this.neworder.type.value==2){
 				this.$q.loading.show({
