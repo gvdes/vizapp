@@ -44,6 +44,7 @@
 				<div class="text-h6">{{ setproduct.code }}</div>
 				<div>{{ setproduct.description }}</div>
 				<q-form class="row q-gutter-lg">
+					<q-input dense borderless readonly dark label="Piezas/caja" v-model="setproduct.ipack" class="col"/>
 					<q-input dense borderless readonly dark label="Stock" v-model="setproduct.stock" class="col"/>
 					<q-input dense dark color="green-13" type="number" label="Minimo" v-model="setproduct.min" min="0" class="col" autofocus/>
 					<q-input dense dark color="green-13" type="number" label="Maximo" v-model="setproduct.max" min="0" class="col"/>
@@ -71,7 +72,11 @@ export default{
 				icon:'fas fa-hashtag'
 			},
 			autocom:{model:null,options:undefined},
-			setproduct:{state:false,setting:false,code:undefined,min:0,max:0,currmin:0,currmax:0,stock:undefined,description:undefined}
+			setproduct:{
+				state:false,setting:false,code:undefined,
+				min:0,max:0,currmin:0,currmax:0,
+				ipack:undefined,stock:undefined,description:undefined
+			}
         }
 	},
     methods:{
@@ -110,6 +115,7 @@ export default{
 			vizapi.product(data).then(success=>{
 				let resp = success.data;
 				this.setproduct.stock = resp.stock;
+				this.setproduct.ipack = resp.pieces;
 				this.setproduct.min = resp.min;
 				this.setproduct.max = resp.max;
 				this.setproduct.currmin = resp.min;
