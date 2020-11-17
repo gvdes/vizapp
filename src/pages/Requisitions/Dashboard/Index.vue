@@ -52,7 +52,7 @@
                                 <div class="col">
                                     <div class="text-h4 text-white">{{order.id}}</div>
                                     <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div>{{order.from.name}}</div>
+                                    <div class="text-amber-13">{{order.notes}}</div>
                                     <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
                                 </div>
                                 <div class="text-center self-end">
@@ -80,7 +80,7 @@
                                 <div class="col">
                                     <div class="text-h4 text-white">{{order.id}}</div>
                                     <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div>{{order.from.name}}</div>
+                                    <div class="text-amber-13">{{order.notes}}</div>
                                     <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
                                 </div>
                                 <div class="text-center self-end">
@@ -108,7 +108,7 @@
                                 <div class="col">
                                     <div class="text-h4 text-white">{{order.id}}</div>
                                     <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div>{{order.from.name}}</div>
+                                    <div class="text-amber-13">{{order.notes}}</div>
                                     <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
                                 </div>
                                 <div class="text-center self-end">
@@ -136,7 +136,7 @@
                                 <div class="col">
                                     <div class="text-h4 text-white">{{order.id}}</div>
                                     <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div>{{order.from.name}}</div>
+                                    <div class="text-amber-13">{{order.notes}}</div>
                                     <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
                                 </div>
                                 <div class="text-center self-end">
@@ -164,7 +164,7 @@
                                 <div class="col">
                                     <div class="text-h4 text-white">{{order.id}}</div>
                                     <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div>{{order.from.name}}</div>
+                                    <div class="text-amber-13">{{order.notes}}</div>
                                     <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
                                 </div>
                                 <div class="text-center self-end">
