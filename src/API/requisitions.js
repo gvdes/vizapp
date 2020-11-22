@@ -3,7 +3,6 @@ import { vizapi } from 'boot/vizapi'
 export default{
     index(){
         return vizapi.get('/requisition').then(succcess=>{
-            // console.log(succcess);
             return succcess.data;
         }).catch(fail=>{
             console.log(fail);

@@ -36,9 +36,13 @@
 			<q-card class="bg-darkl0 text-grey-6 exo">
 				<q-toolbar class="text-white">Nuevo Pedido</q-toolbar>
 				<q-card-section>
-					<div class="row q-gutter-md">
+					<div class="row q-gutter-md items-center">
 						<q-select class="col" dark color="green-13" label="Tipo" v-model="neworder.type" :options="comboreqstypes" :disable="comboreqstypes.length==1"/>
 						<q-select class="col" dark color="green-13" label="Destino" v-model="neworder.dest" :options="combowkps"/>
+					</div>
+					<div class="row items-center q-gutter-md" v-if="neworder.type.value==3||neworder.type.value==4">
+						<q-select class="col" dark color="green-13" label="Origen" v-model="neworder.origin" :options="combowkpsorigin"/>
+						<q-input class="col" dark type="text" color="green-13" label="Folio" v-model="neworder.folio"/>
 					</div>
 					<q-input dark color="green-13" label="notas" v-model="neworder.notes" />
 				</q-card-section>
@@ -55,10 +59,11 @@
 </template>
 
 <script>
-import { date } from 'quasar'
-import dbreqs from '../../API/requisitions'
-import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
 import io from 'socket.io-client'
+import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
+import dbreqs from '../../API/requisitions'
+import dbwkps from '../../API/workpoint'
+import { date } from 'quasar'
 import { QSpinnerGrid } from 'quasar'
 
 export default {
@@ -89,16 +94,22 @@ export default {
 			"neworder":{
 				"notes":"",
 				"type":{"label":"Manual","value":1},
-				"dest":{"label":"CEDISSAP","value":1}
+				"dest":{"label":"CEDISSAP","value":1},
+				"origin":{"label":"---","value":null},
+				"folio:":undefined
 			},
 			sounds:{
                 moved:new Audio('sounds/moved.mp3')
-            },
+			},
+			workpoints:undefined
 		}
 	},
 	async beforeMount(){
+		console.log(this.auths);
 		this.index = await this.loadIndex();
 		this.tableOrders.data = this.index.requisitions;
+		this.workpoints = await this.loadWorkpoints();
+		console.log(this.workpoints);
 	},
 	async mounted(){
 		this.vsocket = await io(this.$vsocket);
@@ -126,6 +137,7 @@ export default {
 	},
 	methods:{
 		loadIndex(){ return dbreqs.index(); },
+		loadWorkpoints(){ return dbwkps.index(); },
 		open(id){
 			console.log("editar "+id);
 			this.$router.push('/pedidos/'+id);
@@ -136,7 +148,43 @@ export default {
 			data._workpoint_to=this.neworder.dest.value;
 			data._type=this.neworder.type.value;
 			data.notes=this.neworder.notes;
+			let cancreate = false;
 
+			switch (this.neworder.type.value) {
+				case 2:
+					this.$q.loading.show({
+						spinner: QSpinnerGrid,
+						spinnerColor: 'green-13',
+						message:"Tu pedido se esta generando, por favor espera mientras consultamos existencias"
+					});
+				break;
+
+				case 3: case 4:
+					data.folio=this.neworder.folio;
+					data.store=this.neworder.origin.value;
+					if(data.folio&&data.store){
+						cancreate=true;
+						this.$q.loading.show({
+							spinner: QSpinnerGrid,
+							spinnerColor: 'green-13',
+							message:`Buscando folio <b class="text-green-13">${data.folio}</b> en <b class="text-green-13">${data.folio}</b>, porfavor espera`,
+							html: true
+						});
+					}else{
+						cancreate=false;
+						this.$q.notify({
+							icon:'fas fa-exclamation-circle',
+							color:'red',
+							message:`Sucursal y folio son obligatorios`
+						});
+					}
+				break
+			
+				default: cancreate=true; this.wndSetOrder.creating=true; break;
+			}
+
+			console.log(cancreate);
+			console.log(data);
 			if(this.neworder.type.value==2){
 				this.$q.loading.show({
 					spinner: QSpinnerGrid,
@@ -145,38 +193,39 @@ export default {
 				});
 			}else{ this.wndSetOrder.creating=true; }
 
-			dbreqs.create(data).then(success=>{
-				let resp = success.data;
-				console.log(resp);
-				this.$q.loading.hide();
-				this.wndSetOrder.creating=false;
-				this.wndSetOrder.state=false;
+			if(cancreate){
+				dbreqs.create(data).then(success=>{
+					let resp = success.data;
+					console.log(resp);
+					this.$q.loading.hide();
+					this.wndSetOrder.creating=false;
+					this.wndSetOrder.state=false;
 
-				this.tableOrders.data.unshift(resp.order);
+					this.tableOrders.data.unshift(resp.order);
 
-				this.$q.notify({
-					message:`Pedido ${resp.order.id} creado!`,
-					color:"positive",
-					position:'center',
-					timeout:1500
+					this.$q.notify({
+						message:`Pedido ${resp.order.id} creado!`,
+						color:"positive",
+						position:'center',
+						timeout:1500
+					});
+
+					this.vsocket.emit('creatingorder',{profile:this.profile,order:resp.order});
+					this.$router.push('/pedidos/'+resp.order.id);
+				}).catch(fail=>{
+					console.log(fail);
+					this.$q.notify({
+						message:`Rayos!!, esto no ha funcionado!`,
+						icon:"bug",
+						color:"negative"
+					});
 				});
-
-				this.vsocket.emit('creatingorder',{profile:this.profile,order:resp.order});
-				this.$router.push('/pedidos/'+resp.order.id);
-			}).catch(fail=>{
-				console.log(fail);
-				this.$q.notify({
-					message:`Rayos!!, esto no ha funcionado!`,
-					icon:"bug",
-					color:"negative"
-				});
-			});
+			}
 		},
 	},
 	computed:{
-		profile:{
-			get(){ return this.$store.getters['Account/profile'] }
-		},
+		profile:{ get(){ return this.$store.getters['Account/profile']} },
+		auths:{ get(){ return this.$store.getters['Account/moduleauths']} },
 		appconnected(){ return this.vsocket ? this.vsocket.connected : false; },
 		combowkps(){
 			if(this.index){
@@ -185,11 +234,21 @@ export default {
 				});
 			}else{ return [];}
 		},
+		combowkpsorigin(){
+			if(this.workpoints){
+				return this.workpoints.filter(item=>{ 
+					return item.type.id>1&&item.alias!="VIZ";
+				}).map(item=>{
+					return {"label":item.alias,"value":item.id};
+				});
+			}else{ return [];}
+		},
 		comboreqstypes(){
 			if(this.index){
-				return this.index.types.map(item=>{
+				let options = this.index.types.map(item=>{
 					return {"label":item.name,"value":item.id};
 				});
+				return options;
 			}else{ return [];}
 		},
 		ordersday(){ if(this.tableOrders.data){ return this.tableOrders.data }else{return []} },

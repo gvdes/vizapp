@@ -3,6 +3,10 @@
         <q-header class="bg-darktransl0 text-grey-5 q-pa-sm">
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Tablero de Pedidos" :sockstate="appconnected"/>
+                <!-- <div class="q-pa-sm row q-gutter-sm justify-end items-center">
+                    <q-input type="number" dark dense color="green-13"/>
+                    <q-select use-chips v-model="filtdash.view" dark dense multiple :options="combowkps"/>
+                </div> -->
 			</q-card>
 		</q-header>
 
@@ -19,8 +23,8 @@
                                 <div class="row items-center">
                                     <div class="col">
                                         <div class="text-h4 text-white">{{props.row.id}}</div>
-                                        <div class="text-h6">{{props.row.from.alias}}</div>
-                                        <div>{{props.row.from.name}}</div>
+                                        <div class="text-h6 text-light-blue">{{props.row.from.alias}}</div>
+                                        <div class="text-amber-13">{{props.row.notes}}</div>
                                         <div class="q-pt-md text--2 text-uppercase text-grey-4">{{props.row.status.name}}</div>
                                     </div>
                                     <div class="text-center self-end">
@@ -37,6 +41,7 @@
                 <template v-slot:bottom></template>
             </q-table>
         </div>
+
         <div v-else class="row justify-between">
             <div class="col q-px-sm">
                 <q-card class="bg-none">
@@ -230,12 +235,14 @@
                 </q-card-section>
             </q-card>
         </q-dialog>
+
     </q-page>
 </template>
 
 <script>
 import { date } from 'quasar'
 import dbreqs from '../../../API/requisitions'
+import dbwkps from '../../../API/workpoint'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
 import io from 'socket.io-client'
 
@@ -245,6 +252,11 @@ export default {
     },
     data(){
         return {
+            filtdash:{
+                searcher:'',
+                view:[],
+                crude:null,
+            },
             vsocket:undefined,
             index:undefined,
             initpagination:{
@@ -268,7 +280,7 @@ export default {
     },
     async beforeMount(){        
         this.index = await dbreqs.dashboard();
-        console.log(this.index);
+        // this.filtdash.crude = await dbwkps.index();
     },
     async mounted(){
         //instanciar al socket
@@ -370,9 +382,18 @@ export default {
         },
     },
     computed: {
-        profile:{
-			get(){ return this.$store.getters['Account/profile'] }
-		},
+        // combowkps(){
+        //     if(this.filtdash.crude){
+        //         return this.filtdash.crude.map(item=>{
+        //             return {'label':item.alias,'value':'all'};
+        //         });
+        //     }else{
+        //         let all = {'label':'todo',value:'all'};
+        //         this.filtdash.view = [all];
+        //         return [all];
+        //     }
+        // },
+        profile:{ get(){ return this.$store.getters['Account/profile'] } },
 		appconnected(){ return this.vsocket ? this.vsocket.connected : false; },
         ordersdb(){
             if(this.index){ return this.index; }else{ return [];}
@@ -400,6 +421,9 @@ export default {
         },
         orderArchive(){//Pedido cancelado/expirado
             return this.ordersdb.filter(order=>(order.status.id==10||order.status.id==11));
+        },
+        noprinteds(){
+            return this.orderForSupply.filter(order=>order.printed);
         },
         ismobile(){ return this.$q.platform.is.mobile; },
         buildlog(){ return (order,data) =>{
@@ -477,3 +501,7 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+    .noprinted{ border: 2px solid #FE982A !important; }
+</style>

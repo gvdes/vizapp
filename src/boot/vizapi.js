@@ -3,8 +3,8 @@ import axios from 'axios'
 
 const vizapi = axios.create({
     // baseURL: 'http://vizapp.grupovizcarra.net:7001/vizapi/public',// build production
-    baseURL: 'http://vizappdev.grupovizcarra.net:7001/vizapidev/public',// build test
-    // baseURL: '192.168.1.160/vizapidev/public',//dev
+    // baseURL: 'http://vizappdev.grupovizcarra.net:7001/vizapidev/public',// build test
+    baseURL: 'http://192.168.1.243/vizapi/public',//dev
 });
 // para usar dentro de componentes
 Vue.prototype.$vizapi = vizapi

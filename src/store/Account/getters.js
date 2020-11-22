@@ -27,3 +27,7 @@ export function toolbarModule (state) {
 export function profile(state){
     return state.profile;
 }
+
+export function moduleauths(state){
+    return state.workin.module;
+}
