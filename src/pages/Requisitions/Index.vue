@@ -157,6 +157,7 @@ export default {
 						spinnerColor: 'green-13',
 						message:"Tu pedido se esta generando, por favor espera mientras consultamos existencias"
 					});
+					cancreate=true;
 				break;
 
 				case 3: case 4:
