@@ -26,31 +26,42 @@
         </q-header>
 
         <div class="row q-pt-sm q-pl-sm">
-            <div class="col-6" v-for="(prod,idxprod) in products" :key="idxprod">
+            <div class="col-xs-12 col-md-3" v-for="(prod,idxprod) in products" :key="idxprod">
                 <q-card class="bg-darkl1 q-mb-sm q-mr-sm" @click="selItem(prod)">
-                    <div class="q-pa-sm">
-                        <div class="row justify-between items-center">
-                            <span class="text-white">{{prod.code}}</span>
-                            <span class="text-grey-5 text-bold">{{prod.name}}</span>
+                    <div class="row items-center q-pt-md">
+                        <div class="q-px-lg">
+                            <q-img src="../../../assets/_defprod2.png" style="height: 50px; width: 50px"/>
+                        </div>
+                        <div class="text-white col">
+                            <div class="text-bold">{{prod.code}}</div>
+                            <div>{{prod.name}}</div>
+                            <div class="text--2 text-grey-5">{{prod.description}}</div>
                         </div>
                     </div>
-                    <div class="text--2 text-center q-pa-sm">{{prod.description}}</div>
-                    <div class="q-pb-sm row items-center">
-                        <div class="q-pa-sm">
-                            <q-img src="../../../assets/_defprod.png" style="height: 50px; width: 50px"/>
-                        </div>
-                        <div class="col q-pl-md">
-                            <div class="col">
-                                <span class="text-light-blue text-bold text-h6">{{prod.units.name}}s: {{prod.ordered.amount}}</span>
-                            </div>
-                            <div :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'" class="col text-h6" v-if="order.status.id>1">
-                                E: {{prod.ordered.stock}}
-                            </div>
-                        </div>
+                    
+                    <div class="col q-px-md">
+                        <q-markup-table flat dark class="bg-none">
+                            <thead>
+                                <tr>
+                                    <th>Sol. ({{prod.units.name}}s)</th>
+                                    <th>pzs / caj</th>
+                                    <th>Disp. (piezas)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="text-center">
+                                    <td>{{prod.ordered.amount}}</td>
+                                    <td>{{prod.pieces}}</td>
+                                    <td>
+                                        <span v-if="order.status.id>1" :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'">
+                                            {{prod.ordered.stock}}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </q-markup-table>
                     </div>
-                    <div class="row">
-                        <div class="col text-center text--2">{{prod.ordered.comments}}</div>
-                    </div>
+                    <q-banner rounded class="bg-orange text-white" v-if="prod.ordered.comments">{{prod.ordered.comments}}</q-banner>
                 </q-card>
             </div>
         </div>
@@ -81,7 +92,10 @@
                             <template v-slot:label>
                                 <div class="row text-amber-13">
                                     <q-icon :name="wndSetItem.art.units==1?'fas fa-box':'fas fa-puzzle-piece'"/>
-                                    <div class="q-pl-sm">{{wndSetItem.art.units.name}}s</div>
+                                    <div class="q-pl-sm">
+                                        {{wndSetItem.art.units.name}}s
+                                        <span v-if="wndSetItem.art.units.id==3"> ({{wndSetItem.art.pieces}} pzs / caj)</span>
+                                    </div>
                                 </div>
                             </template>
                         </q-input>
@@ -188,7 +202,7 @@
                     <template v-if="!tostock.state">
                         <span class="text-grey-4 q-pl-md">{{order.status.name}}</span>
                         <span>
-                            <q-btn flat color="green-13" icon="fas fa-binoculars" @click="showLog"/>
+                            <q-btn flat color="green-13" icon="history" @click="showLog"/>
                             <q-btn flat color="green-13" icon="fas fa-people-carry" @click="tostock.state=true" v-if="owner"/>
                         </span>
                     </template>

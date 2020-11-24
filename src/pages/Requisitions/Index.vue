@@ -184,16 +184,6 @@ export default {
 				default: cancreate=true; this.wndSetOrder.creating=true; break;
 			}
 
-			console.log(cancreate);
-			console.log(data);
-			if(this.neworder.type.value==2){
-				this.$q.loading.show({
-					spinner: QSpinnerGrid,
-        			spinnerColor: 'green-13',
-					message:"Tu pedido se esta generando, por favor espera mientras consultamos existencias"
-				});
-			}else{ this.wndSetOrder.creating=true; }
-
 			if(cancreate){
 				dbreqs.create(data).then(success=>{
 					let resp = success.data;
