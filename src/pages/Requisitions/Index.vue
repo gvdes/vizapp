@@ -54,6 +54,7 @@
 
 		<q-page-sticky position="bottom-right" :offset="[10, 5]">
 			<q-btn rounded flat class="bg-darkl1 shadow-1" color="green-13" icon="add" @click="wndSetOrder.state=true"/>
+			<q-btn flat :disabled="true" label="Ok!!"/>
         </q-page-sticky>
 	</q-page>
 </template>
