@@ -43,11 +43,13 @@
 			<q-card-section v-if="setproduct.state">
 				<div class="text-h6">{{ setproduct.code }}</div>
 				<div>{{ setproduct.description }}</div>
-				<q-form class="row q-gutter-lg">
-					<q-input dense borderless readonly dark label="Piezas/caja" v-model="setproduct.ipack" class="col"/>
-					<q-input dense borderless readonly dark label="Stock" v-model="setproduct.stock" class="col"/>
-					<q-input dense dark color="green-13" type="number" label="Minimo" v-model="setproduct.min" min="0" class="col" autofocus/>
-					<q-input dense dark color="green-13" type="number" label="Maximo" v-model="setproduct.max" min="0" class="col"/>
+				<div v-if="getting">Cargando datos...</div>
+				<q-form class="row q-gutter-lg" v-else>
+					<q-input borderless readonly dark label="Piezas/caja" v-model="setproduct.ipack" class="col"/>
+					<q-input borderless readonly dark label="Stock (Tienda)" v-model="setproduct.stock" class="col"/>
+					<q-input borderless readonly dark :label="`Stock (${setproduct.stock_stores.alias})`" v-model="setproduct.stock_stores.stock" class="col"/>
+					<q-input dark color="green-13" type="number" label="Minimo" v-model="setproduct.min" min="0" class="col" autofocus/>
+					<q-input dark color="green-13" type="number" label="Maximo" v-model="setproduct.max" min="0" class="col"/>
 					<q-btn v-if="canset" rounded flat class="bg-darkl1 shadow-1" color="green-13" icon="done" :loading="setproduct.setting" @click="set"/>
 				</q-form>
 			</q-card-section>
@@ -75,8 +77,10 @@ export default{
 			setproduct:{
 				state:false,setting:false,code:undefined,
 				min:0,max:0,currmin:0,currmax:0,
-				ipack:undefined,stock:undefined,description:undefined
-			}
+				ipack:undefined,stock:undefined,description:undefined,
+				stock_stores:undefined
+			},
+			getting:false
         }
 	},
     methods:{
@@ -102,18 +106,29 @@ export default{
 			this.$refs.iptsearch.focus();
         },
         get(opt){
+			this.setproduct = {
+				state:false,setting:false,code:undefined,
+				min:0,max:0,currmin:0,currmax:0,
+				ipack:undefined,stock:undefined,description:undefined,
+				stock_stores:undefined
+			};
+			this.getting=true;
 			console.log(opt);
             this.setproduct.state = false;
 			this.iptsearch.processing=true;
 			let codeart = opt.code;
-			let data = { params:{ code:codeart } }
+			let data = { "params":{ "code":codeart,"stocks": true } }
 
 			this.setproduct.code = opt.code;
 			this.setproduct.description = opt.description;
 			this.setproduct.state = true;
 
 			vizapi.product(data).then(success=>{
+				console.log(success);
 				let resp = success.data;
+
+				this.getting=false;
+				this.setproduct.stock_stores = {"alias":resp.stocks_stores[0].alias,"stock":parseFloat(resp.stocks_stores[0].stocks)};
 				this.setproduct.stock = resp.stock;
 				this.setproduct.ipack = resp.pieces;
 				this.setproduct.min = resp.min;
@@ -153,7 +168,8 @@ export default{
 		cansearch(){ return this.iptsearch.value.length>2 ? false : true; },
 		canset(){
 			return ((this.setproduct.min!=this.setproduct.currmin)||(this.setproduct.max!=this.setproduct.currmax)) ? true:false;
-		}
+		},
+		ismobile(){ return this.$q.platform.is.mobile; },
     }
 }
 </script>
