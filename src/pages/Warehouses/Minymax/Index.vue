@@ -29,7 +29,7 @@
 					<template v-slot:option="scope">
 						<q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
 							<q-item-section avatar>
-								<q-img :src="'http://192.168.1.86:6011/products/'+scope.opt.code+'.jpg'" @error="noload" style="border-radius:30%;width:50px;height:50px;"/>
+								<!-- <q-img :src="'http://192.168.1.86:6011/products/'+scope.opt.code+'.jpg'" @error="noload" style="border-radius:30%;width:50px;height:50px;"/> -->
 							</q-item-section>
 							<q-item-section>
 								<q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>

@@ -213,20 +213,18 @@ export default {
 
 			vizapi.product(data).then(success=>{
 				console.log(success.data);
-				let resp = success.data;
-
-				if(resp.id){ 
-					this.product = resp;
-				}else{
-					this.product = undefined;
-					this.$q.notify({
-						message:`Sin coincidencias para ${idart}`,
-						timeout:1500,
-						color:'negative',
-						position:'center',
-						icon:"fas fa-exclamation-triangle"
-					});
-				}
+				this.product = success.data;
+				// if(resp.id){ 
+				// }else{
+				// 	this.product = undefined;
+				// 	this.$q.notify({
+				// 		message:`Sin coincidencias para ${idart}`,
+				// 		timeout:1500,
+				// 		color:'negative',
+				// 		position:'center',
+				// 		icon:"fas fa-exclamation-triangle"
+				// 	});
+				// }
 				this.iptsearch.processing=false;
 			}).catch(fail=>{ console.log(fail); });
 		},
