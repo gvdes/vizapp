@@ -11,7 +11,9 @@ export function toolbarModule (state) {
         "minymax":"fas fa-balance-scale",// almacen/minymax
         "dashboard":"dashboard",// dashboard/dashboard
         "solicitud":"fas fa-clipboard-list",// dashboard/dashboard
-        "existencias":"grading"// almacen/existencias
+        "existencias":"grading",// almacen/existencias
+
+        "dashboard":"dashboard",//preventa/recepcion de ticket
     };
 
     let _prefix = state.workin.module.path;

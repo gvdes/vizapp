@@ -28,9 +28,9 @@
 
 					<template v-slot:option="scope">
 						<q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
-							<!-- <q-item-section avatar>
-								<q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
-							</q-item-section> -->
+							<q-item-section avatar>
+								<q-img :src="'http://192.168.1.86:6011/products/'+scope.opt.code+'.jpg'" @error="noload" style="border-radius:30%;width:50px;height:50px;"/>
+							</q-item-section>
 							<q-item-section>
 								<q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
 								<q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
@@ -41,19 +41,44 @@
 			</q-card-section>
 
 			<q-card-section v-if="setproduct.state">
-				<div class="text-h6">{{ setproduct.code }}</div>
-				<div>{{ setproduct.description }}</div>
-				<div v-if="getting">Cargando datos...</div>
-				<q-form class="row q-gutter-lg" v-else>
-					<q-input borderless readonly dark label="Piezas/caja" v-model="setproduct.ipack" class="col"/>
-					<q-input borderless readonly dark label="Stock (Tienda)" v-model="setproduct.stock" class="col"/>
-					<q-input borderless readonly dark :label="`Stock (${setproduct.stock_stores.alias})`" v-model="setproduct.stock_stores.stock" class="col"/>
-					<q-input dark color="green-13" type="number" label="Minimo" v-model="setproduct.min" min="0" class="col" autofocus/>
-					<q-input dark color="green-13" type="number" label="Maximo" v-model="setproduct.max" min="0" class="col"/>
-					<q-btn v-if="canset" rounded flat class="bg-darkl1 shadow-1" color="green-13" icon="done" :loading="setproduct.setting" @click="set"/>
+				<div class=" row no-wrap q-gutter-sm">
+					<div class="">
+						<q-img :src="`http://192.168.1.86:6011/products/${setproduct.code}.jpg`" style="overflow:hidden;width:120px;height:120px;border-radius:10px;">
+						</q-img>
+					</div>
+					<div class="">
+						<div class="text-h6">{{ setproduct.code }}</div>
+						<div>{{ setproduct.description }}</div>
+					</div>
+				</div>
+				<div v-if="getting" class="q-pt-md text-center text-green-13">
+					<q-spinner/> Cargando datos...</div>
+				<q-form v-else class="q-pt-md">
+					<div class="row q-gutter-lg">
+						<div class="col text-center">
+							<div class="text--1">Piezas x Caja</div>
+							<div class="text-light-blue-13 text-h5">{{setproduct.ipack}}</div>
+						</div>
+
+						<div class="col text-center">
+							<div class="text--1">Stock</div>
+							<div class="text-h5" :class="setproduct.stock>=1?'text-green-13':'text-negative'">{{setproduct.stock}}</div>
+						</div>
+
+						<div class="col text-center">
+							<div class="text--1">{{setproduct.stock_stores.alias}}</div>
+							<div class="text-h5" :class="setproduct.stock_stores.stock>=1?'text-green-13':'text-negative'">{{setproduct.stock_stores.stock}}</div>
+						</div>
+					</div>
+					<q-separator />
+					<div class="row q-gutter-lg">
+						<q-input dark color="green-13" type="number" label="Minimo" v-model="setproduct.min" min="0" class="col" autofocus/>
+						<q-input dark color="green-13" type="number" label="Maximo" v-model="setproduct.max" min="0" class="col"/>
+						<q-btn v-if="canset" rounded flat class="bg-darkl1 shadow-1" color="green-13" icon="done" :loading="setproduct.setting" @click="set"/>
+					</div>
 				</q-form>
 			</q-card-section>
-		</q-card>		
+		</q-card>
     </q-page>
 </template>
 
@@ -84,6 +109,9 @@ export default{
         }
 	},
     methods:{
+		noload(){
+			console.log("imagen no cargo");
+		},
 		autocomplete (val, update, abort) {
             let data={params:{ "code": val.trim() }};
             dbproduct.autocomplete(data).then(success=>{
@@ -116,8 +144,8 @@ export default{
 			console.log(opt);
             this.setproduct.state = false;
 			this.iptsearch.processing=true;
-			let codeart = opt.code;
-			let data = { "params":{ "code":codeart,"stocks": true } }
+			let idart = opt.id;
+			let data = { "params":{ "id":idart,"stocks": true } }
 
 			this.setproduct.code = opt.code;
 			this.setproduct.description = opt.description;
@@ -170,6 +198,10 @@ export default{
 			return ((this.setproduct.min!=this.setproduct.currmin)||(this.setproduct.max!=this.setproduct.currmax)) ? true:false;
 		},
 		ismobile(){ return this.$q.platform.is.mobile; },
+		imgcover(){ return route =>{
+			let _route = route ? '':'';
+			return 'http://192.168.1.86:6011/products/'+setproduct.code+'.jpg'
+		}}
     }
 }
 </script>

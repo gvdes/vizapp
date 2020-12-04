@@ -208,8 +208,8 @@ export default {
 			this.product=undefined;
 			this.iptsearch.processing=true;
 			console.log(`ubicaciones para ${opt.code}`);
-			let codeart = opt.code;
-			let data = { params:{ code:codeart } }
+			let idart = opt.id;
+			let data = { params:{ code:idart } }
 
 			vizapi.product(data).then(success=>{
 				console.log(success.data);
