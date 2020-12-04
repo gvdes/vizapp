@@ -209,7 +209,7 @@ export default {
 			this.iptsearch.processing=true;
 			console.log(`ubicaciones para ${opt.code}`);
 			let idart = opt.id;
-			let data = { params:{ code:idart } }
+			let data = { params:{ "id":idart } }
 
 			vizapi.product(data).then(success=>{
 				console.log(success.data);
@@ -220,7 +220,7 @@ export default {
 				}else{
 					this.product = undefined;
 					this.$q.notify({
-						message:`Sin coincidencias para ${codeart.toUpperCase()}`,
+						message:`Sin coincidencias para ${idart}`,
 						timeout:1500,
 						color:'negative',
 						position:'center',
