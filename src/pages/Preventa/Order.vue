@@ -3,7 +3,7 @@
 		<q-header elevated class="bg-darkl1 text-grey-5 q-pa-sm">
             <div class="row items-center">
                 <div class="col">
-                    <q-btn @click="$router.go(-1)" color="white" icon="arrow_back" dense flat/> <span class="q-pl-md">Pedido {{ordercatch.id}}</span>
+                    <q-btn @click="$router.push('/preventa')" color="white" icon="arrow_back" dense flat/> <span class="q-pl-md">Pedido {{ordercatch.id}}</span>
                 </div>
                 <div class="col text-right text-white">Miguel Angel Battio</div>
             </div>
@@ -25,7 +25,9 @@
 
         <q-footer class="bg-darkl1 text-white" elevated>
             <div class="q-pa-xs row justify-between items-center">
-                sdfsdf
+                <q-btn></q-btn>
+                <q-btn></q-btn>
+                <q-btn></q-btn>
             </div>
         </q-footer>
 	</q-page>
