@@ -80,6 +80,15 @@
 
                 <q-scroll-area style="height: 75vh; max-width: 100%;">
                     <q-card v-for="order in orderForSupply" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
+                        <q-banner dense class="text-white bg-red" v-if="order.printed==0">
+                            <template v-slot:avatar>
+                                <q-icon name="fas fa-exclamation-triangle" color="white" />
+                            </template>
+                            <span class="text--1">Rayos!!, este pedido no logro imprimirse :(</span>
+                            <!-- <template v-slot:action>
+                                <q-btn color="negative" icon="print" label="imprimir ahora"/>
+                            </template> -->
+                        </q-banner>
                         <q-card-section>
                             <div class="row items-center">
                                 <div class="col">
@@ -195,7 +204,7 @@
                         <div class="text-h3">{{wndLog.order.from.alias}} {{wndLog.order.id}}</div>
                         <div class="text-h6">
                             <div>{{ordersize(wndLog.order.products)[0]}}m {{ordersize(wndLog.order.products)[1]}}p</div>
-                            <q-btn icon="print" flat color="green-13" v-if="wndLog.order.printed" @click="reprint" :loading="print.state" :disable="print.state"/>
+                            <q-btn icon="print" flat color="green-13" v-if="wndLog.order" @click="reprint" :loading="print.state" :disable="print.state"/>
                         </div>
                     </div>
                     <q-timeline dark color="green-13">
@@ -312,6 +321,7 @@ export default {
             this.ordersdb[idx].log=data.order.log;
             this.ordersdb[idx].status=data.order.status;
             this.ordersdb[idx].products=data.order.products;
+            this.ordersdb[idx].printed=data.order.printed;
 
             switch (data.state.id) {
                 case 2: this.sounds.created.play(); break;
@@ -329,9 +339,9 @@ export default {
             dbreqs.reprint(data).then(success=>{
                 console.log(success);
                 this.print.state=false;
-            }).catch(fail=>{
-                console.log(fail);
-            });
+                let idx = this.ordersdb.findIndex(item=>{return item.id==this.wndLog.order.id});
+                this.ordersdb[idx].printed+=1;
+            }).catch(fail=>{ console.log(fail); });
         },
         showLog(orderid){
             let idx = this.ordersdb.findIndex(item=>{return item.id==orderid});
