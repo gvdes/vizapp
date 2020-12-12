@@ -21,7 +21,8 @@ module.exports = function (/* ctx */) {
       'ezcudo',
       'axios',
       'vizapi',
-      'vsocket'
+      'vsocket',
+      'vmoment'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css

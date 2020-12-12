@@ -30,6 +30,12 @@ const routes = [
 		]
 	},
 	{
+		path:'/cluster', component:() => import('layouts/ClusterLy.vue'),
+		children:[
+			{ path:'ventas', component:() => import('pages/Cluster/Sales.vue') }
+		]
+	},
+	{
 		path:'/qdev',
 		component: () => import('layouts/TestLy.vue'),
 	},

@@ -169,14 +169,14 @@ export default {
 		openSetWorkpoint(){ if(this.workpoints.length>1){ this.wndSetWorkpoint.state=true; } },
 		openSetModule(){ if(this.modules.length>1){ this.wndSetModule.state=true; } },
 		setWorkpoint(wkp){
+			console.log(wkp);
 			if(this.workIn.workpoint.id!=wkp.workpoint.id){
 				this.workIn.workpoint=wkp.workpoint;
 				this.modules = wkp.modules;
-				this.workIn.module = undefined;
-			}else{
-				console.log("seleccionaste el mismo (y-_-)y");
-			}
-			
+				// si existe solo un modulo para esta sucursal, lo autoselecciona
+				this.workIn.module = wkp.modules.length>1 ? undefined:this.modules[0];
+			}else{ console.log("seleccionaste el mismo (y-_-)y"); }
+			// cerrar la ventana
 			this.wndSetWorkpoint.state=false;
 		},
 		setModule(mdl){

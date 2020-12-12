@@ -228,7 +228,8 @@ export default {
 		combowkpsorigin(){
 			if(this.workpoints){
 				return this.workpoints.filter(item=>{ 
-					return item.type.id>1&&item.alias!="VIZ";
+					// return item.type.id>1&&item.alias!="VIZ";
+					return item.alias!="VIZ";
 				}).map(item=>{
 					return {"label":item.alias,"value":item.id};
 				});
