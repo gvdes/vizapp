@@ -65,9 +65,9 @@
 							<div class="text-h5" :class="setproduct.stock>=1?'text-green-13':'text-negative'">{{setproduct.stock}}</div>
 						</div>
 
-						<div class="col text-center">
-							<div class="text--1">{{setproduct.stock_stores.alias}}</div>
-							<div class="text-h5" :class="setproduct.stock_stores.stock>=1?'text-green-13':'text-negative'">{{setproduct.stock_stores.stock}}</div>
+						<div class="col text-center" v-for="(stockstore,idx) in setproduct.stock_stores" :key="idx">
+							<div class="text--1">{{stockstore.alias}}</div>
+							<div class="text-h5" :class="stockstore.stock>=1?'text-green-13':'text-negative'">{{stockstore.stocks}}</div>
 						</div>
 					</div>
 					<q-separator />
@@ -156,7 +156,8 @@ export default{
 				let resp = success.data;
 
 				this.getting=false;
-				this.setproduct.stock_stores = {"alias":resp.stocks_stores[0].alias,"stock":parseFloat(resp.stocks_stores[0].stocks)};
+				this.setproduct.stock_stores = resp.stocks_stores;
+				// {"alias":resp.stocks_stores[0].alias,"stock":parseFloat(resp.stocks_stores[0].stocks)};
 				this.setproduct.stock = resp.stock;
 				this.setproduct.ipack = resp.pieces;
 				this.setproduct.min = resp.min;

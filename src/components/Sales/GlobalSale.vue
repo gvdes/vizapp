@@ -48,7 +48,7 @@
                 <span v-else>$ {{formatted(totalSale)}}</span>
             </q-card-section>
             <q-card-section>
-                <apexchart width="97%" height="500px" type="bar" :options="options" :series="chartsales" />
+                <apexchart ref="chartglobalsale" width="97%" height="500px" type="bar" :options="chartOptions" :series="serieSales" />
             </q-card-section>
         </q-card>
     </div>
@@ -64,31 +64,33 @@ export default {
     props:{
         branches:{type:Array,default:[]},
         range:{type:Array},
-        loadingBalance:{type:Boolean,default:false}
+        loadingBalance:{type:Boolean,default:false},
+    },
+    updated(){
+        let xlabels = this.branches.map(item=>{ return item.alias; });
+        this.$refs.chartglobalsale.updateOptions({ labels: xlabels });
     },
     data() {
         return {
             date:{value:"t",label:"Diaria"},
             date_from:this.$moment().format('YYYY/MM/DD'),
             date_to:this.$moment().format('YYYY/MM/DD'),
-            chartsales:[
-                { name: 'Venta', data: [1,2,3,4,5,6,7,8,9] },
-                { name: 'Tickets', data: [10,20,30,40,50,60,70,80,90] }
-            ],
-            options:{
+            chartOptions:{
             	chart: { 
                     id:'global_sale', background:'none',
-                    theme:{mode:"dark"},
-            		events:{ dataPointSelection: (event, chartContext, config) => { this.tryOpenBranch(config.dataPointIndex); } }
+                    events:{ dataPointSelection: (event, chartContext, config) => { this.openBranch(config.dataPointIndex); } }
                 },
-                stroke:{ colors:['#222f3e'] },
-                colors:['#64DD18', '#33691E'],
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998]
-                },
+                theme:{palette:'palette6',mode:'dark' },
+                colors:['#3ae374'],
+                grid:{borderColor: '#57606f',},
+                xaxis:{categories:[]},
             	plotOptions: {
-            		bar:{ horizontal: true, columnWidth: '100%', barHeight: '90%' }
+                    bar:{ horizontal: true, columnWidth: '100%', barHeight: '90%' },
                 },
+                dataLabels:{
+                    formatter:(val,opts)=>{ return '$ '+this.formatted(val); },
+                    dropShadow: { enabled: true, left: 1, top: 1, opacity: 0.5}
+                }
             },
         }
     },
@@ -96,10 +98,14 @@ export default {
         emmitDays(){
             let ranges = {date_from:this.date_from,date_to:this.date_to};
             this.$emit("settingRanges",ranges);
+        },
+        openBranch(branch){
+            this.$emit("openBranch",branch);
         }
     },
     computed:{
         viewDate(){
+            console.log("%cEjecutando viewDate","font-size:1.5em;color:gold;");
             let label = '';
             let startOfYear = this.$moment().startOf('year').format('DD');//devuelve el dia del inicio del año
             let startOfMonth = this.$moment().startOf('month').format('DD');
@@ -135,7 +141,6 @@ export default {
             }
 
             this.date.value=='p'?null:this.emmitDays();
-
             return label;
         },
         fromOptions(){
@@ -159,9 +164,9 @@ export default {
         formatted(){
             return cant => { return new Intl.NumberFormat("es-MX").format(cant); }
         },
-        xlabels(){
-            // return this.branches.map(item=>{ console.log(item); return item.alias; });
-            return ['1','2','3','4','5','6','7','8','9'];
+        serieSales(){
+            let serieSale = this.branches.map(item=>{ return item.venta });
+            return [{ name: 'Venta', data: serieSale }]
         }
     },
 }
