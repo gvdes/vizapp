@@ -78,7 +78,7 @@
 
 						<div class="col text-center" v-for="(stockstore,idx) in setproduct.stock_stores" :key="idx">
 							<div class="text--1">{{stockstore.alias}}</div>
-							<div class="text-h5" :class="stockstore.stock>=1?'text-green-13':'text-negative'">{{stockstore.stocks}}</div>
+							<div class="text-h5" :class="stockstore.stocks>=1?'text-green-13':'text-negative'">{{stockstore.stocks}}</div>
 						</div>
 					</div>
 					<q-separator />
@@ -260,7 +260,7 @@ export default{
 		},
 		canBlock(){
 			let branch = this.profile.workpoint.id;
-			return (branch==1||branch==2||branch==13) ? true: false;
+			return (branch==1||branch==2||branch==13) ? true : false;
 		}
     }
 }
