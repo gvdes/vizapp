@@ -57,6 +57,7 @@
 								:loading="prodstate.block"
 								:options="labelstates"
 								label="Estatus"
+								v-if="canBlock"
 							/>
 						</div>
 					</div>
@@ -125,6 +126,9 @@ export default{
 		console.log("%cMontando minimos y maximos","font-size:1.5em; color:gold;");
 		this.dbLabelStates = await dbproduct.labelStates();
 		console.log(this.dbLabelStates);
+	},
+	mounted(){
+		console.log(this.profile);
 	},
     methods:{
 		noload(){
@@ -250,6 +254,13 @@ export default{
 				this.dbLabelStates.map(item=>{
 					return {value:item.id,label:item.name}
 				}) : [];
+		},
+		profile:{
+			get(){ return this.$store.getters['Account/profile']; }
+		},
+		canBlock(){
+			let branch = this.profile.workpoint.id;
+			return (branch==1||branch==2||branch==13) ? true: false;
 		}
     }
 }
