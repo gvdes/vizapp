@@ -12,14 +12,8 @@
 			:loadingBalance="loadingBalance"
 		/>
 
-			<global-resume :branches="branches" :averageSale="averageSale"/>
-		<!-- <template v-if="!usedBranch">
-		</template>
-
-		<template v-else>
-			<branch-resume :branch="usedBranch"/>
-		</template> -->
-
+		<branch-resume v-if="usedBranch.main" :rangesData="ranges_data" :branch="usedBranch" @closeBranch="usedBranch.main=null"/>
+		<global-resume v-else :branches="branches" :averageSale="averageSale" :paymentMethods="paymentMethods"/>
 	</q-page>
 </template>
 
@@ -28,7 +22,7 @@ import cluster from '../../API/cluster'
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
 import GlobalSale from '../../components/Sales/GlobalSale.vue'
 import GlobalResume from '../../components/Sales/GlobalResume.vue'
-import BranchResume from '../../components/Sales/GlobalResume.vue'
+import BranchResume from '../../components/Sales/BranchResume.vue'
 export default {
   // name: 'PageName',
 	data() {
@@ -43,7 +37,7 @@ export default {
 			],
 			ranges_data:undefined,
 			loadingBalance:false,
-			usedBranch:undefined
+			usedBranch:{state:false,main:null,complements:null},
 		}
 	},
 	components:{
@@ -61,13 +55,14 @@ export default {
 		},
 		openBranch(id){
 			console.log(id);
-			this.usedBranch = this.branches[id];
+			this.usedBranch.main = this.branches[id];
+			
 		},
 		async indexSales(data){ 
 			this.loadingBalance=true;
 			this.index = await cluster.index(data); console.log(this.index);
 			this.loadingBalance=false;
-		}
+		},
 	},
 	computed:{
 		branches(){
@@ -77,6 +72,10 @@ export default {
 		averageSale(){
 			if(this.index){ return this.index.ticket_promedio; }
 			return 0;
+		},
+		paymentMethods(){
+			if(this.index){ return this.index.metodos_de_pago; }
+			return [];
 		}
 	}
 }

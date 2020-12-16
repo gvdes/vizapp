@@ -9,5 +9,13 @@ export default{
         }).catch(fail=>{
             console.log(fail);
         });
+    },
+    openBranch(data){
+        return vizapi.post('/ventas/tienda',data).then(success=>{
+            let resp = success.data;
+            return resp;
+        }).catch(fail=>{
+            console.log(fail);
+        });
     }
 }

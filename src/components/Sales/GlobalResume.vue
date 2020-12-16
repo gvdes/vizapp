@@ -4,13 +4,6 @@
             <span class="text-h6">Resumen Global</span>
         </div>
         <div class="row items-start justify-center q-gutter-md">
-            <!-- <q-card class="bg-darkl1 text-grey-6">
-                <q-card-section>
-                    <div class="text-h4 text-green-13">$ {{formatcant(labelSale)}}</div>
-                    <div class="text-right text-caption">Venta Total</div>
-                </q-card-section>
-            </q-card> -->
-
             <q-card class="bg-darkl1 text-grey-6">
                 <q-card-section>
                     <div class="text-h4 text-light-blue-13">{{formatcant(labelTickets)}}</div>
@@ -30,17 +23,17 @@
                 </q-card-section>
                 <q-separator />
                 <div class="q-py-md">
-                    <apexchart ref="chart_average" type="donut" :options="chartAverageOptions" :series="averageSeries" />
+                    <apexchart ref="chart_average" type="bar" :options="chartAverageOptions" :series="averageSeries" />
                 </div>
             </q-card>
 
             <q-card class="bg-darkl1 text-grey-6">
                 <q-card-section>
-                    <div class="text-caption">Metodos de Pago</div>
+                    <div class="text-caption">Fromas de Pago</div>
                 </q-card-section>
                 <q-separator />
                 <div class="q-py-md">
-                    <apexchart ref="chart_average" type="donut" :options="chartAverageOptions" :series="averageSeries" />
+                    <apexchart ref="chart_paymethods" type="donut" :options="chartPayMethodsOptions" :series="payMethodsSeries" />
                 </div>
             </q-card>
         </div>
@@ -52,20 +45,25 @@ import apexcharts from 'vue-apexcharts'
 export default {
     components:{apexchart:apexcharts},
     props:{
-        branches:{type:Array,default:[]},
-        averageSale:{type:Number,default:0}
+        branches:{type:Array,default:()=>([])},
+        averageSale:{type:Number,default:0},
+        paymentMethods:{type:Array,default:()=>([])}
     },
     updated() {
         console.log("EL COMPONENTE DONUT HA SIDO MODIFICADO!!!");
-        let operations_xlabels = this.branches.map(item=>{ return item.alias; });
-        this.$refs.chart_operations.updateOptions({ labels: operations_xlabels });
-        this.$refs.chart_average.updateOptions({ labels: operations_xlabels });
+        let branchXlabels = this.branches.map(item=>{ return item.alias; });
+            this.$refs.chart_operations.updateOptions({ labels: branchXlabels });
+            this.$refs.chart_average.updateOptions({ labels: branchXlabels });
+
+        let paymethodsLabels = this.paymentMethods.map(item=>{ return item.alias; });
+            this.$refs.chart_paymethods.updateOptions({ labels: paymethodsLabels });
     },
     data() {
         return {
             chartOperationsOptions:{
                 chart: { type: 'donut',background:'none' },
-                theme:{mode:'dark',palette:'palette2'},
+                toolbar: { show: false },
+                theme:{mode:'dark',palette:'palette10'},
                 stroke:{colors:['#57606f'],width:1},
                 labels: [],
                 dataLabels: {
@@ -73,14 +71,29 @@ export default {
                 },
             },
             chartAverageOptions:{
+                chart: { type: 'bar',background:'none' },
+                toolbar: { show: false },
+                theme:{mode:'dark',palette:'palette10'},
+                grid:{borderColor: '#57606f',},
+                xaxis:{categories:[]},
+                plotOptions: {
+                    bar:{ horizontal: true, columnWidth: '100%', barHeight: '90%' }
+                },
+                dataLabels:{
+                    formatter:(val,opts)=>{ return '$ '+this.formatcant(val); },
+                    dropShadow: { enabled: true, left: 1, top: 1, opacity: 0.5}
+                }
+            },
+            chartPayMethodsOptions:{
                 chart: { type: 'donut',background:'none' },
+                toolbar: { show: false },
                 theme:{mode:'dark',palette:'palette10'},
                 stroke:{colors:['#57606f'],width:1},
                 labels: [],
-                dataLabels: {
-                    formatter:(val, opts) => { return '$ '+this.formatcant(opts.w.config.series[opts.seriesIndex]) },
-                },
-            }
+                tooltip:{
+                    y:{ formatter: val => { return '$ '+this.formatcant(val) } }
+                }
+            },
         }
     },
     computed:{
@@ -97,7 +110,11 @@ export default {
             return this.branches.map(item=>{ return item.tickets });
         },
         averageSeries(){
-            return this.branches.map(item=>{ return item.ticket_promedio });
+            let average = this.branches.map(item=>{ return item.ticket_promedio });
+            return [{ name: 'Ticket Promedio', data: average }]
+        },
+        payMethodsSeries(){
+            return this.paymentMethods.map(item=>{ return item.total });
         }
     }
 }

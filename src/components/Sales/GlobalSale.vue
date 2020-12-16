@@ -48,7 +48,7 @@
                 <span v-else>$ {{formatted(totalSale)}}</span>
             </q-card-section>
             <q-card-section>
-                <apexchart ref="chartglobalsale" width="97%" height="500px" type="bar" :options="chartOptions" :series="serieSales" />
+                <apexchart ref="chartglobalsale" width="97%" height="400px" type="bar" :options="chartOptions" :series="serieSales" />
             </q-card-section>
         </q-card>
     </div>
@@ -80,6 +80,10 @@ export default {
                     id:'global_sale', background:'none',
                     events:{ dataPointSelection: (event, chartContext, config) => { this.openBranch(config.dataPointIndex); } }
                 },
+                tooltip:{
+                    y:{ formatter: val => { return '$'+this.formatted(val) } }
+                },
+                toolbar: { show: false },
                 theme:{palette:'palette6',mode:'dark' },
                 colors:['#3ae374'],
                 grid:{borderColor: '#57606f',},

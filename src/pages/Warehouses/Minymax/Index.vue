@@ -49,6 +49,16 @@
 					<div class="">
 						<div class="text-h6">{{ setproduct.code }}</div>
 						<div>{{ setproduct.description }}</div>
+						<div>
+							<q-select dense dark color="green-13"
+								v-model="prodstate.val"
+								@input="updateState"
+								:disable="prodstate.block"
+								:loading="prodstate.block"
+								:options="labelstates"
+								label="Estatus"
+							/>
+						</div>
 					</div>
 				</div>
 				<div v-if="getting" class="q-pt-md text-center text-green-13">
@@ -100,13 +110,21 @@ export default{
 			},
 			autocom:{model:null,options:undefined},
 			setproduct:{
+				id:null,
 				state:false,setting:false,code:undefined,
 				min:0,max:0,currmin:0,currmax:0,
 				ipack:undefined,stock:undefined,description:undefined,
 				stock_stores:undefined
 			},
-			getting:false
+			getting:false,
+			dbLabelStates:null,
+			prodstate:{val:null,state:false,block:false}
         }
+	},
+	async beforeMount() {
+		console.log("%cMontando minimos y maximos","font-size:1.5em; color:gold;");
+		this.dbLabelStates = await dbproduct.labelStates();
+		console.log(this.dbLabelStates);
 	},
     methods:{
 		noload(){
@@ -132,9 +150,31 @@ export default{
 			}
 
 			this.$refs.iptsearch.focus();
-        },
+		},
+		updateState(){
+			this.prodstate.block=true;
+
+			let data = {"_product":this.setproduct.id,"_status":this.prodstate.val.value}
+
+			dbproduct.updateState(data).then(success=>{
+				let resp = success.data;
+				console.log(resp);
+				this.prodstate.block=false;
+
+				this.$q.notify({
+					message:`<b>${this.setproduct.code}</b> actualizado a <b>${this.prodstate.val.label}</b>`,
+					timeout:2000, color:'positive', position:'center',
+					icon:"done",
+					html:true
+				});
+			}).catch(fail=>{
+				console.log(fail);
+			});
+
+		},
         get(opt){
 			this.setproduct = {
+				id:null,
 				state:false,setting:false,code:undefined,
 				min:0,max:0,currmin:0,currmax:0,
 				ipack:undefined,stock:undefined,description:undefined,
@@ -156,8 +196,9 @@ export default{
 				let resp = success.data;
 
 				this.getting=false;
+				this.prodstate.val = {value:resp.status.id,label:resp.status.name};
+				this.setproduct.id = resp.id;
 				this.setproduct.stock_stores = resp.stocks_stores;
-				// {"alias":resp.stocks_stores[0].alias,"stock":parseFloat(resp.stocks_stores[0].stocks)};
 				this.setproduct.stock = resp.stock;
 				this.setproduct.ipack = resp.pieces;
 				this.setproduct.min = resp.min;
@@ -165,6 +206,7 @@ export default{
 				this.setproduct.currmin = resp.min;
 				this.setproduct.currmax = resp.max;
 				this.iptsearch.processing=false;
+
 			}).catch(fail=>{
                 this.$q.notify({
 					message:"Raios!!, esto no ha funcionado!!",
@@ -202,7 +244,13 @@ export default{
 		imgcover(){ return route =>{
 			let _route = route ? '':'';
 			return 'http://192.168.1.86:6011/products/'+setproduct.code+'.jpg'
-		}}
+		}},
+		labelstates(){
+			return this.dbLabelStates ? 
+				this.dbLabelStates.map(item=>{
+					return {value:item.id,label:item.name}
+				}) : [];
+		}
     }
 }
 </script>
