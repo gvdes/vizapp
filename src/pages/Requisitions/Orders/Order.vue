@@ -178,15 +178,19 @@
                                 </template>
 
                                 <template v-slot:option="scope">
-                                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
-                                        <!-- <q-item-section avatar>
-                                            <q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
-                                        </q-item-section> -->
-                                        <q-item-section>
-                                            <q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
-                                            <q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
-                                        </q-item-section>
-                                    </q-item>
+                                    <div class="text-grey-7 q-pa-sm" v-if="scope.opt.status.id>1" v-bind="scope.itemProps">
+                                        <div class="text-bold">
+                                            {{scope.opt.code}} - {{scope.opt.name}}
+                                            <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" />
+                                        </div>
+                                        <div caption class="text--2">{{ scope.opt.description }}</div>
+                                    </div>
+                                    <div v-else class="q-pa-sm q-mb-sm" v-bind="scope.itemProps" v-on="scope.itemEvents">
+                                        <div class="text-body1 text-bold">
+                                            {{scope.opt.code}} - {{scope.opt.name}}
+                                        </div>
+                                        <div caption class="text--2">{{ scope.opt.description }}</div>
+                                    </div>
                                 </template>
                             </q-select>
                             <q-btn flat color="green-13" icon="done" @click="nextstep.value='confirm'" :disable="!products.length"/>
