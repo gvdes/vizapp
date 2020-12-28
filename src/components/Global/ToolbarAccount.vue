@@ -12,16 +12,18 @@
             <q-btn rounded dense :color="sockstate?'green-13':''">
                 <q-img :src="picnick" spinner-color="white" style="height: 30px; width: 30px"/>
 
-                <q-menu
+                <q-menu dark
                     transition-show="flip-right"
                     transition-hide="flip-left"
                 >
-                    <q-list style="min-width: 150px" class="text-grey-8 exo">
-                        <q-item>
+                    <q-list style="min-width: 150px" class="exo text-grey-6">
+                        <q-item clickable @click="$router.push('/perfil');">
+                            <q-item-section avatar><q-icon name="fas fa-user-astronaut" /></q-item-section>
                             <q-item-section>Hola {{session.me.nick}}</q-item-section>
                         </q-item>
                         <q-separator/>
                         <q-item clickable @click="sessionDestroy">
+                            <q-item-section avatar><q-icon name="meeting_room" /></q-item-section>
                             <q-item-section>Salir</q-item-section>
                         </q-item>
                     </q-list>
@@ -35,7 +37,7 @@
     export default{
         name: 'ToolbarAccount',
         props:{ 
-            title:{type:String, required:true},
+            title:{type:String, default:''},
             iconlauncher:{ type:Boolean, default:true },
             sockstate:{ type:Boolean, default:false },
         },

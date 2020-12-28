@@ -62,6 +62,7 @@ export default {
 			this.loadingBalance=true;
 			this.index = await cluster.index(data); console.log(this.index);
 			this.loadingBalance=false;
+
 		},
 	},
 	computed:{

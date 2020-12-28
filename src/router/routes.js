@@ -36,6 +36,12 @@ const routes = [
 		]
 	},
 	{
+		path:'/perfil', component:() => import('layouts/ProfileLy.vue'),
+	},
+	{
+		path:'/etiquetas', component:() => import('layouts/LabelsLy.vue'),
+	},
+	{
 		path:'/qdev',
 		component: () => import('layouts/TestLy.vue'),
 	},

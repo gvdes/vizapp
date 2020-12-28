@@ -36,12 +36,16 @@
                     </div>
                 </div>
                 <div class="text-h6">{{selection}}</div>
+                <div>
+                    <q-btn label="PDF" @click="createPDF"/>
+                </div>
             </q-page>
 		</q-page-container>
 	</q-layout>
 </template>
 
 <script>
+import { jsPDF } from "jspdf";
 export default {
     data () {
         return {
@@ -66,7 +70,15 @@ export default {
                 this.options = this.stoptions.filter(v => v.label.toLocaleLowerCase().indexOf(needle) > -1)
             })
         },
-        setModel(val) { this.model = val }
+        setModel(val) { this.model = val },
+        createPDF(){
+            const doc = new jsPDF('p', 'pt', 'letter');
+            doc.text('Hello world!')
+            // doc.text(20, 30, 'This is client-side Javascript, pumping out a PDF.')
+            // doc.addPage()
+            // doc.text(20, 20, 'Do you like that?')
+            doc.save("a4.pdf")
+        }
     }
 }
 </script>
