@@ -123,20 +123,7 @@
 						</q-card-section>
 						<q-card-section>
 							<div class="row items-start text-white">
-								<!-- EL producto es OFERTA!!! -->
-								<div v-if="label.type=='off'" class="col text-center">
-									<div>OFERTA</div>
-									<div>{{label.usedPrices[0].price}}</div>
-								</div>
-								<!-- Solo pintar menudeo y mayoreo -->
-								<div v-else-if="label.type=='may'" class="col text-center" v-for="(price,idx) in label.usedPrices" :key="idx">
-									<template v-if="price.id<3">
-										<div>{{price.alias}}</div>
-										<div>{{price.price}}</div>
-									</template>
-								</div>
-								<!-- Etiqueta estandard -->
-								<div v-else class="col text-center" v-for="(price,idx) in label.usedPrices" :key="idx">
+								<div class="col text-center" v-for="(price,idx) in label.usedPrices" :key="idx">
 									<div>{{price.alias}}</div>
 									<div>{{price.price}}</div>
 								</div>
@@ -239,13 +226,13 @@ export default {
 				});
 			}else{
 				console.log("Agregar Etiqueta");
-				newLabel.prices.map(item=>{
-					item.used = this.usingPrices.includes(item.id) ? true:false;
-					return item;
-				});
-				newLabel.usedPrices = newLabel.prices.filter(item=>{ return item.used });
+				let _labelType = this.labelType(newLabel.prices);
+				console.log(_labelType);
+
 				newLabel.copies = 1;
-				newLabel.type = this.labelType(newLabel.prices);
+				newLabel.type =_labelType.type;
+				newLabel.usedPrices =_labelType.prices;
+
 				this.labelsPage.unshift(newLabel);
 				this.updateCacheLabels();
 			}
@@ -324,23 +311,35 @@ export default {
 					color:'positive'
 				});
 				this.wndGenPdf.state = false;
-			}).catch(fail=>{
-				console.log(fail);
-			})
+			}).catch(fail=>{ console.log(fail); });
 		},
-		labelType(prices){
-			let pricesToOffer = prices.filter(item=>{return item.id==1||item.id==2||item.id==3});//precios para validar oferta
-			let pricesToMay = prices.filter(item=>{return item.id==2||item.id==3});//precios pra poner solo mayoreo
+		labelType(_prices){
+			let natprices = [..._prices];
+			let prices = [..._prices];			
+
+			let pricesToOffer = natprices.filter(item=>{return item.id==1||item.id==2||item.id==3});//precios para validar oferta
+			let pricesToMay = natprices.filter(item=>{return item.id==2||item.id==3});//precios pra poner solo mayoreo
 
 			let valOffer = pricesToOffer.reduce((amm,price)=>amm+price.price,0)/3;//sumatoria de los precios del producto
 
 			if(valOffer==pricesToOffer[0].price){
 				console.log("Es oferta");
-				return "off";
+				let _prices_ = {
+					alias:'OFERTA',
+					id:0,
+					name:'Oferta',
+					price:prices[0].price,
+					used:true
+				};
+				return {type:"off",prices:[_prices_]};
 			}else if(pricesToMay[0].price==pricesToMay[1].price){
 				console.log("Es Mayoreo");
-				return "may";
-			}else{console.log("Es standard"); return "std";}
+				return {type:"may",prices:pricesToMay};
+			}else{
+				console.log("Es standard");
+				prices.map(item=>{ item.used = this.usingPrices.includes(item.id) ? true:false; return item; });
+				return {type:"std",prices:prices.filter(item=>{ return item.used })}
+			}
 		},
 		triggerInputFile(){ this.$refs.blobfile.click(); },
 		readFile(){
