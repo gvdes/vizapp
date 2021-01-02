@@ -104,6 +104,8 @@ export default {
             this.$emit("settingRanges",ranges);
         },
         openBranch(branch){
+            console.log("emitiendo sucursal");
+            console.log(branch);
             this.$emit("openBranch",branch);
         }
     },

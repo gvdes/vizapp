@@ -2,7 +2,7 @@
     <div>
         <div class="row justify-center q-gutter-md items-center q-my-lg text-h6">
             <span>Resumen</span>
-            <span class="text-green-13">{{branch.alias}}</span>
+            <span class="text-green-13">{{branch.main.alias}}</span>
             <q-btn icon="fas fa-broom" flat color="green-13" dense rounded @click="closeBranch"/>
         </div>
 
@@ -10,15 +10,22 @@
             <div>
                 <q-card class="bg-darkl1 text-grey-6 q-mb-md">
                     <q-card-section>
-                        <div class="text-h4 text-green-13">$ {{formatcant(branch.venta)}}</div>
+                        <div class="text-h4 text-green-13">$ {{formatcant(branch.main.venta)}}</div>
                         <div class="text-caption">Venta</div>
+                    </q-card-section>
+                </q-card>
+
+                <q-card class="bg-darkl1 text-grey-6 q-mb-md">
+                    <q-card-section>
+                        <div class="text-h4 text-light-blue-13">{{formatcant(branch.main.tickets)}}</div>
+                        <div class="text-caption">Operaciones</div>
                     </q-card-section>
                 </q-card>
 
                 <q-card class="bg-darkl1 text-grey-6">
                     <q-card-section>
-                        <div class="text-h4 text-light-blue-13">{{formatcant(branch.tickets)}}</div>
-                        <div class="text-caption">Operaciones</div>
+                        <div class="text-h4 text-light-blue-13">$ {{formatcant(branch.main.ticket_promedio)}}</div>
+                        <div class="text-caption">Ticket Promedio</div>
                     </q-card-section>
                 </q-card>
             </div>
@@ -41,15 +48,14 @@
             </div>
         </template>
         <template v-else>
-            <div>
-                LISTO!!!!
-            </div>
+            <div>{{this.tienda}}</div>
         </template>
 
     </div>
 </template>
 <script>
 import apexcharts from 'vue-apexcharts'
+import cluster from '../../API/cluster'
 export default {
     components:{
         apexchart:apexcharts
@@ -70,31 +76,47 @@ export default {
                 tooltip:{
                     y:{ formatter: val => { return '$ '+this.formatcant(val) } }
                 }
-            }
+            },
+            tienda:undefined
         }
     },
+    beforeMount() {
+        console.log("Cargando componente de resumen de tienda");
+    },
+    mounted(){
+        // console.log("Componente montado...!!!");
+        // console.log(this.branch);
+
+        // let paymethodsLabels = this.branch.main.metodos_pago.map(item=>{ return item.alias; });
+        //     this.$refs.chart_paymethods.updateOptions({ labels: paymethodsLabels });
+        //     this.getBranch();
+    },
     updated(){
-        console.log("El modelo ha cambiado!!!");
-        let paymethodsLabels = this.branch.metodos_pago.map(item=>{ return item.alias; });
+        console.log("El componente ha cambiado!!!");
+        console.log(this.branch);
+
+        let paymethodsLabels = this.branch.main.metodos_pago.map(item=>{ return item.alias; });
             this.$refs.chart_paymethods.updateOptions({ labels: paymethodsLabels });
+            this.getBranch();
     },
     methods: {
         closeBranch(){ this.$emit("closeBranch"); },
         async getBranch(){
             console.log("Obtener datos de la tienda");
-            this.loadingComponent=true;
+            this.$q.loading.show({ message:'Cargando datos, espera...' });
 
-            // let data = {
-            //     "_workpoint" : this.branch.id,
-            //     "date_from": this.rangesData.date_from,
-            //     "date_to": this.rangesData.date_to
-            // }
+            let data = {
+                "_workpoint" : this.branch.main.id,
+                "date_from": this.rangesData.date_from,
+                "date_to": this.rangesData.date_to
+            }
 
-            // console.log("Datos a enviar...");
-            // console.log(data);
+            console.log("Datos a enviar...");
+            console.log(data);
 
-            // this.tienda = cluster.openBranch(data);
-            //     console.log(this.tienda);
+            this.tienda = await cluster.openBranch(data);
+            this.$q.loading.hide();
+            console.log(this.tienda);
         }
     },
     computed:{
@@ -102,7 +124,7 @@ export default {
             return cant => { return new Intl.NumberFormat("es-MX").format(cant); }
         },
         payMethodsSeries(){
-            return this.branch.metodos_pago.map(item=>{ return item.total });
+            return this.branch.main.metodos_pago.map(item=>{ return item.total });
         }
     }
 }

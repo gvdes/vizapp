@@ -96,7 +96,7 @@
 								</template>
 							</q-btn-group>
 						</div>
-						<input type="file" ref="blobfile" id="blobfile" @input="readFile" hidden accept=".xlsx"/>
+						<input type="file" ref="blobfile" id="blobfile" @input="readFile" hidden accept=".xlsx,.xls"/>
 					</div>
 				</div>
 			</q-scroll-area>
@@ -118,6 +118,7 @@
 									<div class="text-h5">{{label.code}}</div>
 									<div class="text-bold">{{label.name}}</div>
 									<div class="text--2">{{label.description}}</div>
+									<div class="text-bold" v-if="useIpack">{{label.pieces}} pzs</div>
 								</div>
 							</div>
 						</q-card-section>
@@ -226,7 +227,7 @@ export default {
 				});
 			}else{
 				console.log("Agregar Etiqueta");
-				let _labelType = this.labelType(newLabel.prices);
+				let _labelType = this.labelType(newLabel.prices,newLabel.pieces);
 				console.log(_labelType);
 
 				newLabel.copies = 1;
@@ -290,7 +291,8 @@ export default {
 					"description": item.description,
 					"type": item.type,
 					"copies": item.copies,
-					"prices": item.usedPrices
+					"prices": item.usedPrices,
+					"pieces": item.pieces
 				}
 			});
 
@@ -313,30 +315,39 @@ export default {
 				this.wndGenPdf.state = false;
 			}).catch(fail=>{ console.log(fail); });
 		},
-		labelType(_prices){
+		labelType(_prices,ipack){
 			let natprices = [..._prices];
 			let prices = [..._prices];			
 
-			let pricesToOffer = natprices.filter(item=>{return item.id==1||item.id==2||item.id==3});//precios para validar oferta
-			let pricesToMay = natprices.filter(item=>{return item.id==2||item.id==3});//precios pra poner solo mayoreo
+			let pricesToOffer = natprices.filter(item=>{return item.id==1||item.id==2||item.id==3||item.id==4});//precios para validar oferta
+			let pricesToMayMen = natprices.filter(item=>{return item.id==2||item.id==3||item.id==4});//precios pra poner solo mayoreo
 
-			let valOffer = pricesToOffer.reduce((amm,price)=>amm+price.price,0)/3;//sumatoria de los precios del producto
+			let avgOffer = pricesToOffer.reduce((amm,price)=>amm+price.price,0)/4;//sumatoria de los precios del producto
+			let avgMenMay = pricesToMayMen.reduce((amm,price)=>amm+price.price,0)/3;//sumatoria de los precios del producto
 
-			if(valOffer==pricesToOffer[0].price){
+			if(avgOffer==pricesToOffer[0].price){
 				console.log("Es oferta");
 				let _prices_ = {
-					alias:'OFERTA',
 					id:0,
+					alias:'OFERTA',
 					name:'Oferta',
 					price:prices[0].price,
 					used:true
 				};
 				return {type:"off",prices:[_prices_]};
-			}else if(pricesToMay[0].price==pricesToMay[1].price){
-				console.log("Es Mayoreo");
-				return {type:"may",prices:pricesToMay};
+			}else if((avgMenMay==pricesToMayMen[0].price)&&(natprices[0].price!=avgMenMay)){
+				console.log("Es May/Men");
+				return {type:"may",prices:natprices.filter(item=>{return item.id==1||item.id==2}) };
 			}else{
 				console.log("Es standard");
+				console.log(`ipack: ${ipack}`);
+
+				if(ipack<4){
+					console.log("hay que omitir el precio de caja, aunque este seleccionado");
+					let idx = prices.findIndex(item=>item.id == 4);
+					prices.splice(idx,1);
+					console.log(prices);
+				}
 				prices.map(item=>{ item.used = this.usingPrices.includes(item.id) ? true:false; return item; });
 				return {type:"std",prices:prices.filter(item=>{ return item.used })}
 			}
@@ -348,7 +359,7 @@ export default {
 			let codesToSend = [];
 
 			workbook.xlsx.load(inputFile).then((data)=>{
-				let worksheet = workbook.getWorksheet('Sheet1');
+				let worksheet = workbook.worksheets[0];
 				let column = worksheet.getColumn('A');
 				column.eachCell({ includeEmpty: true }, function(cell, rowNumber) { 
 					cell.value ? codesToSend.push(cell.value) : null;
