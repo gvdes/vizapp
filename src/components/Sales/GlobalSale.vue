@@ -15,8 +15,8 @@
                                     <q-date color="grey-10" v-model="date_from" mask="YYYY-MM-DD"
                                         first-day-of-week="1"
                                         :options="fromOptions"
-                                        navigation-min-year-month="2020/01"
-                                        navigation-max-year-month="2020/12"
+                                        navigation-min-year-month="2019/01"
+                                        :navigation-max-year-month="minLimitDate"
                                     >
                                         <div class="row items-center justify-end">
                                             <q-btn label="Ok" flat v-close-popup/>
@@ -75,6 +75,7 @@ export default {
             date:{value:"t",label:"Diaria"},
             date_from:this.$moment().format('YYYY/MM/DD'),
             date_to:this.$moment().format('YYYY/MM/DD'),
+            minLimitDate:this.$moment().format('YYYY/MM'),
             chartOptions:{
             	chart: { 
                     id:'global_sale', background:'none',

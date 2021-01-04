@@ -53,7 +53,7 @@
                                     <td>{{prod.ordered.amount}}</td>
                                     <td>{{prod.pieces}}</td>
                                     <td>
-                                        <span v-if="order.status.id>1" :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'">
+                                        <span :class="prod.ordered.stock>=1?'text-green-13':'text-pink-13'">
                                             {{prod.ordered.stock}}
                                         </span>
                                     </td>
@@ -414,6 +414,7 @@ export default {
             dbreqs.add(data).then(success=>{
                 let artidx = this.wndSetItem.idxlist;
                 let resp = success.data;
+                console.log(resp);
                 if(artidx>=0){// el articulo fue editado
                     console.log("Articulo editado");
                     let _product = this.products[artidx];
