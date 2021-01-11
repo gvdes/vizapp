@@ -79,12 +79,12 @@ export default {
             chartOptions:{
             	chart: { 
                     id:'global_sale', background:'none',
-                    events:{ dataPointSelection: (event, chartContext, config) => { this.openBranch(config.dataPointIndex); } }
+                    events:{ dataPointSelection: (event, chartContext, config) => { this.openBranch(config.dataPointIndex); } },
+                    toolbar:{ show: false },
                 },
                 tooltip:{
                     y:{ formatter: val => { return '$'+this.formatted(val) } }
                 },
-                toolbar: { show: false },
                 theme:{palette:'palette6',mode:'dark' },
                 colors:['#3ae374'],
                 grid:{borderColor: '#57606f',},
@@ -101,7 +101,7 @@ export default {
     },
     methods: {
         emmitDays(){
-            let ranges = {date_from:this.date_from,date_to:this.date_to};
+            let ranges = {date_from:this.date_from,date_to:`${this.date_to} 23:59:59`};
             this.$emit("settingRanges",ranges);
         },
         openBranch(branch){

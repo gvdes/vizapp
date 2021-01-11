@@ -46,7 +46,7 @@ export default {
 			],
 			ranges_data:undefined,
 			loadingBalance:false,
-			usedBranch:{state:false,main:null},
+			usedBranch:{state:false,main:null,store:null},
 		}
 	},
 	components:{
@@ -62,15 +62,28 @@ export default {
 			this.ranges_data = data;
 			this.indexSales(this.ranges_data);
 		},
-		openBranch(id){
-			this.usedBranch.main = null;
-			this.usedBranch.main = this.branches[id];
+		openBranch(idx){
+			this.$q.loading.show({ message:'Cargando datos, espera...' });
+			this.getBranch(idx);
 		},
 		async indexSales(data){ 
 			this.loadingBalance=true;
 			this.index = await cluster.index(data); console.log(this.index);
 			this.loadingBalance=false;
 		},
+		async getBranch(idx){
+			this.$q.loading.show({ message:'Cargando datos, espera...' });
+
+            let data = {
+                "_workpoint" : this.branches[idx].id,
+                "date_from": this.ranges_data.date_from,
+                "date_to": this.ranges_data.date_to
+			}
+			
+			this.usedBranch.store = await cluster.openBranch(data);
+			this.usedBranch.main = this.branches[idx];
+			this.$q.loading.hide();
+        }
 	},
 	computed:{
 		branches(){ return this.index ? this.index.sucursales:[]; },

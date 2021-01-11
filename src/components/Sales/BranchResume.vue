@@ -41,28 +41,51 @@
             </q-card>            
         </div>
 
-        <template v-if="loadingComponent">
-            <div class="text-center text-green-13">
-                <q-spinner-dots size="4em"/>
-                <div>Cargando datos, espere...</div>
-            </div>
-        </template>
-        <template v-else>
-            <div>{{this.tienda}}</div>
-        </template>
+        <div class="q-mt-md row items-start justify-center q-gutter-md">
+            <q-card class="col-md-3 col-xs-10 bg-darkl1" v-for="cash in cashdesks" :key="cash.id">
+                <q-card-section class="text-uppercase text-bold">{{cash.name}}</q-card-section>
+                <div class="row text-right q-pr-md">
+                    <div class="col text-light-blue">
+                        <div class="text-h5">{{cash.sales.length}}</div>
+                        <div>Operaciones</div>
+                    </div>
+                    <div class="col text-green-13">
+                        <div class="text-h5">$ {{cashdeskSale(cash.sales)}}</div>
+                        <div>Total</div>
+                    </div>
+                </div>
+                <q-card-section>
+                    <chunksbar :chunks="cashdeskChunks(cash.sales)"/>
+                </q-card-section>
+            </q-card>
+        </div>
 
+        <div class="q-mt-lg">
+            <tabletkts :tickets="ticketLists" @selectedrow="tktViewer"/>
+        </div>
+
+        <q-dialog v-model="wndTktViewer.state" @hide="wndTktViewer.head=null">
+            <template v-if="wndTktViewer.head">
+                <ticket :head="wndTktViewer.head" :body="wndTktViewer.body"/>
+            </template>
+        </q-dialog>
     </div>
 </template>
 <script>
 import apexcharts from 'vue-apexcharts'
 import cluster from '../../API/cluster'
+import chunksbar from '../../components/Global/Chunksbar.vue'
+import tabletkts from '../../components/Sales/TableTkts.vue'
+import ticket from '../../components/Sales/Ticket.vue'
 export default {
     components:{
-        apexchart:apexcharts
+        apexchart:apexcharts,
+        chunksbar:chunksbar,
+        tabletkts:tabletkts,
+        ticket:ticket
     },
     props:{
-        branch:{type:Object},
-        rangesData:{type:Object}
+        branch:{type:Object}
     },
     data(){
         return{
@@ -77,55 +100,64 @@ export default {
                     y:{ formatter: val => { return '$ '+this.formatcant(val) } }
                 }
             },
-            tienda:undefined
+            wndTktViewer:{state:false,head:null,body:null}
         }
     },
-    beforeMount() {
-        console.log("Cargando componente de resumen de tienda");
-    },
-    mounted(){
-        // console.log("Componente montado...!!!");
-        // console.log(this.branch);
-
-        // let paymethodsLabels = this.branch.main.metodos_pago.map(item=>{ return item.alias; });
-        //     this.$refs.chart_paymethods.updateOptions({ labels: paymethodsLabels });
-        //     this.getBranch();
-    },
     updated(){
-        console.log("El componente ha cambiado!!!");
-        console.log(this.branch);
-
+        // console.log("El componente ha cambiado!!!");
         let paymethodsLabels = this.branch.main.metodos_pago.map(item=>{ return item.alias; });
-            this.$refs.chart_paymethods.updateOptions({ labels: paymethodsLabels });
-            this.getBranch();
+        this.$refs.chart_paymethods.updateOptions({ labels: paymethodsLabels });
     },
     methods: {
         closeBranch(){ this.$emit("closeBranch"); },
-        async getBranch(){
-            console.log("Obtener datos de la tienda");
-            this.$q.loading.show({ message:'Cargando datos, espera...' });
-
-            let data = {
-                "_workpoint" : this.branch.main.id,
-                "date_from": this.rangesData.date_from,
-                "date_to": this.rangesData.date_to
+        tktViewer(data){
+            console.log("Seha seleccionado una flia!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            this.wndTktViewer.head  = {
+                name:this.branch.main.name,
+                alias:this.branch.main.alias,
+                folio:data.num_ticket,
+                date:data.updated_at,
+                paymet:data.paymet,
+                totaltkt:data.total
             }
-
-            console.log("Datos a enviar...");
-            console.log(data);
-
-            this.tienda = await cluster.openBranch(data);
-            this.$q.loading.hide();
-            console.log(this.tienda);
+            this.wndTktViewer.body  = data.products;
+            this.wndTktViewer.state = true;
         }
     },
     computed:{
-        formatcant(){
-            return cant => { return new Intl.NumberFormat("es-MX").format(cant); }
+        formatcant(){ return cant => { return new Intl.NumberFormat("es-MX").format(cant); } },
+        payMethodsSeries(){ return this.branch.main.metodos_pago.map(item=>{ return item.total }); },
+        cashdesks(){ return this.branch.store.workpoint.cajas; },
+        ticketLists(){
+            let list = [];
+            this.cashdesks.forEach(item=>{ 
+                item.sales.forEach(_item=>{
+                    _item.paymet = this.branch.main.metodos_pago.filter(pm=>{return pm.id==_item._paid_by})[0];
+                    list.push(_item);
+                });
+            });
+            return list;
         },
-        payMethodsSeries(){
-            return this.branch.main.metodos_pago.map(item=>{ return item.total });
+        cashdeskSale(){
+            return sales => {
+                return this.formatcant(sales.reduce((amu,tkt)=>{ return amu+tkt.total; },0));
+            }
+        },
+        cashdeskChunks(){
+            return sales =>{
+                let chunks = [];
+                this.branch.main.metodos_pago.forEach(paymet=>{
+                    let total = sales.filter(_item=>_item._paid_by==paymet.id).reduce((amount,tkt)=>{
+                        return amount+tkt.total;
+                    },0);
+                    chunks.push({size:total,label:paymet.alias});
+                });
+                return chunks;
+            }
         }
-    }
+    },
+    destroyed() {
+        console.log("El componente ha sido destruido");
+    },
 }
 </script>
