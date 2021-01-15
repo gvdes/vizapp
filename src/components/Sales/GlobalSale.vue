@@ -15,7 +15,7 @@
                                     <q-date color="grey-10" v-model="date_from" mask="YYYY-MM-DD"
                                         first-day-of-week="1"
                                         :options="fromOptions"
-                                        navigation-min-year-month="2019/01"
+                                        navigation-min-year-month="2020/01"
                                         :navigation-max-year-month="minLimitDate"
                                     >
                                         <div class="row items-center justify-end">
@@ -151,12 +151,14 @@ export default {
             return label;
         },
         fromOptions(){
+            let mindate = this.$moment('2020-01-01').format('YYYY/MM/DD');
+            // let maxdate = this.$moment('2021-01-29').format('YYYY/MM/DD');
             let momment = this.$moment();
             let _now = momment.format('YYYY/MM/DD');
             let tomorrow = momment.add(1,'d').format('YYYY/MM/DD');
-            let startYear = momment.startOf('year').format('YYYY/MM/DD');
+            // let startYear = momment.startOf('year').format('YYYY/MM/DD');
 
-            return _now => _now >= startYear && _now < tomorrow;
+            return _now => _now >= mindate && _now < tomorrow;
         },
         toOptions(){
             let mindate = this.$moment(this.date_from).format('YYYY/MM/DD');

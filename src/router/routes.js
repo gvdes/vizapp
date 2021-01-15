@@ -9,6 +9,7 @@ const routes = [
 			{ path: '', component: () => import('pages/Warehouses/Index.vue') },
 			{ path: 'admin', component: () => import('pages/Warehouses/Admin.vue') },
 			{ path: 'contador', component: () => import('pages/Warehouses/Counter/Index.vue') },
+			{ path: 'contador/config/:id', component: () => import('pages/Warehouses/Counter/Config.vue') },
 			{ path: 'ubicador', component: () => import('pages/Warehouses/Locator/Index.vue') },
 			{ path: 'minymax', component: () => import('pages/Warehouses/Minymax/Index.vue') },
 			{ path: 'existencias', component: () => import('pages/Warehouses/Existences/Index.vue') }

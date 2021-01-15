@@ -13,7 +13,6 @@ export default{
     warehouses(data){ return vizapi.get('/location/cellers'); },
     loadWarehouses(){
         console.log("%cCargando Almacenes...","font-size:2em; color:purple;");
-
         return vizapi.get('/location/cellers').then(succcess=>{
             console.log(succcess);
             return succcess.data.cellers;

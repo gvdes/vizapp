@@ -111,14 +111,16 @@ export default {
     methods: {
         closeBranch(){ this.$emit("closeBranch"); },
         tktViewer(data){
-            console.log("Seha seleccionado una flia!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            console.log("Se ha seleccionado una flia!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            console.log(data);
             this.wndTktViewer.head  = {
                 name:this.branch.main.name,
                 alias:this.branch.main.alias,
                 folio:data.num_ticket,
                 date:data.updated_at,
                 paymet:data.paymet,
-                totaltkt:data.total
+                totaltkt:data.total,
+                cashdesk:data.cashdesk
             }
             this.wndTktViewer.body  = data.products;
             this.wndTktViewer.state = true;
@@ -130,8 +132,9 @@ export default {
         cashdesks(){ return this.branch.store.workpoint.cajas; },
         ticketLists(){
             let list = [];
-            this.cashdesks.forEach(item=>{ 
+            this.cashdesks.forEach(item=>{
                 item.sales.forEach(_item=>{
+                    _item.cashdesk = item.name;
                     _item.paymet = this.branch.main.metodos_pago.filter(pm=>{return pm.id==_item._paid_by})[0];
                     list.push(_item);
                 });
