@@ -16,5 +16,6 @@ export default{
     },
     updateState(data){
         return vizapi.post('/product/updateStatus',data);
-    }
+    },
+    products(data){ return vizapi.post('product',data); }
 }

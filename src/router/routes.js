@@ -10,6 +10,7 @@ const routes = [
 			{ path: 'admin', component: () => import('pages/Warehouses/Admin.vue') },
 			{ path: 'contador', component: () => import('pages/Warehouses/Counter/Index.vue') },
 			{ path: 'contador/config/:id', component: () => import('pages/Warehouses/Counter/Config.vue') },
+			{ path: 'contador/:id', component: () => import('pages/Warehouses/Counter/Counting.vue') },
 			{ path: 'ubicador', component: () => import('pages/Warehouses/Locator/Index.vue') },
 			{ path: 'minymax', component: () => import('pages/Warehouses/Minymax/Index.vue') },
 			{ path: 'existencias', component: () => import('pages/Warehouses/Existences/Index.vue') }
@@ -44,7 +45,7 @@ const routes = [
 	},
 	{
 		path:'/qdev',
-		component: () => import('layouts/TestLy.vue'),
+		component: () => import('pages/Test/test.vue'),
 	},
 
 	// Always leave this as last one,

@@ -62,7 +62,6 @@ export default{
     },
     getFiltred(data){
         console.log(data);
-
         return vizapi.post('/product/catalog',data);
     }
 }

@@ -112,7 +112,7 @@ export default {
 		console.log(this.workpoints);
 	},
 	async mounted(){
-		this.vsocket = await io(this.$vsocket);
+		this.vsocket = await io(`${this.$vsocket}`);
 		//solicitar al socket, avisar al canal que este usuario se unio
 		this.vsocket.emit('joinme_to_dashboard',this.profile);
 

@@ -23,11 +23,11 @@
                     </q-card-section>
                     <q-separator/>
                     <q-card-section>
-                        <q-scroll-area style="height:400px; max-width:100%;">
+                        <q-scroll-area style="height:300px; max-width:100%;">
                             <q-list>
                                 <q-item tag="label" v-ripple v-for="acc in natAccounts" :key="acc.id">
                                     <q-item-section avatar>
-                                        <q-checkbox dark v-model="group" :val="acc.id" color="green-13" @input="toggleReponsable(acc.id)"/>
+                                        <q-checkbox :disable="data.inventory.status.id!=1" dark v-model="group" :val="acc.id" color="green-13" @input="toggleReponsable(acc.id)"/>
                                     </q-item-section>
                                     <!-- <q-item-section avatar>
                                         <q-icon name="fas fa-user" color="white"/>
@@ -35,7 +35,8 @@
                                     <q-item-section>
                                         <q-item-label>
                                             <span class="text-grey-6">{{`${acc.names} ${acc.surname_pat}`}}</span><br>
-                                            [ {{acc.nick.toLowerCase()}} ]</q-item-label>
+                                            [ {{acc.nick.toLowerCase()}} ]
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -49,7 +50,7 @@
                             <div class="col">
                                 Productos [ {{listProducts.length}} ]
                             </div>
-                            <div class="col">
+                            <div class="col" v-if="data.inventory.status.id==1">
                                 <q-select dark dense flat color="green-13"
                                     label="Agregar por..."
                                     stack-label :options="optsAddProds"
@@ -93,28 +94,48 @@
                                     <q-spinner-dots size="md" color="green-13" class="self-center"/>
                                 </template>
                             </div>
-
-                            <div class="q-pt-lg row q-gutter-sm">
-                                <q-card class="bg-darkl2" v-for="(prod,idx) in listProducts" :key="idx">
-                                    <q-card-section>
-                                        {{prod.code}}
-                                    </q-card-section>
-                                </q-card>
-                            </div>
                         </div>
 
                         <!-- Agregando por Cofigos -->
                         <div v-if="modeAdd.value==3"><ProductAutocomplete /></div>
                     </q-card-section>
+
+                    <q-card-section>
+                        <q-table dark flat
+                            card-class="bg-none"
+                            :data="listProducts"
+                            :columns="tableProducts.columns"
+                        >
+                            <template v-slot:body="props">
+                                <q-tr :props="props">
+                                    <q-td key="id" :props="props">{{ props.row.id }}</q-td>
+                                    <q-td key="code" :props="props">{{ props.row.code }}</q-td>
+                                    <q-td key="locations" :props="props">
+                                        [ {{props.row.locations.length}} ]
+                                        <span v-for="(loc,idx) in props.row.locations" :key="idx">{{loc.path}}</span>
+                                    </q-td>
+                                </q-tr>
+                            </template>
+                        </q-table>
+                    </q-card-section>
                 </q-card>
             </template>
         </div>
 
-        <q-footer>
-            <q-toolbar>
-                sdfdsffs
-            </q-toolbar>
-        </q-footer>
+        <q-page-sticky position="bottom-left" :offset="[10,10]">
+
+            <template v-if="trydiscard">
+                <q-btn rounded no-caps color="primary" icon="close" @click="trydiscard=false" label="No Eliminar"/>
+                <q-btn rounded no-caps color="negative" @click="nextStep(4)" label="¡Confirmar Eliminacion de Inventario!"/>
+            </template>
+            <q-btn v-else rounded no-caps color="orange-14" icon="delete" @click="trydiscard=true" label="Eliminar"/>
+        </q-page-sticky>   
+
+        <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="canStart&&!trydiscard">
+            <q-btn rounded no-caps
+                color="primary" icon="fas fa-play-circle" @click="start" label="Iniciar"
+            />
+        </q-page-sticky>   
     </q-page>
 </template>
 
@@ -131,6 +152,7 @@ export default {
         return {
             data:null,
             natAccounts:null,
+            trydiscard:false,
             group:[],
             optsAddProds:[
                 {label:'Categorias',value:1},
@@ -153,13 +175,21 @@ export default {
                 "check_stock":false,
                 "with_stock":false,
                 "_status": null
-            }
+            },
+            tableProducts:{
+                columns:[
+                    { name:'id', align:'left', label:'ID', field:row=>row.id, sortable:true },
+					{ name:'code', align:'left', label:'Codigo', field:row=>row.code, sortable:true },
+					{ name:'locations', align:'center', label:'Ubicaciones', field:row=>row.locations.length, sortable:true },
+				]
+            },
         }
     },
     async beforeMount() { 
         this.$store.commit('Layout/hideToolbarModule');
         this.data = await invsdb.find(this.$route.params.id);
         console.log(this.data);
+        this.listProducts = this.data.inventory.products;
         this.getAccounts();
     },
     methods: {
@@ -196,12 +226,12 @@ export default {
             console.log("Obteniendo secci0ones del almacen "+this.warehouses.selected.name);
 			apiwarehouses.loadSections(data).then(success=>{//obtener secciones del almacen
 				let resp = success.data.sections.map(item=>{ return {label:item.alias,value:item.id}; });
-				console.log(resp);
+				// console.log(resp);
 				this.warehouses.sections.push(resp);
 				this.warehouses.sectModels.push({label:"Seleccione",value:null});
-				this.listProducts = success.data.products.data.map(item=>{
-					return { code:item.code, locations:item.locations, counter:0 }
-                });
+                
+                // this.listProducts = success.data.products.data.map(item=>{ return { code:item.code, locations:item.locations, counter:0 } });
+                this.listProducts = success.data.products.data;
                 this.warehouses.loading = false;
 			}).catch(fail=>{ console.log(fail); });
         },
@@ -212,38 +242,137 @@ export default {
 			this.warehouses.sections.splice(idx+1);//elimina secciones
 			this.warehouses.sectModels.splice(idx+1);//elimina los modelos
             let data = { params:{"_section":section.value,"products":false} }; // dato a enviar en peticion
-            console.log(data);
+            // console.log(data);
 			apiwarehouses.loadSections(data).then(success=>{
                 let children = success.data.sections.sections;
 				if(children.length>0){
 					let resp = children.map(item=>{ return {label:item.alias,value:item.id}; });
-					console.log(resp);
+					// console.log(resp);
 					this.warehouses.sections.push(resp);
 					this.warehouses.sectModels.push({label:"Seleccione",value:null});
                 }else{ console.log("Sin mas subsecciones por cargar!!"); }
-                this.listProducts = success.data.products.data.map(item=>{
-                    return { code:item.code, locations:item.locations, counter:0 }
-                });
+
+                // this.listProducts = success.data.products.data.map(item=>{ return { code:item.code, locations:item.locations, counter:0 } });
+                this.listProducts = success.data.products.data;
                 this.warehouses.loading = false;
 			}).catch(fail=>{ console.log(fail); });
 		},
         async modeAddChanged(){
             switch (this.modeAdd.value) {
-                case 1:
-                    console.log("Modo Categoria Activado!!");    
-                break;
+                case 1:console.log("Modo Categoria Activado!!");break;
 
                 case 2:
                     console.log("Modo Ubicacion Activado!!");
                     this.warehouses.options = await apiwarehouses.loadWarehouses();
                 break;
 
-                case 3:
-                    console.log("Modo Codigo Activado!!");    
-                break;
+                case 3:console.log("Modo Codigo Activado!!");break;
             }
         },
+        discard(){},
+        start(){
+            console.log("Iniciando ");
+            let products = this.listProducts.map(prod=>{ return prod.id; });
+            console.log(products);
+            let data = { "_products": products, "_inventory": this.data.inventory.id, "settings":this.settings }
+            console.log(data);
+
+            this.$q.loading.show({message: 'Aplicando Configuracion, espera...'});
+
+            invsdb.addProducts(data).then(success=>{
+                // this.$q.loading.show({message:`Se agregaron ${success.data.length} productos a la lista, iniciando inventario`});
+                this.nextStep();
+            }).catch(fail=>{ console.log(fail); });
+        },
+        nextStep(reqstate=undefined,settings=undefined){
+            let currentState = this.data.inventory.status;
+            let msgnewState = '';
+
+            console.log("Estatus Actual: "+currentState.id);
+
+            let requestState = reqstate ? reqstate : currentState.id+1;
+
+            switch (requestState) {
+                case 2: msgnewState = 'Iniciando Inventario, espera...'; break;
+                case 3: msgnewState = 'Cerrando Inventario, esperaa..'; break;
+                case 4: msgnewState = 'Eliminando Inventario, espera...'; break;
+            }            
+
+            this.$q.loading.show({message:msgnewState});
+            let data = {
+                "_inventory":this.data.inventory.id,
+                "_status":requestState
+            }
+
+            console.log('Cambiando status');
+            console.log(data);
+            // console.log(data);
+            invsdb.nextStep(data).then(success=>{
+                let resp = success.data;
+                console.log(resp);
+                this.data.inventory.status = resp.order.status;
+                this.notifyChangeState(resp);
+                this.$q.loading.hide();
+            }).catch(fail=>{ console.log(fail); });
+        },
+        notifyChangeState(inv){
+            let newState = inv.order.status.id;
+            switch (newState) {
+                case 2:
+                    this.$q.notify({
+                        icon:"done",
+                        color:"positive",
+                        message:"El inventario ya puede realizarse!!",
+                        timeout:1200
+                    });
+                    
+                    this.$q.loading.show();
+                    setTimeout(()=>{
+                        this.$router.push('/almacen/contador/'+inv.order.id);
+                        this.$q.loading.hide();
+                    },1500);
+                break;
+                case 3: msgnewState = 'Cerrando Inventario, esperaa..'; break;
+                case 4:
+                    this.$q.notify({
+                        icon:"done",
+                        color:"positive",
+                        message:"El inventario ha sido eliminado!"
+                    });
+                    
+                    this.$router.push('/almacen/contador');
+                break;
+            }    
+        },
     },
-    beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); }
+    beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
+    computed:{
+        settings(){
+            let settings = new Object();
+            if(this.data){
+                settings.type = this.modeAdd;
+
+                switch (settings.type.value) {
+                    case 2:
+                        settings.warehouse = {id:this.warehouses.selected.id,name:this.warehouses.selected.name};
+                        settings.path = this.fullpath;
+                    break;
+
+                    default:  break;
+                }
+            }
+            return settings;
+        },
+        fullpath(){ 
+			let path = '';
+			this.warehouses.sectModels.forEach((item,idx,arr)=>{ if(item.value){ path += idx==0?`${item.label}`:`-${item.label}`; } });
+			return path;
+        },
+        auths(){ return this.$store.getters['Account/moduleauths']; },
+        profile(){ return this.$store.getters['Account/profile'];},
+        canStart(){
+            return (this.listProducts.length&&this.group.length);
+        }
+    }
 }
 </script>
