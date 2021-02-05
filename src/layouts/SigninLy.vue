@@ -136,6 +136,7 @@ export default {
 					this.$q.notify({ color:'red-13', message: resp.message, icon: 'announcement',timeout:800 });
 				}
 			}).catch(fail=>{
+				console.log(fail);
 				this.credentials.logging=false;
                 this.$q.notify({ color:'negative', message:"¡¡Raios!! el servidor no responde!", icon: 'announcement' });
             });
@@ -175,9 +176,6 @@ export default {
 			this.$store.commit('Account/setsession',data);
 			this.$router.push('/lanzador')
 		},
-		ipttype(){
-
-		}
 	},
 	computed:{
 		trysetpass(){ return (this.setpass.pass.length>4&&this.setpass.pass==this.setpass.confirm) }

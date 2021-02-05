@@ -44,8 +44,6 @@ export default{
         return vizapi.post('/location/maximos',data);
     },
     existencesIndex(data){
-        console.log("Cargando index del modulo EXISTENCIAS..");
-
         return vizapi.post('/product/catalog',data).then(success=>{
             // console.log(success.data);
             return success.data;
@@ -54,14 +52,8 @@ export default{
             console.log(fail);
         });
     },
-    loadCats(data){
-        return vizapi.post('/product/catalog',data);
-    },
-    getStocks(data){
-        return vizapi.post('/location/stocks',data);
-    },
-    getFiltred(data){
-        console.log(data);
-        return vizapi.post('/product/catalog',data);
-    }
+    loadCats(data){ return vizapi.post('/product/catalog',data); },
+    getStocks(data){ return vizapi.post('/location/stocks',data); },
+    getFiltred(data){ return vizapi.post('/product/catalog',data); },
+    report(data){ return vizapi.post('/location/report',data); }
 }

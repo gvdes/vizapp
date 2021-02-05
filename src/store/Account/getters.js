@@ -27,6 +27,7 @@ export function toolbarModule (state) {
 }
 
 export function profile(state){
+    console.log(state);
     return state.profile;
 }
 

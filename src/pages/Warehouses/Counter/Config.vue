@@ -1,29 +1,31 @@
 <template>
     <q-page padding>
-        <q-header class="bg-darkl1">
-            <q-toolbar>
-                <q-btn flat rounded dense icon="keyboard_backspace" color="white" @click="$router.push('/almacen/contador')"/>
-                Configuracion de Inventario {{this.$route.params.id}}
-            </q-toolbar>
+        <q-header class="bg-darkl1" elevated>
+            <div class="q-py-sm text-uppercase row items-center">
+                <q-btn flat icon="fas fa-chevron-left" color="white" @click="$router.push('/almacen/contador')"/>
+                <span class="text-light-blue-13"> Configuracion de Inventario {{this.$route.params.id}}</span>
+            </div>
         </q-header>
 
-        <div class="q-mb-xl q-pb-md">
-            <template v-if="data">
-                <q-card class="bg-darkl1 exo">
-                    <q-card-section>
-                        Creacion: {{data.inventory.created_at}}<br>
-                        Por: {{data.inventory.created_by.names}} {{data.inventory.created_by.surname_pat}} [ {{data.inventory.created_by.nick}} ]<br>
-                        Estado: {{data.inventory.status.name}}
-                    </q-card-section>
-                </q-card>
+        <template v-if="data">
+            <q-card class="q-mt-xs bg-darkl1 exo">
+                <q-card-section>
+                    Creacion: {{data.inventory.created_at}}<br>
+                    Administrador: {{data.inventory.created_by.names}} {{data.inventory.created_by.surname_pat}} [ {{data.inventory.created_by.nick}} ]<br>
+                </q-card-section>
+            </q-card>
 
-                <q-card class="bg-darkl1 exo q-mt-sm">
-                    <q-card-section>
-                        <div>Responsables [ {{group.length}} ]</div>
-                    </q-card-section>
-                    <q-separator/>
-                    <q-card-section>
-                        <q-scroll-area style="height:300px; max-width:100%;">
+            <div :class="`${wrapperClass} q-pt-md q-mb-xl q-gutter-md`">
+                <q-card class="col bg-darkl1 exo">
+                    <q-expansion-item
+                        expand-separator
+                        icon="fas fa-users"
+                        label="Responsables"
+                        :caption="group.length.toString()"
+                        header-class="text-grey-5"
+                        v-model="expands.respos"
+                    >
+                        <q-card-section>
                             <q-list>
                                 <q-item tag="label" v-ripple v-for="acc in natAccounts" :key="acc.id">
                                     <q-item-section avatar>
@@ -40,87 +42,91 @@
                                     </q-item-section>
                                 </q-item>
                             </q-list>
-                        </q-scroll-area>
-                    </q-card-section>
+                        </q-card-section>
+                    </q-expansion-item>
                 </q-card>
 
-                <q-card class="bg-darkl1 exo q-mt-sm">
-                    <q-card-section>
-                        <div class="row items-start">
-                            <div class="col">
-                                Productos [ {{listProducts.length}} ]
+                <q-card class="col bg-darkl1 exo">
+                    <q-expansion-item
+                        expand-separator
+                        icon="fas fa-boxes"
+                        label="Productos"
+                        :caption="listProducts.length.toString()"
+                        header-class="text-grey-5"
+                        v-model="expands.products"
+                    >
+                        <q-card-section>
+                            <div class="row items-start">
+                                <div class="col" v-if="data.inventory.status.id==1">
+                                    <q-select dark dense flat color="green-13"
+                                        label="Agregar por..."
+                                        stack-label :options="optsAddProds"
+                                        v-model="modeAdd"
+                                        @input="modeAddChanged"
+                                    />
+                                </div>
                             </div>
-                            <div class="col" v-if="data.inventory.status.id==1">
-                                <q-select dark dense flat color="green-13"
-                                    label="Agregar por..."
-                                    stack-label :options="optsAddProds"
-                                    v-model="modeAdd"
-                                    @input="modeAddChanged"
-                                />
+                        </q-card-section>
+
+                        <q-card-section v-if="modeAdd">
+                            <!-- Agregando por Categoria -->
+                            <div v-if="modeAdd.value==1"></div>
+
+                            <!-- Agregando por Ubicacion -->
+                            <div v-if="modeAdd.value==2">
+                                <div class="row q-gutter-md">
+                                    <q-select 
+                                        dark color="green-13"
+                                        class="col-xs-4 col-sm-2"
+                                        label="Almacen"
+                                        v-model="warehouses.selected"
+                                        @input="setWarehouse"
+                                        option-value="id"
+                                        option-label="name"
+                                        :options="warehouses.options"
+                                    />
+
+                                    <q-select
+                                        dark color="amber-13"
+                                        class="col-xs col-sm-1"
+                                        v-for="(sect,idx) in warehouses.sections" :key="idx" 
+                                        v-model="warehouses.sectModels[idx]"
+                                        :options="warehouses.sections[idx]"
+                                        @input="loadSections(warehouses.sectModels[idx],idx)"
+                                    />
+
+                                    <template v-if="warehouses.loading">
+                                        <q-spinner-dots size="md" color="green-13" class="self-center"/>
+                                    </template>
+                                </div>
                             </div>
-                        </div>
-                    </q-card-section>
-                    <q-separator/>
-                    <q-card-section v-if="modeAdd">
-                        <!-- Agregando por Categoria -->
-                        <div v-if="modeAdd.value==1">
 
-                        </div>
+                            <!-- Agregando por Cofigos -->
+                            <div v-if="modeAdd.value==3"><ProductAutocomplete /></div>
+                        </q-card-section>
 
-                        <!-- Agregando por Ubicacion -->
-                        <div v-if="modeAdd.value==2">
-                            <div class="row q-gutter-md">
-                                <q-select 
-                                    dark color="green-13"
-                                    class="col-xs-4 col-sm-2"
-                                    label="Almacen"
-                                    v-model="warehouses.selected"
-                                    @input="setWarehouse"
-                                    option-value="id"
-                                    option-label="name"
-                                    :options="warehouses.options"
-                                />
-
-                                <q-select
-                                    dark color="amber-13"
-                                    class="col-xs col-sm-1"
-                                    v-for="(sect,idx) in warehouses.sections" :key="idx" 
-                                    v-model="warehouses.sectModels[idx]"
-                                    :options="warehouses.sections[idx]"
-                                    @input="loadSections(warehouses.sectModels[idx],idx)"
-                                />
-
-                                <template v-if="warehouses.loading">
-                                    <q-spinner-dots size="md" color="green-13" class="self-center"/>
+                        <q-card-section>
+                            <q-table dark flat
+                                card-class="bg-none"
+                                :data="listProducts"
+                                :columns="tableProducts.columns"
+                            >
+                                <template v-slot:body="props">
+                                    <q-tr :props="props">
+                                        <q-td key="id" :props="props">{{ props.row.id }}</q-td>
+                                        <q-td key="code" :props="props">{{ props.row.code }}</q-td>
+                                        <q-td key="locations" :props="props">
+                                            [ {{props.row.locations.length}} ]
+                                            <span v-for="(loc,idx) in props.row.locations" :key="idx">{{loc.path}}</span>
+                                        </q-td>
+                                    </q-tr>
                                 </template>
-                            </div>
-                        </div>
-
-                        <!-- Agregando por Cofigos -->
-                        <div v-if="modeAdd.value==3"><ProductAutocomplete /></div>
-                    </q-card-section>
-
-                    <q-card-section>
-                        <q-table dark flat
-                            card-class="bg-none"
-                            :data="listProducts"
-                            :columns="tableProducts.columns"
-                        >
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="id" :props="props">{{ props.row.id }}</q-td>
-                                    <q-td key="code" :props="props">{{ props.row.code }}</q-td>
-                                    <q-td key="locations" :props="props">
-                                        [ {{props.row.locations.length}} ]
-                                        <span v-for="(loc,idx) in props.row.locations" :key="idx">{{loc.path}}</span>
-                                    </q-td>
-                                </q-tr>
-                            </template>
-                        </q-table>
-                    </q-card-section>
+                            </q-table>
+                        </q-card-section>
+                    </q-expansion-item>
                 </q-card>
-            </template>
-        </div>
+            </div>
+        </template>
 
         <q-page-sticky position="bottom-left" :offset="[10,10]">
 
@@ -183,6 +189,10 @@ export default {
 					{ name:'locations', align:'center', label:'Ubicaciones', field:row=>row.locations.length, sortable:true },
 				]
             },
+            expands:{
+                respos:true,
+                products:true
+            }
         }
     },
     async beforeMount() { 
@@ -222,7 +232,7 @@ export default {
         setWarehouse(){
             this.warehouses.loading = true;
 			this.warehouses.sections = [];// vaciamos las secciones
-            let data = { params:{"_celler":this.warehouses.selected.id,"products":false } };
+            let data = { params:{"_celler":this.warehouses.selected.id,"products":true,paginate:500 } };
             console.log("Obteniendo secci0ones del almacen "+this.warehouses.selected.name);
 			apiwarehouses.loadSections(data).then(success=>{//obtener secciones del almacen
 				let resp = success.data.sections.map(item=>{ return {label:item.alias,value:item.id}; });
@@ -241,7 +251,7 @@ export default {
 			console.log(this.warehouses.sectModels);
 			this.warehouses.sections.splice(idx+1);//elimina secciones
 			this.warehouses.sectModels.splice(idx+1);//elimina los modelos
-            let data = { params:{"_section":section.value,"products":false} }; // dato a enviar en peticion
+            let data = { params:{"_section":section.value,"products":true,"paginate":500} }; // dato a enviar en peticion
             // console.log(data);
 			apiwarehouses.loadSections(data).then(success=>{
                 let children = success.data.sections.sections;
@@ -370,9 +380,10 @@ export default {
         },
         auths(){ return this.$store.getters['Account/moduleauths']; },
         profile(){ return this.$store.getters['Account/profile'];},
-        canStart(){
-            return (this.listProducts.length&&this.group.length);
-        }
+        canStart(){ return (this.listProducts.length&&this.group.length); },
+        wrapperClass(){
+            return this.$q.platform.is.mobile ? 'column':'row items-start';
+        },
     }
 }
 </script>

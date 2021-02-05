@@ -14,7 +14,7 @@
                 </q-linear-progress>
             </q-toolbar>
         </q-header>
-
+        
         <template v-if="index">
             <q-card class="bg-darkl1 text-grey-5 exo">
                 <q-card-section>
@@ -87,9 +87,13 @@
                     </q-card-actions>
                 </q-card>
             </q-dialog>
-            <template v-if="imCreator">
-                <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="progress.value==1">
+            <template v-if="this.index">
+                <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="this.index.inventory.status.id==2&&imCreator&&progress.value==1">
                     <q-btn rounded class="bg-darkl1 text-green-13" icon="done" label="Terminar" no-caps @click="terminate"/>
+                </q-page-sticky>
+
+                <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="this.index.inventory.status.id==3">
+                    <q-btn rounded class="bg-darkl1 text-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF"/>
                 </q-page-sticky>
             </template>
         </template>
@@ -100,6 +104,8 @@
 import io from 'socket.io-client'
 import invsdb from '../../../API/inventories'
 import { QSpinnerTail } from 'quasar'
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 export default {
     data() {
         return {
@@ -171,8 +177,8 @@ export default {
             this.tableProducts.rows[idx].counter=data.settings.stock;
         },
         sktjoined(data){
-            console.log("Usuario conectado al conteo");
-            console.log(data);
+            // console.log("Usuario conectado al conteo");
+            // console.log(data);
 
             if(data.me.id!=this.profile.me.id){
                 this.$q.notify({
@@ -216,8 +222,8 @@ export default {
                 let resp = success.data;
                 console.log(resp);
                 this.productsRefresh = resp.order.products;
-                // this.data.inventory.status = resp.order.status;
-                this.$q.loading.hide();
+                this.index.inventory.status = resp.order.status;
+                // this.buildPDF();
 
             }).catch(fail=>{ console.log(fail); });
         },
@@ -283,7 +289,8 @@ export default {
             this.countingrespo=null;
         },
         stay(){//valida si el usuario logueado es miembro de este inventario
-            if(this.index.inventory.created_by.id==this.profile.me.id){
+            //validar si el rol es 2 || 3 validar que pertenezca a la suxursal del contador
+            if((this.index.inventory.created_by.id==this.profile.me.id)||(this.profile.me._rol==1)){
                 this.imCreator=true;
                 return true;
             }else{
@@ -309,7 +316,202 @@ export default {
             this.$router.push('/almacen/contador');
         },
         buildPDF(){
-            console.log("%cConstruyen Documento...","font-size:2em;color:orange;");
+            console.log("%cConstruyendo Documento...","font-size:2em;color:orange;");
+            this.$q.loading.show({message:'Generando Reporte...'});
+            console.log(this.index);
+
+            let logstart = this.log.filter(log=>{ return log.id == 1;})[0];
+            let logend = this.log.filter(log=>{ return log.id == 3;})[0];
+
+            let _timestart = this.$moment(logstart.created_at);
+            let _timeend = this.$moment(logend.created_at);
+            let fulltime = _timeend.diff(_timestart,'m');
+
+            let fullpresition = 0;
+            let pdfpage = 1;
+            let folio = `21${this.index.inventory.id}`
+            let docname = `${folio}.pdf`;
+            let timestart = _timestart.format('MM/DD/YYYY h:mm a');
+            let timeend = _timeend.format('MM/DD/YYYY h:mm a');
+            let invtype = this.index.inventory.type;
+            let invadmin = `${this.index.inventory.created_by.names} ${this.index.inventory.created_by.surname_pat} [${this.index.inventory.created_by.nick}]`;
+            let invresps = this.index.inventory.responsables;
+
+            const pdf = new jsPDF({unit:'pt',format:'letter'});
+            pdf.addFont('pdf/ParadroidMono-Light.ttf', 'Paradroid', 'normal');
+            pdf.setFont('Paradroid');
+
+            let sheetDimensions = {
+                w:pdf.internal.pageSize.getWidth(),
+                h:pdf.internal.pageSize.getHeight()
+            }
+
+            let emw = (sheetDimensions.w-50);//elements max width
+            let emh = (sheetDimensions.h-80);//elements max height
+
+            let rows = [...this.tableProducts.rows].map(item=>{
+
+                let sai = parseInt(item.ordered.stocks);//stock al iniciar el inventario
+                let uc = parseInt(item.ordered.stocks_acc);//unidades contadas
+
+                let fs = ()=>{//define los faltantes, sobrantes o exactos en base a las unidades contadas
+                    if(sai>uc){ return '-'+(sai-uc); }else if (sai<uc) { return '+'+(uc-sai); }else if(sai==uc){ return 0; }
+                }
+
+                let presition = ()=>{
+                    // return ((uc/sai)*100).toFixed(2);
+                    if(sai>uc){ return ((uc/sai)*100).toFixed(0); }else if (uc>sai) { return ((sai/uc)*100).toFixed(0); }else if(sai==uc){ return 100; }
+                }
+
+                let description = () =>{// construye la descripcion acortandola en caso de ser necesaria
+                    let descr = item.description.length>=35 ? item.description.substring(0,35)+'...' : item.description;
+                    return descr.toUpperCase();
+                }
+                
+                // let cols = [item.code,description(),sai,uc,fs(),'','',presition()];//define las columnas de la fila
+                return [item.code,description(),sai,uc,fs(),'','',presition()];//define las columnas de la fila
+            });
+
+            var headers = [
+                { name:"code",prompt:"Articulo",width:70 },
+                { name:"descript",prompt:"Descripcion",width:185 },
+                { name:"initstock",prompt:"SAI",width:40 },
+                { name:"counter",prompt:"UC",width:40 },
+                { name:"fs",prompt:"F/S",width:40 },
+                { name:"endstock",prompt:"SAT",width:40 },
+                { name:"locations",prompt:"Ubicaciones",width:100 },
+                { name:"presition",prompt:"Pres.",width:40 },
+            ];
+
+            let footerPage = (totals) => {
+                pdf.setFontSize(7);
+                pdf.text(`${pdfpage}`,(emw/2+10),(emh+50),{align:'center',baseline:'middle'});
+                pdf.text(`Inventario ${folio}, ${this.profile.workpoint.alias}`,575,(emh+50),{align:'right',baseline:'middle'});
+            }
+
+            let headerTable = (cx,cy) => {
+                    pdf.setFillColor('#000000');
+                    pdf.line(cx,cy,575,cy,"F");
+
+                    cy+=20;// incremento en el eje Y para pintar las columnas del header
+                    let ncol = 1;
+
+                    pdf.setFontSize(11);
+                    for (const header of headers) {
+                        pdf.setTextColor('#2d3436');
+                        pdf.text(`${header.prompt}`,cx,cy);
+
+                        ncol++;
+                        if(ncol>1){cx+=header.width;}
+                    }
+
+                    cx=25;// devuelve el eje X al inicio de la pagina
+                    cy+=13;// set CordinateVertical
+                    pdf.setFillColor('#000000');
+                    pdf.line(cx,cy,575,cy,"F");
+            }
+
+            /** H E A D E R   P D F*/
+                /** I M A G E N  SUP IZQ*/
+                    pdf.addImage('pdf/rsi.png', 'PNG', 355, 5, 250, 60);
+                    pdf.addImage('pdf/logo_org.png', 'PNG', 35, 22, 170, 50);
+                /** I M A G E N  SUP IZQ*/
+                pdf.setFontSize(12);
+                pdf.setTextColor("#ffffff");
+                pdf.text(`Inventario ${folio}`,570,29,{align:'right',baseline:'middle'});
+                pdf.setFontSize(10);
+                pdf.text(`${this.profile.workpoint.name}`,570,45,{align:'right',baseline:'middle'});
+            /** H E A D E R   P D F*/
+
+            /** S U B H E A D E R */
+                pdf.setTextColor("#000000");
+                let cx=25;// set CordinateHorizontal
+                let cy=112;// set CordinateVertical
+                pdf.text(`Duracion: `,cx,cy);
+                pdf.text(`Inicio: `,cx,(cy+=13));
+                pdf.text(`Termino: `,cx,(cy+=13));
+                pdf.text(`Tipo: `,cx,(cy+=13));
+
+                cx=80;// set CordinateHorizontal
+                cy=112;// set CordinateVertical
+                pdf.text(`${fulltime} minutos`,cx,cy);
+                pdf.text(`${timestart}`,cx,(cy+=13));
+                pdf.text(`${timeend}`,cx,(cy+=13));
+                pdf.text(`${invtype.name}`,cx,(cy+=13));
+
+                cx=290;// set CordinateHorizontal
+                cy=112;// set CordinateVertical
+                pdf.text(`Administrador: `,cx,cy);
+                pdf.text(`Responsables: `,cx,(cy+=13));
+                pdf.text(`Productos: `,cx,(cy+=13));
+                // pdf.text(`ShettDemensions: `,cx,(cy+=13));
+
+                cx=380;// set CordinateHorizontal
+                cy=112;// set CordinateVertical
+                pdf.text(`${invadmin}`,cx,cy);
+                pdf.text(`${invresps.length}`,cx,(cy+=13));
+                pdf.text(`${this.index.inventory.products.length}`,cx,(cy+=13));
+                // pdf.text(`W: ${sheetDimensions.w} - H: ${sheetDimensions.h} `,cx,(cy+=13));
+            /** S U B H E A D E R */
+
+            /** T A B L A   D E   P R O D U C T O S */
+                /** H E A D E R  &&  F O O T E R*/
+                    headerTable(25,170);
+                    footerPage(1);
+                /** H E A D E R  &&  F O O T E R*/
+
+                    /** B O D Y */
+                        pdf.setFontSize(8);
+                        cx=25;// set CordinateHorizontal
+                        cy=205;// set CordinateVertical
+                        let nrow = 0;
+
+                        for (const row of rows) {// ITERANDO LAS FILAS
+                            if(nrow%2==0){ pdf.setFillColor('#ffffff'); }else{ pdf.setFillColor('#ced6e0'); }// define el color de la fila
+                            pdf.rect(cx, cy, 550, 20, "F");//dibuja la fila con el color definido
+                            
+                            for (let idx = 0; idx < row.length; idx++) {//dibuja las solumnas de la fila
+                                pdf.text(`${row[idx]}`,cx,(cy+7),{baseline:'hanging'});
+                                cx+=headers[idx].width;//recorre la coordenada X a la derecha para justificarla a su cabecera
+                            }
+
+                            
+                            if(cy>emh){//si el eje Y supera al maximo de alto de la pagina
+                                cy = 70;//devuelve el eje Y al inico de la pagina
+                                pdf.addPage();//agrega una pagina nueva
+                                pdfpage++;
+                                headerTable(25,30);//pinta la cxabecera de la fila al inicio de la pagina
+                                footerPage(1,1);
+                                pdf.setFontSize(8);//el tamaño de la fuenta vuelve a 8
+                                pdfpage++;
+                            }else{ cy+=20; }//incrementa el eje Y para la siguiente fila
+
+                            nrow++;//incrementa el nuero de fila
+                            cx=25;//devuelave el eje X al inicio de la pagina para la siguiente fila
+                        }
+                    /** B O D Y */
+
+                    /** R E S P O N S A B L E S */
+                        pdf.setFontSize(12);
+                        cy+=40;
+                        cx=25;
+
+                        // if(cy>emh){
+                        //     pdf.text(`Responsables`,25,cy,{baseline:'hanging'});
+                        // }else{
+                        //     /**Agregar una paghina */
+                        // }
+
+                        cy+=10
+                        pdf.setFontSize(10);
+                        for (const respo of invresps) {//iterando responsables
+                            pdf.text(`${respo.names} ${respo.surname_pat}`,25,(cy+=30),{baseline:'hanging'});
+                        }
+
+                    /** R E S P O N S A B L E S */                    
+            /** T A B L A   D E   P R O D U C T O S */
+            pdf.save(docname);
+            this.$q.loading.hide();
         }
     },
     computed:{
@@ -336,6 +538,7 @@ export default {
         },
         ismobile(){ return this.$q.platform.is.mobile; },
         socketroom(){ return `COUNTER${this.$route.params.id}`},
+        log(){ return this.index ? this.index.inventory.log : []; }
     }
 }
 </script>

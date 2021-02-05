@@ -2,7 +2,7 @@
 	<q-page padding>
 		<q-header class="bg-darkl0 text-grey-5 q-pa-sm">
 			<q-card class="bg-darkl1">
-				<toolbar-account title="Contador"/>
+				<toolbar-account title="Inventarios"/>
 			</q-card>
 		</q-header>
 		<router-view />
@@ -82,9 +82,7 @@
 
 <script>
 import io from 'socket.io-client'
-import vizapi from '../../../API/warehouses'
 import invsdb from '../../../API/inventories'
-import accountsdb from '../../../API/account'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
 export default {
 	components:{

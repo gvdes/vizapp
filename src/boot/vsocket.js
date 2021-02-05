@@ -8,9 +8,3 @@ const vsocket_route = 'http://vsocket.grupovizcarra.net:7171';
 
 Vue.prototype.$vsocket = vsocket_route;
 Vue.prototype.$routefiles = routefiles;
-
-/**
- * 
- * 
- * 
- */
