@@ -13,11 +13,3 @@ Vue.prototype.$vizapi = vizapi
 
 // para usar dentro de archivos JS
 export { vizapi }
-
-/**
- * 
- *  SELECT * FROM `tkt_order_head`
- *  WHERE (toh_uskey like "e05bb0518ebae5553150c6f530c7ba94" OR toh_uskey LIKE "cb66e747bb8f72cca7fbe930514bd3ab")
- *  AND toh_start > "2020-11-08 10:00:00"
- * 
- */

@@ -55,5 +55,5 @@ export default{
     loadCats(data){ return vizapi.post('/product/catalog',data); },
     getStocks(data){ return vizapi.post('/location/stocks',data); },
     getFiltred(data){ return vizapi.post('/product/catalog',data); },
-    report(data){ return vizapi.post('/location/report',data); }
+    report(data){ return vizapi.post('/location/report',data); },
 }

@@ -1,8 +1,5 @@
 
-export function workpoints_size (state) {
-    return state.workpoints.length;
-}
-
+export function workpoints_size (state) { return state.workpoints.length; }
 export function toolbarModule (state) {
     let icons = {
         "admin":"fas fa-wrench",
@@ -25,12 +22,5 @@ export function toolbarModule (state) {
 
     return { paths:modules, prefix:_prefix };
 }
-
-export function profile(state){
-    console.log(state);
-    return state.profile;
-}
-
-export function moduleauths(state){
-    return state.workin.module;
-}
+export function profile(state){ return state.profile; }
+export function moduleauths(state){ return state.workin.module; }

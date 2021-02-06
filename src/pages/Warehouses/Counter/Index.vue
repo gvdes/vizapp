@@ -27,7 +27,7 @@
 								<div class="col">
 									Responsables [{{inv.responsables.length}}]:
 									<br/>
-									Modelos [{{inv.products.length}}]:
+									<!-- Modelos [{{inv.products.length}}]: -->
 								</div>
 
 								<template v-if="inv.status.id==1">
@@ -103,15 +103,14 @@ export default {
 	async beforeMount(){
 		this.$q.loading.show();
 		this.index = await invsdb.index();
+		console.log(this.index);
 		this.$q.loading.hide();
 
 		console.log("MONTANDO SOCKET");
 		this.sktcounter = await io(`${this.$vsocket}/counters`);
 		this.sktcounter.emit('index',this.profile);
 
-		this.sktcounter.on('connected',data=>{
-			console.log(data);
-		});
+		this.sktcounter.on('connected',data=>{ console.log(data); });
 
 	},
 	methods:{

@@ -61,8 +61,7 @@
                                     <q-select dark dense flat color="green-13"
                                         label="Agregar por..."
                                         stack-label :options="optsAddProds"
-                                        v-model="modeAdd"
-                                        @input="modeAddChanged"
+                                        v-model="modeAdd" @input="modeAddChanged"
                                     />
                                 </div>
                             </div>
@@ -70,7 +69,18 @@
 
                         <q-card-section v-if="modeAdd">
                             <!-- Agregando por Categoria -->
-                            <div v-if="modeAdd.value==1"></div>
+                            <div v-if="modeAdd.value==1">
+                                <q-select
+                                    dark color="green-13"
+                                    class="col-xs-4 col-sm-2"
+                                    label="Categoria"
+                                    @input="setRootCat"
+                                    v-model="categories.selected"
+                                    option-value="id"
+                                    option-label="name"
+                                    :options="categories.options"
+                                />
+                            </div>
 
                             <!-- Agregando por Ubicacion -->
                             <div v-if="modeAdd.value==2">
@@ -102,7 +112,9 @@
                             </div>
 
                             <!-- Agregando por Cofigos -->
-                            <div v-if="modeAdd.value==3"><ProductAutocomplete /></div>
+                            <div v-if="modeAdd.value==3">
+                                <ProductAutocomplete />
+                            </div>
                         </q-card-section>
 
                         <q-card-section>
@@ -148,6 +160,7 @@
 <script>
 import invsdb from '../../../API/inventories'
 import apiwarehouses from '../../../API/warehouses'
+import productsdb from '../../../API/Product'
 import accountsdb from '../../../API/account'
 import ProductAutocomplete from '../../../components/Global/ProductAutocomplete.vue'
 export default {
@@ -161,7 +174,7 @@ export default {
             trydiscard:false,
             group:[],
             optsAddProds:[
-                {label:'Categorias',value:1},
+                {label:'Categoria',value:1},
                 {label:'Ubicacion',value:2},
                 {label:'Codigo',value:3},
             ],
@@ -172,6 +185,13 @@ export default {
                 options:[],
                 sections:[],
                 sectModels:[],
+                loading:false
+            },
+            categories:{
+                selected:null,
+                options:[],
+                cats:[],
+                models:[],
                 loading:false
             },
             filtrator:{
@@ -229,6 +249,10 @@ export default {
                 console.log(fail);
             });
         },
+        setRootCat(){
+            console.log('seteando raiz');
+            console.log(this.categories.selected);
+        },
         setWarehouse(){
             this.warehouses.loading = true;
 			this.warehouses.sections = [];// vaciamos las secciones
@@ -267,9 +291,16 @@ export default {
                 this.warehouses.loading = false;
 			}).catch(fail=>{ console.log(fail); });
 		},
+        loadProducts(){
+            console.log('Listando Productos...');
+        },
         async modeAddChanged(){
             switch (this.modeAdd.value) {
-                case 1:console.log("Modo Categoria Activado!!");break;
+                case 1:
+                    console.log("Modo Categoria Activado!!");
+                    this.categories.options = await productsdb.categories();
+                    console.log(this.categories.options);
+                break;
 
                 case 2:
                     console.log("Modo Ubicacion Activado!!");
@@ -381,9 +412,7 @@ export default {
         auths(){ return this.$store.getters['Account/moduleauths']; },
         profile(){ return this.$store.getters['Account/profile'];},
         canStart(){ return (this.listProducts.length&&this.group.length); },
-        wrapperClass(){
-            return this.$q.platform.is.mobile ? 'column':'row items-start';
-        },
+        wrapperClass(){ return this.$q.platform.is.mobile ? 'column':'row items-start'; },
     }
 }
 </script>
