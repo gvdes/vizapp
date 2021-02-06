@@ -71,9 +71,29 @@
 				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(6)">
 					<q-card-section class="text-h4 text-left text-pink-14">
 						<q-spinner-puff color="orange-14" v-if="!stats"/>
+						<span v-else>{{ stats.withStock.sinMaximos }}</span>
+					</q-card-section>
+					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin minimos y maximos</div>
+				</q-card>
+			</div>
+
+			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
+				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(7)">
+					<q-card-section class="text-h4 text-left text-pink-14">
+						<q-spinner-puff color="orange-14" v-if="!stats"/>
 						<span v-else>{{ stats.withStock.generalVsExhibicion }}</span>
 					</q-card-section>
 					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin exhibir</div>
+				</q-card>
+			</div>
+
+			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
+				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(8)">
+					<q-card-section class="text-h4 text-left text-pink-14">
+						<q-spinner-puff color="orange-14" v-if="!stats"/>
+						<span v-else>{{ stats.withoutStock.generalVsCedis }}</span>
+					</q-card-section>
+					<div class="text--2 text-right q-pr-xs text-grey-7">General VS CEDIS</div>
 				</q-card>
 			</div>
 		</div>
@@ -98,11 +118,13 @@ export default {
 			stats:null,
 			reportnames:[
 				'productos_con_stock.xlsx',
-				'productos_ubicados_y_con_stock.xlsx',
-				'productos_con_stock_y_sinubicar.xlsx',
+				'productos_con_stock_y_ubicados.xlsx',
+				'productos_con_stock_y_sin_ubicar.xlsx',
 				'productos_sin_stock.xlsx',
 				'productos_sin_stock_y_con_ubicacion.xlsx',
-				'productos_con_stock_sin_exhibir.xlsx'
+				'productos_con_stock_y_sin_minimos_y_maximos.xlsx',
+				'productos_con_stock_sin_exhibir.xlsx',
+				'productos_con_stock_general_s_exhibicion.xlsx'
 			]
 		}
 	},

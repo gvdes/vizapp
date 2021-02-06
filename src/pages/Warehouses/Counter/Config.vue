@@ -69,18 +69,8 @@
 
                         <q-card-section v-if="modeAdd">
                             <!-- Agregando por Categoria -->
-                            <div v-if="modeAdd.value==1">
-                                <q-select
-                                    dark color="green-13"
-                                    class="col-xs-4 col-sm-2"
-                                    label="Categoria"
-                                    @input="setRootCat"
-                                    v-model="categories.selected"
-                                    option-value="id"
-                                    option-label="name"
-                                    :options="categories.options"
-                                />
-                            </div>
+
+                            <BrowserCategories v-if="modeAdd.value==1" @selectedCat="selectedCat"/>
 
                             <!-- Agregando por Ubicacion -->
                             <div v-if="modeAdd.value==2">
@@ -112,9 +102,7 @@
                             </div>
 
                             <!-- Agregando por Cofigos -->
-                            <div v-if="modeAdd.value==3">
-                                <ProductAutocomplete />
-                            </div>
+                            <div v-if="modeAdd.value==3"><ProductAutocomplete/></div>
                         </q-card-section>
 
                         <q-card-section>
@@ -162,10 +150,13 @@ import invsdb from '../../../API/inventories'
 import apiwarehouses from '../../../API/warehouses'
 import productsdb from '../../../API/Product'
 import accountsdb from '../../../API/account'
+
 import ProductAutocomplete from '../../../components/Global/ProductAutocomplete.vue'
+import BrowserCategories from '../../../components/Global/BrowserCategories.vue'
 export default {
     components:{
-        ProductAutocomplete:ProductAutocomplete
+        ProductAutocomplete:ProductAutocomplete,
+        BrowserCategories:BrowserCategories
     },
     data() {
         return {
@@ -185,13 +176,6 @@ export default {
                 options:[],
                 sections:[],
                 sectModels:[],
-                loading:false
-            },
-            categories:{
-                selected:null,
-                options:[],
-                cats:[],
-                models:[],
                 loading:false
             },
             filtrator:{
@@ -249,9 +233,9 @@ export default {
                 console.log(fail);
             });
         },
-        setRootCat(){
-            console.log('seteando raiz');
-            console.log(this.categories.selected);
+        selectedCat(cat){
+            console.log("Categoria root seleccionada");
+            console.log(cat);
         },
         setWarehouse(){
             this.warehouses.loading = true;
@@ -296,11 +280,7 @@ export default {
         },
         async modeAddChanged(){
             switch (this.modeAdd.value) {
-                case 1:
-                    console.log("Modo Categoria Activado!!");
-                    this.categories.options = await productsdb.categories();
-                    console.log(this.categories.options);
-                break;
+                case 1: console.log("Modo Categoria Activado!!"); break;
 
                 case 2:
                     console.log("Modo Ubicacion Activado!!");
