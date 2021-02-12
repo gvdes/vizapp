@@ -85,21 +85,11 @@
 		<q-dialog v-model="wndAddLoc.state" position="bottom">
 			<q-card class="bg-darkl0">
 				<q-card-section>
-					<q-select dark color="green-13" class="col" label="Almacen" v-model="workIn" @input="setWarehouse" :options="warehousesOptions"/>
-					<div class="row q-px-md justify-around">
-						<q-select 
-							dark color="green-13"
-							v-for="(sect,idx) in sections" :key="idx" 
-							v-model="sectModels[idx]"
-							:options="sections[idx]"
-							@input="loadSections(sectModels[idx],idx)"
-							popup-content-style="max-height:330px;"
-						/>
-					</div>
+					<WarehousesBrowser :fetchproducts="false" @selectedLoc="selectedLoc"/>
 				</q-card-section>
 
 				<q-card-actions align="center">
-					<q-btn flat :label="loc_exist?'La ubicacion ya existe':'Guardar'" :color="loc_exist?'amber-13':'green-13'" v-if="workIn.value" @click="set" :disabled="settingloc||loc_exist" :loading="settingloc"></q-btn>
+					<q-btn flat :color="loc_exist?'amber-13':'green-13'" @click="set" :disabled="settingloc||loc_exist" :loading="settingloc"></q-btn>
 				</q-card-actions>
 			</q-card>
 		</q-dialog>
@@ -110,11 +100,13 @@
 import dbproduct from '../../../API/Product'
 import vizapi from '../../../API/warehouses'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
+import WarehousesBrowser from '../../../components/Global/WarehousesBrowser.vue'
 
 export default {
 	name: 'IndexLocator',
 	components:{
 		ToolbarAccount:ToolbarAccount,
+		WarehousesBrowser:WarehousesBrowser
 	},
 	data(){
 		return {
@@ -128,9 +120,7 @@ export default {
 			product:undefined,
 			create:{ state:false },
 			wndAddLoc:{ state:false,locs:[] },
-			workIn:{ label:"seleccione", value:null, disabled:true },
 			sections:[],
-			sectModels:[],
 			removes:[],
 			settingloc:false,
 			confirmremove:false,
@@ -141,6 +131,9 @@ export default {
 		this.loadIndex();
 	},
 	methods:{
+		selectedLoc(loc){
+			console.log(loc);
+		},
 		autocomplete (val, update, abort) {
             let data={params:{ "code": val.trim() }};
             dbproduct.autocomplete(data).then(success=>{
@@ -173,35 +166,6 @@ export default {
 				this.sectModels[pos]={ label:"Seleccione",value:null,disabled:true }
 				this.wndAddLoc.locs = [];
 				console.log(this.product.locations);
-			}).catch(fail=>{ console.log(fail); });
-		},
-		loadSections(section,idx){
-			this.sections.splice(idx+1);//elimina secciones
-			this.sectModels.splice(idx+1);//elimina los modelos
-
-			let data = { params:{"_section":section.value} }; // dato a enviar en peticion
-
-			vizapi.loadSections(data).then(success=>{
-				let children = success.data.sections.sections;
-
-				if(children.length>0){
-					let resp = children.map(item=>{ return {label:item.alias,value:item.id}; });
-					console.log(resp);
-					this.sections.push(resp);
-					this.sectModels.push({label:"Seleccione",value:null});
-				}else{ console.log("Sin mas subsecciones por cargar!!"); }
-			}).catch(fail=>{ console.log(fail); });
-		},
-		setWarehouse(){
-			console.log(this.workIn);
-			this.sections = [];// vaciamos las secciones
-			let data = { params:{"_celler":this.workIn.value} }; // dato a enviar en peticion
-
-			vizapi.loadSections(data).then(success=>{
-				let resp = success.data.sections.map(item=>{ return {label:item.alias,value:item.id}; });
-				console.log(resp);
-				this.sections.push(resp);
-				this.sectModels.push({label:"Seleccione",value:null});
 			}).catch(fail=>{ console.log(fail); });
 		},
 		locsOf(opt){
@@ -247,13 +211,13 @@ export default {
 	computed:{
 		cansearch(){ return this.iptsearch.value.length>2 ? false : true; },
 		warehousesOptions(){ return this.warehouses.map(item=>{ return {label:item.name,value:item.id}; }); },
-		fullpath(){ 
-			let path = '';
-			this.sectModels.forEach((item,idx)=>{ 
-				if(item.value){ path += idx==0?`${item.label}`:`-${item.label}`; }
-			});
-			return path;
-		},
+		// fullpath(){ 
+		// 	let path = '';
+		// 	this.sectModels.forEach((item,idx)=>{ 
+		// 		if(item.value){ path += idx==0?`${item.label}`:`-${item.label}`; }
+		// 	});
+		// 	return path;
+		// },
 		current_paths(){
 			if(this.product){
 				return this.product.locations.map(loc=>{

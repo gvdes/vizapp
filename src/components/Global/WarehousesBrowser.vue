@@ -10,7 +10,7 @@
             option-label="name"
             :options="warehouses.options"
         />
-
+        {{this.fullpath}}
         <q-select
             dark color="amber-13"
             class="col-2 q-mr-sm q-mb-sm"
@@ -41,7 +41,6 @@ export default {
                 selected:null,
                 options:[],
                 sections:[],
-                sectModels:[],
                 loading:false
             },
             filters:{
@@ -59,7 +58,7 @@ export default {
     async mounted() {
         this.loading.state=true;
         this.warehouses.options = await warehousesdb.list();
-        console.log(this.warehouses.options);
+        // console.log(this.warehouses.options);
         this.loading.state=false;
     },
     methods: {
@@ -69,7 +68,7 @@ export default {
 
             let data = { params:{"_celler":this.warehouses.selected.id,"products":false } };
 			let sections = await warehousesdb.sections(data);
-            console.log(sections);
+            // console.log(sections);
 
             if(sections.length){
                 let newSelect = {
@@ -83,10 +82,10 @@ export default {
         async loadSections(section,idx){
             this.loading.state = true;
             this.warehouses.sections.splice(idx+1);
-            console.log(section.model.value.id);
+            // console.log(section.model.value.id);
             let data = { params:{"_section":section.model.value.id,"products":false } };
             let sections = await warehousesdb.sections(data);
-            console.log(sections.sections);
+            // console.log(sections.sections);
 
             if(sections.sections.length){
                 let newSelect = {
@@ -99,19 +98,30 @@ export default {
             this.selectedLoc(section);
 		},
         async selectedLoc(section){
-            console.log("Obteniendo productos");
+            // console.log(this.fullpath);
+            
             this.filters._location = section.model.value.id;
-            console.log(this.filters._location);
+            // console.log(this.filters._location);
 
             let response = { section:section, products:[] }
 
-            if(this.fetchproducts){ response.products = await productsdb.get(this.filters); }
+            if(this.fetchproducts){
+                // console.log("Obteniendo productos");
+                response.products = await productsdb.get(this.filters);
+            }
 
-            console.log(response);
-            
+            // console.log(response);
             this.loading.state=false;
             this.$emit('selectedLoc',response);
         }
     },
+    computed:{
+        fullpath(){
+            return this.warehouses.sections.reduce((path,sect)=>{
+                // console.log(sect);
+                return path+`-${sect.alias}`;
+            },'');
+		}
+    }
 }
 </script>
