@@ -93,7 +93,7 @@
 						<q-spinner-puff color="orange-14" v-if="!stats"/>
 						<span v-else>{{ stats.withoutStock.generalVsCedis }}</span>
 					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">General VS CEDIS</div>
+					<div class="text--2 text-right q-pr-xs text-grey-7">Almacen General VS CEDIS</div>
 				</q-card>
 			</div>
 		</div>
@@ -124,7 +124,7 @@ export default {
 				'productos_sin_stock_y_con_ubicacion.xlsx',
 				'productos_con_stock_y_sin_minimos_y_maximos.xlsx',
 				'productos_con_stock_sin_exhibir.xlsx',
-				'productos_con_stock_general_s_exhibicion.xlsx'
+				'productos_con_stock_general_vs_exhibicion.xlsx'
 			]
 		}
 	},

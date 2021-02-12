@@ -16,6 +16,7 @@
             </q-card>
 
             <div :class="`${wrapperClass} q-pt-md q-mb-xl q-gutter-md`">
+                <!-- RESPONSABLES -->
                 <q-card class="col bg-darkl1 exo">
                     <q-expansion-item
                         expand-separator
@@ -46,6 +47,7 @@
                     </q-expansion-item>
                 </q-card>
 
+                <!-- PRODUCTOS -->
                 <q-card class="col bg-darkl1 exo">
                     <q-expansion-item
                         expand-separator
@@ -69,52 +71,27 @@
 
                         <q-card-section v-if="modeAdd">
                             <!-- Agregando por Categoria -->
-
-                            <BrowserCategories v-if="modeAdd.value==1" @selectedCat="selectedCat"/>
+                            <CategoriesBrowser v-if="modeAdd.value==1" @selectedCat="selectedCat"/>
 
                             <!-- Agregando por Ubicacion -->
-                            <div v-if="modeAdd.value==2">
-                                <div class="row q-gutter-md">
-                                    <q-select 
-                                        dark color="green-13"
-                                        class="col-xs-4 col-sm-2"
-                                        label="Almacen"
-                                        v-model="warehouses.selected"
-                                        @input="setWarehouse"
-                                        option-value="id"
-                                        option-label="name"
-                                        :options="warehouses.options"
-                                    />
-
-                                    <q-select
-                                        dark color="amber-13"
-                                        class="col-xs col-sm-1"
-                                        v-for="(sect,idx) in warehouses.sections" :key="idx" 
-                                        v-model="warehouses.sectModels[idx]"
-                                        :options="warehouses.sections[idx]"
-                                        @input="loadSections(warehouses.sectModels[idx],idx)"
-                                    />
-
-                                    <template v-if="warehouses.loading">
-                                        <q-spinner-dots size="md" color="green-13" class="self-center"/>
-                                    </template>
-                                </div>
-                            </div>
+                            <WarehousesBrowser v-if="modeAdd.value==2" @selectedLoc="selectedLoc"/>
 
                             <!-- Agregando por Cofigos -->
                             <div v-if="modeAdd.value==3"><ProductAutocomplete/></div>
                         </q-card-section>
 
-                        <q-card-section>
+                        <q-card-section style="max-width:100%;">
                             <q-table dark flat
                                 card-class="bg-none"
                                 :data="listProducts"
                                 :columns="tableProducts.columns"
+                                :visible-columns="tableProducts.visibleColumns"
                             >
                                 <template v-slot:body="props">
                                     <q-tr :props="props">
                                         <q-td key="id" :props="props">{{ props.row.id }}</q-td>
                                         <q-td key="code" :props="props">{{ props.row.code }}</q-td>
+                                        <q-td key="description" :props="props" class="text--2">{{ props.row.description }}</q-td>
                                         <q-td key="locations" :props="props">
                                             [ {{props.row.locations.length}} ]
                                             <span v-for="(loc,idx) in props.row.locations" :key="idx">{{loc.path}}</span>
@@ -147,16 +124,17 @@
 
 <script>
 import invsdb from '../../../API/inventories'
-import apiwarehouses from '../../../API/warehouses'
-import productsdb from '../../../API/Product'
 import accountsdb from '../../../API/account'
 
 import ProductAutocomplete from '../../../components/Global/ProductAutocomplete.vue'
-import BrowserCategories from '../../../components/Global/BrowserCategories.vue'
+import CategoriesBrowser from '../../../components/Global/CategoriesBrowser.vue'
+import WarehousesBrowser from '../../../components/Global/WarehousesBrowser.vue'
+
 export default {
     components:{
         ProductAutocomplete:ProductAutocomplete,
-        BrowserCategories:BrowserCategories
+        CategoriesBrowser:CategoriesBrowser,
+        WarehousesBrowser:WarehousesBrowser
     },
     data() {
         return {
@@ -171,27 +149,14 @@ export default {
             ],
             modeAdd:null,
             listProducts:[],
-            warehouses:{
-                selected:null,
-                options:[],
-                sections:[],
-                sectModels:[],
-                loading:false
-            },
-            filtrator:{
-                "paginate" : null,
-                "_category": null,
-                "_location": null,
-                "check_stock":false,
-                "with_stock":false,
-                "_status": null
-            },
             tableProducts:{
                 columns:[
                     { name:'id', align:'left', label:'ID', field:row=>row.id, sortable:true },
 					{ name:'code', align:'left', label:'Codigo', field:row=>row.code, sortable:true },
+                    { name:'description', align:'left', label:'Descripcion', field:row=>row.description },
 					{ name:'locations', align:'center', label:'Ubicaciones', field:row=>row.locations.length, sortable:true },
-				]
+				],
+                visibleColumns:['code','locations']
             },
             expands:{
                 respos:true,
@@ -234,63 +199,23 @@ export default {
             });
         },
         selectedCat(cat){
-            console.log("Categoria root seleccionada");
+            console.log("Categoria Seleccionada");
             console.log(cat);
+            this.listProducts = cat.products.length ? cat.products:[];
         },
-        setWarehouse(){
-            this.warehouses.loading = true;
-			this.warehouses.sections = [];// vaciamos las secciones
-            let data = { params:{"_celler":this.warehouses.selected.id,"products":true,paginate:500 } };
-            console.log("Obteniendo secci0ones del almacen "+this.warehouses.selected.name);
-			apiwarehouses.loadSections(data).then(success=>{//obtener secciones del almacen
-				let resp = success.data.sections.map(item=>{ return {label:item.alias,value:item.id}; });
-				// console.log(resp);
-				this.warehouses.sections.push(resp);
-				this.warehouses.sectModels.push({label:"Seleccione",value:null});
-                
-                // this.listProducts = success.data.products.data.map(item=>{ return { code:item.code, locations:item.locations, counter:0 } });
-                this.listProducts = success.data.products.data;
-                this.warehouses.loading = false;
-			}).catch(fail=>{ console.log(fail); });
-        },
-        loadSections(section,idx){
-            this.warehouses.loading = true;
-			console.log(this.warehouses.sections);
-			console.log(this.warehouses.sectModels);
-			this.warehouses.sections.splice(idx+1);//elimina secciones
-			this.warehouses.sectModels.splice(idx+1);//elimina los modelos
-            let data = { params:{"_section":section.value,"products":true,"paginate":500} }; // dato a enviar en peticion
-            // console.log(data);
-			apiwarehouses.loadSections(data).then(success=>{
-                let children = success.data.sections.sections;
-				if(children.length>0){
-					let resp = children.map(item=>{ return {label:item.alias,value:item.id}; });
-					// console.log(resp);
-					this.warehouses.sections.push(resp);
-					this.warehouses.sectModels.push({label:"Seleccione",value:null});
-                }else{ console.log("Sin mas subsecciones por cargar!!"); }
-
-                // this.listProducts = success.data.products.data.map(item=>{ return { code:item.code, locations:item.locations, counter:0 } });
-                this.listProducts = success.data.products.data;
-                this.warehouses.loading = false;
-			}).catch(fail=>{ console.log(fail); });
-		},
-        loadProducts(){
-            console.log('Listando Productos...');
+        selectedLoc(loc){
+            console.log("Ubicacion seleccionada");
+            console.log(loc);
+            this.listProducts = loc.products.length ? loc.products:[];
         },
         async modeAddChanged(){
+            this.listProducts = [];
             switch (this.modeAdd.value) {
                 case 1: console.log("Modo Categoria Activado!!"); break;
-
-                case 2:
-                    console.log("Modo Ubicacion Activado!!");
-                    this.warehouses.options = await apiwarehouses.loadWarehouses();
-                break;
-
+                case 2: console.log("Modo Ubicacion Activado!!"); break;
                 case 3:console.log("Modo Codigo Activado!!");break;
             }
         },
-        discard(){},
         start(){
             console.log("Iniciando ");
             let products = this.listProducts.map(prod=>{ return prod.id; });

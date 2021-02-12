@@ -14,5 +14,8 @@ export default{
         return vizapi.post('/product/catalog',data).then(success=>{
             return success.data.categories;
         }).catch(fail=>{ console.log(fail); });
-    }
+    },
+    get(data){ return vizapi.post('/product',data).then(success=>{
+        return success.data;
+    }).catch(fail=>{console.log(fail);}); } 
 }

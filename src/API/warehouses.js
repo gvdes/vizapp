@@ -11,6 +11,14 @@ export default{
     },
     tree(data){ return vizapi.get('/location/allSections',data); },
     warehouses(data){ return vizapi.get('/location/cellers'); },
+    list(){
+        return vizapi.get('/location/cellers').then(success=>{
+            console.log(success.data);
+            return success.data.cellers
+        }).catch(fail=>{
+            console.log(fail);
+        });
+    },
     loadWarehouses(){
         console.log("%cCargando Almacenes...","font-size:2em; color:purple;");
         return vizapi.get('/location/cellers').then(succcess=>{
@@ -20,9 +28,13 @@ export default{
             console.log(fail);
         });
     },
-    loadSections(data){
-        console.log("Traiendo secciones");
-        return vizapi.get('/location/sections',data);
+    sections(data){
+        return vizapi.get('/location/sections',data).then(success=>{
+            console.log(success.data);
+            return success.data.sections
+        }).catch(fail=>{
+            console.log(fail);
+        });
     },
     product(data){
         console.log(data);
