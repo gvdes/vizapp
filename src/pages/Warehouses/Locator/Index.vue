@@ -89,7 +89,7 @@
 				</q-card-section>
 
 				<q-card-actions align="center">
-					<q-btn flat :color="loc_exist?'amber-13':'green-13'" @click="set" :disabled="settingloc||loc_exist" :loading="settingloc"></q-btn>
+					<q-btn v-if="add_loc" dark flat color="green-13" @click="set" :disabled="settingloc" :loading="settingloc" label="Guardar"/>
 				</q-card-actions>
 			</q-card>
 		</q-dialog>
@@ -124,16 +124,15 @@ export default {
 			removes:[],
 			settingloc:false,
 			confirmremove:false,
-			autocom:{model:null,options:undefined}
+			autocom:{model:null,options:undefined},
+			locsave:null
 		}
 	},
 	mounted(){ 
 		this.loadIndex();
 	},
 	methods:{
-		selectedLoc(loc){
-			console.log(loc);
-		},
+		selectedLoc(loc){ this.locsave = loc; },
 		autocomplete (val, update, abort) {
             let data={params:{ "code": val.trim() }};
             dbproduct.autocomplete(data).then(success=>{
@@ -153,20 +152,25 @@ export default {
 		},
 		set(){
 			this.settingloc=true;
-			let pos = this.sectModels.length-1;
-			let path = this.sectModels[pos];
-			this.wndAddLoc.locs.push(path.value);
-			let data = { "_product":this.product.id, "_section":this.wndAddLoc.locs }
+			console.log(this.locsave);
+			let idloc = this.locsave.section.model.value.id;
+			let fullpath = this.locsave.path.filter(item=>{//filtrar elementos que si tienen contenido
+					return item ? item.value:null;
+				}).map(item=>{
+					return item.value.alias;//retornar solo los valores
+				}).join('-');
+			let data = { "_product":this.product.id, "_section":idloc }
 
 			vizapi.toggle(data).then(success=>{
-				console.log(success.data.success);
-				this.product.locations.unshift({ path:this.fullpath, id:success.data.success.attached[0] });
-				this.$q.notify({ position:'bottom-right', color:'positive', icon:"fas fa-check", timeout:800 });
+				console.log(success.data);
+				this.product.locations.unshift({ path:fullpath, id:success.data.success.attached[0] });
 				this.settingloc=false;
-				this.sectModels[pos]={ label:"Seleccione",value:null,disabled:true }
-				this.wndAddLoc.locs = [];
-				console.log(this.product.locations);
-			}).catch(fail=>{ console.log(fail); });
+				this.$q.notify({ position:'center', color:'positive', icon:"fas fa-check", timeout:800 });
+			}).catch(fail=>{
+				this.settingloc=false;
+				console.log("%cError has been resulted!!","font-size:2em;color:red;");
+				console.log(fail);
+			});
 		},
 		locsOf(opt){
 			this.product=undefined;
@@ -178,17 +182,6 @@ export default {
 			vizapi.product(data).then(success=>{
 				console.log(success.data);
 				this.product = success.data;
-				// if(resp.id){ 
-				// }else{
-				// 	this.product = undefined;
-				// 	this.$q.notify({
-				// 		message:`Sin coincidencias para ${idart}`,
-				// 		timeout:1500,
-				// 		color:'negative',
-				// 		position:'center',
-				// 		icon:"fas fa-exclamation-triangle"
-				// 	});
-				// }
 				this.iptsearch.processing=false;
 			}).catch(fail=>{ console.log(fail); });
 		},
@@ -211,13 +204,14 @@ export default {
 	computed:{
 		cansearch(){ return this.iptsearch.value.length>2 ? false : true; },
 		warehousesOptions(){ return this.warehouses.map(item=>{ return {label:item.name,value:item.id}; }); },
-		// fullpath(){ 
-		// 	let path = '';
-		// 	this.sectModels.forEach((item,idx)=>{ 
-		// 		if(item.value){ path += idx==0?`${item.label}`:`-${item.label}`; }
-		// 	});
-		// 	return path;
-		// },
+		add_loc(){
+			if (this.locsave) {
+				return this.locsave.path.filter(item=>{//filtrar elementos que si tienen contenido
+					return item ? item.value:null;
+				}).length ? true:false;	
+			}
+			return false;
+		},
 		current_paths(){
 			if(this.product){
 				return this.product.locations.map(loc=>{

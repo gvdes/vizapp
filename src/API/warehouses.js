@@ -30,7 +30,7 @@ export default{
     },
     sections(data){
         return vizapi.get('/location/sections',data).then(success=>{
-            console.log(success.data);
+            // console.log(success.data);
             return success.data.sections
         }).catch(fail=>{
             console.log(fail);

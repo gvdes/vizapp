@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-// const vsocket_route = 'http://192.168.1.86:45174';
+// const vsocket_route = 'http://192.168.1.86:7171';
 // const routefiles = 'http://192.168.1.86/files';
 
 const routefiles = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/files';

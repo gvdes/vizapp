@@ -10,7 +10,7 @@
             option-label="name"
             :options="warehouses.options"
         />
-        {{this.fullpath}}
+        
         <q-select
             dark color="amber-13"
             class="col-2 q-mr-sm q-mb-sm"
@@ -78,6 +78,7 @@ export default {
                 this.warehouses.sections.push(newSelect);
             }
             this.loading.state = false;
+            this.selectedLoc();
         },
         async loadSections(section,idx){
             this.loading.state = true;
@@ -97,31 +98,24 @@ export default {
 
             this.selectedLoc(section);
 		},
-        async selectedLoc(section){
-            // console.log(this.fullpath);
-            
-            this.filters._location = section.model.value.id;
-            // console.log(this.filters._location);
-
-            let response = { section:section, products:[] }
+        async selectedLoc(section=null){
 
             if(this.fetchproducts){
-                // console.log("Obteniendo productos");
+                this.filters._location = section.model.value.id;
                 response.products = await productsdb.get(this.filters);
             }
 
-            // console.log(response);
+            let response = { warehouse:this.warehouses.selected, section:section, products:[], path:this.fullpath }
             this.loading.state=false;
             this.$emit('selectedLoc',response);
         }
     },
     computed:{
         fullpath(){
-            return this.warehouses.sections.reduce((path,sect)=>{
-                // console.log(sect);
-                return path+`-${sect.alias}`;
-            },'');
-		}
+            return this.warehouses.sections.map(sect=>{
+                if (sect.model.value) { return sect.model; }
+            });
+		},
     }
 }
 </script>
