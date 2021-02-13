@@ -17,7 +17,7 @@
             </template>
 
             <template v-slot:option="scope">
-                <div class="text-grey-7 q-pa-sm" v-if="scope.opt.status.id>1" v-bind="scope.itemProps">
+                <div v-if="scope.opt.status.id>1" class="text-grey-7 q-pa-sm" v-bind="scope.itemProps">
                     <div class="text-bold">
                         {{scope.opt.code}} - {{scope.opt.name}}
                         <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" />

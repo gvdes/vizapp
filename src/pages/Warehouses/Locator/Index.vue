@@ -4,36 +4,7 @@
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Ubicador"/>
 				<q-card-section>
-					<q-form class="q-py-sm">
-						<q-select dark dense filled fill-input color="green-13"
-							use-input hide-selected class="text-uppercase" hide-dropdown-icon
-							input-debounce="0" option-value="id" option-label="code"
-							:value="autocom.model"
-							:options="autocom.options" 
-							@filter="autocomplete"
-							@input="locsOf"
-							:type="iptsearch.type" behavior="menu">
-							<template v-slot:no-option>
-								<q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
-							</template>
-
-							<template v-slot:prepend>
-								<q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-							</template>
-
-							<template v-slot:option="scope">
-								<q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
-									<!-- <q-item-section avatar>
-										<q-img :src="scope.opt.img" style="width:35px;height:35px;"/>
-									</q-item-section> -->
-									<q-item-section>
-										<q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
-										<q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
-									</q-item-section>
-								</q-item>
-							</template>
-						</q-select>
-					</q-form>
+					<ProductAutocomplete :checkState="false" @input="selectedProd" />
 				</q-card-section>
 				<q-separator/>
 				<q-toolbar v-if="product" class="row justify-between">
@@ -67,16 +38,21 @@
 				<q-list bordered>
 					<q-item v-for="(loc,idx) in product.locations" :key="idx">
 						<q-item-section>{{ loc.path }}</q-item-section>
-						<q-item-section avatar actions align="right">
-							<q-btn  @click="remove(loc.id,idx)" flat icon="remove" color="red-13"/>
-						</q-item-section>
-						<!-- <q-item-section avatar actions align="right">
-							<q-btn v-if="!confirmremove" @click="confirmremove=true" flat icon="remove" color="red-13"/>
-							<template v-else>
-								<q-btn  @click="confirmremove=false" flat label="cancelar" color="amber-13"/>
-								<q-btn  @click="remove(loc.id,idx)" flat label="Eliminar" color="red-13"/>
-							</template>
-						</q-item-section> -->
+
+						<template v-if="loc.state==1">
+							<q-item-section avatar actions align="right">
+								<q-btn flat dark @click="loc.state=2" icon="delete_outline" color="amber-13"/>
+							</q-item-section>
+						</template>
+
+						<template v-if="loc.state==2">
+							<q-item-section avatar actions align="right">
+								<div class="row">
+									<q-btn @click="remove(loc.id,idx)" flat label="eliminar" size="sm" color="red-13"/>
+									<q-btn @click="loc.state=1" flat label="conservar" size="sm" color="light-blue-13"/>
+								</div>
+							</q-item-section>
+						</template>
 					</q-item>
 				</q-list>
 			</q-card>
@@ -88,29 +64,35 @@
 					<WarehousesBrowser :fetchproducts="false" @selectedLoc="selectedLoc"/>
 				</q-card-section>
 
-				<q-card-actions align="center">
-					<q-btn v-if="add_loc" dark flat color="green-13" @click="set" :disabled="settingloc" :loading="settingloc" label="Guardar"/>
-				</q-card-actions>
+				<template v-if="valid_loc">
+					<q-card-section v-if="is_duplicate" class="text-center text-amber-13">
+						<q-icon name="error_outline" size="sm"/> Ubicacion duplicadas
+					</q-card-section>
+
+					<q-card-actions v-else align="center">
+						<q-btn dark flat color="green-13" @click="set" :disabled="settingloc" :loading="settingloc" no-caps label="Guardar" />
+					</q-card-actions>
+				</template>
 			</q-card>
 		</q-dialog>
 	</q-page>
 </template>
 
 <script>
-import dbproduct from '../../../API/Product'
 import vizapi from '../../../API/warehouses'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
 import WarehousesBrowser from '../../../components/Global/WarehousesBrowser.vue'
+import ProductAutocomplete from '../../../components/Global/ProductAutocomplete.vue'
 
 export default {
 	name: 'IndexLocator',
 	components:{
 		ToolbarAccount:ToolbarAccount,
-		WarehousesBrowser:WarehousesBrowser
+		WarehousesBrowser:WarehousesBrowser,
+		ProductAutocomplete:ProductAutocomplete
 	},
 	data(){
 		return {
-			warehouses:[],
 			iptsearch:{
 				value:'',
 				processing:false,
@@ -118,29 +100,34 @@ export default {
 				icon:'fas fa-hashtag'
 			},
 			product:undefined,
-			create:{ state:false },
-			wndAddLoc:{ state:false,locs:[] },
-			sections:[],
-			removes:[],
+			wndAddLoc:{ state:false },
 			settingloc:false,
-			confirmremove:false,
 			autocom:{model:null,options:undefined},
-			locsave:null
+			locsave:null,
+			pathtosave:null
 		}
 	},
-	mounted(){ 
-		this.loadIndex();
-	},
 	methods:{
-		selectedLoc(loc){ this.locsave = loc; },
-		autocomplete (val, update, abort) {
-            let data={params:{ "code": val.trim() }};
-            dbproduct.autocomplete(data).then(success=>{
-                let resp = success.data;
-                update(() => { this.autocom.options=resp; });
-            }).catch(fail=>{ console.log(fail); });
-        },
-		clearWndAddLoc(){ this.sections.splice(idx+1);},//elimina secciones
+		selectedLoc(loc){
+			this.locsave = loc;
+			//filtrar elementos que si tienen contenido
+			let usedspaths = this.locsave.path.filter(item=>{ return item ? item.value:null; });
+			// obtener ubicacion que se considerara a guardar
+			this.pathtosave = usedspaths.length ? usedspaths[usedspaths.length-1].value:null;
+
+		},//se ejecuta al seleccionar una ubicacion
+		selectedProd(product){// se ejecuta al seleccionar un producto del autocompletado, para obtener las ubicaciones
+			this.product=undefined;
+			this.iptsearch.processing=true;
+			console.log(product);
+			let data = { params:{ "id":product.id } }
+
+			vizapi.product(data).then(success=>{
+				success.data.locations.map(loc=>{loc.state=1; return loc;});
+				this.product = success.data;
+				this.iptsearch.processing=false;
+			}).catch(fail=>{ console.log(fail); });
+		},
 		remove(id,pos){
 			let data = { "_product":this.product.id, "_section":[id] };
 			console.log(data,pos);
@@ -151,60 +138,26 @@ export default {
 			}).catch(fail=>{ console.log(fail); });
 		},
 		set(){
+			// console.log(this.locsave);
 			this.settingloc=true;
-			console.log(this.locsave);
-			let idloc = this.locsave.section.model.value.id;
-			let fullpath = this.locsave.path.filter(item=>{//filtrar elementos que si tienen contenido
-					return item ? item.value:null;
-				}).map(item=>{
-					return item.value.alias;//retornar solo los valores
-				}).join('-');
-			let data = { "_product":this.product.id, "_section":idloc }
+			
+			let data = { "_product":this.product.id, "_section":this.pathtosave.id }
 
 			vizapi.toggle(data).then(success=>{
 				console.log(success.data);
-				this.product.locations.unshift({ path:fullpath, id:success.data.success.attached[0] });
+				this.product.locations.unshift(this.pathtosave);
 				this.settingloc=false;
 				this.$q.notify({ position:'center', color:'positive', icon:"fas fa-check", timeout:800 });
 			}).catch(fail=>{
 				this.settingloc=false;
-				console.log("%cError has been resulted!!","font-size:2em;color:red;");
-				console.log(fail);
+				console.log("%cError has been resulted!!","font-size:2em;color:red;"); console.log(fail);
 			});
 		},
-		locsOf(opt){
-			this.product=undefined;
-			this.iptsearch.processing=true;
-			console.log(`ubicaciones para ${opt.code}`);
-			let idart = opt.id;
-			let data = { params:{ "id":idart } }
 
-			vizapi.product(data).then(success=>{
-				console.log(success.data);
-				this.product = success.data;
-				this.iptsearch.processing=false;
-			}).catch(fail=>{ console.log(fail); });
-		},
-		toogleIptSearch(){
-			switch (this.iptsearch.type) {
-				case "text": 
-					this.iptsearch.type="number";
-					this.iptsearch.icon="fas fa-font";
-				break;
-				case "number": 
-					this.iptsearch.type ="text";
-					this.iptsearch.icon="fas fa-hashtag";
-				break;
-			}
-
-			this.$refs.iptsearch.focus();
-		},
-		async loadIndex(){ this.warehouses = await vizapi.loadWarehouses(); }
 	},
 	computed:{
-		cansearch(){ return this.iptsearch.value.length>2 ? false : true; },
-		warehousesOptions(){ return this.warehouses.map(item=>{ return {label:item.name,value:item.id}; }); },
-		add_loc(){
+		valid_loc(){
+			// define si se puede guardar una ubicacion en base a que hay al menos una ubicacion seleccionada ademas del almacen
 			if (this.locsave) {
 				return this.locsave.path.filter(item=>{//filtrar elementos que si tienen contenido
 					return item ? item.value:null;
@@ -212,16 +165,13 @@ export default {
 			}
 			return false;
 		},
-		current_paths(){
-			if(this.product){
-				return this.product.locations.map(loc=>{
-					return loc.path;
-				});
-			}else{return []}
+		current_paths(){//devuelve las ubicaciones que ya estan guardadas
+			return this.product ? this.product.locations.map(loc=>{ return loc.id; }) : [];
 		},
-		loc_exist(){
-			return this.current_paths.includes(this.fullpath);
-		}
+		is_duplicate(){//define si se puede guardar relacionar una ubicacion a este producto mientras no exista aun
+			return (this.current_paths.length&&this.pathtosave) ?
+				this.current_paths.includes(this.pathtosave.id) : false;
+		},
 	}
 }
 </script>
