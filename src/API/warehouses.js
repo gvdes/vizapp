@@ -13,7 +13,7 @@ export default{
     warehouses(data){ return vizapi.get('/location/cellers'); },
     list(){
         return vizapi.get('/location/cellers').then(success=>{
-            console.log(success.data);
+            // console.log(success.data);
             return success.data.cellers
         }).catch(fail=>{
             console.log(fail);

@@ -68,7 +68,6 @@ export default {
 
             let data = { params:{"_celler":this.warehouses.selected.id,"products":false } };
 			let sections = await warehousesdb.sections(data);
-            // console.log(sections);
 
             if(sections.length){
                 let newSelect = {
@@ -83,10 +82,9 @@ export default {
         async loadSections(section,idx){
             this.loading.state = true;
             this.warehouses.sections.splice(idx+1);
-            // console.log(section.model.value.id);
+
             let data = { params:{"_section":section.model.value.id,"products":false } };
             let sections = await warehousesdb.sections(data);
-            // console.log(sections.sections);
 
             if(sections.sections.length){
                 let newSelect = {
@@ -95,17 +93,14 @@ export default {
                 }
                 this.warehouses.sections.push(newSelect);
             }
-
             this.selectedLoc(section);
 		},
         async selectedLoc(section=null){
-
-            if(this.fetchproducts){
-                this.filters._location = section.model.value.id;
-                response.products = await productsdb.get(this.filters);
-            }
-
+            this.filters._location = section ? section.model.value.id:null;
             let response = { warehouse:this.warehouses.selected, section:section, products:[], path:this.fullpath }
+
+            if(this.fetchproducts){ response.products = await productsdb.get(this.filters); }
+
             this.loading.state=false;
             this.$emit('selectedLoc',response);
         }

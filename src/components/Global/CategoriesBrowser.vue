@@ -43,12 +43,12 @@ export default {
             },
             loading:{state:false,msg:''},
             filters:{
-                "paginate" : null,
-                "_category": null,
-                "_location": null,
+                "paginate" :null,
+                "_category":null,
+                "_location":null,
                 "check_stock":false,
                 "with_stock":false,
-                "_status": null,
+                "_status":null,
                 "check_locations":true
             },
             labeloading:''

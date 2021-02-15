@@ -66,7 +66,7 @@
 
 				<template v-if="valid_loc">
 					<q-card-section v-if="is_duplicate" class="text-center text-amber-13">
-						<q-icon name="error_outline" size="sm"/> Ubicacion duplicadas
+						<q-icon name="error_outline" size="sm"/> Ubicacion duplicada
 					</q-card-section>
 
 					<q-card-actions v-else align="center">
@@ -109,7 +109,7 @@ export default {
 	},
 	methods:{
 		selectedLoc(loc){
-			this.locsave = loc;
+			this.locsave = JSON.parse(JSON.stringify(loc));
 			//filtrar elementos que si tienen contenido
 			let usedspaths = this.locsave.path.filter(item=>{ return item ? item.value:null; });
 			// obtener ubicacion que se considerara a guardar
@@ -130,10 +130,8 @@ export default {
 		},
 		remove(id,pos){
 			let data = { "_product":this.product.id, "_section":[id] };
-			console.log(data,pos);
 			vizapi.toggle(data).then(success=>{
-				let resp = success.data;
-				console.log(resp);
+				console.log(success);
 				this.product.locations.splice(pos,1);
 			}).catch(fail=>{ console.log(fail); });
 		},
@@ -145,12 +143,14 @@ export default {
 
 			vizapi.toggle(data).then(success=>{
 				console.log(success.data);
+				this.pathtosave.state=1;
 				this.product.locations.unshift(this.pathtosave);
 				this.settingloc=false;
 				this.$q.notify({ position:'center', color:'positive', icon:"fas fa-check", timeout:800 });
+				this.pathtosave=null;
 			}).catch(fail=>{
 				this.settingloc=false;
-				console.log("%cError has been resulted!!","font-size:2em;color:red;"); console.log(fail);
+				console.log("%cError has been results!!","font-size:2em;color:red;"); console.log(fail);
 			});
 		},
 
