@@ -145,7 +145,7 @@ export default {
             optsAddProds:[
                 {label:'Categoria',value:1},
                 {label:'Ubicacion',value:2},
-                {label:'Codigo',value:3},
+                // {label:'Codigo',value:3},
             ],
             modeAdd:null,
             listProducts:[],
@@ -161,7 +161,8 @@ export default {
             expands:{
                 respos:true,
                 products:true
-            }
+            },
+            settings:new Object()
         }
     },
     async beforeMount() { 
@@ -200,33 +201,29 @@ export default {
         },
         selectedCat(cat){
             console.log("Categoria Seleccionada");
-            console.log(cat);
-            this.listProducts = cat.products.length ? cat.products:[];
+            this.settings.category=cat.category;
+            this.listProducts = cat.products.length ? cat.products : [];
+            console.log(this.settings);
         },
         selectedLoc(loc){
             console.log("Ubicacion seleccionada");
-            console.log(loc);
+            this.settings.warehouse=loc.warehouse;
+            this.settings.section=loc.section?loc.section.model.value:null;
             this.listProducts = loc.products.length ? loc.products:[];
         },
         async modeAddChanged(){
-            this.listProducts = [];
-            switch (this.modeAdd.value) {
-                case 1: console.log("Modo Categoria Activado!!"); break;
-                case 2: console.log("Modo Ubicacion Activado!!"); break;
-                case 3:console.log("Modo Codigo Activado!!");break;
-            }
+            this.settings = new Object();
+            this.listProducts = []; 
+            this.settings.addmode = this.modeAdd.value;
         },
         start(){
             console.log("Iniciando ");
             let products = this.listProducts.map(prod=>{ return prod.id; });
-            console.log(products);
             let data = { "_products": products, "_inventory": this.data.inventory.id, "settings":this.settings }
-            console.log(data);
 
-            this.$q.loading.show({message: 'Aplicando Configuracion, espera...'});
+            this.$q.loading.show({message: 'Aplicando configuracion, porfavor espera...'});
 
             invsdb.addProducts(data).then(success=>{
-                // this.$q.loading.show({message:`Se agregaron ${success.data.length} productos a la lista, iniciando inventario`});
                 this.nextStep();
             }).catch(fail=>{ console.log(fail); });
         },
@@ -293,22 +290,6 @@ export default {
     },
     beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
     computed:{
-        settings(){
-            let settings = new Object();
-            if(this.data){
-                settings.type = this.modeAdd;
-
-                switch (settings.type.value) {
-                    case 2:
-                        settings.warehouse = {id:this.warehouses.selected.id,name:this.warehouses.selected.name};
-                        settings.path = this.fullpath;
-                    break;
-
-                    default:  break;
-                }
-            }
-            return settings;
-        },
         fullpath(){ 
 			let path = '';
 			this.warehouses.sectModels.forEach((item,idx,arr)=>{ if(item.value){ path += idx==0?`${item.label}`:`-${item.label}`; } });

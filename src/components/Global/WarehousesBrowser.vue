@@ -58,7 +58,6 @@ export default {
     async mounted() {
         this.loading.state=true;
         this.warehouses.options = await warehousesdb.list();
-        // console.log(this.warehouses.options);
         this.loading.state=false;
     },
     methods: {
@@ -77,6 +76,7 @@ export default {
                 this.warehouses.sections.push(newSelect);
             }
             this.loading.state = false;
+
             this.selectedLoc();
         },
         async loadSections(section,idx){
@@ -99,7 +99,10 @@ export default {
             this.filters._location = section ? section.model.value.id:null;
             let response = { warehouse:this.warehouses.selected, section:section, products:[], path:this.fullpath }
 
-            if(this.fetchproducts){ response.products = await productsdb.get(this.filters); }
+            if(this.fetchproducts&&section){ 
+                console.log("cargando productos!!");
+                response.products = await productsdb.get(this.filters);
+            }
 
             this.loading.state=false;
             this.$emit('selectedLoc',response);
