@@ -16,6 +16,17 @@
 		</q-header>
 		
 		<div v-if="product" class="q-px-sm q-pt-sm">
+			<!-- <q-card>
+				<q-card-section>
+					{{current_paths}}
+				</q-card-section>
+				<q-card-section>
+					{{is_duplicate}}
+				</q-card-section>
+				<q-card-section v-if="pathtosave">
+					{{pathtosave.id}}
+				</q-card-section>
+			</q-card> -->
 			<q-card flat class="bg-darkl1">
 				<q-toolbar>
 					<span class="q-ml-sm text-light-blue-13 text-bold"> {{ product.code }}</span>
@@ -59,7 +70,7 @@
 		</div>
 
 		<q-dialog v-model="wndAddLoc.state" position="bottom">
-			<q-card class="bg-darkl0">
+			<q-card class="bg-darkl0 exo">
 				<q-card-section>
 					<WarehousesBrowser :fetchproducts="false" @selectedLoc="selectedLoc"/>
 				</q-card-section>
@@ -147,7 +158,6 @@ export default {
 				this.product.locations.unshift(this.pathtosave);
 				this.settingloc=false;
 				this.$q.notify({ position:'center', color:'positive', icon:"fas fa-check", timeout:800 });
-				this.pathtosave=null;
 			}).catch(fail=>{
 				this.settingloc=false;
 				console.log("%cError has been results!!","font-size:2em;color:red;"); console.log(fail);
