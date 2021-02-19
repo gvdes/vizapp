@@ -22,7 +22,6 @@
             option-value="id"
             option-label="alias"
         />
-
         <q-inner-loading :showing="loading.state" dark><q-spinner-dots size="30px" color="amber-7" /></q-inner-loading>
     </div>
 </template>
@@ -30,6 +29,7 @@
 <script>
 import warehousesdb from '../../API/warehouses'
 import productsdb from '../../API/Product'
+import warehouses from '../../API/warehouses'
 
 export default {
     props:{
@@ -40,8 +40,7 @@ export default {
             warehouses:{
                 selected:null,
                 options:[],
-                sections:[],
-                loading:false
+                sections:[]
             },
             filters:{
                 "paginate" : null,
@@ -52,12 +51,20 @@ export default {
                 "_status": null,
                 "check_locations":true
             },
-            loading:{state:false,msg:''},
+            loading:{state:false,msg:''}
         }
     },
-    async mounted() {
+    async beforeMount() {
+        console.log("%cMontando componente","font-size:2em; color:gold;");
+
         this.loading.state=true;
-        this.warehouses.options = await warehousesdb.list();
+        
+        let statelocator = JSON.parse(localStorage.getItem('statelocator'));
+
+        if(statelocator){
+            this.warehouses = statelocator;
+        }else{ this.warehouses.options = await warehousesdb.list(); }
+
         this.loading.state=false;
     },
     methods: {
@@ -96,6 +103,7 @@ export default {
             this.selectedLoc(section);
 		},
         async selectedLoc(section=null){
+
             this.filters._location = section ? section.model.value.id:null;
             let response = { warehouse:this.warehouses.selected, section:section, products:[], path:this.fullpath }
 
@@ -105,6 +113,7 @@ export default {
             }
 
             this.loading.state=false;
+            localStorage.setItem('statelocator',JSON.stringify(this.warehouses));
             this.$emit('selectedLoc',response);
         }
     },

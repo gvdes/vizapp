@@ -8,6 +8,7 @@ const routes = [
 		children:[
 			{ path: '', component: () => import('pages/Warehouses/Index.vue') },
 			{ path: 'admin', component: () => import('pages/Warehouses/Admin.vue') },
+			{ path: 'mapa', component: () => import('pages/Warehouses/Map.vue') },
 			{ path: 'contador', component: () => import('pages/Warehouses/Counter/Index.vue') },
 			{ path: 'contador/config/:id', component: () => import('pages/Warehouses/Counter/Config.vue') },
 			{ path: 'contador/:id', component: () => import('pages/Warehouses/Counter/Counting.vue') },
