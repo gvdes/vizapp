@@ -6,15 +6,15 @@ const routes = [
 	{
 		path: '/almacen', component: () => import('layouts/WarehousesLy.vue'),
 		children:[
-			{ path: '', component: () => import('pages/Warehouses/Index.vue') },
-			{ path: 'admin', component: () => import('pages/Warehouses/Admin.vue') },
-			{ path: 'mapa', component: () => import('pages/Warehouses/Map.vue') },
 			{ path: 'contador', component: () => import('pages/Warehouses/Counter/Index.vue') },
 			{ path: 'contador/config/:id', component: () => import('pages/Warehouses/Counter/Config.vue') },
 			{ path: 'contador/:id', component: () => import('pages/Warehouses/Counter/Counting.vue') },
 			{ path: 'ubicador', component: () => import('pages/Warehouses/Locator/Index.vue') },
 			{ path: 'minymax', component: () => import('pages/Warehouses/Minymax/Index.vue') },
-			{ path: 'existencias', component: () => import('pages/Warehouses/Existences/Index.vue') }
+			{ path: 'existencias', component: () => import('pages/Warehouses/Existences/Index.vue') },
+			{ path: 'informes', component: () => import('pages/Warehouses/Reports.vue') },
+			{ path: '', component: () => import('pages/Warehouses/Index.vue'), name:'warehouseidx' },
+			{ path: ':idwrh/', component: () => import('pages/Warehouses/Warehouse.vue') },
 		]
 	},
 	{

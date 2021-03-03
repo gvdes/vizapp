@@ -3,6 +3,7 @@ export function workpoints_size (state) { return state.workpoints.length; }
 export function toolbarModule (state) {
     let icons = {
         "admin":"fas fa-wrench",
+        "informes":"fas fa-chart-line",
         "contador":"fas fa-clipboard-list",// almacen/contador
         "ubicador":"fas fa-compass",// almacen/ubicador
         "minymax":"fas fa-balance-scale",// almacen/minymax

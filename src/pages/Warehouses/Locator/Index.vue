@@ -163,8 +163,8 @@ export default {
 				console.log("%cError has been results!!","font-size:2em;color:red;"); console.log(fail);
 			});
 		},
-
 	},
+	beforeDestroy(){ localStorage.removeItem('statelocator'); },
 	computed:{
 		valid_loc(){
 			// define si se puede guardar una ubicacion en base a que hay al menos una ubicacion seleccionada ademas del almacen

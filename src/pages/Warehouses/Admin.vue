@@ -71,9 +71,11 @@
 </template>
 
 <script>
+
 import Tree from "../../components/Warehouse/TreeSections";
 import vizapi from '../../API/warehouses'
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
+
 export default {
 	name: 'AdminWrhs',
 	components:{

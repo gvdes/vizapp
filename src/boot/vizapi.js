@@ -13,3 +13,4 @@ Vue.prototype.$vizapi = vizapi
 
 // para usar dentro de archivos JS
 export { vizapi }
+// GRUPOVIZCARRA-CEDIS1985**

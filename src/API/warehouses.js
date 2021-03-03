@@ -22,7 +22,7 @@ export default{
     loadWarehouses(){
         console.log("%cCargando Almacenes...","font-size:2em; color:purple;");
         return vizapi.get('/location/cellers').then(succcess=>{
-            console.log(succcess);
+            // console.log(succcess);
             return succcess.data.cellers;
         }).catch(fail=>{
             console.log(fail);
@@ -30,11 +30,8 @@ export default{
     },
     sections(data){
         return vizapi.get('/location/sections',data).then(success=>{
-            // console.log(success.data);
-            return success.data.sections
-        }).catch(fail=>{
-            console.log(fail);
-        });
+            return success.data.sections;
+        }).catch(fail=>{ console.log(fail); });
     },
     product(data){
         console.log(data);
@@ -47,10 +44,7 @@ export default{
         // console.log(data);
         return vizapi.post('/location/celler',data);
     },
-    addSection(data){
-        console.log(data);
-        return vizapi.post('/location/section',data);
-    },
+    addSections(data){ return vizapi.post('/location/section',data); },
     setminmax(data){
         console.log(data);
         return vizapi.post('/location/maximos',data);
@@ -68,4 +62,6 @@ export default{
     getStocks(data){ return vizapi.post('/location/stocks',data); },
     getFiltred(data){ return vizapi.post('/product/catalog',data); },
     report(data){ return vizapi.post('/location/report',data); },
+    sectionRemove(data){ return vizapi.post('/location/remove',data); },
+    sectionDelete(data){ return vizapi.post('/location/deleteSection',data); }
 }

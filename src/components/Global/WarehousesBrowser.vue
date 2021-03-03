@@ -29,7 +29,6 @@
 <script>
 import warehousesdb from '../../API/warehouses'
 import productsdb from '../../API/Product'
-import warehouses from '../../API/warehouses'
 
 export default {
     props:{
