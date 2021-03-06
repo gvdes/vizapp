@@ -46,7 +46,7 @@ export default {
 			],
 			ranges_data:undefined,
 			loadingBalance:false,
-			usedBranch:{state:false,main:null,store:null},
+			usedBranch:{ state:false,main:null,store:null },
 		}
 	},
 	components:{
@@ -90,6 +90,5 @@ export default {
 		averageSale(){ return this.index ? this.index.ticket_promedio:0; },
 		paymentMethods(){ return this.index ? this.index.metodos_de_pago:[]; }
 	}
-	// https://photos.google.com/share/AF1QipOxdbwpgvi7awx6bsz1btBloBcuUBuui36464rdK6_aGZoNavT1kogAoaMlQRdQTw?fbclid=IwAR2MlAvsk0vufTX0nLekd2dIDRJNI8wFjGAWwT9gPYkOf1ZYbvQPmSJZgyk&key=Wkt4UzNER1ZDNThtd2tWOF9wS0hWaDVINEx3a1Nn
 }
 </script>

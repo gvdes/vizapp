@@ -10,7 +10,6 @@ export function toolbarModule (state) {
         "dashboard":"dashboard",// dashboard/dashboard
         "solicitud":"fas fa-clipboard-list",// dashboard/dashboard
         "existencias":"grading",// almacen/existencias
-
         "dashboard":"dashboard",//preventa/recepcion de ticket
     };
 

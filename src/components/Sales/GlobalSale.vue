@@ -15,7 +15,7 @@
                                     <q-date color="grey-10" v-model="date_from" mask="YYYY-MM-DD"
                                         first-day-of-week="1"
                                         :options="fromOptions"
-                                        navigation-min-year-month="2020/01"
+                                        navigation-min-year-month="2017/01"
                                         :navigation-max-year-month="minLimitDate"
                                     >
                                         <div class="row items-center justify-end">
@@ -151,7 +151,7 @@ export default {
             return label;
         },
         fromOptions(){
-            let mindate = this.$moment('2020-01-01').format('YYYY/MM/DD');
+            let mindate = this.$moment('2017-01-01').format('YYYY/MM/DD');
             // let maxdate = this.$moment('2021-01-29').format('YYYY/MM/DD');
             let momment = this.$moment();
             let _now = momment.format('YYYY/MM/DD');
@@ -175,7 +175,7 @@ export default {
         },
         serieSales(){
             let serieSale = this.branches.map(item=>{ return item.venta });
-            return [{ name: 'Venta', data: serieSale }]
+            return [{ name: 'Venta', data: serieSale }];
         }
     },
 }

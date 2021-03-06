@@ -42,7 +42,7 @@
 
 <script>
 import apexcharts from 'vue-apexcharts'
-import cluster from '../../API/cluster'
+
 export default {
     components:{apexchart:apexcharts},
     props:{
