@@ -42,13 +42,15 @@ export default {
                 sections:[]
             },
             filters:{
+                "autocomplete":null,//
                 "paginate" : null,
-                "_category": null,
-                "_location": null,
-                "check_stock":false,
-                "with_stock":false,
-                "_status": null,
-                "check_locations":true
+                "_category": null,// categopria que deseamos visualizar
+                "_location": null,//id de la seccion a aobtener la lista de productos
+                "check_stock":null,//valida los prodcutos que tienen o no existerncia en los almacenes del workpoint
+                "with_stock":null,//adjunta el stock total de los almacenes del workpoint
+                "_status": null,//status del produtcto
+                "with_locations":true,//adjunta todas las ubicacione s de todos los almacenes del workpoint
+                "with_prices":null,//adjunta los precios en los productos (default del 1 al 4, a root, todos los precios)
             },
             loading:{state:false,msg:''}
         }

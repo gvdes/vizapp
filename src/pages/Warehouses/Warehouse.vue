@@ -53,8 +53,16 @@
                 </q-tab-panel>
 
                 <q-tab-panel name="content">
-                    <div class="text-h6">Productos</div>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    <template v-if="loadingprods"></template>
+                    <template v-else>
+                        <q-table dark
+                            :data="tableProducts.items"
+                            :columns="tableProducts.columns"
+                            row-key="id"
+                        >
+                            
+                        </q-table>
+                    </template>
                 </q-tab-panel>
 
                 <q-tab-panel name="config">
@@ -179,6 +187,7 @@
 <script>
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
 import warehousesdb from '../../API/warehouses'
+import productsdb from '../../API/Product'
 // import workerproducts from '../../API/WorkerProducts'
 
 export default {
@@ -198,7 +207,29 @@ export default {
                 persistent:false
             },
             wndZoneRisk:{ state:false, option:null, persistent:false, dis:false, load:false },
-            formEdit:{ name:{new:null,current:null}, alias:{new:null,current:null} }
+            formEdit:{ name:{new:null,current:null}, alias:{new:null,current:null} },
+            tableProducts:{
+                columns:[
+                    { name:'id', align:'left', label:'ID', field:row=>row.id, sortable:true },
+					{ name:'code', align:'left', label:'Codigo', field:row=>row.code, sortable:true },
+                    { name:'description', align:'left', label:'Descripcion', field:row=>row.description },
+					{ name:'locations', align:'center', label:'Ubicaciones', field:row=>row.locations.length, sortable:true },
+				],
+                items:[]
+                // visibleColumns:['code','locations']
+            },
+            paramsprods:{
+                "autocomplete":null,//
+                "paginate" : null,
+                "_category": null,// categopria que deseamos visualizar
+                "_location": null,//id de la seccion a aobtener la lista de productos
+                "check_stock":null,//valida los prodcutos que tienen o no existerncia en los almacenes del workpoint
+                "with_stock":null,//adjunta el stock total de los almacenes del workpoint
+                "_status": null,//status del produtcto
+                "with_locations":true,//adjunta todas las ubicacione s de todos los almacenes del workpoint
+                "with_prices":null,//adjunta los precios en los productos (default del 1 al 4, a root, todos los precios)
+            },
+            loadingprods:false,
         }
     },
 	components:{
@@ -271,13 +302,19 @@ export default {
                 { params:{"_section":section.id,"products":false } } :
                 { params:{"_celler":this.$route.params.idwrh,"products":false } };
 
-            console.log(data);
-
+            console.log("%cCargando secciones...","color:orange;font-size:2em;");
             let resp = await warehousesdb.sections(data);
             this.sections = section ? resp.sections : resp;//llenando las secciones, "es almacewn : es seccion"
             section ? this.path.push(section) : this.path=[];//actualizar path "es seccion, se agrega esta al path : es almacen, se vacia el path"
-            
+            console.log("%cSecciones Listas!!","color:green;font-size:2em;");
             this.$q.loading.hide();
+
+            if(section){
+                console.log("%cCargando productos de la seccion...","color:gold;font-size:2em;");
+                this.paramsprods._location = section.id;
+                this.tableProducts.items = await productsdb.get(this.paramsprods);
+                console.log("%cProductos Listos!!","color:green;font-size:2em;");
+            }
         },
         async navAtSection(command,section=null){
             console.log("%c------------ Browsing --------------","color:gold;");
