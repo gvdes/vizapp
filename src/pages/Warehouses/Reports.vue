@@ -96,6 +96,26 @@
 					<div class="text--2 text-right q-pr-xs text-grey-7">Almacen General VS CEDIS</div>
 				</q-card>
 			</div>
+
+			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
+				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(9)">
+					<q-card-section class="text-h4 text-left text-pink-14">
+						<q-spinner-puff color="orange-14" v-if="!stats"/>
+						<span v-else>{{ stats.withStock.conMaximos }}</span>
+					</q-card-section>
+					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin minimos y maximos</div>
+				</q-card>
+			</div>
+
+			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
+				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(10)">
+					<q-card-section class="text-h4 text-left text-pink-14">
+						<q-spinner-puff color="orange-14" v-if="!stats"/>
+						<span v-else>{{ stats.withoutStock.negativos }}</span>
+					</q-card-section>
+					<div class="text--2 text-right q-pr-xs text-grey-7">Productos en Negativo</div>
+				</q-card>
+			</div>
 		</div>
     </q-page>
 </template>
@@ -115,7 +135,9 @@ export default {
 				'productos_sin_stock_y_con_ubicacion.xlsx',
 				'productos_con_stock_y_sin_minimos_y_maximos.xlsx',
 				'productos_con_stock_sin_exhibir.xlsx',
-				'productos_con_stock_general_vs_exhibicion.xlsx'
+				'productos_con_stock_general_vs_exhibicion.xlsx',
+				'productos_con_stock_y_con_minimo_y_maximo.xlsx',
+				'productos_con_negativos.xlsx'
 			]
         }
     },
