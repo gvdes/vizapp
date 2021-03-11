@@ -118,7 +118,7 @@
 			</div>
 
 			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(10)">
+				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(11)">
 					<q-card-section class="text-h4 text-left text-light-blue-13">
 						<q-spinner-puff color="green-13" v-if="!stats"/>
 						<span v-else>{{ stats.withStock.cedis }}</span>
