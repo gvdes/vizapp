@@ -35,7 +35,8 @@ const routes = [
 	{
 		path:'/cluster', component:() => import('layouts/ClusterLy.vue'),
 		children:[
-			{ path:'ventas', component:() => import('pages/Cluster/Sales.vue') }
+			{ path:'ventas', component:() => import('pages/Cluster/Sales.vue') },
+			{ path:'informes', component:() => import('pages/Cluster/Reports.vue') },
 		]
 	},
 	{
