@@ -6,126 +6,18 @@
 			</q-card>
 		</q-header>
 
-        <div class="row q-pl-sm">
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
+		<div class="row q-pl-sm" v-if="stats">
+			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm" v-for="(report,idx) in reports" :key="idx" @click="genReport(report)">
 				<q-card flat class="bg-darkl1">
-					<q-card-section class="text-h4 text-left text-light-blue-13">
-						<q-spinner-puff color="light-blue-13" v-if="!stats"/>
-						<span v-else>{{ stats.products }}</span>
+					<q-card-section :class="report.clases">
+						<span>{{ report.value }}</span>
 					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">articulos en catalogo</div>
+					<div class="text--2 text-right q-pr-xs text-grey-7">{{ report.description }}</div>
 				</q-card>
 			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(1)">
-					<q-card-section class="text-h4 text-left text-green-13">
-						<q-spinner-puff color="green-13" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.stock }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">con stock</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(2)">
-					<q-card-section class="text-h4 text-left text-green-13">
-						<q-spinner-puff color="green-13" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.withLocation }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">con stock y ubicados</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(3)">
-					<q-card-section class="text-h4 text-left text-orange-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.withoutLocation }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin ubicar</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(4)">
-					<q-card-section class="text-h4 text-left text-orange-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withoutStock.stock }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">sin stock</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(5)">
-					<q-card-section class="text-h4 text-left text-orange-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withoutStock.withLocation }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">sin stock ubicados</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(6)">
-					<q-card-section class="text-h4 text-left text-pink-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.sinMaximos }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin minimos y maximos</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(7)">
-					<q-card-section class="text-h4 text-left text-pink-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.generalVsExhibicion }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin exhibir</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(8)">
-					<q-card-section class="text-h4 text-left text-pink-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withoutStock.generalVsCedis }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">Almacen General VS CEDIS</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(9)">
-					<q-card-section class="text-h4 text-left text-pink-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.conMaximos }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">con stock sin minimos y maximos</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(10)">
-					<q-card-section class="text-h4 text-left text-pink-14">
-						<q-spinner-puff color="orange-14" v-if="!stats"/>
-						<span v-else>{{ stats.withoutStock.negativos }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">Productos en Negativo</div>
-				</q-card>
-			</div>
-
-			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm">
-				<q-card flat class="bg-darkl1 cursor-pointer" v-ripple @click="report(11)">
-					<q-card-section class="text-h4 text-left text-light-blue-13">
-						<q-spinner-puff color="green-13" v-if="!stats"/>
-						<span v-else>{{ stats.withStock.cedis }}</span>
-					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">Productos en CEDIS con STOCK</div>
-				</q-card>
-			</div>
+		</div>
+		<div v-else class="q-py-xl text-center text-green-13">
+			Calculando, porfavor espera...
 		</div>
     </q-page>
 </template>
@@ -137,19 +29,20 @@ export default {
     data() {
         return {
             stats:null,
-			reportnames:[
-				'productos_con_stock.xlsx',
-				'productos_con_stock_y_ubicados.xlsx',
-				'productos_con_stock_y_sin_ubicar.xlsx',
-				'productos_sin_stock.xlsx',
-				'productos_sin_stock_y_con_ubicacion.xlsx',
-				'productos_con_stock_y_sin_minimos_y_maximos.xlsx',
-				'productos_con_stock_sin_exhibir.xlsx',
-				'productos_con_stock_general_vs_cedis.xlsx',
-				'productos_con_stock_y_con_minimo_y_maximo.xlsx',
-				'productos_con_negativos.xlsx',
-				'productos_en_cedis_con_stock.xlsx'
-			]
+			clases:{
+				1:"text-h4 text-left text-light-blue-13",
+				2:"text-h4 text-left text-green-13",
+				3:"text-h4 text-left text-green-13",
+				4:"text-h4 text-left text-orange-14",
+				5:"text-h4 text-left text-orange-14",
+				6:"text-h4 text-left text-orange-14",
+				7:"text-h4 text-left text-pink-14",
+				8:"text-h4 text-left text-pink-14",
+				9:"text-h4 text-left text-pink-14",
+				10:"text-h4 text-left text-pink-14",
+				11:"text-h4 text-left text-pink-14",
+				12:"text-h4 text-left text-light-blue-13",
+			}
         }
     },
     components:{ ToolbarAccount:ToolbarAccount },
@@ -157,25 +50,44 @@ export default {
 		this.stats = await warehousesdb.index(); console.log(this.stats);
 	},
     methods: {
-        report(type){
+        genReport(report){
 			this.$vizapi.defaults.responseType = 'blob';//convertir el tipo de retorno a strweam para póderlo descargar
-			let namereport = this.reportnames[type-1];
+			let namereport = report.description;
 			this.$q.loading.show({message:`Generando reporte (${namereport}), porfavor espera...`});
-			let data = {"_type":type}
+			let data = {"_type":report._excel}
 			console.log(data);
 			warehousesdb.report(data).then(success=>{
 				console.log(success);
 				const url = window.URL.createObjectURL(new Blob([success.data]));
 				const link = document.createElement('a');
 				link.href = url;
-				link.setAttribute('download', namereport); //or any other extension
+				link.setAttribute('download', namereport+".xlsx"); //or any other extension
 				document.body.appendChild(link);
 				link.click();
 				this.$vizapi.defaults.responseType = 'json';//convertir el tipo de retorno a json para todas las peticiones futuras
 				this.$q.loading.hide();
-			}).catch(fail=>{ console.log(fail); });
+			}).catch(fail=>{
+				console.log(fail);
+				this.$q.notify({
+					icon:"fas fa-bug",
+					color:"negative",
+					message:"Vaya, algo salio mal "
+				});
+			});
 		}
     },
+	computed:{
+		reports(){
+			if(this.stats){
+				return this.stats.map(item=>{
+					item.clases = this.clases[item._excel];
+					return item;
+				});
+			}else{
+				return null 
+			}
+		}
+	}
 }
 </script>
 

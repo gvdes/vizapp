@@ -6,10 +6,10 @@
 
 <script>
 export default {
-    data(){
-        return{
-            saludo:'Hello World!!'
+    data() {
+        return {
+            saludo:'Hello form CAT'
         }
-    }
+    },
 }
 </script>

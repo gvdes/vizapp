@@ -3,20 +3,17 @@
 		<q-page-container class="exo bg-darkl0 text-grey-6">
 			<router-view />
 
-			<q-footer reveal class="bg-darktransl0">
+			<!-- <q-footer reveal class="bg-darktransl0">
 				<ToolbarModule/>
-			</q-footer>
+			</q-footer> -->
 		</q-page-container>
 	</q-layout>
 </template>
 
 <script>
-import ToolbarModule from '../components/Global/ToolbarModule.vue'
 export default {
 	name: 'Warehouses',
-	components:{ 
-		ToolbarModule:ToolbarModule
-	}
+	// components:{ ToolbarModule:ToolbarModule }
 }
 </script>
 

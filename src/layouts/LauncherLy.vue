@@ -14,6 +14,7 @@
 			<!-- This is where pages get injected -->
 			<q-page class="row items-center justify-center">
 				<!-- saludo -->
+
 				<div style="min-width:250px;">
 					<div class="row items-center justify-center">
 						<q-img :src="picnick(session.me.pictures)" spinner-color="white" style="height: 140px; max-width: 140px"/>
@@ -54,9 +55,6 @@
 						<q-toolbar>
 							Seleccione punto de trabajo
 						</q-toolbar>
-						<!-- <q-toolbar class="bg-darkl0">
-							Buscador
-						</q-toolbar> -->
 					</q-header>
 
 					<q-page-container>
@@ -92,9 +90,6 @@
 							<span>Seleccione modulo</span>
 							<span class="text-green">{{ workIn.workpoint.name }}</span>
 						</q-toolbar>
-						<!-- <q-toolbar class="bg-darkl0">
-							Buscador
-						</q-toolbar> -->
 					</q-header>
 
 					<q-page-container>
