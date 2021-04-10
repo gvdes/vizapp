@@ -275,33 +275,34 @@ export default {
             tostock:{state:false},
             duplicate:false,
             print:{state:false},
-            autocom:{model:null,options:undefined}
+            autocom:{model:null,options:undefined},
+            sktdash:undefined
         }
     },
     async beforeMount(){
+        // console.log(this.owner);
         this.$store.commit('Layout/hideToolbarModule');
+
         this.order = await dbreqs.find(this.ordercatch.id);
         this.products = this.order.products;
+
+        this.sktdash = await io(`${this.$vsocket}/resurtidos`);
+        // solicitar union al canal
+        this.sktdash.emit('joinat',{ user:this.profile, isdashboard:false, from:this.workin.workpoint });
+        // confirmacion de union del canal
+        this.sktdash.on('joineddashreq',(data)=>{ console.log(data); });
+        // notificar uso de pedido
+        // this.sktdash.emit('order_open',{ profile:this.profile, order:this.ordercatch });
+        // notificacion de cambio de status 
+        this.sktdash.on('order_changestate', data => { this.sktOrderHere(data) ? this.sktOrder_changeState(data):null});
     },
-    async mounted(){
-        console.log(this.owner);
-        //solicitar al socket, avisar al canal que este usuario se unio
-        this.vsocket = await io(this.$vsocket);
-        this.vsocket.emit('using_order',{profile:this.profile,order:this.ordercatch});
-        
-        this.vsocket.on('order_changestate',(data)=>{
-            console.log("Se ha cambiado el status a un pedido... ");
-            if(data.order.id==this.ordercatch.id){
-                console.log("y si es este");
-                console.log(data);
-                this.order.log=data.order.log;
-                this.order.status=data.order.status;
-                this.sounds.moved.play();
-            }else{ console.log("... pero no es este"); }
-        });
-    },
-    beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
+    beforeDestroy(){
+        this.$store.commit('Layout/showToolbarModule');
+		this.sktdash.emit('leave', { room:this.socketroom, user:this.profile } );
+		console.log("desconectado del socket");
+	},
     methods:{
+        sktOrderHere(data){ return this.ordercatch.id == data.order.id },
         autocomplete (val, update, abort) {
             let data={params:{ "code": val.trim() }};
             dbproduct.autocomplete(data).then(success=>{
@@ -323,6 +324,44 @@ export default {
             }).catch(fail=>{
                 console.log(fail);
             });
+        },
+        sktOrder_changeState(data){
+            console.log("Este pedido ha sido modificado por cedis");
+            console.log(data.order.status);
+            console.log(this.order.status);
+            let _msg = '';
+            let _icon = '';
+            let _color = '';
+            let showNotf = false;
+
+            this.order.log = data.order.log;
+            this.order.status = data.order.status;
+
+            switch (data.order.status.id) {
+                case 3:
+                    _msg = 'Inició el surtido de este pedido';
+                    _icon = 'fas fa-people-carry';
+                    _color = 'blue-10';
+                    showNotf = true;
+                break;
+                case 5:
+                    _msg = 'Inició la salida de este pedido';
+                    _icon = 'fas fa-truck-moving';
+                    _color = 'green-10';
+                    showNotf = true;
+                break;
+            }
+
+            if(showNotf){
+                this.$q.notify({
+                    icon:_icon,
+                    color:_color,
+                    message:_msg,
+                    position:'bottom-right',
+                    html: true
+                });
+                this.sounds.moved.play();
+            }
         },
         changeState(_atstate=null){
             let atstate = _atstate?_atstate:(parseInt(this.order.status.id)+1);
@@ -346,17 +385,15 @@ export default {
 
             this.$q.loading.show({message:message});
             dbreqs.nextstep(data).then(success=>{
-                console.log("%cLa respuesta llego...","font-size:1.5em;color:yellow;");
+                console.log("%cEl pedido ha cambiado de status...","font-size:1.5em;color:yellow;");
                 let resp = success.data;
                 console.log(resp);
                 this.order = resp.order;
                 this.products = resp.order.products;
                 this.$q.loading.hide();
                 this.$q.notify({color:"positive", icon:"done", position:'center'});
-                this.vsocket.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.order});
-            }).catch(fail=>{
-                console.log(fail);
-            });
+                this.sktdash.emit('order_changestate',{ state:newstatus, user:this.profile, from:this.workin, order:this.order, room:this.socketroom });
+            }).catch(fail=>{ console.error(fail); });
         },
         wndSetItemReset(){
             this.wndSetItem.idxlist=undefined;
@@ -380,25 +417,26 @@ export default {
                     message:"Pedido archivado",
                     color:"positive", icon:"done", position:'center'
                 });
-                this.vsocket.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.order});
+                // this.vsocket.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.order});
+                this.sktdash.emit('order_changestate',{ state:newstatus, user:this.profile, from:this.workin, order:this.order, room:this.socketroom });
                 this.$router.push('/pedidos');
             }).catch(fail=>{console.log(fail);});
         },
-        removeProduct(prod){
+        removeProduct(){
             this.erasing.state=true;
             let data = {"_product":this.wndSetItem.art.id,"_requisition":this.ordercatch.id};
+            let proderase = this.wndSetItem.art.id;
             
             dbreqs.remove(data).then(success=>{
-                let resp = success.data;
-                this.products.splice([this.wndSetItem.idxlist],1);
+                // let resp = success.data;
+                this.products.splice(this.wndSetItem.idxlist,1);
                 this.erasing.state=false;
                 this.wndSetItem.state=false;
-            }).catch(fail=>{
-                console.log(fail);
-            });
+
+                this.sktdash.emit('order_update',{ user:this.profile, from:this.workin, cmd:'remove', order:this.ordercatch, product:proderase });
+            }).catch(fail=>{ console.log(fail); });
         },
         addProduct(){
-            console.log("agregando...");
             this.wndSetItem.adding=true;
 
             let data = new Object();
@@ -414,17 +452,28 @@ export default {
             dbreqs.add(data).then(success=>{
                 let artidx = this.wndSetItem.idxlist;
                 let resp = success.data;
-                console.log(resp);
+                let sktproduct = null;
+                let cmd = null;
+
                 if(artidx>=0){// el articulo fue editado
                     console.log("Articulo editado");
                     let _product = this.products[artidx];
+                    sktproduct = _product;
                     _product.ordered.amount=this.wndSetItem.units;
                     _product.ordered.comments=this.wndSetItem.notes;
-                }else{ this.products.unshift(resp); }// el articulo fue agregado
+                    cmd = 'edit';
+                }else{
+                    console.log("Articulo agregado");
+                    this.products.unshift(resp);
+                    cmd = 'add';
+                    sktproduct = resp;
+                }// el articulo fue agregado
 
                 this.wndSetItem.state=false;
                 this.autocom.options=undefined;
                 this.autocom.model=null;
+
+                this.sktdash.emit('order_update',{ user:this.profile, from:this.workin, cmd:cmd, order:this.ordercatch, product:sktproduct });
             }).catch(fail=>{ console.log(fail); });
         },
         selItem(opt){
@@ -464,6 +513,8 @@ export default {
     },
     computed:{
         profile:{ get(){ return this.$store.getters['Account/profile'] } },
+        workin(){ return this.$store.getters['Account/workin'];},
+        socketroom(){ return `${this.workin.workpoint.alias}`},
         editableord(){
             if(this.order){
                 return this.order.status.id==1?true:false;

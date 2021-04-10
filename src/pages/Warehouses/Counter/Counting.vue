@@ -177,8 +177,8 @@ export default {
             this.tableProducts.rows[idx].counter=data.settings.stock;
         },
         sktjoined(data){
-            // console.log("Usuario conectado al conteo");
-            // console.log(data);
+            console.log("Usuario conectado al conteo");
+            console.log(data);
 
             if(data.me.id!=this.profile.me.id){
                 this.$q.notify({
@@ -223,8 +223,12 @@ export default {
                 console.log(resp);
                 this.productsRefresh = resp.order.products;
                 this.index.inventory.status = resp.order.status;
-                // this.buildPDF();
-
+                this.$q.loading.hide();
+                this.$q.notify({
+                    icon:"done",
+                    color:'positive',
+                    message:'Inventario finalizado!!'
+                });
             }).catch(fail=>{ console.log(fail); });
         },
         save(){
@@ -420,7 +424,7 @@ export default {
                 pdf.setTextColor("#ffffff");
                 pdf.text(`Inventario ${folio}`,570,29,{align:'right',baseline:'middle'});
                 pdf.setFontSize(10);
-                pdf.text(`${this.profile.workpoint.name}`,570,45,{align:'right',baseline:'middle'});
+                pdf.text(`${this.workin.workpoint.name}`,570,45,{align:'right',baseline:'middle'});
             /** H E A D E R   P D F*/
 
             /** S U B H E A D E R */
@@ -515,6 +519,7 @@ export default {
         }
     },
     computed:{
+        workin(){ return this.$store.getters['Account/workin'];},
         profile(){ return this.$store.getters['Account/profile'];},
         rowsDone(){ return this.tableProducts.rows.filter(item=>{ return item.counter!=null; }) },
         progress(){

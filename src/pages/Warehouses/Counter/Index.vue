@@ -111,7 +111,6 @@ export default {
 		this.sktcounter.emit('index',this.profile);
 
 		this.sktcounter.on('connected',data=>{ console.log(data); });
-
 	},
 	methods:{
 		create(){
@@ -121,7 +120,8 @@ export default {
 
 				let data = {
 					"_type": this.wndCreate.form.type.id,
-					"notes": this.wndCreate.form.notes
+					"notes": this.wndCreate.form.notes,
+					"token":this.$vizapi.defaults.headers.common['Authorization'],
 				}
 				
 				invsdb.create(data).then(success=>{

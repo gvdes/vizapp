@@ -6,7 +6,7 @@ export default{
     },
     index(){ 
         return vizapi.get('/workpoints').then(success=>{
-            console.log(success);
+            // console.log(success);
             return success.data;
         }).catch(fail=>{
             console.log(fail);

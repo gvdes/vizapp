@@ -4,13 +4,10 @@ export default{
     autocomplete(data){
         return vizapi.get('/product/autocomplete',data);
     },
-    create(data){
-        return vizapi.post('/order',data);
-    },
+    create(data){ return vizapi.post('/order',data); },
     index(){
         return vizapi.get('/order').then(success=>{
             let resp = success.data;
-            console.log(resp);
             return resp;
         }).catch(fail=>{
             console.log(fail);

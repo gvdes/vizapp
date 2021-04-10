@@ -1,5 +1,5 @@
 <template>
-    <div class="row items-end">
+    <div class="row items-end justify-center">
         <q-select
             dark color="green-13"
             class="col-3 q-mr-sm q-mb-sm"
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-// rsv351884634
+
 import productsdb from '../../API/Product'
 
 export default {
@@ -100,12 +100,17 @@ export default {
         async selectedCat(cat){
             this.filters._category = cat.id;
 
-            let response = { category:cat, products:[] }
+            let response = { category:cat, products:[], path:this.path }
 
             if(this.fetchproducts&&cat.root){ response.products = await productsdb.get(this.filters); }
             
             this.loading.state=false;
             this.$emit('selectedCat',response);
+        }
+    },
+    computed:{
+        path(){
+            return this.categories.children;
         }
     },
 }

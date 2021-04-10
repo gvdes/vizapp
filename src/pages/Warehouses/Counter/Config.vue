@@ -288,7 +288,10 @@ export default {
             }    
         },
     },
-    beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
+    beforeDestroy(){
+        this.$store.commit('Layout/showToolbarModule');
+        localStorage.removeItem('statelocator');
+    },
     computed:{
         fullpath(){ 
 			let path = '';

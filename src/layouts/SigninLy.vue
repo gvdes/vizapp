@@ -4,45 +4,52 @@
 		<q-page-container class="bg-darkl0 exo">
 			<!-- This is where pages get injected -->
 			<!-- <router-view /> -->
-			<q-page class="row items-center justify-center">
+			<q-page class="row items-center justify-center overflow-hidden">
 				<div>
-					<div class="text-center q-mb-sm">
-						<q-img src="~/assets/logo.png" spinner-color="white" style="width: 170px;"/>
-					</div>
-					<q-card class="bg-darkl1 text-white">
-						<q-card-section class="row justify-between items-center">
-							<span class="text-h6">
-								<span class="text-pink-6"> Viz</span>
-								<span class="text-weight-thin">App</span>
-							</span>
-						</q-card-section>
-					</q-card>
-
-					<q-form @submit="tryLogin" v-if="credentials.formstate" class="column loginform">
-						<q-card flat class="q-mt-sm bg-darkl1 text-white">
-							<q-card-section>
-								<div class="column">
-									<q-input dark color="green-13" label-color="grey-7" label="Usuario" class="ipt q-mb-xs" v-model="credentials.nick" autocapitalize="off" autocomplete="off">
-										<template v-slot:prepend> <q-icon name="account_circle" color="grey-8"/> </template>
-									</q-input>
-									<q-input :type="ipttypepass?'password':'text'" dark color="green-13" label-color="grey-7" label="Contraseña" class="ipt q-mb-xs" v-model="credentials.pass" autocapitalize="off" autocomplete="off">
-										<template v-slot:prepend> <q-icon name="lock" color="grey-8"/> </template>
-										<template v-slot:append>
-											<q-icon
-												:name="ipttypepass ? 'visibility_off' : 'visibility'"
-												class="cursor-pointer"
-												@click="ipttypepass=!ipttypepass"
-											/>
-										</template>
-									</q-input>
-								</div>
+					<transition appear enter-active-class="animated fadeInDownBig">
+						<div class="text-center q-mb-sm" key="img">
+							<q-img src="~/assets/logo.png" spinner-color="white" style="width: 170px;"/>
+						</div>
+					</transition>
+					
+					<transition appear enter-active-class="animated fadeInRightBig delay-1s">
+						<q-card class="bg-darkl1 text-white" key="title">
+							<q-card-section class="row justify-between items-center">
+								<span class="text-h6">
+									<span class="text-pink-6"> Viz</span>
+									<span class="text-weight-thin">App</span>
+								</span>
 							</q-card-section>
-
-							<q-card-actions align="right" v-if="credentials.nick.length>=2&&credentials.pass.length>=4">
-								<q-btn flat dense class="q-pa-sm" color="green-13" type="submit" label="entrar" :loading="credentials.logging" :disable="credentials.logging" />
-							</q-card-actions>
 						</q-card>
-					</q-form>
+					</transition>
+
+					<transition appear enter-active-class="animated fadeInLeftBig delay-2s">
+						<q-form @submit="tryLogin" v-if="credentials.formstate" class="column loginform">
+							<q-card flat class="q-mt-sm bg-darkl1 text-white">
+								<q-card-section>
+									<div class="column">
+										<q-input dark color="green-13" label-color="grey-7" label="Usuario" class="ipt q-mb-xs" v-model="credentials.nick" autocapitalize="off" autocomplete="off">
+											<template v-slot:prepend> <q-icon name="account_circle" color="grey-8"/> </template>
+										</q-input>
+										<q-input :type="ipttypepass?'password':'text'" dark color="green-13" label-color="grey-7" label="Contraseña" class="ipt q-mb-xs" v-model="credentials.pass" autocapitalize="off" autocomplete="off">
+											<template v-slot:prepend> <q-icon name="lock" color="grey-8"/> </template>
+											<template v-slot:append>
+												<q-icon
+													:name="ipttypepass ? 'visibility_off' : 'visibility'"
+													class="cursor-pointer"
+													@click="ipttypepass=!ipttypepass"
+												/>
+											</template>
+										</q-input>
+									</div>
+								</q-card-section>
+
+								<q-card-actions align="right" v-if="credentials.nick.length>=2&&credentials.pass.length>=4">
+									<q-btn flat dense class="q-pa-sm" color="green-13" type="submit" label="entrar" :loading="credentials.logging" :disable="credentials.logging" />
+								</q-card-actions>
+							</q-card>
+						</q-form>
+					</transition>
 
 					<div v-if="resume.state" class="q-mt-sm text-grey-6 loginform">
 						<q-card flat class="bg-darkl1" v-if="resume.account.me.change_password">

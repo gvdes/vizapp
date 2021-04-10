@@ -109,17 +109,20 @@ export default {
 		this.index = await this.loadIndex();
 		this.tableOrders.data = this.index.requisitions;
 		this.workpoints = await this.loadWorkpoints();
-		console.log(this.workpoints);
+		// console.log(this.workpoints);
 	},
 	async mounted(){
-		this.vsocket = await io(`${this.$vsocket}`);
-		//solicitar al socket, avisar al canal que este usuario se unio
-		this.vsocket.emit('joinme_to_dashboard',this.profile);
+		this.vsocket = await io(`${this.$vsocket}/resurtidos`);
+		console.log("uniendose a ROOM");
+		this.vsocket.emit('joinat', { from:this.workin, user:this.profile, isdashboard:false } );
 
 		//notifica que un usuario se unio, excepto cuando es el mismo
-		this.vsocket.on('dashboard_ready',(data)=>{
-			console.log("DASHBOARD esta disponible...");
-			console.log(data);
+		this.vsocket.on('joineddashreq',(gdata)=>{
+			console.log(gdata);
+
+			if(gdata.fromdashboard){
+				console.log(`%c${gdata.user.me.nick} a activado el dashboard DASHBOARDSREQS en ${gdata.from.alias}`,"color:#3ae374;font-size:1.5em;");
+			}
 		});
 
 		this.vsocket.on('order_changestate',(data)=>{
@@ -134,6 +137,10 @@ export default {
 				this.sounds.moved.play();
 			}else{ console.log("... pero no esta aqui");  }
         });
+	},
+	beforeDestroy(){
+		this.vsocket.emit('leave', { room:this.socketroom,user:this.profile } );
+		console.log("desconectado del socket");
 	},
 	methods:{
 		loadIndex(){ return dbreqs.index(); },
@@ -150,34 +157,25 @@ export default {
 			data.notes=this.neworder.notes;
 			let cancreate = false;
 
+			console.log(data);
+			console.log(this.neworder.type.value);
+
 			switch (this.neworder.type.value) {
 				case 2:
-					this.$q.loading.show({
-						spinner: QSpinnerGrid,
-						spinnerColor: 'green-13',
-						message:"Tu pedido se esta generando, por favor espera mientras consultamos existencias"
-					});
+					this.$q.loading.show({ spinner: QSpinnerGrid, spinnerColor: 'green-13', message:"Tu pedido se esta generando, por favor espera mientras consultamos existencias" });
 					cancreate=true;
 				break;
 
 				case 3: case 4:
 					data.folio=this.neworder.folio;
 					data.store=this.neworder.origin.value;
+
 					if(data.folio&&data.store){
 						cancreate=true;
-						this.$q.loading.show({
-							spinner: QSpinnerGrid,
-							spinnerColor: 'green-13',
-							message:`Buscando folio <b class="text-green-13">${data.folio}</b> en <b class="text-green-13">${data.folio}</b>, porfavor espera`,
-							html: true
-						});
+						this.$q.loading.show({ spinner: QSpinnerGrid, spinnerColor: 'green-13', message:`Buscando folio <b class="text-green-13">${data.folio}</b> en <b class="text-green-13">${data.folio}</b>, porfavor espera`, html: true });
 					}else{
 						cancreate=false;
-						this.$q.notify({
-							icon:'fas fa-exclamation-circle',
-							color:'red',
-							message:`Sucursal y folio son obligatorios`
-						});
+						this.$q.notify({ icon:'fas fa-exclamation-circle', color:'red', message:`Sucursal y folio son obligatorios` });
 					}
 				break
 			
@@ -194,29 +192,23 @@ export default {
 
 					this.tableOrders.data.unshift(resp.order);
 
-					this.$q.notify({
-						message:`Pedido ${resp.order.id} creado!`,
-						color:"positive",
-						position:'center',
-						timeout:1500
-					});
+					this.$q.notify({ message:`Pedido ${resp.order.id} creado!`, color:"positive", position:'center', timeout:1500 });
 
-					this.vsocket.emit('creatingorder',{profile:this.profile,order:resp.order});
+					this.vsocket.emit('creating',{ user:this.profile, from:this.workin, order:resp.order, to:this.neworder.dest } );
 					this.$router.push('/pedidos/'+resp.order.id);
+					// this.vsocket.emit('creatingorder',{profile:this.profile,order:resp.order});
 				}).catch(fail=>{
 					console.log(fail);
-					this.$q.notify({
-						message:`Rayos!!, esto no ha funcionado!`,
-						icon:"bug",
-						color:"negative"
-					});
+					this.$q.notify({ message:`Rayos!!, esto no ha funcionado!`, icon:"bug", color:"negative" });
 				});
 			}
 		},
 	},
 	computed:{
 		profile:{ get(){ return this.$store.getters['Account/profile']} },
+		workin(){ return this.$store.getters['Account/workin'];},
 		auths:{ get(){ return this.$store.getters['Account/moduleauths']} },
+		socketroom(){ return `${this.workin.workpoint.alias}`},
 		appconnected(){ return this.vsocket ? this.vsocket.connected : false; },
 		combowkps(){
 			if(this.index){

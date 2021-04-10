@@ -51,23 +51,25 @@
                 </q-card>
 
                 <q-scroll-area style="height: 75vh; max-width: 100%;">
-                    <q-card v-for="order in orderTaking" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
-                        <q-card-section>
-                            <div class="row items-center">
-                                <div class="col">
-                                    <div class="text-h4 text-white">{{order.id}}</div>
-                                    <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div class="text-amber-13">{{order.notes}}</div>
-                                    <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <q-card v-for="order in orderTaking" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
+                            <q-card-section>
+                                <div class="row items-center">
+                                    <div class="col">
+                                        <div class="text-h4 text-white">{{order.id}}</div>
+                                        <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
+                                        <div class="text-amber-13">{{order.notes}}</div>
+                                        <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                                    </div>
+                                    <div class="text-center self-end">
+                                        <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
+                                        <div>{{buildlog(order,'resp')}}</div>
+                                        <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
+                                    </div>
                                 </div>
-                                <div class="text-center self-end">
-                                    <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
-                                    <div>{{buildlog(order,'resp')}}</div>
-                                    <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
-                                </div>
-                            </div>
-                        </q-card-section>
-                    </q-card>
+                            </q-card-section>
+                        </q-card>
+                    </transition-group>
                 </q-scroll-area>
             </div>
 
@@ -79,32 +81,34 @@
                 </q-card>
 
                 <q-scroll-area style="height: 75vh; max-width: 100%;">
-                    <q-card v-for="order in orderForSupply" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
-                        <q-banner dense class="text-white bg-red" v-if="order.printed==0">
-                            <template v-slot:avatar>
-                                <q-icon name="fas fa-exclamation-triangle" color="white" />
-                            </template>
-                            <span class="text--1">Rayos!!, este pedido no logro imprimirse :(</span>
-                            <!-- <template v-slot:action>
-                                <q-btn color="negative" icon="print" label="imprimir ahora"/>
-                            </template> -->
-                        </q-banner>
-                        <q-card-section>
-                            <div class="row items-center">
-                                <div class="col">
-                                    <div class="text-h4 text-white">{{order.id}}</div>
-                                    <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div class="text-amber-13">{{order.notes}}</div>
-                                    <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <q-card v-for="order in orderForSupply" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
+                            <q-banner dense class="text-white bg-red" v-if="order.printed==0">
+                                <template v-slot:avatar>
+                                    <q-icon name="fas fa-exclamation-triangle" color="white" />
+                                </template>
+                                <span class="text--1">Rayos!!, este pedido no logro imprimirse :(</span>
+                                <!-- <template v-slot:action>
+                                    <q-btn color="negative" icon="print" label="imprimir ahora"/>
+                                </template> -->
+                            </q-banner>
+                            <q-card-section>
+                                <div class="row items-center">
+                                    <div class="col">
+                                        <div class="text-h4 text-white">{{order.id}}</div>
+                                        <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
+                                        <div class="text-amber-13">{{order.notes}}</div>
+                                        <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                                    </div>
+                                    <div class="text-center self-end">
+                                        <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
+                                        <div>{{buildlog(order,'resp')}}</div>
+                                        <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
+                                    </div>
                                 </div>
-                                <div class="text-center self-end">
-                                    <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
-                                    <div>{{buildlog(order,'resp')}}</div>
-                                    <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
-                                </div>
-                            </div>
-                        </q-card-section>
-                    </q-card>
+                            </q-card-section>
+                        </q-card>
+                    </transition-group>
                 </q-scroll-area>
             </div>
 
@@ -116,23 +120,25 @@
                 </q-card>
 
                 <q-scroll-area style="height: 75vh; max-width: 100%;">
-                    <q-card v-for="order in orderSuppling" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
-                        <q-card-section>
-                            <div class="row items-center">
-                                <div class="col">
-                                    <div class="text-h4 text-white">{{order.id}}</div>
-                                    <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div class="text-amber-13">{{order.notes}}</div>
-                                    <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <q-card v-for="order in orderSuppling" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
+                            <q-card-section>
+                                <div class="row items-center">
+                                    <div class="col">
+                                        <div class="text-h4 text-white">{{order.id}}</div>
+                                        <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
+                                        <div class="text-amber-13">{{order.notes}}</div>
+                                        <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                                    </div>
+                                    <div class="text-center self-end">
+                                        <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
+                                        <div>{{buildlog(order,'resp')}}</div>
+                                        <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
+                                    </div>
                                 </div>
-                                <div class="text-center self-end">
-                                    <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
-                                    <div>{{buildlog(order,'resp')}}</div>
-                                    <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
-                                </div>
-                            </div>
-                        </q-card-section>
-                    </q-card>
+                            </q-card-section>
+                        </q-card>
+                    </transition-group>
                 </q-scroll-area>
             </div>
 
@@ -144,23 +150,25 @@
                 </q-card>
 
                 <q-scroll-area style="height: 75vh; max-width: 100%;">
-                    <q-card v-for="order in orderToArrive" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
-                        <q-card-section>
-                            <div class="row items-center">
-                                <div class="col">
-                                    <div class="text-h4 text-white">{{order.id}}</div>
-                                    <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div class="text-amber-13">{{order.notes}}</div>
-                                    <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <q-card v-for="order in orderToArrive" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
+                            <q-card-section>
+                                <div class="row items-center">
+                                    <div class="col">
+                                        <div class="text-h4 text-white">{{order.id}}</div>
+                                        <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
+                                        <div class="text-amber-13">{{order.notes}}</div>
+                                        <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                                    </div>
+                                    <div class="text-center self-end">
+                                        <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
+                                        <div>{{buildlog(order,'resp')}}</div>
+                                        <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
+                                    </div>
                                 </div>
-                                <div class="text-center self-end">
-                                    <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
-                                    <div>{{buildlog(order,'resp')}}</div>
-                                    <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
-                                </div>
-                            </div>
-                        </q-card-section>
-                    </q-card>
+                            </q-card-section>
+                        </q-card>
+                    </transition-group>
                 </q-scroll-area>
             </div>
 
@@ -172,23 +180,25 @@
                 </q-card>
 
                 <q-scroll-area style="height: 75vh; max-width: 100%;">
-                    <q-card v-for="order in orderOk" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
-                        <q-card-section>
-                            <div class="row items-center">
-                                <div class="col">
-                                    <div class="text-h4 text-white">{{order.id}}</div>
-                                    <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
-                                    <div class="text-amber-13">{{order.notes}}</div>
-                                    <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <q-card v-for="order in orderOk" :key="order.id" class="bg-darkl1 q-mb-sm" v-ripple clickable @click="showLog(order.id)">
+                            <q-card-section>
+                                <div class="row items-center">
+                                    <div class="col">
+                                        <div class="text-h4 text-white">{{order.id}}</div>
+                                        <div class="text-h6 text-light-blue">{{order.from.alias}}</div>
+                                        <div class="text-amber-13">{{order.notes}}</div>
+                                        <!-- <div class="q-pt-md text--2 text-uppercase text-grey-4">{{order.status.name}}</div> -->
+                                    </div>
+                                    <div class="text-center self-end">
+                                        <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
+                                        <div>{{buildlog(order,'resp')}}</div>
+                                        <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
+                                    </div>
                                 </div>
-                                <div class="text-center self-end">
-                                    <div><q-avatar size="70px"><img :src="buildlog(order,'avatar')"/></q-avatar></div>
-                                    <div>{{buildlog(order,'resp')}}</div>
-                                    <div><span class="text-white text-bold">{{buildlog(order,'time')}}</span></div>
-                                </div>
-                            </div>
-                        </q-card-section>
-                    </q-card>
+                            </q-card-section>
+                        </q-card>
+                    </transition-group>
                 </q-scroll-area>
             </div>
 
@@ -204,7 +214,7 @@
                         <div class="text-h3">{{wndLog.order.from.alias}} {{wndLog.order.id}}</div>
                         <div class="text-h6">
                             <div>{{ordersize(wndLog.order.products)[0]}}m {{ordersize(wndLog.order.products)[1]}}p</div>
-                            <q-btn icon="print" flat color="green-13" v-if="wndLog.order" @click="reprint" :loading="print.state" :disable="print.state"/>
+                            <q-btn icon="print" flat color="green-13" v-if="wndLog.order&&wndLog.order.status.id>1" @click="reprint" :loading="print.state" :disable="print.state"/>
                         </div>
                     </div>
                     <q-timeline dark color="green-13">
@@ -266,7 +276,7 @@ export default {
                 view:[],
                 crude:null,
             },
-            vsocket:undefined,
+            sktdash:undefined,
             index:undefined,
             initpagination:{
                 sortBy: 'id',
@@ -278,6 +288,7 @@ export default {
                 created:new Audio('sounds/waiting.mp3'),
                 moved:new Audio('sounds/moved.mp3'),
                 removed:new Audio('sounds/removed.mp3'),
+                done:new Audio('sounds/done.mp3')
             },
             wndLog:{
                 state:false,
@@ -287,50 +298,75 @@ export default {
             print:{state:false}
         }
     },
-    async beforeMount(){        
+    async beforeMount(){
         this.index = await dbreqs.dashboard();
-        // this.filtdash.crude = await dbwkps.index();
-    },
-    async mounted(){
+
         //instanciar al socket
-        this.vsocket = await io(this.$vsocket);
+        this.sktdash = await io(`${this.$vsocket}/resurtidos`);
+        console.info(`uniendo al room ${this.socketroom}`);//
+        this.sktdash.emit('joinat',{ user:this.profile, isdashboard:true, from:this.workin.workpoint });
 
-        //solicitar al socket que notifique que este dashboard esta escuchando
-		this.vsocket.emit('dashboard_ready',this.profile);
-        
         //notifica que un usuario se unio a este dashboard, excepto cuando es el mismo
-		this.vsocket.on('joined_at_dashboard',(data)=>{ console.log(data); });
-
-        //notifica que un pedido, ha sido creado
-        this.vsocket.on('creatingorder',(data)=>{
-            console.log("Se ha creado un pedido...");
+		this.sktdash.on('joineddashreq',(data)=>{
             console.log(data);
-            this.ordersdb.unshift(data.order);
-            this.sounds.creating.play();
+			console.log(`%c${data.notify}`,"color:#3ae374;font-size:1.5em;");
         });
-
-        this.vsocket.on('using_order',(data)=>{
-            console.log("Se abrio una orden...");
+        
+        this.sktdash.on('creating',(data)=>{ this.sktOrderCreating(data); }); //notifica que un pedido, ha sido creado
+        this.sktdash.on('order_open',(data)=>{ this.orderHere(data) ? this.sktOrderOpen(data):null });// hay un pedido en uso
+        this.sktdash.on('order_update',(data)=>{ this.orderHere(data) ? this.sktOrderUpdate(data):null });// hay un pedido en uso
+        this.sktdash.on('order_changestate',(data)=>{ this.orderHere(data) ? this.sktOrderChangeState(data):null });// cambiar status a pedido
+    },
+    beforeDestroy(){ this.sktdash.emit('leave', { room:this.socketroom, user:this.profile } ); },
+    methods:{
+        sktOrderUpdate(data){
             console.log(data);
-        });
+            let idx = this.ordersdb.findIndex(order => order.id == data.order.id );
+            let pidx = null;
 
-        this.vsocket.on('order_changestate',(data)=>{
+            switch (data.cmd) {
+                case 'add': this.ordersdb[idx].products.push(data.product); break;
+
+                case 'edit':
+                        pidx = this.ordersdb[idx].products.findIndex(art => art.id == data.product.id );
+                        this.ordersdb[idx].products[pidx] = Object.assign(this.ordersdb[idx].products[pidx], data.product);
+                    break;
+
+                case 'remove':
+                        pidx = this.ordersdb[idx].products.findIndex(art => art.id == data.product );
+                        this.ordersdb[idx].products.splice(pidx,1);
+                    break;
+            
+                default: console.log("Comando desconocido!!"); break;
+            }
+        },
+        sktOrderOpen(data){ console.log(`%cPedido ${data.order.id} ha sido abierto`,"color:#3ae374;font-size:1.5em;"); },
+        sktOrderCreating(data){
+            console.log(data.order);
+            console.log("Se esta levantando un pedido!!");
+            if(data.to.label==this.workin.workpoint.alias){
+                console.log("%cEl pedido pertenece a este dashboard","font-size:1.5;color:#3ae374;");
+                this.ordersdb.unshift(data.order);
+                this.sounds.creating.play();
+            }else{
+                console.log("%cPero no pertenece a este dashboard","font-size:1.5;color:#ff9f1a;");
+            }
+        },
+        sktOrderChangeState(data){
             console.log("Actualizando status a pedido");
-            console.log(data);
             let idx = this.ordersdb.findIndex(item=>{return item.id==data.order.id});
-            this.ordersdb[idx].log=data.order.log;
-            this.ordersdb[idx].status=data.order.status;
-            this.ordersdb[idx].products=data.order.products;
-            this.ordersdb[idx].printed=data.order.printed;
+            console.log(data.order);
+            console.log(this.ordersdb[idx]);
+            this.ordersdb[idx]= Object.assign(this.ordersdb[idx],data.order);
 
             switch (data.state.id) {
                 case 2: this.sounds.created.play(); break;
+                case 9: this.sounds.done.play(); break;
                 case 10: this.sounds.removed.play(); break;
                 default: this.sounds.moved.play(); break;
             }
-        });
-    },
-    methods:{
+        },
+        orderHere(data){ return this.ordersdb.findIndex(order => order.id == data.order.id) >= 0 ? true:false; },
         reprint(){
             console.log("reimprimiendo");
             let data = {"_requisition":this.wndLog.order.id};
@@ -355,6 +391,7 @@ export default {
             let data = { id:this.wndLog.order.id,"_status":atstate }
             let message = "";
             let newstatus = {id:atstate,name:undefined};
+            let ntfsound = this.sounds.moved;
 
             switch (atstate) {
                 case 3:
@@ -380,61 +417,27 @@ export default {
                 let idx = this.ordersdb.findIndex(item=>{return item.id==resp.order.id});
                 this.ordersdb[idx].log=resp.order.log;
                 this.ordersdb[idx].status=resp.order.status;
-                this.$q.notify({
-                    message:message,
-                    color:"positive", icon:"done", position:'bottom-right'
-                });
+                this.$q.notify({ message:message, color:"positive", icon:"done", position:'bottom-right' });
                 this.sounds.moved.play();
-                this.vsocket.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.ordersdb[idx]});
-            }).catch(fail=>{
-                console.log(fail);
-            });
+                this.sktdash.emit('order_changestate', { state:newstatus, profile:this.profile, order:this.ordersdb[idx], from:this.workin, room:this.socketroom });
+                // this.vsocket.emit('order_changestate',{ state:newstatus, profile:this.profile, order:this.ordersdb[idx] });
+            }).catch(fail=>{ console.log(fail); });
         },
     },
     computed: {
-        // combowkps(){
-        //     if(this.filtdash.crude){
-        //         return this.filtdash.crude.map(item=>{
-        //             return {'label':item.alias,'value':'all'};
-        //         });
-        //     }else{
-        //         let all = {'label':'todo',value:'all'};
-        //         this.filtdash.view = [all];
-        //         return [all];
-        //     }
-        // },
+		workin(){ return this.$store.getters['Account/workin'];},
         profile:{ get(){ return this.$store.getters['Account/profile'] } },
 		appconnected(){ return this.vsocket ? this.vsocket.connected : false; },
-        ordersdb(){
-            if(this.index){ return this.index; }else{ return [];}
-        },
-        orderTaking(){ //levantando pedido
-            return this.ordersdb.filter(order=>order.status.id==1);
-        },
-        orderForSupply(){//Por surtir
-            return this.ordersdb.filter(order=>order.status.id==2);
-        },
-        orderSuppling(){//Surtiendo
-            return this.ordersdb.filter(order=>order.status.id==3);
-        },
-        orderCheckout(){//Surtido, esperando salida
-            return this.ordersdb.filter(order=>order.status.id==4);
-        },
-        orderToArrive(){//En camino
-            return this.ordersdb.filter(order=>order.status.id==5);
-        },
-        orderArrived(){//Pedido recibido // validando/
-            return this.ordersdb.filter(order=>(order.status.id==6||order.status.id==7));
-        },
-        orderOk(){//revisado OK
-            return this.ordersdb.filter(order=>order.status.id==9);
-        },
-        orderArchive(){//Pedido cancelado/expirado
-            return this.ordersdb.filter(order=>(order.status.id==10||order.status.id==11));
-        },
-        noprinteds(){
-            return this.orderForSupply.filter(order=>order.printed);
-        },
+        ordersdb(){ if(this.index){ return this.index; }else{ return [];} },
+        orderTaking(){ return this.ordersdb.filter(order=>order.status.id==1); },//levantando pedido
+        orderForSupply(){ return this.ordersdb.filter(order=>order.status.id==2);},//Por surtir
+        orderSuppling(){ return this.ordersdb.filter(order=>order.status.id==3); },//Surtiendo
+        orderCheckout(){ return this.ordersdb.filter(order=>order.status.id==4); },//Surtido, esperando salida
+        orderToArrive(){ return this.ordersdb.filter(order=>order.status.id==5); },//En camino
+        orderArrived(){ return this.ordersdb.filter(order=>(order.status.id==6||order.status.id==7)); },//Pedido recibido // validando/
+        orderOk(){ return this.ordersdb.filter(order=>order.status.id==9); },//revisado OK
+        orderArchive(){ return this.ordersdb.filter(order=>(order.status.id==10||order.status.id==11)); },//Pedido cancelado/expirado
+        noprinteds(){ return this.orderForSupply.filter(order=>order.printed); },
         ismobile(){ return this.$q.platform.is.mobile; },
         buildlog(){ return (order,data) =>{
                 let idx = order.log.findIndex(log=>{ return order.status.id==log.id; });
@@ -507,7 +510,8 @@ export default {
                     return `${t[0]}h ${t[1]}m`;
                 }
             }
-        }
+        },
+        socketroom(){ return `${this.workin.workpoint.alias}`},
     }
 }
 </script>

@@ -5,7 +5,8 @@ export default{
         return vizapi.get('/requisition').then(succcess=>{
             return succcess.data;
         }).catch(fail=>{
-            console.log(fail);
+            console.error("error en solicitud");
+            console.error(fail);
         });
     },
     create(data){

@@ -1,73 +1,66 @@
 <template>
-	<q-page padding>
-		<q-header class="bg-darkl0 text-grey-5 q-pa-sm">
+	<q-page>
+		<q-header class="bg-darkl0 text-grey-5">
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Preventa" />
+				<div class="q-pa-md row justify-between">
+					<div class="ds">sdf</div>
+					<div class="ds">sdfsdf</div>
+				</div>
 			</q-card>
 		</q-header>
 
-		<q-card flat class="bg-darkl0" v-if="orders_capture.length">
-			<q-card-section>Pedidos activos [ {{orders_capture.length}} ]</q-card-section>
-			<q-scroll-area horizontal style="height: 90px; width: 100%;" :visible="false">
-				<div class="row no-wrap q-gutter-md text-grey-5">
-					<q-card class="bg-darkl1" style="min-width:170px;"
-						v-for="order in orders_capture" :key="order.id"
-						@click="open(order.id)"
-					>
-						<div class="q-pa-sm">
-							<div class="text-h6">{{order.id}}</div>
-							<div class="text-uppercase text--1">{{order.name}}</div>
-							<div class="text-right text--2">{{order.created_at}}</div>
-						</div>
-					</q-card>
-				</div>
-			</q-scroll-area>
-		</q-card>
+		<div class="row q-ma-md items-start">
+			<div class="col q-pa-sm">
+				<q-card class="bg-darkl1">
+					<q-card-section>
+						Resumen
+					</q-card-section>
+					<q-card-section>
+						<!-- <apexchart type="bar" :options="orders_chart.options" :series="series_chart" height="400px;"/> -->
+					</q-card-section>
+				</q-card>
+			</div>
 
-		<q-card class="bg-darkl1 q-pb-sm q-my-md">
-			<q-card-section>Resumen</q-card-section><q-separator/>
-			<apexchart type="donut" :options="chart_1.options" :series="series_chart" />
-		</q-card>
+			<div class="col q-pa-sm">
+				<q-card class="bg-darkl1">
+					<q-card-section horizontal>
+						<q-card-section>sdfsf</q-card-section>
+						<q-separator/>
+						<q-card-section>sdfsdf</q-card-section>
+					</q-card-section>
+					<q-card-section>
+						<q-table :data="orders_db"
+							row-key="id" dark :filter="tableorders.filtrator"
+							card-class="q-pa-sm bg-none text-grey-6"
+							:columns="tableorders.columns" flat
+						>
+							<template v-slot:top-right v-if="orders_db.length">
+								<q-input color="green-13" dark dense debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
+									<template v-slot:append><q-icon name="search" /></template>
+								</q-input>
+							</template>
 
-		<div class="bg-darkl1">
-			<q-card-section>Tus pedidos</q-card-section><q-separator/>
-			<q-table :data="orders_db"
-				row-key="id" dark :filter="tableorders.filtrator"
-				card-class="q-pa-sm bg-none text-grey-6"
-				:columns="tableorders.columns"
-			>
-				<template v-slot:top-right v-if="orders_db.length">
-                    <q-input color="green-13" dark dense debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
-                        <template v-slot:append><q-icon name="search" /></template>
-                    </q-input>
-                </template>
+							<template v-slot:body="props">
+								<q-tr :props="props" @click="open(props.row.id)">
+									<q-td key="id" :props="props">
+										{{props.row.id}}
+									</q-td>
 
-				<template v-slot:body="props">
-					<q-tr :props="props" @click="open(props.row.id)">
-						<q-td key="id" :props="props">
-							{{props.row.id}}
-						</q-td>
+									<q-td key="client" :props="props">
+										{{props.row.name}}
+									</q-td>
 
-						<q-td key="client" :props="props">
-							{{props.row.name}}
-						</q-td>
-
-						<q-td key="timed" :props="props">
-							{{humantime(props.row.created_at)}}
-						</q-td>
-					</q-tr>
-				</template>
-			</q-table>
+									<q-td key="timed" :props="props">
+										{{humantime(props.row.created_at)}}
+									</q-td>
+								</q-tr>
+							</template>
+						</q-table>
+					</q-card-section>
+				</q-card>
+			</div>
 		</div>
-
-		<!-- <q-card class="bg-darkl1 q-pb-sm q-mt-md">
-			<q-card-section>Lista</q-card-section><q-separator/>
-			<q-scroll-area style="height:200px; width:100%;">
-				<div class="q-pa-md" v-for="order in orders_db" :key="order.id">
-					{{order.id}} {{order.name}}
-				</div>
-			</q-scroll-area>
-		</q-card> -->
 
 		<q-dialog v-model="windCreate.state" position="bottom">
 			<q-card class="bg-darkl0 exo text-grey-5">
@@ -90,6 +83,7 @@
 </template>
 
 <script>
+import io from 'socket.io-client'
 import apexcharts from 'vue-apexcharts'
 import { date } from 'quasar'
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
@@ -99,11 +93,11 @@ export default {
 	// name: 'PageName',
 	components:{
 		apexchart:apexcharts,
-		ToolbarAccount:ToolbarAccount
+		ToolbarAccount:ToolbarAccount,
 	},
 	data() {
 		return {
-			chart_1:{
+			orders_chart:{
 				options: {
 					chart:{ id: 'orders_chart', background:'none' },
 					stroke:{ colors:['#2D3035'] },
@@ -114,7 +108,7 @@ export default {
 			},
 			windCreate:{
 				state:false,
-				ipt:{dis:true,load:false,client:''}
+				ipt:{ dis:true, load:false, client:'' }
 			},
 			index:undefined,
 			tableorders:{
@@ -124,32 +118,78 @@ export default {
 					{ name:'timed', align:'center', label:'Hora', field:'created_at', sortable:true },
 				],
 				filtrator:''
-			}
+			},
+			sktprev:undefined
 		}
 	},
 	async beforeMount(){
-		// this.orders_db = this.orders_fake;
 		this.index = await preventa.index();
+		console.log(this.workin);
+
+		console.log(`Conectando a SOCKET`);
+		this.sktprev = await io(`${this.$vsocket}/preventa`);
+		this.sktprev.emit('index',this.profile);
+
+		console.log(`Uniendo a ROOMs de preventa (${this.socketroom})`);
+		this.sktprev.emit('joinat',{ room:this.socketroom,user:this.profile });
+
+		this.sktprev.on('joinprev',data=>{ this.sktjoinprev(data); });//unido al canal principaL de preventa
+		this.sktprev.on('joinprevwrh',data=>{ this.sktjoinprevwrh(data); });// unido al room bodega del canal de preventa
+	},
+	beforeDestroy() { 
+		console.log('desconectando del room');
+		this.sktprev.emit('leave',{ room:this.socketroom, user:this.profile} );
 	},
 	methods: {
 		tryCreate(){
+			this.sktprev.emit('order_creating',{ room:this.socketroom, user:this.profile, order:null });
 			this.windCreate.ipt.load=true;
 			let data = { "name":this.windCreate.ipt.client }
 
 			preventa.create(data).then(success=>{
 				let resp = success.data;
+				console.log(resp);
+				this.sktprev.emit('order_created',{ room:this.socketroom, user:this.profile, order:resp });
 				this.$router.push(`/preventa/${resp.id}`);
-			}).catch(fail=>{
-				console.log(fail);
-			});
+			}).catch(fail=>{ console.log(fail); });
 
 			console.log(data);
 		},
-		open(idorder){
-			this.$router.push(`/preventa/${idorder}`);
-		},
+		open(idorder){ this.$router.push(`/preventa/${idorder}`); },
+		sktjoinprev(data){
+            // console.log(`Conectado a ${this.socketroom}`);
+            console.log(data);
+
+            // if(data.me.id!=this.profile.me.id){
+            //     this.$q.notify({
+            //         color:'dark',
+            //         message:`${data.me.nick} se ha unido a Preventa`,
+            //         position:'bottom-left',
+            //         textColor: 'green-13',
+            //         timeout:1200,
+            //         avatar: 'https://cdn.quasar.dev/img/boy-avatar.png'
+            //     });
+            // }
+        },
+		sktjoinprevwrh(data){
+			console.log(data);
+            // console.log(data);
+
+            // if(data.me.id!=this.profile.me.id){
+            //     this.$q.notify({
+            //         color:'dark',
+            //         message:`${data.me.nick} se ha unido a Bodega`,
+            //         position:'bottom-left',
+            //         textColor: 'green-13',
+            //         timeout:1200,
+            //         avatar: 'https://cdn.quasar.dev/img/boy-avatar.png'
+            //     });
+            // }
+		}
 	},
 	computed: {
+		profile(){ return this.$store.getters['Account/profile'];},
+		workin(){ return this.$store.getters['Account/workin'];},
 		cancreate(){ return this.windCreate.ipt.client.length>3?true:false; },
 		orders_db(){ return this.index ? this.index.orders:[]; },
 		orders_capture(){ return this.orders_db.filter(item=>{return item.status.id==1}); },
@@ -178,6 +218,7 @@ export default {
 				}
 			}
         },
+		socketroom(){ return `${this.workin.workpoint.alias}`},
 	},
 }
 </script>
