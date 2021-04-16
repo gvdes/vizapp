@@ -12,5 +12,5 @@ Vue.prototype.$vizapi = vizapi
 
 // para usar dentro de archivos JS
 export { vizapi }
-// GRUPOVIZCARRA-CEDIS1985**
 
+// 5611384154 lore vlme 

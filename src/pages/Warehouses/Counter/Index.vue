@@ -1,50 +1,48 @@
 <template>
-	<q-page padding>
+	<q-page>
 		<q-header class="bg-darkl0 text-grey-5 q-pa-sm">
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Inventarios"/>
 			</q-card>
 		</q-header>
-		<router-view />
 
-		<div>
-			<template v-if="inventories.length">
-				<div class="row q-pl-sm">
-					<q-card class="col-xs-12 col-md-3 q-mb-sm q-mr-sm bg-darkl1" v-for="inv in inventories" :key="inv.id">
-						<q-card-section class="row justify-between items-start">
-							<div>
+		<template v-if="inventories.length">
+			<div class="row q-pt-sm q-pl-sm">
+				<div class="col-xs-12 col-md-3" v-for="inv in inventories" :key="inv.id">
+					<q-card class="bg-darkl1 q-mb-sm q-mr-sm">
+						<q-card-section>
+							<div class="row justify-between items-center">
 								<div class="text-h5 text-green-13">{{inv.id}}</div>
-								<div>[ {{inv.type.name}} ]</div>
+								<q-icon :color="inv.type.id==1?'purple-14':'pink-6'" :name="inv.type.id==1?'visibility':'visibility_off'" size="sm"/>
 							</div>
-							<div class="text--1 text-right">
-								{{inv.created_at}}<br>
-								{{inv.created_by.names}} [ {{inv.created_by.nick}} ]
+							<div class="text--1 q-pt-md">
+								<span class="text-grey-2">{{inv.created_at}}</span><br>
+								{{inv.created_by.names}} [ {{inv.created_by.nick}} ]<br>
+								Responsables [{{inv.responsables.length}}]
 							</div>
 						</q-card-section>
 						<q-separator/>
-						<q-card-section>
-							<div class="row items-end">
-								<div class="col">
-									Responsables [{{inv.responsables.length}}]:
-									<br/>
-									<!-- Modelos [{{inv.products.length}}]: -->
-								</div>
+						<q-card-actions align="right">
+							<template v-if="inv.status.id==1">
+								<q-btn v-if="imAdmin(inv.created_by)" @click="$router.push(`contador/config/${inv.id}`)" rounded flat color="light-blue-13" icon="settings"/>
+								<q-spinner-dots v-else color="amber-13" size="md"/>
+							</template>
 
-								<template v-if="inv.status.id==1">
-									<q-btn v-if="imAdmin(inv.created_by)" @click="$router.push(`contador/config/${inv.id}`)" rounded flat color="light-blue-13" icon="settings"/>
-									<q-spinner-dots v-else color="amber-13" size="md"/>
-								</template>
+							<template v-if="inv.status.id==2">
+								<q-btn v-if="imAdmin(inv.created_by)" @click="$router.push(`contador/config/${inv.id}`)" rounded flat color="light-blue-13" icon="settings"/>
+								<q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="green-13" icon="launch"/>
+							</template>
 
-								<template v-if="inv.status.id==2">
-									<q-btn v-if="imAdmin(inv.created_by)" @click="$router.push(`contador/config/${inv.id}`)" rounded flat color="light-blue-13" icon="settings"/>
-									<q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="green-13" icon="launch"/>
-								</template>
-							</div>
-						</q-card-section>
+							<template v-if="inv.status.id==3">
+								<!-- <q-btn v-if="imAdmin(inv.created_by)" @click="$router.push(`contador/config/${inv.id}`)" rounded flat color="light-blue-13" icon="settings"/> -->
+								<q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="light-blue-13" icon="launch"/>
+							</template>
+						</q-card-actions>
 					</q-card>
 				</div>
-			</template>
-		</div>
+			</div>
+		</template>
+		<div class="q-pb-xl"></div>
 
 		<q-dialog v-model="wndCreate.state" position="bottom">
 			<q-card class="bg-darkl0 text-grey-5 exo">

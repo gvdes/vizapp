@@ -93,7 +93,7 @@
                 </q-page-sticky>
 
                 <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="this.index.inventory.status.id==3">
-                    <q-btn rounded class="bg-darkl1 text-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF"/>
+                    <q-btn rounded class="bg-darkl1 text-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF" :loading="bpdf.state"/>
                 </q-page-sticky>
             </template>
         </template>
@@ -134,7 +134,10 @@ export default {
             },
             sktcounter:null,
             countingrespo:null,
-            joined:false
+            joined:false,
+            bpdf:{
+                state:false
+            }
         }
     },
     async beforeMount(){
@@ -145,7 +148,7 @@ export default {
 
         if (this.index.success) {
             if (this.stay()) {
-                console.log("Acceso Exitoso!!, formateando filas...");
+                // console.log("Acceso Exitoso!!, formateando filas...");
 
                 this.index.inventory.products.forEach(prod=>{
                     prod.state = prod.ordered.details.settings ? 1:3;
@@ -154,8 +157,8 @@ export default {
 
                     this.tableProducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
                 });
-                console.log("... LISTO!!!");
-                console.log(`Uniendo al ROOM ${this.socketroom}...`);
+                // console.log("... LISTO!!!");
+                // console.log(`Uniendo al ROOM ${this.socketroom}...`);
                 this.sktcounter = await io(`${this.$vsocket}/counters`);
                 this.sktcounter.emit('joinat',{ room:this.socketroom,user:this.profile });
                 this.sktcounter.on('joined',data=>{ this.sktjoined(data); });
@@ -177,8 +180,8 @@ export default {
             this.tableProducts.rows[idx].counter=data.settings.stock;
         },
         sktjoined(data){
-            console.log("Usuario conectado al conteo");
-            console.log(data);
+            // console.log("Usuario conectado al conteo");
+            // console.log(data);
 
             if(data.me.id!=this.profile.me.id){
                 this.$q.notify({
@@ -209,13 +212,7 @@ export default {
             this.$q.loading.show({message:'Finalizando Inventario, espera...'});
             console.log(this.index.inventory.id);
 
-            let data = {
-                "_inventory":this.index.inventory.id,
-                "_status":3
-            }
-            
-            console.log('Ejecutando NextStep...');
-            console.log(data);
+            let data = { "_inventory":this.index.inventory.id, "_status":3 }
 
             // console.log(data);
             invsdb.nextStep(data).then(success=>{
@@ -223,6 +220,7 @@ export default {
                 console.log(resp);
                 this.productsRefresh = resp.order.products;
                 this.index.inventory.status = resp.order.status;
+                this.index.inventory.log = resp.order.log;
                 this.$q.loading.hide();
                 this.$q.notify({
                     icon:"done",
@@ -320,12 +318,13 @@ export default {
             this.$router.push('/almacen/contador');
         },
         buildPDF(){
-            console.log("%cConstruyendo Documento...","font-size:2em;color:orange;");
+            this.bpdf.state=true;
+            // console.log("%cConstruyendo Documento...","font-size:2em;color:orange;");
             this.$q.loading.show({message:'Generando Reporte...'});
             console.log(this.index);
 
-            let logstart = this.log.filter(log=>{ return log.id == 1;})[0];
-            let logend = this.log.filter(log=>{ return log.id == 3;})[0];
+            let logstart = this.log.filter(log => { return log.id == 1;})[0];
+            let logend = this.log.filter(log => { return log.id == 3;})[0];
 
             let _timestart = this.$moment(logstart.created_at);
             let _timeend = this.$moment(logend.created_at);
@@ -333,7 +332,7 @@ export default {
 
             let fullpresition = 0;
             let pdfpage = 1;
-            let folio = `21${this.index.inventory.id}`
+            let folio = `21-${this.index.inventory.id}`
             let docname = `${folio}.pdf`;
             let timestart = _timestart.format('MM/DD/YYYY h:mm a');
             let timeend = _timeend.format('MM/DD/YYYY h:mm a');
@@ -390,7 +389,7 @@ export default {
             let footerPage = (totals) => {
                 pdf.setFontSize(7);
                 pdf.text(`${pdfpage}`,(emw/2+10),(emh+50),{align:'center',baseline:'middle'});
-                pdf.text(`Inventario ${folio}, ${this.profile.workpoint.alias}`,575,(emh+50),{align:'right',baseline:'middle'});
+                pdf.text(`Inventario ${folio}, ${this.workin.workpoint.name}`,575,(emh+50),{align:'right',baseline:'middle'});
             }
 
             let headerTable = (cx,cy) => {
@@ -516,6 +515,7 @@ export default {
             /** T A B L A   D E   P R O D U C T O S */
             pdf.save(docname);
             this.$q.loading.hide();
+            this.bpdf.state=false;
         }
     },
     computed:{

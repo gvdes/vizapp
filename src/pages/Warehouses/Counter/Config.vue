@@ -1,9 +1,31 @@
 <template>
     <q-page padding>
-        <q-header class="bg-darkl1" elevated>
-            <div class="q-py-sm text-uppercase row items-center">
-                <q-btn flat icon="fas fa-chevron-left" color="white" @click="$router.push('/almacen/contador')"/>
-                <span class="text-light-blue-13"> Configuracion de Inventario {{this.$route.params.id}}</span>
+        <q-header class="bg-darkl1 q-py-sm" elevated>
+            <div class="row items-center">
+                <div class="col">
+                    <q-btn flat icon="fas fa-chevron-left" color="white" @click="$router.push('/almacen/contador')" />
+                </div>
+                <div class="text-center col">
+                    <span>INVENTARIO {{this.$route.params.id}}</span> <span class="text-grey"> Configuración</span>    
+                </div>
+                <div class="col text-right q-pr-sm">
+                    <template v-if="!ismobile&&data">
+                        <q-btn flat no-caps color="pink-13" icon="inventory_2" @click="trydiscard=true" v-if="!trydiscard" />
+                        <template v-if="trydiscard">
+                            <q-btn no-caps flat rounded color="pink-13" icon="inventory" @click="nextStep(4)" label="Archivar Inventario!!" />
+                            <q-btn no-caps unelevated rounded color="primary" icon="close " label="Cancelar" @click="trydiscard=false" />
+                        </template>
+                        
+                        <template v-if="data.inventory.status.id==1&&canStart&&!trydiscard">
+                            <transition appear enter-active-class="animated rubberBand slower" leave-active-class="animated zoomOut">
+                                <q-btn flat no-caps color="green-13" icon="fas fa-play-circle" @click="start" />
+                            </transition>
+                        </template>
+                        <template v-if="data.inventory.status.id==2&&!trydiscard">
+                            <q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="green-13" icon="launch"/>
+                        </template>
+                    </template>
+                </div>
             </div>
         </q-header>
 
@@ -24,7 +46,7 @@
                         label="Responsables"
                         :caption="group.length.toString()"
                         header-class="text-grey-5"
-                        v-model="expands.respos"
+                        v-model="expands.team"
                     >
                         <q-card-section>
                             <q-list>
@@ -47,15 +69,14 @@
                     </q-expansion-item>
                 </q-card>
 
-                <!-- PRODUCTOS -->
-                <q-card class="col bg-darkl1 exo">
+                <!-- Seleccion de Productos -->
+                <q-card class="col bg-darkl1 exo" v-if="data.inventory.status.id==1">
                     <q-expansion-item
                         expand-separator
-                        icon="fas fa-boxes"
-                        label="Productos"
-                        :caption="listProducts.length.toString()"
+                        icon="fab fa-searchengin"
+                        label="Seleccion de productos"
                         header-class="text-grey-5"
-                        v-model="expands.products"
+                        v-model="expands.seeker"
                     >
                         <q-card-section>
                             <div class="row items-start">
@@ -83,6 +104,44 @@
                         <q-card-section style="max-width:100%;">
                             <q-table dark flat
                                 card-class="bg-none"
+                                :data="listSeekers"
+                                :columns="tableSeekers.columns"
+                                :visible-columns="tableSeekers.visibleColumns"
+                            >
+                                <template v-slot:body="props">
+                                    <q-tr :props="props">
+                                        <q-td key="id" :props="props">{{ props.row.id }}</q-td>
+                                        <q-td key="code" :props="props">{{ props.row.code }}</q-td>
+                                        <q-td key="description" :props="props" class="text--2">{{ props.row.description }}</q-td>
+                                        <q-td key="locations" :props="props">
+                                            <span v-if="props.row.locations.length">
+                                                <span class="text-light-blue text-bold">[ {{props.row.locations.length}} ]</span>
+                                                {{ props.row.locations.map(loc=>loc.path).join(', ') }}
+                                            </span>
+                                        </q-td>
+                                    </q-tr>
+                                </template>
+                            </q-table>
+                        </q-card-section>
+                        <div class="row" v-if="listSeekers.length">
+                            <q-btn class="col q-pa-sm" flat label="Limpiar" color="amber-13" no-caps />
+                            <q-btn class="col q-pa-sm" flat label="Agregar a la Lista" color="green-13" no-caps @click="dragProducts"/>
+                        </div>
+                    </q-expansion-item>
+                </q-card>
+
+                <!-- Productos agregados -->
+                <q-card class="col bg-darkl1 exo">
+                    <q-expansion-item
+                        expand-separator
+                        icon="list_alt"
+                        label="Productos"
+                        header-class="text-grey-5"
+                        v-model="expands.products"
+                    >
+                        <q-card-section>
+                            <q-table dark flat
+                                card-class="bg-none"
                                 :data="listProducts"
                                 :columns="tableProducts.columns"
                                 :visible-columns="tableProducts.visibleColumns"
@@ -93,32 +152,48 @@
                                         <q-td key="code" :props="props">{{ props.row.code }}</q-td>
                                         <q-td key="description" :props="props" class="text--2">{{ props.row.description }}</q-td>
                                         <q-td key="locations" :props="props">
-                                            [ {{props.row.locations.length}} ]
-                                            <span v-for="(loc,idx) in props.row.locations" :key="idx">{{loc.path}}</span>
+                                            <span v-if="props.row.locations.length">
+                                                <span class="text-green-13 text-bold">[ {{props.row.locations.length}} ]</span>
+                                                {{ props.row.locations.map(loc=>loc.path).join(', ') }}
+                                            </span>
                                         </q-td>
                                     </q-tr>
                                 </template>
                             </q-table>
                         </q-card-section>
+                        <div class="row" v-if="listProducts.length&&data.inventory.status.id==1">
+                            <q-btn class="col q-pa-sm" flat label="Limpiar" color="amber-13" no-caps @click="clearAddeds" />
+                        </div>
                     </q-expansion-item>
                 </q-card>
             </div>
         </template>
 
-        <q-page-sticky position="bottom-left" :offset="[10,10]">
+        <!-- <q-footer class="bg-darkl1" elevated v-if="ismobile&&(canStart&&!trydiscard)"> -->
+        <q-footer class="bg-darkl1" elevated v-if="ismobile">
+            <div class="q-pa-sm row items-center justify-between">
+                <!-- <q-btn flat no-caps color="pink-13" icon="inventory" @click="trydiscard=true" v-if="!trydiscard"/>
+                <template v-if="trydiscard">
+                    <q-btn rounded no-caps color="primary" label="Cancelar" icon="arrow_back" @click="trydiscard=false" />
+                    <q-btn flat rounded no-caps color="pink-13" icon="inventory" @click="nextStep(4)" label="Archivar Inventario" />
+                </template> -->
 
-            <template v-if="trydiscard">
-                <q-btn rounded no-caps color="primary" icon="close" @click="trydiscard=false" label="No Eliminar"/>
-                <q-btn rounded no-caps color="negative" @click="nextStep(4)" label="¡Confirmar Eliminacion de Inventario!"/>
-            </template>
-            <q-btn v-else rounded no-caps color="orange-14" icon="delete" @click="trydiscard=true" label="Eliminar"/>
-        </q-page-sticky>   
-
-        <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="canStart&&!trydiscard">
-            <q-btn rounded no-caps
-                color="primary" icon="fas fa-play-circle" @click="start" label="Iniciar"
-            />
-        </q-page-sticky>   
+                <q-btn flat no-caps color="pink-13" icon="inventory_2" @click="trydiscard=true" v-if="!trydiscard" />
+                <template v-if="trydiscard">
+                    <q-btn no-caps unelevated rounded color="primary" icon="close " label="Cancelar" @click="trydiscard=false" />
+                    <q-btn no-caps flat rounded color="pink-13" icon="inventory" @click="nextStep(4)" label="Archivar Inventario!!" />
+                </template>
+                
+                <template v-if="data.inventory.status.id==1&&canStart&&!trydiscard">
+                    <transition appear enter-active-class="animated rubberBand slower" leave-active-class="animated zoomOut">
+                        <q-btn flat no-caps color="green-13" icon="fas fa-play-circle" @click="start" />
+                    </transition>
+                </template>
+                <template v-if="data.inventory.status.id==2&&!trydiscard">
+                    <q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="green-13" icon="launch"/>
+                </template>
+            </div>
+        </q-footer>
     </q-page>
 </template>
 
@@ -143,9 +218,9 @@ export default {
             trydiscard:false,
             group:[],
             optsAddProds:[
-                {label:'Categoria',value:1},
-                {label:'Ubicacion',value:2},
-                // {label:'Codigo',value:3},
+                {label:'Categoria', value:1, disable:true},
+                {label:'Ubicacion', value:2, disabled:false},
+                {label:'Individual', value:3, disable:true},
             ],
             modeAdd:null,
             listProducts:[],
@@ -158,11 +233,22 @@ export default {
 				],
                 visibleColumns:['code','locations']
             },
+            listSeekers:[],
+            tableSeekers:{
+                columns:[
+                    { name:'id', align:'left', label:'ID', field:row=>row.id, sortable:true },
+					{ name:'code', align:'left', label:'Codigo', field:row=>row.code, sortable:true },
+                    { name:'description', align:'left', label:'Descripcion', field:row=>row.description },
+					{ name:'locations', align:'center', label:'Ubicaciones', field:row=>row.locations.length, sortable:true },
+				],
+                visibleColumns:['code','locations']
+            },
             expands:{
-                respos:true,
+                team:true,
+                seeker:true,
                 products:true
             },
-            settings:new Object()
+            settings:new Object(),
         }
     },
     async beforeMount() { 
@@ -179,12 +265,9 @@ export default {
                 this.natAccounts = success.data.map(acc=>{//iterar cuentas obtenidas
                     this.data.inventory.responsables.forEach(respo => {//contra responsables actuales del inventario
                         respo.id == acc.id ? this.group.push(acc.id) : null;
-                    });
-                    return acc;
+                    }); return acc;
                 });
-			}).catch(fail=>{
-				console.log(fail);
-			});
+			}).catch(fail=>{ console.log(fail); });
         },
         toggleReponsable(accid){
             let data = {
@@ -195,37 +278,40 @@ export default {
             invsdb.toggleReponsable(data).then(success=>{
                 console.log(success.data);
                 console.log(this.group);
-            }).catch(fail=>{
-                console.log(fail);
-            });
+            }).catch(fail=>{ console.log(fail); });
         },
         selectedCat(cat){
             console.log("Categoria Seleccionada");
             this.settings.category=cat.category;
-            this.listProducts = cat.products.length ? cat.products : [];
+            this.listSeekers = cat.products.length ? cat.products : [];
             console.log(this.settings);
         },
         selectedLoc(loc){
             console.log("Ubicacion seleccionada");
             this.settings.warehouse=loc.warehouse;
             this.settings.section=loc.section?loc.section.model.value:null;
-            this.listProducts = loc.products.length ? loc.products:[];
+            this.listSeekers = loc.products.length ? loc.products:[];
         },
         async modeAddChanged(){
             this.settings = new Object();
-            this.listProducts = []; 
+            this.listSeekers = []; 
             this.settings.addmode = this.modeAdd.value;
         },
+        dragProducts(){
+            console.log("Arrastrando porductos!!");
+            this.listSeekers.forEach(item=>{
+                this.listProducts.findIndex(art => art.id==item.id) < 0 ? this.listProducts.unshift(item) : null;
+            });
+        },
+        clearAddeds(){ this.listProducts = []; },
         start(){
             console.log("Iniciando ");
             let products = this.listProducts.map(prod=>{ return prod.id; });
             let data = { "_products": products, "_inventory": this.data.inventory.id, "settings":this.settings }
 
             this.$q.loading.show({message: 'Aplicando configuracion, porfavor espera...'});
-
-            invsdb.addProducts(data).then(success=>{
-                this.nextStep();
-            }).catch(fail=>{ console.log(fail); });
+    
+            invsdb.addProducts(data).then(success=>{ this.nextStep(); }).catch(fail=>{ console.log(fail); });
         },
         nextStep(reqstate=undefined,settings=undefined){
             let currentState = this.data.inventory.status;
@@ -263,17 +349,15 @@ export default {
             switch (newState) {
                 case 2:
                     this.$q.notify({
-                        icon:"done",
-                        color:"positive",
-                        message:"El inventario ya puede realizarse!!",
-                        timeout:1200
+                        icon:"done", color:"positive", timeout:1200,
+                        message:"El inventario ya puede realizarse!!"
                     });
                     
                     this.$q.loading.show();
-                    setTimeout(()=>{
+                    // setTimeout(()=>{
                         this.$router.push('/almacen/contador/'+inv.order.id);
                         this.$q.loading.hide();
-                    },1500);
+                    // },1500);
                 break;
                 case 3: msgnewState = 'Cerrando Inventario, esperaa..'; break;
                 case 4:
@@ -285,7 +369,7 @@ export default {
                     
                     this.$router.push('/almacen/contador');
                 break;
-            }    
+            } 
         },
     },
     beforeDestroy(){
@@ -298,6 +382,7 @@ export default {
 			this.warehouses.sectModels.forEach((item,idx,arr)=>{ if(item.value){ path += idx==0?`${item.label}`:`-${item.label}`; } });
 			return path;
         },
+        ismobile(){ return this.$q.platform.is.mobile; },
         auths(){ return this.$store.getters['Account/moduleauths']; },
         profile(){ return this.$store.getters['Account/profile'];},
         canStart(){ return (this.listProducts.length&&this.group.length); },
