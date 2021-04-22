@@ -22,19 +22,22 @@
                         card-class="bg-none"
                         :data="tableProducts.rows"
                         :columns="tableProducts.columns"
-                        :visible-columns="tableProducts.visibleCols"
+                        :visible-columns="visibleCols"
                     >
                         <template v-slot:body="props">
                             <q-tr :props="props">
                                 <q-td key="id" :props="props">{{ props.row.id }}</q-td>
                                 <q-td key="code" :props="props">
-                                    {{ props.row.code }}
-                                    <br>
+                                    {{ props.row.code }}<br>
                                     <span class="text--2 text-grey-6">{{props.row.description}}</span>
                                 </q-td>
-                                <q-td key="description" :props="props">{{ props.row.description }}</q-td>
                                 <q-td key="locations" :props="props">{{props.row._locations}}</q-td>
+                                <q-td key="sai" :props="props">{{props.row.sai}}</q-td>
                                 <q-td key="counter" :props="props">{{props.row.counter}}</q-td>
+                                <q-td key="sat" :props="props">{{props.row.sat}}</q-td>
+                                <q-td key="ufs" :props="props">{{props.row.ufs}}</q-td>
+                                <q-td key="presition" :props="props">{{props.row.presition}}</q-td>
+                                <q-td key="countby" :props="props">{{props.row.by}}</q-td>
                                 <q-td key="state" :props="props">
                                     <template v-if="props.row.state==1" >
                                         <q-icon name="done" color="green-13" size="sm"/>
@@ -112,17 +115,19 @@ export default {
             index:null,
             tableProducts:{
                 rows:[],
-                visibleCols:['code','locations','counter','state'],
                 columns:[
                     { name:'id', align:'left', label:'ID', field:row=>row.id, sortable:true},
                     { name:'code', align:'left', label:'Codigo', field:row=>row.code, sortable:true },
-                    // { name:'description', align:'left', label:'Descripcion', field:row=>row.description, sortable:true },
                     { name:'locations', align:'center', label:'Ubicaciones', field:row=>row._locations, sortable:true },
+                    { name:'sai', align:'center', label:'SAI', field:row=>row.state, sortable:true },
                     { name:'counter', align:'center', label:'Conteo', field:row=>row.counter, sortable:true },
-                    { name:'state', align:'center', label:'Estatus', field:row=>row.state, sortable:true },
+                    { name:'sat', align:'center', label:'SAT', field:row=>row.state, sortable:true },
+                    { name:'ufs', align:'center', label:'F/S', field:row=>row.ufs, sortable:true },
+                    { name:'presition', align:'center', label:'Presicion', field:row=>row.presition, sortable:true },
+                    { name:'countby', align:'center', label:'Conto', field:row=>row.by, sortable:true },
+                    { name:'state', align:'center', label:'Estatus', field:row=>row.state, sortable:true }
                 ],
             },
-            productsRefresh:[],
             socket:null,
             imCreator:false,
             wndCounter:{
@@ -135,28 +140,37 @@ export default {
             sktcounter:null,
             countingrespo:null,
             joined:false,
-            bpdf:{
-                state:false
-            }
+            bpdf:{ state:false }
         }
     },
     async beforeMount(){
         this.$store.commit('Layout/hideToolbarModule');
-        this.$q.loading.show({message:'Validando...',spinner:QSpinnerTail,spinnerColor: 'green-13'});
+        this.$q.loading.show({message:'Validando...', spinner:QSpinnerTail, spinnerColor:'green-13'});
         this.index = await invsdb.find(this.$route.params.id);
-        console.log(this.index);
+        // console.log(this.index);
+        console.log(this.index.inventory.products);
 
         if (this.index.success) {
             if (this.stay()) {
                 // console.log("Acceso Exitoso!!, formateando filas...");
 
                 this.index.inventory.products.forEach(prod=>{
+                    console.log(prod);
+                    let rowcalcs = this.rowCalcs(prod);
+                    console.log(rowcalcs);
+
                     prod.state = prod.ordered.details.settings ? 1:3;
                     prod._locations = prod.locations.map(loc=>{return loc.path}).join(', ');
+                    prod.sai = prod.ordered.stocks;
                     prod.counter = prod.ordered.stocks_acc;
+                    prod.sat = prod.ordered.stocks_end;
+                    prod.ufs = rowcalcs.ufs;
+                    prod.presition = rowcalcs.presition;
+                    // prod.by = rowcalcs.by;
 
                     this.tableProducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
                 });
+
                 // console.log("... LISTO!!!");
                 // console.log(`Uniendo al ROOM ${this.socketroom}...`);
                 this.sktcounter = await io(`${this.$vsocket}/counters`);
@@ -210,15 +224,15 @@ export default {
         },
         terminate(reqstate=undefined,settings=undefined){
             this.$q.loading.show({message:'Finalizando Inventario, espera...'});
-            console.log(this.index.inventory.id);
 
             let data = { "_inventory":this.index.inventory.id, "_status":3 }
 
             // console.log(data);
             invsdb.nextStep(data).then(success=>{
                 let resp = success.data;
-                console.log(resp);
-                this.productsRefresh = resp.order.products;
+                // console.log(JSON.stringify(resp.order));
+                console.log(JSON.stringify(resp.order.products));
+                this.index.inventory.products = resp.order.products;
                 this.index.inventory.status = resp.order.status;
                 this.index.inventory.log = resp.order.log;
                 this.$q.loading.hide();
@@ -232,6 +246,7 @@ export default {
         save(){
             this.wndCounter.saving=true;//bloquear boton de guardado
             this.tableProducts.rows[this.wndCounter.idxrow].counter=this.counterToSave;
+            this.tableProducts.rows[this.wndCounter.idxrow].ordered.stocks_acc=this.counterToSave;
             this.tableProducts.rows[this.wndCounter.idxrow].state=1;
 
             let product = this.tableProducts.rows[this.wndCounter.idxrow];
@@ -240,12 +255,17 @@ export default {
                 "_product": product.id,
                 "_inventory": this.index.inventory.id,
                 "stock": this.counterToSave,
-                "settings":{locs:product.locations,values:this.wndCounter.counters,modified:true}
+                "settings":{ locs:product.locations, values:this.wndCounter.counters, modified:true }
             }
 
             invsdb.rowCount(data).then(success=>{
                 let resp = success.data;
-                console.log(resp);
+                // console.log(resp);
+                let rowcalcs = this.rowCalcs(product);
+
+                this.tableProducts.rows[this.wndCounter.idxrow].presition = rowcalcs.presition;
+                this.tableProducts.rows[this.wndCounter.idxrow].ufs = rowcalcs.ufs;
+                this.tableProducts.rows[this.wndCounter.idxrow].state=1;
 
                 this.$q.notify({
                     color:'positive', icon:'done',
@@ -262,6 +282,33 @@ export default {
                 console.log(fail);
             });
 
+        },
+        rowCalcs(row){
+            console.log(row);
+            let rowcalcs = { ufs:null, presition:null, by:null };
+
+            let counter = row.ordered.stocks_acc;
+            let sai = row.ordered.stocks;
+
+            if(counter!=null){ 
+                //calcular presicion
+                rowcalcs.ufs = counter-sai;
+                rowcalcs.by = row.ordered.details.editor;
+
+                if(sai>counter){
+                    console.log("El sai es mayor a lo contado");
+                    rowcalcs.presition = ((counter/sai)*100).toFixed(0);
+                }else if (counter>sai) {
+                    console.log("El sai es menor a lo contado");
+                    rowcalcs.presition = ((sai/counter)*100).toFixed(0);
+                }else if(sai==counter){
+                    console.log("El sai es igual a lo contado");
+                    rowcalcs.presition = 100;
+                    rowcalcs.ufs = 0;
+                }else{ console.log("Algo salio remal"); }
+            }
+
+            return rowcalcs;
         },
         counterCancel(){
             console.log("Se ha Cancelado el Contador");
@@ -535,15 +582,17 @@ export default {
         },
         counterToSave(){
             if(this.wndCounter.idxrow!=null){
-                return this.wndCounter.counters.reduce((amount,item)=>{
-                    return amount+parseInt(item);
-                },0);
-            }
-            return null;
+                return this.wndCounter.counters.reduce((amount,item)=>{ return amount+parseInt(item); },0);
+            } return null;
         },
         ismobile(){ return this.$q.platform.is.mobile; },
         socketroom(){ return `COUNTER${this.$route.params.id}`},
-        log(){ return this.index ? this.index.inventory.log : []; }
+        log(){ return this.index ? this.index.inventory.log : []; },
+        visibleCols(){ 
+            return (this.index&&this.index.inventory.status.id!=3) ?  
+                ['code','locations','counter','state']:
+                ['code','locations','sai','counter','sat','ufs','presition','countby','state'];
+        }
     }
 }
 </script>

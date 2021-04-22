@@ -8,3 +8,6 @@ const vsocket_route = 'http://vsocket.grupovizcarra.net:7171';
 
 Vue.prototype.$vsocket = vsocket_route;
 Vue.prototype.$routefiles = routefiles;
+
+// reporte con muy muy poca rotacion
+// antes de continuar creciendo hay que detenernos pars ver como esque se esta creciendo

@@ -252,6 +252,7 @@ export default {
         }
     },
     async beforeMount() { 
+        localStorage.removeItem('statelocator');
         this.$store.commit('Layout/hideToolbarModule');
         this.data = await invsdb.find(this.$route.params.id);
         console.log(this.data);
@@ -310,8 +311,12 @@ export default {
             let data = { "_products": products, "_inventory": this.data.inventory.id, "settings":this.settings }
 
             this.$q.loading.show({message: 'Aplicando configuracion, porfavor espera...'});
-    
-            invsdb.addProducts(data).then(success=>{ this.nextStep(); }).catch(fail=>{ console.log(fail); });
+            
+            console.log(data);
+            invsdb.addProducts(data).then(success=>{
+                // console.log(success);
+                this.nextStep();
+            }).catch(fail=>{ console.log(fail); });
         },
         nextStep(reqstate=undefined,settings=undefined){
             let currentState = this.data.inventory.status;
