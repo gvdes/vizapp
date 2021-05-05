@@ -1,22 +1,65 @@
 <template>
     <q-page padding>
         <q-header class="bg-darkl1" elevated>
-            <q-toolbar>
-                <q-btn flat rounded dense icon="keyboard_backspace" color="white" @click="$router.push('/almacen/contador')"/>
-                Inventario {{this.$route.params.id}}
-            </q-toolbar>
-            <q-separator />
-            <q-toolbar>
-                <q-linear-progress rounded dark size="15px" :value="progress.value" color="primary" >
-                    <div class="absolute-center flex flex-center">
-                        <q-badge color="none" text-color="white" :label="progress.label" />
+            <div class="row items-center justify-between q-py-sm">
+                <div class="col">
+                    <q-btn flat dense icon="fas fa-chevron-left" color="white" class="q-pl-sm" @click="$router.push('/almacen/contador')"/>
+                    Inventario {{this.$route.params.id}}
+                </div>
+                <div class="col text-right q-pr-md" v-if="index">
+                    <q-btn v-if="this.index.inventory.status.id==2&&imCreator&&progress.value==1" rounded class="text-dark bg-green-13" icon="done" label="Terminar" no-caps @click="terminate" :size="ismobile ? 'sm':'md'"/>
+                    <q-btn v-if="this.index.inventory.status.id==3" rounded class="text-dark bg-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF" :loading="bpdf.state" :size="ismobile ? 'sm':'md'"/>
+                </div>
+            </div>
+
+            <div class="row items-center q-pb-lg">
+                <div class="col q-px-sm">
+                    <div class="text--2">Progreso:</div>
+                    <q-linear-progress rounded dark size="15px" :value="progress.value" color="primary" >
+                        <div class="absolute-center flex flex-center">
+                            <q-badge color="none" text-color="white" :label="progress.label" />
+                        </div>
+                    </q-linear-progress>
+                </div>
+
+                <div class="col q-px-sm" v-if="index&&index.inventory.status.id==3">
+                <!-- <div class="col q-pa-sm" v-if="index"> -->
+                    <div class="text--2">Presicion:</div>
+                    <q-linear-progress rounded dark size="15px" :value="parseFloat(reliability.value)" :color="reliability.color" >
+                        <div class="absolute-center flex flex-center">
+                            <q-badge color="none" text-color="white" :label="reliability.label" />
+                        </div>
+                    </q-linear-progress>
+                </div>
+            </div>
+
+            <template v-if="index&&index.inventory.status.id==3">
+                <div class="row q-pb-sm text-center col row items-center justify-around text-grey-5">
+                    <div>
+                        <div class="text--2 text-grey-6">Total de unidades</div>
+                        <div class="text-h6">{{reliability.fullpzs}}</div>
                     </div>
-                </q-linear-progress>
-            </q-toolbar>
+
+                    <div>
+                        <div class="text--2 text-grey-6">Piezas Contadas</div>
+                        <div class="text-h6">{{reliability.fullcount}}</div>
+                    </div>
+
+                    <div>
+                        <div class="text--2 text-grey-6">Piezas Faltantes</div>
+                        <div :class="tpf==0?'text-positive':'text-pink-13'" class="text-h6">{{tpf}}</div>
+                    </div>
+
+                    <div>
+                        <div class="text--2 text-grey-6">Piezas Sobrantes</div>
+                        <div :class="tpf==0?'text-positive':'text-amber-13'" class="text-h6">{{tpe}}</div>
+                    </div>
+                </div>
+            </template>
         </q-header>
-        
+
         <template v-if="index">
-            <q-card class="bg-darkl1 text-grey-5 exo">
+            <q-card class="bg-darkl1 text-grey-5 exo q-mt-lg">
                 <q-card-section>
                    <q-table dark flat
                         card-class="bg-none"
@@ -35,23 +78,59 @@
                                 <q-td key="sai" :props="props">{{props.row.sai}}</q-td>
                                 <q-td key="counter" :props="props">{{props.row.counter}}</q-td>
                                 <q-td key="sat" :props="props">{{props.row.sat}}</q-td>
-                                <q-td key="ufs" :props="props">{{props.row.ufs}}</q-td>
+                                <q-td key="ufs" :props="props"> <span :class="ufsColor(props.row.ufs)">{{Math.abs(props.row.ufs)}}</span></q-td>
                                 <q-td key="presition" :props="props">{{props.row.presition}}</q-td>
-                                <q-td key="countby" :props="props">{{props.row.by}}</q-td>
+                                <q-td key="countby" :props="props">{{props.row.by ? props.row.by.nick :'' }}</q-td>
                                 <q-td key="state" :props="props">
-                                    <template v-if="props.row.state==1" >
-                                        <q-icon name="done" color="green-13" size="sm"/>
-                                    </template>
 
-                                    <template v-if="props.row.state==2">
-                                        <q-spinner-dots color="amber-13" size="sm"/><br/>
-                                        <span class="text-amber-12 text--2" v-if="countingrespo">({{countingrespo.me.nick}})</span>
+                                    <template v-if="index&&index.inventory.status.id==3">
+                                        <q-icon name="done" color="white" size="sm"/>
                                     </template>
+                                    <template v-else>
+                                        <template v-if="props.row.state==1">
+                                            <q-icon name="done" color="white" size="sm"/>
+                                        </template>
+                                        <template v-if="props.row.state==4">
+                                            <q-btn size="md" flat rounded color="green-13" icon="done" @click="counter(props)"/>
+                                        </template>
 
-                                    <template v-if="props.row.state==3">
-                                        <q-btn size="sm" flat rounded color="amber-13" icon="fas fa-pencil-alt" @click="counter(props)"/>
+                                        <template v-if="props.row.state==2">
+                                            <q-spinner-dots color="amber-13" size="sm"/><br/>
+                                            <span class="text-amber-12 text--2" v-if="countingrespo">({{countingrespo.me.nick}})</span>
+                                        </template>
+
+                                        <template v-if="props.row.state==3">
+                                            <q-btn size="sm" flat rounded color="amber-13" icon="fas fa-pencil-alt" @click="counter(props)"/>
+                                        </template>
                                     </template>
                                 </q-td>
+                            </q-tr>
+                        </template>
+                    </q-table>
+                </q-card-section>
+            </q-card>
+
+            <q-card class="bg-darkl1 text-grey-5 exo q-mt-xl" v-if="tableUnproducts.rows.length">
+                <q-card-section class="bg-grey-9 text-amber-13 row items-center justify-between">
+                    <q-icon name="warning" size="md"/> Los siguientes productos no pueden ser contados y no afectaran el resultado.
+                </q-card-section>
+
+                <q-card-section>
+                    <q-table dark flat
+                        card-class="bg-none"
+                        :data="tableUnproducts.rows"
+                        :columns="tableUnproducts.columns"
+                    >
+                        <template v-slot:body="props">
+                            <q-tr :props="props">
+                                <q-td key="id" :props="props">{{ props.row.id }}</q-td>
+                                <q-td key="code" :props="props">
+                                    {{ props.row.code }}<br>
+                                    <span class="text--2 text-grey-6">{{props.row.description}}</span>
+                                </q-td>
+                                <q-td key="locations" :props="props">{{props.row._locations}}</q-td>
+                                <q-td key="sai" :props="props">{{props.row.sai}}</q-td>
+                                <q-td key="counter" :props="props">{{props.row.counter}}</q-td>
                             </q-tr>
                         </template>
                     </q-table>
@@ -81,7 +160,7 @@
 
                     <q-card-actions align="around">
                         <q-btn label="Cancelar" flat rounded color="light-blue-13" no-caps @click="counterCancel"></q-btn>
-                        <template v-if="wndCounter.counters.length">
+                        <template v-if="counterToSave!=null&&counterToSave>=0">
                             <q-btn flat no-caps rounded color="green-13" label="Guardar" @click="save"
                                 :disable="wndCounter.saving"
                                 :loading="wndCounter.saving"
@@ -90,15 +169,6 @@
                     </q-card-actions>
                 </q-card>
             </q-dialog>
-            <template v-if="this.index">
-                <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="this.index.inventory.status.id==2&&imCreator&&progress.value==1">
-                    <q-btn rounded class="bg-darkl1 text-green-13" icon="done" label="Terminar" no-caps @click="terminate"/>
-                </q-page-sticky>
-
-                <q-page-sticky position="bottom-right" :offset="[10,10]" v-if="this.index.inventory.status.id==3">
-                    <q-btn rounded class="bg-darkl1 text-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF" :loading="bpdf.state"/>
-                </q-page-sticky>
-            </template>
         </template>
     </q-page>
 </template>
@@ -128,11 +198,21 @@ export default {
                     { name:'state', align:'center', label:'Estatus', field:row=>row.state, sortable:true }
                 ],
             },
+            tableUnproducts:{
+                rows:[],
+                columns:[
+                    { name:'id', align:'left', label:'ID', field:row=>row.id, sortable:true},
+                    { name:'code', align:'left', label:'Codigo', field:row=>row.code, sortable:true },
+                    { name:'locations', align:'center', label:'Ubicaciones', field:row=>row._locations, sortable:true },
+                    { name:'sai', align:'center', label:'SAI', field:row=>row.state, sortable:true },
+                ],
+            },
             socket:null,
             imCreator:false,
             wndCounter:{
                 state:false,
                 idxrow:null,
+                // counters:[],
                 counters:[],
                 saving:false,
                 stateIfCancel:null
@@ -140,39 +220,41 @@ export default {
             sktcounter:null,
             countingrespo:null,
             joined:false,
-            bpdf:{ state:false }
+            bpdf:{ state:false },
+            maxChancesCount:2
         }
     },
     async beforeMount(){
         this.$store.commit('Layout/hideToolbarModule');
         this.$q.loading.show({message:'Validando...', spinner:QSpinnerTail, spinnerColor:'green-13'});
         this.index = await invsdb.find(this.$route.params.id);
-        // console.log(this.index);
-        console.log(this.index.inventory.products);
 
         if (this.index.success) {
             if (this.stay()) {
-                // console.log("Acceso Exitoso!!, formateando filas...");
-
                 this.index.inventory.products.forEach(prod=>{
-                    console.log(prod);
-                    let rowcalcs = this.rowCalcs(prod);
-                    console.log(rowcalcs);
 
-                    prod.state = prod.ordered.details.settings ? 1:3;
-                    prod._locations = prod.locations.map(loc=>{return loc.path}).join(', ');
-                    prod.sai = prod.ordered.stocks;
-                    prod.counter = prod.ordered.stocks_acc;
-                    prod.sat = prod.ordered.stocks_end;
-                    prod.ufs = rowcalcs.ufs;
-                    prod.presition = rowcalcs.presition;
-                    // prod.by = rowcalcs.by;
+                    if(prod.ordered.stocks){
+                        // console.log("==============================================");
+                        let rowcalcs = this.rowCalcs(prod);//obtener los datos de la fila
 
-                    this.tableProducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
+                        prod.state = rowcalcs.state;//definimos el estado de la fila
+                        prod._locations = prod.locations.map(loc=>{return loc.path}).join(', ');//generamos la presentacion de las ubicaciones
+                        prod.sai = prod.ordered.stocks;//seteamos el stock inicial
+                        prod.counter = prod.ordered.stocks_acc;//colocamos las piezas contadfas si ya fue contado
+                        prod.sat = prod.ordered.stocks_end;//pone el stock despues del conteo
+                        prod.ufs = rowcalcs.ufs;//pone las unidades faltantes o sobrantes
+                        prod.presition = rowcalcs.presition;//setea la confiabilidad
+                        prod.by = rowcalcs.by;//setea quien edito la fila
+
+                        this.tableProducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
+                    }else{
+                        prod.sai = prod.ordered.stocks;
+                        prod._locations = prod.locations.map(loc=>{return loc.path}).join(', ');
+                        this.tableUnproducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
+                    }
                 });
+                // console.log("==============================================");
 
-                // console.log("... LISTO!!!");
-                // console.log(`Uniendo al ROOM ${this.socketroom}...`);
                 this.sktcounter = await io(`${this.$vsocket}/counters`);
                 this.sktcounter.emit('joinat',{ room:this.socketroom,user:this.profile });
                 this.sktcounter.on('joined',data=>{ this.sktjoined(data); });
@@ -187,16 +269,13 @@ export default {
     beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
     methods: {
         sktcountingconfirmed(data){
-            console.log("%cSe ha confirmado un conteo!!!","font-size:2em;color:gold");
-            console.log(data);
+            // console.log("%cSe ha confirmado un conteo!!!","font-size:2em;color:gold");
+            // console.log(data);
             let idx = this.tableProducts.rows.findIndex(prod => prod.id == data.product.id);
             this.tableProducts.rows[idx].state=1;
             this.tableProducts.rows[idx].counter=data.settings.stock;
         },
         sktjoined(data){
-            // console.log("Usuario conectado al conteo");
-            // console.log(data);
-
             if(data.me.id!=this.profile.me.id){
                 this.$q.notify({
                     color:'dark',
@@ -226,13 +305,15 @@ export default {
             this.$q.loading.show({message:'Finalizando Inventario, espera...'});
 
             let data = { "_inventory":this.index.inventory.id, "_status":3 }
+            console.log(data);
 
-            // console.log(data);
             invsdb.nextStep(data).then(success=>{
                 let resp = success.data;
-                // console.log(JSON.stringify(resp.order));
-                console.log(JSON.stringify(resp.order.products));
-                this.index.inventory.products = resp.order.products;
+                resp.order.products.forEach(prod => {
+                    let idx = this.tableProducts.rows.findIndex(el=> el.code==prod.code);
+                    this.tableProducts.rows[idx].ordered.stocks_end = prod.ordered.stocks_end;
+                    this.tableProducts.rows[idx].sat = prod.ordered.stocks_end;
+                });
                 this.index.inventory.status = resp.order.status;
                 this.index.inventory.log = resp.order.log;
                 this.$q.loading.hide();
@@ -244,74 +325,64 @@ export default {
             }).catch(fail=>{ console.log(fail); });
         },
         save(){
-            this.wndCounter.saving=true;//bloquear boton de guardado
-            this.tableProducts.rows[this.wndCounter.idxrow].counter=this.counterToSave;
-            this.tableProducts.rows[this.wndCounter.idxrow].ordered.stocks_acc=this.counterToSave;
-            this.tableProducts.rows[this.wndCounter.idxrow].state=1;
+            // this.wndCounter.saving=true;//bloquear boton de guardado
+            let product = this.tableProducts.rows[this.wndCounter.idxrow]; //almacena los datos de la fila actual para usarlos en este bloque
+            console.log(product.ordered.details);
+            let _modifies = product.ordered.details.settings ? product.ordered.details.settings.modifies+1 : 1;// Seteamos el numero de veces que ha sido modificada la fila para guardarlo
+            // console.log(`Numero de modificacion: ${_modifies}`);
 
-            let product = this.tableProducts.rows[this.wndCounter.idxrow];
-
-            let data = {
-                "_product": product.id,
-                "_inventory": this.index.inventory.id,
-                "stock": this.counterToSave,
-                "settings":{ locs:product.locations, values:this.wndCounter.counters, modified:true }
+            let data = {//Datos a guardar en DB
+                "_product": product.id, "_inventory": this.index.inventory.id, "stock": this.counterToSave,
+                "settings":{ locs:product.locations, values:this.wndCounter.counters, modifies:_modifies }
             }
 
+            this.tableProducts.rows[this.wndCounter.idxrow].ordered.details.settings = data.settings;
+            this.tableProducts.rows[this.wndCounter.idxrow].ordered.stocks_acc = this.counterToSave;
+            this.tableProducts.rows[this.wndCounter.idxrow].counter = this.counterToSave;
+
             invsdb.rowCount(data).then(success=>{
-                let resp = success.data;
-                // console.log(resp);
-                let rowcalcs = this.rowCalcs(product);
+                console.log("%cCambios aplicados","font-size:1.5em;color:green;");
+                let rowcalcs = this.rowCalcs(this.tableProducts.rows[this.wndCounter.idxrow]);
+                console.log(rowcalcs);
 
                 this.tableProducts.rows[this.wndCounter.idxrow].presition = rowcalcs.presition;
                 this.tableProducts.rows[this.wndCounter.idxrow].ufs = rowcalcs.ufs;
-                this.tableProducts.rows[this.wndCounter.idxrow].state=1;
+                this.tableProducts.rows[this.wndCounter.idxrow].state = rowcalcs.state;
+                this.tableProducts.rows[this.wndCounter.idxrow].by = this.profile.me;
 
-                this.$q.notify({
-                    color:'positive', icon:'done',
-                    position:'center', timeout:1000,
-                    message:'Guardado!'
-                });
+                console.log("datos modificados");
+                console.log(this.tableProducts.rows[this.wndCounter.idxrow]);
 
-                console.log("%cConfirmando conteo...!!!","font-size:2em;color:gold");
+                this.$q.notify({ color:'positive', icon:'done', position:'center', timeout:1000, message:'Guardado!' });
+
+                // console.log("%cConfirmando conteo...!!!","font-size:2em;color:gold");
                 this.sktcounter.emit('countingconfirmed',{room:this.socketroom,product:product,by:this.profile,settings:data});
 
-                this.counterReset();
-                this.wndCounter.state=false;
-            }).catch(fail=>{
-                console.log(fail);
-            });
-
+                this.counterReset(); this.wndCounter.state=false;
+            }).catch(fail=>{ console.log(fail); });
         },
         rowCalcs(row){
-            console.log(row);
-            let rowcalcs = { ufs:null, presition:null, by:null };
+            // console.log(`Validando %c${row.code}...`,"color:#12CBC4;");
+            let rowcalcs = { ufs:null, presition:null, by:null, settings:null, state:3 };
 
             let counter = row.ordered.stocks_acc;
             let sai = row.ordered.stocks;
+            let reliab = null;
 
-            if(counter!=null){ 
-                //calcular presicion
-                rowcalcs.ufs = counter-sai;
-                rowcalcs.by = row.ordered.details.editor;
-
-                if(sai>counter){
-                    console.log("El sai es mayor a lo contado");
-                    rowcalcs.presition = ((counter/sai)*100).toFixed(0);
-                }else if (counter>sai) {
-                    console.log("El sai es menor a lo contado");
-                    rowcalcs.presition = ((sai/counter)*100).toFixed(0);
-                }else if(sai==counter){
-                    console.log("El sai es igual a lo contado");
-                    rowcalcs.presition = 100;
-                    rowcalcs.ufs = 0;
-                }else{ console.log("Algo salio remal"); }
+            if(counter!=null){
+                rowcalcs.ufs = sai-counter;// obtenemos las unidades faltantes o sobrantes
+                reliab = ((1-(Math.abs(sai-counter)/sai))*100).toFixed(2);//se calcula la confiabilidad
+                rowcalcs.presition = reliab ? reliab : 100;//setea la confiabilidad
+                rowcalcs.by = row.ordered.details.editor;//setea al editor de la fila
+                // console.log(`%cveces contado: ${row.ordered.details.settings.modifies}`,"color:gold");
+                rowcalcs.state = row.ordered.details.settings.modifies<this.maxChancesCount ? 4:1;//setea el estatus de la fila
+                return rowcalcs;
             }
-
+            // console.log(`%cpor contar...`,"color:#1289A7");
             return rowcalcs;
         },
         counterCancel(){
-            console.log("Se ha Cancelado el Contador");
+            // console.log("Se ha Cancelado el Contador");
 
             this.tableProducts.rows[this.wndCounter.idxrow].state = this.wndCounter.stateIfCancel;
             this.sktcounter.emit('cancelcounting',{room:this.socketroom,by:this.profile,product:this.tableProducts.rows[this.wndCounter.idxrow]});
@@ -329,6 +400,7 @@ export default {
             this.wndCounter.state = true;
 
             let _product = this.tableProducts.rows[idx];
+            console.log(_product);
             this.sktcounter.emit('counting',{room:this.socketroom,product:_product,by:this.profile});
         },
         counterReset(){//Se ejecuta siempre que se cierra la ventan del Contador
@@ -401,25 +473,21 @@ export default {
 
             let rows = [...this.tableProducts.rows].map(item=>{
 
-                let sai = parseInt(item.ordered.stocks);//stock al iniciar el inventario
-                let uc = parseInt(item.ordered.stocks_acc);//unidades contadas
-
-                let fs = ()=>{//define los faltantes, sobrantes o exactos en base a las unidades contadas
-                    if(sai>uc){ return '-'+(sai-uc); }else if (sai<uc) { return '+'+(uc-sai); }else if(sai==uc){ return 0; }
-                }
-
-                let presition = ()=>{
-                    // return ((uc/sai)*100).toFixed(2);
-                    if(sai>uc){ return ((uc/sai)*100).toFixed(0); }else if (uc>sai) { return ((sai/uc)*100).toFixed(0); }else if(sai==uc){ return 100; }
-                }
-
                 let description = () =>{// construye la descripcion acortandola en caso de ser necesaria
                     let descr = item.description.length>=35 ? item.description.substring(0,35)+'...' : item.description;
                     return descr.toUpperCase();
                 }
                 
-                // let cols = [item.code,description(),sai,uc,fs(),'','',presition()];//define las columnas de la fila
-                return [item.code,description(),sai,uc,fs(),'','',presition()];//define las columnas de la fila
+                return [
+                    item.code,
+                    description(),
+                    item.ordered.stocks,
+                    item.ordered.stocks_acc,
+                    item.ufs,
+                    item.ordered.stocks_end,
+                    item._locations,
+                    item.presition
+                ];//define las columnas de la fila
             });
 
             var headers = [
@@ -440,25 +508,25 @@ export default {
             }
 
             let headerTable = (cx,cy) => {
-                    pdf.setFillColor('#000000');
-                    pdf.line(cx,cy,575,cy,"F");
+                pdf.setFillColor('#000000');
+                pdf.line(cx,cy,575,cy,"F");
 
-                    cy+=20;// incremento en el eje Y para pintar las columnas del header
-                    let ncol = 1;
+                cy+=20;// incremento en el eje Y para pintar las columnas del header
+                let ncol = 1;
 
-                    pdf.setFontSize(11);
-                    for (const header of headers) {
-                        pdf.setTextColor('#2d3436');
-                        pdf.text(`${header.prompt}`,cx,cy);
+                pdf.setFontSize(11);
+                for (const header of headers) {
+                    pdf.setTextColor('#2d3436');
+                    pdf.text(`${header.prompt}`,cx,cy);
 
-                        ncol++;
-                        if(ncol>1){cx+=header.width;}
-                    }
+                    ncol++;
+                    if(ncol>1){cx+=header.width;}
+                }
 
-                    cx=25;// devuelve el eje X al inicio de la pagina
-                    cy+=13;// set CordinateVertical
-                    pdf.setFillColor('#000000');
-                    pdf.line(cx,cy,575,cy,"F");
+                cx=25;// devuelve el eje X al inicio de la pagina
+                cy+=13;// set CordinateVertical
+                pdf.setFillColor('#000000');
+                pdf.line(cx,cy,575,cy,"F");
             }
 
             /** H E A D E R   P D F*/
@@ -580,18 +648,43 @@ export default {
 
             return {label:_label,value:parseFloat(_value)};
         },
-        counterToSave(){
-            if(this.wndCounter.idxrow!=null){
-                return this.wndCounter.counters.reduce((amount,item)=>{ return amount+parseInt(item); },0);
-            } return null;
-        },
+        counterToSave(){ return this.wndCounter.counters.reduce((amount,item)=>{ return amount+parseInt(item); },null); },
         ismobile(){ return this.$q.platform.is.mobile; },
         socketroom(){ return `COUNTER${this.$route.params.id}`},
         log(){ return this.index ? this.index.inventory.log : []; },
         visibleCols(){ 
+            // return (this.index&&this.index.inventory.status.id!=3) ?  
+            //     ['code','locations','sai','counter','sat','ufs','presition','countby','state']:
+            //     ['code','locations','counter','state'];
             return (this.index&&this.index.inventory.status.id!=3) ?  
-                ['code','locations','counter','state']:
+                ['code','locations','counter','countby','state']:
                 ['code','locations','sai','counter','sat','ufs','presition','countby','state'];
+        },
+        tpf(){ return this.tableProducts.rows.filter(row=> row.ufs>0).reduce((acc,row)=>{ return acc+row.ufs },0); },
+        tpe(){ return this.tableProducts.rows.filter(row=> row.ufs<0).reduce((acc,row)=>{ return acc+Math.abs(row.ufs) },0); },
+        reliability(){
+            let reliability = { label:'0%', value:0, color:null, fullpzs:null, fullcount:null }
+
+            if(this.index){
+                reliability.fullpzs = this.tableProducts.rows.reduce((acc,row)=>{ return acc+row.sai; },0);
+                reliability.fullcount = this.tableProducts.rows.reduce((acc,row)=>{ return acc+row.counter; },0);
+
+                let reliab = parseFloat( ((1-(Math.abs(reliability.fullpzs-reliability.fullcount)/reliability.fullpzs))*100).toFixed(2) );
+
+                reliability.color = reliab==100 ? 'positive':'orange-14';
+                reliability.label = `${reliab}%`;
+                reliability.value = parseFloat(reliab/100).toFixed(2);
+
+                return reliability;
+            }
+            return reliability;
+        },
+        ufsColor(){
+            return ufs =>{
+                let color = '';
+                if (ufs>0) { color='text-pink-13'; }else if (ufs<0) { color='text-amber-13'; }else{ color='text-positive'; }
+                return color;
+            }
         }
     }
 }
