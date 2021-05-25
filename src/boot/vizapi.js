@@ -13,8 +13,8 @@ import { io } from "socket.io-client";
 // const URLSocket = 'http://vsocket.grupovizcarra.net:7171';
 
 // ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
-const URLBackend = 'http://vizappdev.grupovizcarra.net:6001/vizapi/public';
-const URLFiles = 'http://vizappdev.grupovizcarra.net:6001/vizapi/files';
+const URLBackend = 'http://vizappdev.grupovizcarra.net:6001/public';
+const URLFiles = 'http://vizappdev.grupovizcarra.net:6001/files';
 const URLSocket = 'http://vsocket.grupovizcarra.net:7777';
 
 const vizapi = axios.create({ baseURL: URLBackend });
