@@ -16,12 +16,12 @@
                             <q-btn no-caps unelevated rounded color="primary" icon="close " label="Cancelar" @click="trydiscard=false" />
                         </template>
                         
-                        <template v-if="data.inventory.status.id==1&&canStart&&!trydiscard">
+                        <template v-if="data&&data.inventory.status.id==1&&canStart&&!trydiscard">
                             <transition appear enter-active-class="animated rubberBand slower" leave-active-class="animated zoomOut">
                                 <q-btn flat no-caps color="green-13" icon="fas fa-play-circle" @click="start" />
                             </transition>
                         </template>
-                        <template v-if="data.inventory.status.id==2&&!trydiscard">
+                        <template v-if="data&&data.inventory.status.id==2&&!trydiscard">
                             <q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="green-13" icon="launch"/>
                         </template>
                     </template>
@@ -169,14 +169,8 @@
             </div>
         </template>
 
-        <!-- <q-footer class="bg-darkl1" elevated v-if="ismobile&&(canStart&&!trydiscard)"> -->
         <q-footer class="bg-darkl1" elevated v-if="ismobile">
             <div class="q-pa-sm row items-center justify-between">
-                <!-- <q-btn flat no-caps color="pink-13" icon="inventory" @click="trydiscard=true" v-if="!trydiscard"/>
-                <template v-if="trydiscard">
-                    <q-btn rounded no-caps color="primary" label="Cancelar" icon="arrow_back" @click="trydiscard=false" />
-                    <q-btn flat rounded no-caps color="pink-13" icon="inventory" @click="nextStep(4)" label="Archivar Inventario" />
-                </template> -->
 
                 <q-btn flat no-caps color="pink-13" icon="inventory_2" @click="trydiscard=true" v-if="!trydiscard" />
                 <template v-if="trydiscard">
@@ -184,12 +178,12 @@
                     <q-btn no-caps flat rounded color="pink-13" icon="inventory" @click="nextStep(4)" label="Archivar Inventario!!" />
                 </template>
                 
-                <template v-if="data.inventory.status.id==1&&canStart&&!trydiscard">
+                <template v-if="data&&data.inventory.status.id==1&&canStart&&!trydiscard">
                     <transition appear enter-active-class="animated rubberBand slower" leave-active-class="animated zoomOut">
                         <q-btn flat no-caps color="green-13" icon="fas fa-play-circle" @click="start" />
                     </transition>
                 </template>
-                <template v-if="data.inventory.status.id==2&&!trydiscard">
+                <template v-if="data&&data.inventory.status.id==2&&!trydiscard">
                     <q-btn @click="$router.push(`contador/${inv.id}`)" rounded flat color="green-13" icon="launch"/>
                 </template>
             </div>

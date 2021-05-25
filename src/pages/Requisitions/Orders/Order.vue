@@ -236,7 +236,6 @@
 import { date } from 'quasar'
 import dbproduct from '../../../API/Product'
 import dbreqs from '../../../API/requisitions'
-import io from 'socket.io-client'
 export default {
     // components:{ OrderBody:OrderBody },
     data(){
@@ -276,7 +275,7 @@ export default {
             duplicate:false,
             print:{state:false},
             autocom:{model:null,options:undefined},
-            sktdash:undefined
+            // $sktRestock:undefined
         }
     },
     async beforeMount(){
@@ -286,19 +285,20 @@ export default {
         this.order = await dbreqs.find(this.ordercatch.id);
         this.products = this.order.products;
 
-        this.sktdash = await io(`${this.$vsocket}/resurtidos`);
+        await this.$sktRestock.connect();
         // solicitar union al canal
-        this.sktdash.emit('joinat',{ user:this.profile, isdashboard:false, from:this.workin.workpoint });
+        this.$sktRestock.emit('joinat',{ user:this.profile, isdashboard:false, from:this.workin.workpoint });
         // confirmacion de union del canal
-        this.sktdash.on('joineddashreq',(data)=>{ console.log(data); });
+        this.$sktRestock.on('joineddashreq',(data)=>{ console.log(data); });
         // notificar uso de pedido
-        // this.sktdash.emit('order_open',{ profile:this.profile, order:this.ordercatch });
+        // this.$sktRestock.emit('order_open',{ profile:this.profile, order:this.ordercatch });
         // notificacion de cambio de status 
-        this.sktdash.on('order_changestate', data => { this.sktOrderHere(data) ? this.sktOrder_changeState(data):null});
+        this.$sktRestock.on('order_changestate', data => { this.sktOrderHere(data) ? this.sktOrder_changeState(data):null});
     },
     beforeDestroy(){
         this.$store.commit('Layout/showToolbarModule');
-		this.sktdash.emit('leave', { room:this.socketroom, user:this.profile } );
+		this.$sktRestock.emit('leave', { room:this.socketroom, user:this.profile } );
+        this.$sktRestock.off();
 		console.log("desconectado del socket");
 	},
     methods:{
@@ -321,9 +321,7 @@ export default {
             dbreqs.reprint(data).then(success=>{
                 console.log(success);
                 this.print.state=false;
-            }).catch(fail=>{
-                console.log(fail);
-            });
+            }).catch(fail=>{ console.log(fail); });
         },
         sktOrder_changeState(data){
             console.log("Este pedido ha sido modificado por cedis");
@@ -392,7 +390,7 @@ export default {
                 this.products = resp.order.products;
                 this.$q.loading.hide();
                 this.$q.notify({color:"positive", icon:"done", position:'center'});
-                this.sktdash.emit('order_changestate',{ state:newstatus, user:this.profile, from:this.workin, order:this.order, room:this.socketroom });
+                this.$sktRestock.emit('order_changestate',{ state:newstatus, user:this.profile, from:this.workin, order:this.order, room:this.socketroom });
             }).catch(fail=>{ console.error(fail); });
         },
         wndSetItemReset(){
@@ -417,8 +415,8 @@ export default {
                     message:"Pedido archivado",
                     color:"positive", icon:"done", position:'center'
                 });
-                // this.vsocket.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.order});
-                this.sktdash.emit('order_changestate',{ state:newstatus, user:this.profile, from:this.workin, order:this.order, room:this.socketroom });
+                // this.$sktRestock.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.order});
+                this.$sktRestock.emit('order_changestate',{ state:newstatus, user:this.profile, from:this.workin, order:this.order, room:this.socketroom });
                 this.$router.push('/pedidos');
             }).catch(fail=>{console.log(fail);});
         },
@@ -433,7 +431,7 @@ export default {
                 this.erasing.state=false;
                 this.wndSetItem.state=false;
 
-                this.sktdash.emit('order_update',{ user:this.profile, from:this.workin, cmd:'remove', order:this.ordercatch, product:proderase });
+                this.$sktRestock.emit('order_update',{ user:this.profile, from:this.workin, cmd:'remove', order:this.ordercatch, product:proderase });
             }).catch(fail=>{ console.log(fail); });
         },
         addProduct(){
@@ -473,7 +471,7 @@ export default {
                 this.autocom.options=undefined;
                 this.autocom.model=null;
 
-                this.sktdash.emit('order_update',{ user:this.profile, from:this.workin, cmd:cmd, order:this.ordercatch, product:sktproduct });
+                this.$sktRestock.emit('order_update',{ user:this.profile, from:this.workin, cmd:cmd, order:this.ordercatch, product:sktproduct });
             }).catch(fail=>{ console.log(fail); });
         },
         selItem(opt){

@@ -79,7 +79,6 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
 import invsdb from '../../../API/inventories'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
 export default {
@@ -95,7 +94,7 @@ export default {
 				creating:false
 			},
 			counterType:{ label:"Categoria", value:1 },
-			sktcounter:null
+			// sktcounter:null
 		}
 	},
 	async beforeMount(){
@@ -105,10 +104,10 @@ export default {
 		this.$q.loading.hide();
 
 		console.log("MONTANDO SOCKET");
-		this.sktcounter = await io(`${this.$vsocket}/counters`);
-		this.sktcounter.emit('index',this.profile);
+		await this.$sktCounters.connect() ;
+		this.$sktCounters.emit('index',this.profile);
 
-		this.sktcounter.on('connected',data=>{ console.log(data); });
+		this.$sktCounters.on('connected',data=>{ console.log(data); });
 	},
 	methods:{
 		create(){

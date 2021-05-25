@@ -261,9 +261,7 @@
 <script>
 import { date } from 'quasar'
 import dbreqs from '../../../API/requisitions'
-import dbwkps from '../../../API/workpoint'
 import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
-import io from 'socket.io-client'
 
 export default {
     components:{
@@ -276,7 +274,7 @@ export default {
                 view:[],
                 crude:null,
             },
-            sktdash:undefined,
+            // sktdash:undefined,
             index:undefined,
             initpagination:{
                 sortBy: 'id',
@@ -302,22 +300,21 @@ export default {
         this.index = await dbreqs.dashboard();
 
         //instanciar al socket
-        this.sktdash = await io(`${this.$vsocket}/resurtidos`);
-        console.info(`uniendo al room ${this.socketroom}`);//
-        this.sktdash.emit('joinat',{ user:this.profile, isdashboard:true, from:this.workin.workpoint });
+        await this.$sktRestock.connect();
+        this.$sktRestock.emit('joinat',{ user:this.profile, isdashboard:true, from:this.workin.workpoint });
 
         //notifica que un usuario se unio a este dashboard, excepto cuando es el mismo
-		this.sktdash.on('joineddashreq',(data)=>{
+		this.$sktRestock.on('joineddashreq',(data)=>{
             console.log(data);
 			console.log(`%c${data.notify}`,"color:#3ae374;font-size:1.5em;");
         });
         
-        this.sktdash.on('creating',(data)=>{ this.sktOrderCreating(data); }); //notifica que un pedido, ha sido creado
-        this.sktdash.on('order_open',(data)=>{ this.orderHere(data) ? this.sktOrderOpen(data):null });// hay un pedido en uso
-        this.sktdash.on('order_update',(data)=>{ this.orderHere(data) ? this.sktOrderUpdate(data):null });// hay un pedido en uso
-        this.sktdash.on('order_changestate',(data)=>{ this.orderHere(data) ? this.sktOrderChangeState(data):null });// cambiar status a pedido
+        this.$sktRestock.on('creating',(data)=>{ this.sktOrderCreating(data); }); //notifica que un pedido, ha sido creado
+        this.$sktRestock.on('order_open',(data)=>{ this.orderHere(data) ? this.sktOrderOpen(data):null });// hay un pedido en uso
+        this.$sktRestock.on('order_update',(data)=>{ this.orderHere(data) ? this.sktOrderUpdate(data):null });// hay un pedido en uso
+        this.$sktRestock.on('order_changestate',(data)=>{ this.orderHere(data) ? this.sktOrderChangeState(data):null });// cambiar status a pedido
     },
-    beforeDestroy(){ this.sktdash.emit('leave', { room:this.socketroom, user:this.profile } ); },
+    beforeDestroy(){ this.$sktRestock.emit('leave', { room:this.socketroom, user:this.profile } ); },
     methods:{
         sktOrderUpdate(data){
             console.log(data);
@@ -419,15 +416,15 @@ export default {
                 this.ordersdb[idx].status=resp.order.status;
                 this.$q.notify({ message:message, color:"positive", icon:"done", position:'bottom-right' });
                 this.sounds.moved.play();
-                this.sktdash.emit('order_changestate', { state:newstatus, profile:this.profile, order:this.ordersdb[idx], from:this.workin, room:this.socketroom });
-                // this.vsocket.emit('order_changestate',{ state:newstatus, profile:this.profile, order:this.ordersdb[idx] });
+                this.$sktRestock.emit('order_changestate', { state:newstatus, profile:this.profile, order:this.ordersdb[idx], from:this.workin, room:this.socketroom });
+                // this.$sktRestock.emit('order_changestate',{ state:newstatus, profile:this.profile, order:this.ordersdb[idx] });
             }).catch(fail=>{ console.log(fail); });
         },
     },
     computed: {
 		workin(){ return this.$store.getters['Account/workin'];},
         profile:{ get(){ return this.$store.getters['Account/profile'] } },
-		appconnected(){ return this.vsocket ? this.vsocket.connected : false; },
+		appconnected(){ return this.$sktRestock ? this.$sktRestock.connected : false; },
         ordersdb(){ if(this.index){ return this.index; }else{ return [];} },
         orderTaking(){ return this.ordersdb.filter(order=>order.status.id==1); },//levantando pedido
         orderForSupply(){ return this.ordersdb.filter(order=>order.status.id==2);},//Por surtir

@@ -7,8 +7,8 @@
                     Inventario {{this.$route.params.id}}
                 </div>
                 <div class="col text-right q-pr-md" v-if="index">
-                    <q-btn v-if="this.index.inventory.status.id==2&&imCreator&&progress.value==1" rounded class="text-dark bg-green-13" icon="done" label="Terminar" no-caps @click="terminate" :size="ismobile ? 'sm':'md'"/>
-                    <q-btn v-if="this.index.inventory.status.id==3" rounded class="text-dark bg-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF" :loading="bpdf.state" :size="ismobile ? 'sm':'md'"/>
+                    <q-btn v-if="index.inventory.status.id==2&&imCreator&&progress.value==1" rounded class="text-dark bg-green-13" icon="done" label="Terminar" no-caps @click="terminate" :size="ismobile ? 'sm':'md'"/>
+                    <q-btn v-if="index.inventory.status.id==3" rounded class="text-dark bg-green-13" icon="fas fa-file-download" label="Reporte" no-caps @click="buildPDF" :loading="bpdf.state" :size="ismobile ? 'sm':'md'"/>
                 </div>
             </div>
 
@@ -23,7 +23,6 @@
                 </div>
 
                 <div class="col q-px-sm" v-if="index&&index.inventory.status.id==3">
-                <!-- <div class="col q-pa-sm" v-if="index"> -->
                     <div class="text--2">Presicion:</div>
                     <q-linear-progress rounded dark size="15px" :value="parseFloat(reliability.value)" :color="reliability.color" >
                         <div class="absolute-center flex flex-center">
@@ -217,7 +216,6 @@ export default {
                 saving:false,
                 stateIfCancel:null
             },
-            sktcounter:null,
             countingrespo:null,
             joined:false,
             bpdf:{ state:false },
@@ -231,11 +229,13 @@ export default {
 
         if (this.index.success) {
             if (this.stay()) {
-                this.index.inventory.products.forEach(prod=>{
+                this.index.inventory.products.forEach(prod=>{                    
+                    console.log(`=========================\nEvaluando ${prod.code}...`);
+                    console.log(`STOCK: ${prod.ordered.stocks}`);
 
-                    if(prod.ordered.stocks){
-                        // console.log("==============================================");
+                    if(prod.ordered.stocks>0){
                         let rowcalcs = this.rowCalcs(prod);//obtener los datos de la fila
+                        console.log(`COUNT: ${prod.ordered.details.editor.nick}`);
 
                         prod.state = rowcalcs.state;//definimos el estado de la fila
                         prod._locations = prod.locations.map(loc=>{return loc.path}).join(', ');//generamos la presentacion de las ubicaciones
@@ -243,24 +243,27 @@ export default {
                         prod.counter = prod.ordered.stocks_acc;//colocamos las piezas contadfas si ya fue contado
                         prod.sat = prod.ordered.stocks_end;//pone el stock despues del conteo
                         prod.ufs = rowcalcs.ufs;//pone las unidades faltantes o sobrantes
-                        prod.presition = rowcalcs.presition;//setea la confiabilidad
+                        prod.presition = rowcalcs.presition;//setea la confiabilid                                                                                    ad
                         prod.by = rowcalcs.by;//setea quien edito la fila
 
                         this.tableProducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
                     }else{
+                        // el producto con SAI en 0 no puede ser contabilizado, ya que la formula se indeterminaria
+                        // la aplicacion ajustara a 0 el conteo de forma autmatica 
                         prod.sai = prod.ordered.stocks;
                         prod._locations = prod.locations.map(loc=>{return loc.path}).join(', ');
                         this.tableUnproducts.rows.unshift(JSON.parse(JSON.stringify(prod)));
                     }
-                });
-                // console.log("==============================================");
 
-                this.sktcounter = await io(`${this.$vsocket}/counters`);
-                this.sktcounter.emit('joinat',{ room:this.socketroom,user:this.profile });
-                this.sktcounter.on('joined',data=>{ this.sktjoined(data); });
-                this.sktcounter.on('counting',data=>{ this.sktcounting(data); });
-                this.sktcounter.on('cancelcounting',data=>{ this.sktcancelcounting(data); });
-                this.sktcounter.on('countingconfirmed',data=>{ this.sktcountingconfirmed(data); });
+                    console.log(`=========================\n\n`)
+                });
+
+                await this.$sktCounters.connect() ;
+                this.$sktCounters.emit('joinat',{ room:this.socketroom,user:this.profile });
+                this.$sktCounters.on('joined',data=>{ this.sktjoined(data); });
+                this.$sktCounters.on('counting',data=>{ this.sktcounting(data); });
+                this.$sktCounters.on('cancelcounting',data=>{ this.sktcancelcounting(data); });
+                this.$sktCounters.on('countingconfirmed',data=>{ this.sktcountingconfirmed(data); });
             }else{ this.notifyExclution(); }// No pertenece a los usuarios miembros del conteo
         }else{ this.notify404(); }//  El folio no existe
 
@@ -356,18 +359,14 @@ export default {
                 this.$q.notify({ color:'positive', icon:'done', position:'center', timeout:1000, message:'Guardado!' });
 
                 // console.log("%cConfirmando conteo...!!!","font-size:2em;color:gold");
-                this.sktcounter.emit('countingconfirmed',{room:this.socketroom,product:product,by:this.profile,settings:data});
+                this.$sktCounters.emit('countingconfirmed',{room:this.socketroom,product:product,by:this.profile,settings:data});
 
                 this.counterReset(); this.wndCounter.state=false;
             }).catch(fail=>{ console.log(fail); });
         },
         rowCalcs(row){
-            // console.log(`Validando %c${row.code}...`,"color:#12CBC4;");
             let rowcalcs = { ufs:null, presition:null, by:null, settings:null, state:3 };
-
-            let counter = row.ordered.stocks_acc;
-            let sai = row.ordered.stocks;
-            let reliab = null;
+            let counter = row.ordered.stocks_acc; let sai = row.ordered.stocks; let reliab = null;
 
             if(counter!=null){
                 rowcalcs.ufs = sai-counter;// obtenemos las unidades faltantes o sobrantes
@@ -385,7 +384,7 @@ export default {
             // console.log("Se ha Cancelado el Contador");
 
             this.tableProducts.rows[this.wndCounter.idxrow].state = this.wndCounter.stateIfCancel;
-            this.sktcounter.emit('cancelcounting',{room:this.socketroom,by:this.profile,product:this.tableProducts.rows[this.wndCounter.idxrow]});
+            this.$sktCounters.emit('cancelcounting',{room:this.socketroom,by:this.profile,product:this.tableProducts.rows[this.wndCounter.idxrow]});
             this.counterReset();
             this.wndCounter.state=false;
         },
@@ -401,7 +400,7 @@ export default {
 
             let _product = this.tableProducts.rows[idx];
             console.log(_product);
-            this.sktcounter.emit('counting',{room:this.socketroom,product:_product,by:this.profile});
+            this.$sktCounters.emit('counting',{room:this.socketroom,product:_product,by:this.profile});
         },
         counterReset(){//Se ejecuta siempre que se cierra la ventan del Contador
             this.wndCounter.idxrow=null;

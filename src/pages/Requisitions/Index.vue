@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
 import dbreqs from '../../API/requisitions'
 import dbwkps from '../../API/workpoint'
@@ -73,7 +73,7 @@ export default {
 	},
 	data(){
 		return {
-			vsocket:undefined,
+			// $sktRestock:undefined,
 			initpagination:{
                 sortBy: 'id',
                 descending: false,
@@ -112,34 +112,35 @@ export default {
 		// console.log(this.workpoints);
 	},
 	async mounted(){
-		this.vsocket = await io(`${this.$vsocket}/resurtidos`);
+		// this.$sktRestock = await io(`${this.$$sktRestock}/resurtidos`);
+		await this.$sktRestock.connect();
 		console.log("uniendose a ROOM");
-		this.vsocket.emit('joinat', { from:this.workin, user:this.profile, isdashboard:false } );
+		this.$sktRestock.emit('joinat', { from:this.workin, user:this.profile, isdashboard:false } );
 
-		//notifica que un usuario se unio, excepto cuando es el mismo
-		this.vsocket.on('joineddashreq',(gdata)=>{
-			console.log(gdata);
+		// //notifica que un usuario se unio, excepto cuando es el mismo
+		// this.$sktCounters.on('joineddashreq',(gdata)=>{
+		// 	console.log(gdata);
 
-			if(gdata.fromdashboard){
-				console.log(`%c${gdata.user.me.nick} a activado el dashboard DASHBOARDSREQS en ${gdata.from.alias}`,"color:#3ae374;font-size:1.5em;");
-			}
-		});
+		// 	if(gdata.fromdashboard){
+		// 		console.log(`%c${gdata.user.me.nick} a activado el dashboard DASHBOARDSREQS en ${gdata.from.alias}`,"color:#3ae374;font-size:1.5em;");
+		// 	}
+		// });
 
-		this.vsocket.on('order_changestate',(data)=>{
-			console.log("Se ha cambiado el status a un pedido... ");
-            console.log(data);
-			let idx = this.ordersday.findIndex(item=>{return item.id==data.order.id});
+		// this.$sktCounters.on('order_changestate',(data)=>{
+		// 	console.log("Se ha cambiado el status a un pedido... ");
+        //     console.log(data);
+		// 	let idx = this.ordersday.findIndex(item=>{return item.id==data.order.id});
 			
-			if(idx){
-				console.log("... y aqui esta"); 
-				this.ordersday[idx].log=data.order.log;
-				this.ordersday[idx].status=data.order.status;
-				this.sounds.moved.play();
-			}else{ console.log("... pero no esta aqui");  }
-        });
+		// 	if(idx){
+		// 		console.log("... y aqui esta"); 
+		// 		this.ordersday[idx].log=data.order.log;
+		// 		this.ordersday[idx].status=data.order.status;
+		// 		this.sounds.moved.play();
+		// 	}else{ console.log("... pero no esta aqui");  }
+        // });
 	},
 	beforeDestroy(){
-		this.vsocket.emit('leave', { room:this.socketroom,user:this.profile } );
+		this.$sktCounters.off();
 		console.log("desconectado del socket");
 	},
 	methods:{
@@ -194,9 +195,9 @@ export default {
 
 					this.$q.notify({ message:`Pedido ${resp.order.id} creado!`, color:"positive", position:'center', timeout:1500 });
 
-					this.vsocket.emit('creating',{ user:this.profile, from:this.workin, order:resp.order, to:this.neworder.dest } );
+					this.$sktRestock.emit('creating',{ user:this.profile, from:this.workin, order:resp.order, to:this.neworder.dest } );
 					this.$router.push('/pedidos/'+resp.order.id);
-					// this.vsocket.emit('creatingorder',{profile:this.profile,order:resp.order});
+					// this.$sktRestock.emit('creatingorder',{profile:this.profile,order:resp.order});
 				}).catch(fail=>{
 					console.log(fail);
 					this.$q.notify({ message:`Rayos!!, esto no ha funcionado!`, icon:"bug", color:"negative" });
@@ -209,7 +210,7 @@ export default {
 		workin(){ return this.$store.getters['Account/workin'];},
 		auths:{ get(){ return this.$store.getters['Account/moduleauths']} },
 		socketroom(){ return `${this.workin.workpoint.alias}`},
-		appconnected(){ return this.vsocket ? this.vsocket.connected : false; },
+		appconnected(){ return this.$sktRestock ? this.$sktRestock.connected : false; },
 		combowkps(){
 			if(this.index){
 				return this.index.workpoints.map(item=>{
