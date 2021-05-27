@@ -3,19 +3,19 @@ import axios from 'axios'
 import { io } from "socket.io-client";
 
 // ❰❰❰❰❰ D E S A R R O L L O ❱❱❱❱❱
-// const URLBackend = 'http://192.168.1.243/public';
-// const URLFiles = 'http://192.168.1.243:7171';
-// const URLSocket = 'http://192.168.1.247/files';
+// const URLBackend = 'http://192.168.1.222/public';
+// const URLFiles = 'http://192.168.1.197:7171';
+// const URLSocket = 'http://192.168.1.222/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
-// const URLBackend = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/public';
-// const URLFiles = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/files';
-// const URLSocket = 'http://vsocket.grupovizcarra.net:7171';
+const URLBackend = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/public';
+const URLFiles = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/files';
+const URLSocket = 'http://vsocket.grupovizcarra.net:7171';
 
 // ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
-const URLBackend = 'http://vizappdev.grupovizcarra.net:6001/public';
-const URLFiles = 'http://vizappdev.grupovizcarra.net:6001/files';
-const URLSocket = 'http://vsocket.grupovizcarra.net:7777';
+// const URLBackend = 'http://vizappdev.grupovizcarra.net:6001/public';
+// const URLFiles = 'http://vizappdev.grupovizcarra.net:6001/files';
+// const URLSocket = 'http://vsocket.grupovizcarra.net:7777';
 
 const vizapi = axios.create({ baseURL: URLBackend });
 
