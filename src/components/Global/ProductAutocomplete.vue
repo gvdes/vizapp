@@ -74,7 +74,7 @@ export default {
     methods: {
         autocomplete (val, update, abort) {
 
-            if(val.trim().length){
+            if(val.trim().length>1){
                 this.autocom.autocomplete = val.toUpperCase().trim();
                 console.log(`buscando ${this.autocom.autocomplete}`);
 
