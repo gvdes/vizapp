@@ -10,7 +10,7 @@ import { io } from "socket.io-client";
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
 const URLBackend = 'http://192.168.10.15/vizapidev/public';
 const URLFiles = 'http://192.168.10.15/vizapidev/files';
-const URLSocket = 'http://v192.168.10.15:7171';
+const URLSocket = 'http://192.168.10.15:7171';
 
 // ❰❰❰❰❰ D E S A R R O L L O ❱❱❱❱❱
 // const URLBackend = 'http://192.168.1.144/vizapi/public';
