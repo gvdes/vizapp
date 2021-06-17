@@ -136,7 +136,7 @@ export default{
 		},
 		autocomplete (val, update, abort) {
             let data={params:{ "code": val.trim() }};
-            dbproduct.autocomplete(data).then(success=>{
+            dbproduct.autocompleteGET(data).then(success=>{
                 let resp = success.data;
                 update(() => { this.autocom.options=resp; });
             }).catch(fail=>{ console.log(fail); });
