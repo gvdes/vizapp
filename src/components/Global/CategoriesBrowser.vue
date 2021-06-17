@@ -41,7 +41,7 @@ export default {
                 options:[],
                 children:[],
             },
-            loading:{state:false,msg:''},
+            loading:{ state:false,msg:'' },
             filters:{
                 "paginate" :null,
                 "_category":null,

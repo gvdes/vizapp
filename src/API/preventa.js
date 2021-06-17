@@ -5,12 +5,13 @@ export default{
         return vizapi.get('/product/autocomplete',data);
     },
     create(data){ return vizapi.post('/order',data); },
-    index(){
-        return vizapi.get('/order').then(success=>{
-            let resp = success.data;
-            return resp;
-        }).catch(fail=>{
-            console.log(fail);
-        });
+    index(vista){
+        return vizapi.post('/order/index',vista).then(success=>{
+            return success.data;
+        }).catch(fail=>{ console.log(fail); });
+    },
+    order(order){
+        console.log(`Obteniendo pedido ${order.id}`);
+        return vizapi.get(`/order/${order.id}`).then(success => { return success.data; }).catch(fail=>{ console.log(fail); });
     }
 }

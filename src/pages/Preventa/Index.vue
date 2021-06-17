@@ -3,37 +3,30 @@
 		<q-header class="bg-darkl0 text-grey-5">
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Preventa" />
-				<div class="q-pa-md row justify-between">
-					<div class="ds">sdf</div>
-					<div class="ds">sdfsdf</div>
+				<div class="q-pa-md row">
+					<!-- <div class="col-md col-xs-12 ds">sdf</div> -->
+					<div class="col-md col-xs-12"><RangeDates @inputRanges="loadView"/></div>
 				</div>
 			</q-card>
 		</q-header>
 
-		<div class="row q-ma-md items-start">
-			<div class="col q-pa-sm">
+		<div class="row items-start" >
+			<div class="col-md col-xs-12">
 				<q-card class="bg-darkl1">
-					<q-card-section>
-						Resumen
-					</q-card-section>
+					<q-card-section>Resumen</q-card-section>
 					<q-card-section>
 						<!-- <apexchart type="bar" :options="orders_chart.options" :series="series_chart" height="400px;"/> -->
 					</q-card-section>
 				</q-card>
 			</div>
 
-			<div class="col q-pa-sm">
+			<div class="col-md col-xs-12">
 				<q-card class="bg-darkl1">
-					<q-card-section horizontal>
-						<q-card-section>sdfsf</q-card-section>
-						<q-separator/>
-						<q-card-section>sdfsdf</q-card-section>
-					</q-card-section>
 					<q-card-section>
-						<q-table :data="orders_db"
+						<q-table :data="orders_db" flat
 							row-key="id" dark :filter="tableorders.filtrator"
 							card-class="q-pa-sm bg-none text-grey-6"
-							:columns="tableorders.columns" flat
+							:columns="tableorders.columns"
 						>
 							<template v-slot:top-right v-if="orders_db.length">
 								<q-input color="green-13" dark dense debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
@@ -43,17 +36,9 @@
 
 							<template v-slot:body="props">
 								<q-tr :props="props" @click="open(props.row.id)">
-									<q-td key="id" :props="props">
-										{{props.row.id}}
-									</q-td>
-
-									<q-td key="client" :props="props">
-										{{props.row.name}}
-									</q-td>
-
-									<q-td key="timed" :props="props">
-										{{humantime(props.row.created_at)}}
-									</q-td>
+									<q-td key="id" :props="props">{{props.row.id}}</q-td>
+									<q-td key="client" :props="props">{{props.row.name}}</q-td>
+									<q-td key="timestart" :props="props">{{humantime(props.row.created_at)}}</q-td>
 								</q-tr>
 							</template>
 						</q-table>
@@ -62,12 +47,13 @@
 			</div>
 		</div>
 
-		<q-dialog v-model="windCreate.state" position="bottom">
+		<q-dialog v-model="windCreate.state" position="bottom" :persistent="windCreate.blocked">
 			<q-card class="bg-darkl0 exo text-grey-5">
 				<q-form>
 					<q-toolbar>Nuevo Pedido</q-toolbar>
 					<q-card-section>
 						<div class="row items-end q-gutter-sm">
+							<q-btn icon="fas fa-address-book" flat dense :color="isclient?'green-13':'grey-8'" class="text-black" @click="isclient=!isclient"/>
 							<q-input class="col" dark label="Cliente" color="green-13" autofocus v-model="windCreate.ipt.client"/>
 							<q-btn flat rounded type="submit" icon="done" color="green-13" v-if="cancreate" @click="tryCreate" :disable="windCreate.ipt.load" :loading="windCreate.ipt.load"/>
 						</div>
@@ -83,17 +69,18 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
 import apexcharts from 'vue-apexcharts'
 import { date } from 'quasar'
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
 import preventa from '../../API/preventa.js'
+import RangeDates from '../../components/Global/RangeDates.vue'
 
 export default {
 	// name: 'PageName',
 	components:{
 		apexchart:apexcharts,
 		ToolbarAccount:ToolbarAccount,
+		RangeDates:RangeDates
 	},
 	data() {
 		return {
@@ -108,52 +95,64 @@ export default {
 			},
 			windCreate:{
 				state:false,
-				ipt:{ dis:true, load:false, client:'' }
+				ipt:{ dis:true, load:false, client:'' },
+				blocked:false
 			},
 			index:undefined,
 			tableorders:{
 				columns:[
 					{ name:'id', align:'left', label:'Folio', field:'id' },
 					{ name:'client', align:'left', label:'Cliente', field:'name', sortable:true },
-					{ name:'timed', align:'center', label:'Hora', field:'created_at', sortable:true },
+					{ name:'timestart', align:'center', label:'Hora', field:'created_at', sortable:true },
+					{ name:'cstate', align:'center', label:'Estado', field:'created_at', sortable:true },
 				],
 				filtrator:''
 			},
-			sktprev:undefined
+			isclient:false
 		}
 	},
 	async beforeMount(){
-		this.index = await preventa.index();
-		console.log(this.workin);
-
-		console.log(`Conectando a SOCKET`);
-		this.sktprev = await io(`${this.$vsocket}/preventa`);
-		this.sktprev.emit('index',this.profile);
-
-		console.log(`Uniendo a ROOMs de preventa (${this.socketroom})`);
-		this.sktprev.emit('joinat',{ room:this.socketroom,user:this.profile });
-
-		this.sktprev.on('joinprev',data=>{ this.sktjoinprev(data); });//unido al canal principaL de preventa
-		this.sktprev.on('joinprevwrh',data=>{ this.sktjoinprevwrh(data); });// unido al room bodega del canal de preventa
+		// console.log(`Conectando a SOCKET`);
+		// await this.$sktPreventa.connect();
+		// this.$sktPreventa.emit('index',this.profile);
+		// this.$sktPreventa.emit('joinat', { from:this.workin, user:this.profile, isdashboard:false } );
 	},
 	beforeDestroy() { 
 		console.log('desconectando del room');
-		this.sktprev.emit('leave',{ room:this.socketroom, user:this.profile} );
+		this.$sktPreventa.off();
 	},
 	methods: {
+		async loadView(ranges){
+			this.index=undefined;
+			this.$q.loading.show({ message:"Cargando vista..." });
+			let vista = { "date_from":ranges.dbranges.from, "date_to":ranges.dbranges.to };
+			console.log("%cCargando vista...","font-size:1.5em;color:red;");
+			console.log(vista);
+			this.index = await preventa.index(vista);
+			console.log(this.index);
+			this.$q.loading.hide();
+		},
 		tryCreate(){
-			this.sktprev.emit('order_creating',{ room:this.socketroom, user:this.profile, order:null });
+			//this.sktprev.emit('order_creating',{ room:this.socketroom, user:this.profile, order:null });
 			this.windCreate.ipt.load=true;
-			let data = { "name":this.windCreate.ipt.client }
+			this.windCreate.blocked=true;
+			let data = this.isclient ? { "id":this.windCreate.ipt.client } : { "name":this.windCreate.ipt.client };
+			console.log(data);
 
 			preventa.create(data).then(success=>{
 				let resp = success.data;
 				console.log(resp);
-				this.sktprev.emit('order_created',{ room:this.socketroom, user:this.profile, order:resp });
+				this.windCreate.ipt.load=false;
+				this.windCreate.blocked=false;
+				//this.sktprev.emit('order_created',{ room:this.socketroom, user:this.profile, order:resp });
 				this.$router.push(`/preventa/${resp.id}`);
-			}).catch(fail=>{ console.log(fail); });
+			}).catch(fail=>{ 
+				console.log(fail);
+				this.windCreate.ipt.load=false;
+				this.windCreate.blocked=false;
 
-			console.log(data);
+				this.$q.notify({ icon:'bug', message:fail, color:'negative' });
+			});
 		},
 		open(idorder){ this.$router.push(`/preventa/${idorder}`); },
 		sktjoinprev(data){
@@ -190,7 +189,10 @@ export default {
 	computed: {
 		profile(){ return this.$store.getters['Account/profile'];},
 		workin(){ return this.$store.getters['Account/workin'];},
-		cancreate(){ return this.windCreate.ipt.client.length>3?true:false; },
+		cancreate(){
+			let strlen = this.isclient ? 1 : 3 ;
+			return this.windCreate.ipt.client.length>=strlen?true:false;
+		},
 		orders_db(){ return this.index ? this.index.orders:[]; },
 		orders_capture(){ return this.orders_db.filter(item=>{return item.status.id==1}); },
 		orders_forsupply(){ return this.orders_db.filter(item=>{return item.status.id==2}); },
@@ -218,7 +220,6 @@ export default {
 				}
 			}
         },
-		socketroom(){ return `${this.workin.workpoint.alias}`},
 	},
 }
 </script>

@@ -1,5 +1,5 @@
 import {vizapi} from '../boot/vizapi'
-
+//
 export default async ({ router, store }) => {
     // console.log(axios);
 	router.beforeEach((to, from, next) => {
@@ -27,10 +27,6 @@ export default async ({ router, store }) => {
 			if(workin){ store.commit('Account/setworkpoint',workin); }
 		}
 
-		if(to.path!='/acceso'){
-			token ? next() : next('/acceso');
-		}else{
-			token ? next('/lanzador') : next();
-		}
+		if(to.path!='/acceso'){ token ? next() : next('/acceso'); }else{ token ? next('/lanzador') : next(); }
 	});
 }

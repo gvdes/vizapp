@@ -9,20 +9,21 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.10.0",
-    "apexcharts": "^3.26.0",
+    "@quasar/extras": "^1.10.6",
+    "apexcharts": "^3.26.3",
     "axios": "^0.21.1",
     "exceljs": "^4.2.1",
     "js-file-download": "^0.4.12",
     "jspdf": "^2.3.1",
     "jspdf-autotable": "^3.5.14",
-    "quasar": "^1.15.9",
-    "socket.io-client": "^4.0.0",
-    "vue-apexcharts": "^1.6.0",
-    "vue-moment": "^4.1.0"
+    "quasar": "^1.15.19",
+    "socket.io-client": "^4.1.2",
+    "vue-apexcharts": "^1.6.1",
+    "vue-moment": "^4.1.0",
+    "vue-template-compiler": "^2.6.12"
   },
   "devDependencies": {
-    "@quasar/app": "^2.2.3",
+    "@quasar/app": "^2.2.8",
     "workbox-webpack-plugin": "^5.1.4"
   },
   "browserslist": [

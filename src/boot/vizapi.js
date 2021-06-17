@@ -2,20 +2,21 @@ import Vue from 'vue'
 import axios from 'axios'
 import { io } from "socket.io-client";
 
-// ❰❰❰❰❰ D E S A R R O L L O ❱❱❱❱❱
-const URLBackend = 'http://192.168.1.222/public';
-const URLFiles = 'http://192.168.1.222/files';
-const URLSocket = 'http://192.168.1.197:7171';
+// ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
+// const URLBackend = 'http://192.168.10.4/public';
+// const URLFiles = 'http://192.168.10.4/files';
+// const URLSocket = 'http://192.168.10.4:7171';
 
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
-// const URLBackend = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/public';
-// const URLFiles = 'http://vizappdev.grupovizcarra.net:7001/vizapidev/files';
-// const URLSocket = 'http://vsocket.grupovizcarra.net:7171';
+const URLBackend = 'http://192.168.10.15/vizapidev/public';
+const URLFiles = 'http://192.168.10.15/vizapidev/files';
+const URLSocket = 'http://v192.168.10.15:7171';
 
-// ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
-// const URLBackend = 'http://vizappdev.grupovizcarra.net:6001/public';
-// const URLFiles = 'http://vizappdev.grupovizcarra.net:6001/files';
-// const URLSocket = 'http://vsocket.grupovizcarra.net:7777';
+// ❰❰❰❰❰ D E S A R R O L L O ❱❱❱❱❱
+// const URLBackend = 'http://192.168.1.144/vizapi/public';
+// const URLFiles = 'http://192.168.1.144/vizapi/files';
+// const URLSocket = 'http://192.168.1.228:7171';
+
 
 const vizapi = axios.create({ baseURL: URLBackend });
 

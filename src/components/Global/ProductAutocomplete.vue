@@ -1,15 +1,26 @@
 <template>
     <div>
-        <q-select dark dense filled fill-input color="green-13"
-            use-input class="text-uppercase" hide-dropdown-icon
-            input-debounce="0" option-value="id" option-label="code"
-            hide-selected behavior="menu" autofocus
-            :value="autocom.model" v-model="autocom.model"
-            :options="autocom.options" :type="iptsearch.type"
-            @filter="autocomplete" @input="selItem"
+        <q-select dark dense filled fill-input color="green-13" class="text-uppercase"
+            use-input
+            hide-dropdown-icon
+            option-value="id"
+            option-label="code"
+            hide-selected
+            behavior="menu"
+            v-model="autocom.autocomplete"
+            :value="autocom.autocomplete"
+            :input-debounce="200"
+            :autofocus="true"
+            :options="options"
+            :type="iptsearch.type"
+            @filter="autocomplete"
+            @input="selItem"
         >
             <template v-slot:no-option>
-                <q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
+                <q-item>
+                    <q-item-section avatar><q-icon name="fas fa-mug-hot" color="grey-8"/></q-item-section>
+                    <q-item-section class="text-grey exo">Sin coincidencias</q-item-section>
+                </q-item>
             </template>
 
             <template v-slot:prepend>
@@ -17,21 +28,21 @@
             </template>
 
             <template v-slot:option="scope">
-                <div v-if="scope.opt.status.id>1" class="text-grey-7 q-pa-sm" v-bind="scope.itemProps">
+                <div v-if="scope.opt.status.id>1" class="text-grey-7 q-pa-sm exo" v-bind="scope.itemProps">
                     <div class="text-bold">
                         {{scope.opt.code}} - {{scope.opt.name}}
                         <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" />
                     </div>
                     <div caption class="text--2">{{ scope.opt.description }}</div>
                 </div>
-                <div v-else class="q-pa-sm q-mb-sm" v-bind="scope.itemProps" v-on="scope.itemEvents">
+                <div v-else class="q-pa-sm q-mb-sm exo" v-bind="scope.itemProps" v-on="scope.itemEvents">
                     <div class="text-body1 text-bold">
                         {{scope.opt.code}} - {{scope.opt.name}}
                     </div>
                     <div caption class="text--2">{{ scope.opt.description }}</div>
                 </div>
             </template>
-        </q-select>
+        </q-select> 
     </div>
 </template>
 <script>
@@ -43,21 +54,35 @@ export default {
     },
     data() {
         return {
-            autocom:{model:null,options:undefined},
-            iptsearch:{
-                processing:false,
-                type:"text",
-                icon:'fas fa-hashtag'
-            }
+            autocom:{
+                "autocomplete":"",
+                "_category":null,
+                "_status":null,
+                "_location":null,
+                "with_locations":null,
+                "with_stocks":true,// obtiene el stock de la tienada
+                "check_stock":null,//  valida que SI tenga stock
+                "paginate":null,
+                "with_prices":true,
+                "_celler":null,
+                "limit":35
+            },
+            iptsearch:{ processing:false, type:"text", icon:'fas fa-hashtag' },
+            options:undefined
         }
     },
     methods: {
         autocomplete (val, update, abort) {
-            let data={params:{ "code": val.trim() }};
-            dbproduct.autocomplete(data).then(success=>{
-                let resp = success.data;
-                update(() => { this.autocom.options=resp; });
-            }).catch(fail=>{ console.log(fail); });
+
+            if(val.trim().length){
+                this.autocom.autocomplete = val.toUpperCase().trim();
+                console.log(`buscando ${this.autocom.autocomplete}`);
+
+                dbproduct.autocomplete(this.autocom).then(success=>{
+                    let resp = success.data;
+                    update(() => { this.options=resp; });
+                }).catch(fail=>{ console.log(fail); });
+            }
         },
         toogleIptSearch(){
 			switch (this.iptsearch.type) {
@@ -74,7 +99,7 @@ export default {
         },
         selItem(opt){
             this.$emit('input',opt);
-            setTimeout(()=>{ this.autocom.model = null; },100);
+            setTimeout(()=>{ this.autocom.autocomplete = null; },80);
         }
     },
 }
