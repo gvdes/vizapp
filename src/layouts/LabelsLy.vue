@@ -323,10 +323,11 @@ export default {
 			let pricesToOffer = natprices.filter(item=>{return item.id==1||item.id==2||item.id==3||item.id==4});//precios para validar oferta
 			let pricesToMayMen = natprices.filter(item=>{return item.id==2||item.id==3||item.id==4});//precios pra poner solo mayoreo
 
-			let avgOffer = pricesToOffer.reduce((amm,price)=>amm+price.price,0)/4;//sumatoria de los precios del producto
+			let isOffer = pricesToOffer.filter(item=>{ return pricesToOffer[0].price==item.price });
+			let avgOffer = pricesToOffer.map((amm,price)=>amm+price.price,0)/4;//sumatoria de los precios del producto
 			let avgMenMay = pricesToMayMen.reduce((amm,price)=>amm+price.price,0)/3;//sumatoria de los precios del producto
 
-			if(avgOffer==pricesToOffer[0].price){
+			if(isOffer.length==pricesToOffer.length){
 				console.log("Es oferta");
 				let _prices_ = {
 					id:0,
