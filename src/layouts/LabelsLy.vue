@@ -217,6 +217,7 @@ export default {
 	methods: {
 		add(opt){
 			let newLabel = JSON.parse(JSON.stringify(opt));
+			console.log(newLabel);
 
 			if(this.labelsPage.findIndex(item=>{return item.id==newLabel.id})>=0){
 				this.$q.notify({

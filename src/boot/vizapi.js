@@ -10,7 +10,7 @@ import { io } from "socket.io-client";
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
 const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
 const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
-const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:7171';
+const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
 
 // ❰❰❰❰❰ D E S A R R O L L O ❱❱❱❱❱
 // const URLBackend = 'http://192.168.1.144/vizapi/public';

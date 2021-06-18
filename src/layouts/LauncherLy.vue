@@ -203,7 +203,7 @@ export default {
 	computed:{
 		session:{ get(){ return this.$store.state.Account.profile } },
 		workpoints:{ get(){ return this.$store.state.Account.workpoints } },
-		picnick(){ return img => { return img ? img : 'https://www.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png' } },
+		picnick(){ return img => { return img ? img : 'https://image.flaticon.com/icons/png/512/2835/2835180.png' } },
 		ismobile(){ return this.$q.platform.is.mobile; }
 	}
 }

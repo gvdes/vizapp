@@ -51,7 +51,7 @@
             session:{ get(){ return this.$store.state.Account.profile } },
             workin:{ get(){ return this.$store.state.Account.workin } },
             workpoints:{ get(){ return this.$store.state.Account.workpoints } },
-            picnick(){ return this.session.me.pictures ? this.session.me.pictures : 'https://www.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png' },
+            picnick(){ return this.session.me.pictures ? this.session.me.pictures : 'https://image.flaticon.com/icons/png/512/2835/2835180.png' },
         }
     }
 </script>
