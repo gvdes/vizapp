@@ -32,7 +32,7 @@
 								<!-- <q-img :src="'http://192.168.1.86:6011/products/'+scope.opt.code+'.jpg'" @error="noload" style="border-radius:30%;width:50px;height:50px;"/> -->
 							</q-item-section>
 							<q-item-section>
-								<q-item-label><span class="text-bold">{{scope.opt.code}}</span> - {{scope.opt.name}}</q-item-label>
+								<q-item-label><span class="text-bold">{{ scope.opt.code }}</span> - {{scope.opt.name}}</q-item-label>
 								<q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
 							</q-item-section>
 						</q-item>

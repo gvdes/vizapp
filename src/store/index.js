@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import Account from './Account'
-import Warehouse from './Warehouse'
-import Layout from './Layout'
+import Account from './Account';
+import Warehouse from './Warehouse';
+import Layout from './Layout';
+import Preventa from './Preventa';
 
 Vue.use(Vuex)
 
@@ -21,7 +22,8 @@ export default function (/* { ssrContext } */) {
     modules: {
       Account,
       Warehouse,
-      Layout
+      Layout,
+      Preventa
     },
 
     // enable strict mode (adds overhead!)

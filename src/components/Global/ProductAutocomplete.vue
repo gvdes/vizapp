@@ -60,23 +60,21 @@ export default {
                 "_status":null,
                 "_location":null,
                 "with_locations":null,
-                "with_stocks":true,// obtiene el stock de la tienada
+                "with_stock":true,// obtiene el stock de la tienada
                 "check_stock":null,//  valida que SI tenga stock
                 "paginate":null,
                 "with_prices":true,
                 "_celler":null,
-                "limit":35
+                "limit":30
             },
-            iptsearch:{ processing:false, type:"text", icon:'fas fa-hashtag' },
+            iptsearch:{ processing:false, type:"number", icon:'fas fa-hashtag' },
             options:undefined
         }
     },
     methods: {
         autocomplete (val, update, abort) {
-
             if(val.trim().length>1){
                 this.autocom.autocomplete = val.toUpperCase().trim();
-                console.log(`buscando ${this.autocom.autocomplete}`);
 
                 dbproduct.autocomplete(this.autocom).then(success=>{
                     let resp = success.data;
@@ -95,7 +93,7 @@ export default {
 					this.iptsearch.icon="fas fa-hashtag";
 				break;
 			}
-			this.$refs.iptsearch.focus();
+			// this.$refs.iptsearch.focus();
         },
         selItem(opt){
             this.$emit('input',opt);

@@ -5,7 +5,7 @@
                 <q-route-tab
                     icon="home"
                     :to="`/${modules.prefix}`"
-                    exact
+                    exact v-if="modules.prefix!='preventa'"
                 />
 
                 <q-route-tab
