@@ -34,5 +34,19 @@ export default{
         }).catch(fail=>{
             return { err:fail }
         });
+    },
+    removeProduct(data){
+        return vizapi.post('/order/remove',data).then(success=>{
+            return { resp:success.data }
+        }).catch(fail=>{
+            return { err:fail }
+        });
+    },
+    archive(data){
+        return vizapi.post('order/cancell',data).then(success=>{
+            return { resp:success.data }
+        }).catch(fail=>{
+            return { err:fail }
+        });
     }
 }

@@ -144,6 +144,7 @@
 
                 <div class="row">
                     <q-btn class="col q-py-md" color="green-13" icon="done" :label="wndAOE.action=='a'?'Agregar':'Aplicar'" no-caps flat @click="doneAOE" :loading="wndAOE.actions.done.save" :disable="wndAOE.actions.done.dis"/>
+                    <q-btn v-if="wndAOE.action=='e'" class="col q-py-md" color="amber-13" icon="delete" label="Remover" no-caps flat @click="remove" :loading="wndAOE.actions.remove.rem" :disable="wndAOE.actions.remove.dis"/>
                     <q-btn class="col q-py-md" color="light-blue-14" icon="close" label="Cancelar" no-caps flat @click="cancelAOE"/>
                 </div>
             </q-card>
@@ -167,11 +168,13 @@
         </q-dialog>
 
         <q-footer class="bg-darkl1 text-white" elevated>
-            <div class="q-pa-xs row justify-between items-center" v-if="currentStep&&currentStep.id==1">
-                <div>
-                    <ProductAutocomplete @input="selprod"/>
-                </div>
-                <q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" dense flat @click="wndPrinters.state=true" />
+            <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
+                <div><q-btn class="q-px-md" flat @click="moreopts=!moreopts" :icon="moreopts?'fas fa-chevron-down':'fas fa-chevron-up'"/></div>
+                <div class="col text-center"><ProductAutocomplete @input="selprod"/></div>
+                <div class="col-5 text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" dense flat @click="wndPrinters.state=true" /></div>
+            </div>
+            <div v-if="moreopts" class="q-pa-md text-center">
+                <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="archive"/>
             </div>
         </q-footer>
 	</q-page>
@@ -196,6 +199,7 @@ export default {
     components:{ ProductAutocomplete:ProductAutocomplete },
     data(){
         return {
+            moreopts:false,
             index:undefined,
             wndAOE:{
                 state:false,//muestra o no el modal
@@ -280,6 +284,46 @@ export default {
                     this.wAOEcalcs();//calcular totales del producto
                     this.wndAOE.state = true;//despliega el modal para mostrar datos procesados dle producto
                 }else{ this.$q.notify({ message:type.msg, color:'negative', icon:'far fa-dizzy', position:'center' }); }
+            }
+        },
+        async archive(){
+            this.$q.loading.show({message:'Archivando pedido...'});
+            let data = { "_order": this.ordercatch.id }
+            let resp = await preventadb.archive(data);
+
+            console.log(resp);
+
+            if(resp.err){
+                this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
+            }else{
+                this.$q.notify({ message:'Archivado correcto!!', color:'positive', icon:'done' });
+                this.$router.push('/preventa');
+            }
+        },
+        async remove(){
+            let model = this.wndAOE.product;
+            this.$q.loading.show({message:`Removiendo ${model.code}...`});
+
+            let data = {
+                "_product": model.id,
+                "_order": this.ordercatch.id
+            }
+
+            console.log(data);
+
+            let resp = await preventadb.removeProduct(data);
+
+            console.log(resp);
+
+            if(resp.err){
+                this.$q.notify({message:resp.err,icon:'fas fa-exclamation-triangle',color:'negative'});
+            }else{
+                let idx = this.dbproducts.findIndex(prod=>prod.id==model.id);
+
+                this.dbproducts.splice(idx,1);
+                this.$q.notify({message:`${model.code} eliminado!`,icon:'done',color:'positive'});
+                this.$q.loading.hide();
+                this.wndAOE.state = false;
             }
         },
         ctrlPzsUp(){

@@ -131,7 +131,6 @@ export default {
 	},
 	methods: {
 		async loadView(ranges){
-			this.index=undefined;
 			this.$q.loading.show({ message:"Cargando vista..." });
 			let vista = { "date_from":ranges.dbranges.from, "date_to":ranges.dbranges.to };
 			this.index = await preventa.index(vista);
@@ -142,6 +141,7 @@ export default {
 			if(printers.length){
 				// this.$store.commit('Preventa/setPrinters',printers);
 				localStorage.setItem("printers",JSON.stringify(printers));
+				this.$q.loading.hide();
 			}else{
 				this.$q.notify({
 					message:'Vaya, no hay impresoras disponibles',
@@ -149,8 +149,6 @@ export default {
 					icon:'fas fa-exclamation-triangle'
 				});
 			}
-
-			this.$q.loading.hide();
 		},
 		tryCreate(){
 			//this.sktprev.emit('order_creating',{ room:this.socketroom, user:this.profile, order:null });
