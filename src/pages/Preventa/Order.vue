@@ -174,7 +174,7 @@
             <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
                 <div><q-btn class="q-px-md" flat @click="moreopts=!moreopts" :icon="moreopts?'fas fa-chevron-down':'fas fa-chevron-up'"/></div>
                 <div class="col text-center"><ProductAutocomplete @input="selprod"/></div>
-                <div class="col-5 text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" dense flat @click="wndPrinters.state=true" /></div>
+                <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" dense flat @click="wndPrinters.state=true" /></div>
             </div>
             <div v-if="moreopts" class="q-pa-md text-center">
                 <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="archive"/>
