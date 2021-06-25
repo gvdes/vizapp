@@ -107,15 +107,13 @@
                     <template v-if="wndAOE.params.type=='off'">
                         <div class="text-center text-bold text-orange">
                             <div>OFERTA</div>
-                            <div class="text-h4">
-                                $ {{wndAOE.product.prices[0].price}}</div>
-                            </div>
+                            <div class="text-h4">$ {{wndAOE.product.prices[0].price}}</div>
+                        </div>
                     </template>
 
                     <div class="q-mt-lg row items-end">
                         <div class="text-center">
                             <div class="column">
-                                <q-btn flat icon="far fa-sticky-note" dense />
                                 <q-btn icon="fas fa-chevron-up" class="q-py-xs" @click="ctrlPzsUp" flat/>
                                 <div class="text-center col column q-py-md">
                                     <input type="number" min="1" v-model="wndAOE.params.amount" class="text-center exo fieldcant" @keyup="wAOEcalcs"/>
@@ -129,6 +127,11 @@
                                     <tr>
                                         <td colspan="2">
                                             <q-select label="Surtir por" @input="wAOEcalcs" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="alias" :options="metsupply.opts" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <q-input borderless dense dark flat label="Notas" color="green-13" v-model="wndAOE.params.comments"/>
                                         </td>
                                     </tr>
                                     <tr><td>Piezas X Caja</td><td align="right">{{wndAOE.product.pieces}}</td></tr>
@@ -214,6 +217,7 @@ export default {
                     price:0,//total por precio unitario
                     total:0,//total del producto por precio unitario,
                     stock:0,//stock al consultar el producto,
+                    comments:''//notas del producto
                 },
                 actions:{
                     done:{dis:false,save:false},
@@ -279,6 +283,7 @@ export default {
                     if(this.wndAOE.action=='e'){
                         this.wndAOE.params.amount = this.wndAOE.product.ordered.amount;
                         this.metsupply.model = this.metsupply.opts.filter(met=>met.id==this.wndAOE.product.ordered._supply_by)[0];
+                        this.wndAOE.params.comments = product.ordered.comments;// asigna los a utilizar
                     }
 
                     this.wAOEcalcs();//calcular totales del producto
@@ -348,6 +353,7 @@ export default {
             this.wndAOE.params.price=0;
             this.wndAOE.params.total=0;
             this.wndAOE.params.stock=0;
+            this.wndAOE.params.comments='';
 
             this.wndAOE.actions.done.dis=false;
             this.wndAOE.actions.done.save=false;
@@ -427,7 +433,7 @@ export default {
                 "_order": this.ordercatch.id,
                 "_supply_by": this.metsupply.model.id ,
                 "amount": this.wndAOE.params.amount,
-                "comments": ""
+                "comments": this.wndAOE.params.comments
             }
 
             let pvresp = await preventadb.add(data);
