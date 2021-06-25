@@ -28,7 +28,7 @@
             </template>
 
             <template v-slot:option="scope">
-                <div v-if="scope.opt.status.id<=3" class="text-grey-7 q-pa-sm exo" v-bind="scope.itemProps">
+                <div v-if="scope.opt.status.id>3" class="text-grey-7 q-pa-sm exo" v-bind="scope.itemProps">
                     <div class="text-bold">
                         {{scope.opt.code}} - {{scope.opt.name}}
                         <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" />
@@ -38,6 +38,7 @@
                 <div v-else class="q-pa-sm q-mb-sm exo" v-bind="scope.itemProps" v-on="scope.itemEvents">
                     <div class="text-body1 text-bold">
                         {{scope.opt.code}} - {{scope.opt.name}}
+                        <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" v-if="scope.opt.status.id>1"/>
                     </div>
                     <div caption class="text--2">{{ scope.opt.description }}</div>
                 </div>
