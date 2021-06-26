@@ -26,13 +26,9 @@
 					<q-card-section>
 						<q-table :data="orders_db" flat
 							row-key="id" dark :filter="tableorders.filtrator"
-							card-class="q-pa-sm bg-none text-grey-6"
+							card-class="q-pa-sm bg-none text-grey-4"
 							:columns="tableorders.columns"
 						>
-							<template v-slot:top-left v-if="orders_db.length">
-								<div class="text-bold">{{orders_db.length}} pedidos</div>
-							</template>
-
 							<template v-slot:top-right v-if="orders_db.length">
 								<q-input color="green-13" dark dense debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
 									<template v-slot:append><q-icon name="search" /></template>

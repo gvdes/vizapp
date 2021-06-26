@@ -59,20 +59,21 @@
 
             <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
                 <q-card class="bg-darkl1 full-width q-mb-md" v-for="product in basket" :key="product.id" @click="selprod(product,'e')">
-                    <div class="text-white text-bold q-pa-sm">{{product.code}}</div>
-                    <div class="full-width row">
+                    <div class="full-width row ds">
                         <!-- <div>check</div> -->
                         <div>
+                            <div class="text-center text-white text-bold q-pa-sm">{{product.code}}</div>
                             <q-img src="https://image.flaticon.com/icons/png/512/578/578158.png" class="divimg" />
                             <!-- <div class="text--2 q-pb-sm">{{product.description}}</div> -->
                         </div>
                         <div class="col text-grey-4 text--2 q-px-sm column justify-around">
+                            <div class="text-white text-bold q-pt-sm">CC: {{product.name}}</div>
                             <div class="text-grey-5">{{product.description}}</div>
                             <div class="row justify-between"><span>Cantidad:</span><span>{{product.cant}}</span></div>
                             <div class="row justify-between"><span>Piezas X Caja:</span><span>{{product.pieces}}</span></div>
                             <div class="row justify-between"><span>Unidades:</span><span>{{product.ppp}}</span></div>
                             <div class="row justify-between"><span>Precio Unitario:</span><span>$ {{product.uprice}}</span></div>
-                            <div class="row justify-between text-bold"><span>Total: </span><span class="text-green-13"> $ {{product.total}}</span></div>
+                            <div class="row justify-between text-bold"><span>Total: </span><span class="text-h6 text-green-13"> $ {{product.total}}</span></div>
                         </div>
                     </div>
                 </q-card>
@@ -82,14 +83,9 @@
         <q-dialog v-model="wndAOE.state" position="bottom" @hide="cleanWndAOE">
             <q-card v-if="wndAOE.product" class="exo bg-darkl0 text-grey-4">
                 <q-card-section>
-                    <div class="row justify-between items-end">
-                        <div class="text-h6 text-green-13">{{wndAOE.product.code}}</div>
-                        <div v-if="wndAOE.product.stocks">
-                            <q-btn flat dense no-caps class="text-bold"
-                                :color="wndAOE.product.stocks[0].stock?'green-13':'amber-13'"
-                                :label="`Stock: ${wndAOE.product.stocks[0].stock}`"
-                            />
-                        </div>
+                    <div class="row justify-between items-start text-h6 text-bold">
+                        <div class="text-green-13">{{wndAOE.product.code}}</div>
+                        <div class="text-light-blue-13">{{wndAOE.product.name}}</div>
                     </div>
                     <div class="text--2">{{wndAOE.product.description}}</div>
                 </q-card-section>
@@ -114,6 +110,12 @@
                     <div class="q-mt-lg row items-end">
                         <div class="text-center">
                             <div class="column">
+                                <div v-if="wndAOE.product.stocks">
+                                    <q-btn flat dense no-caps class="text-bold"
+                                        :color="wndAOE.product.stocks[0].stock?'green-13':'amber-13'"
+                                        :label="`Stock: ${wndAOE.product.stocks[0].stock}`"
+                                    />
+                                </div>
                                 <q-btn icon="fas fa-chevron-up" class="q-py-xs" @click="ctrlPzsUp" flat/>
                                 <div class="text-center col column q-py-md">
                                     <input type="number" min="1" v-model="wndAOE.params.amount" class="text-center exo fieldcant" @keyup="wAOEcalcs"/>
@@ -144,7 +146,7 @@
                         </div>
                     </div>
                 </div>
-
+                <q-separator />
                 <div class="row">
                     <q-btn class="col q-py-md" color="green-13" icon="done" :label="wndAOE.action=='a'?'Agregar':'Aplicar'" no-caps flat @click="doneAOE" :loading="wndAOE.actions.done.save" :disable="wndAOE.actions.done.dis"/>
                     <q-btn v-if="wndAOE.action=='e'" class="col q-py-md" color="amber-13" icon="delete" label="Remover" no-caps flat @click="remove" :loading="wndAOE.actions.remove.rem" :disable="wndAOE.actions.remove.dis"/>
@@ -172,9 +174,9 @@
 
         <q-footer class="bg-darkl1 text-white" elevated>
             <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
-                <div><q-btn class="q-px-md" flat @click="moreopts=!moreopts" :icon="moreopts?'fas fa-chevron-down':'fas fa-chevron-up'"/></div>
+                <div><q-btn class="q-px-sm" flat @click="moreopts=!moreopts" :icon="moreopts?'fas fa-chevron-down':'fas fa-chevron-up'"/></div>
                 <div class="col text-center"><ProductAutocomplete @input="selprod"/></div>
-                <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" dense flat @click="wndPrinters.state=true" /></div>
+                <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="wndPrinters.state=true" /></div>
             </div>
             <div v-if="moreopts" class="q-pa-md text-center">
                 <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="archive"/>
