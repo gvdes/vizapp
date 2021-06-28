@@ -24,12 +24,13 @@
 			<div class="col-md col-xs-12 q-pa-sm">
 				<q-card class="bg-darkl1">
 					<q-card-section>
-						<q-table :data="orders_db" flat
+						<q-table :data="ordersDb" flat
 							row-key="id" dark :filter="tableorders.filtrator"
 							card-class="q-pa-sm bg-none text-grey-4"
 							:columns="tableorders.columns"
+							:visible-columns="visibleColumns"
 						>
-							<template v-slot:top-right v-if="orders_db.length">
+							<template v-slot:top-right v-if="ordersDb.length">
 								<q-input color="green-13" dark dense debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
 									<template v-slot:append><q-icon name="search" /></template>
 								</q-input>
@@ -41,6 +42,7 @@
 									<q-td key="client" :props="props">{{props.row.name}}</q-td>
 									<q-td key="cstate" :props="props">{{props.row.status.name}}</q-td>
 									<q-td key="timestart" :props="props">{{humantime(props.row.created_at)}}</q-td>
+									<q-td key="createdby" :props="props">{{props.row.created_by.nick}}</q-td>
 								</q-tr>
 							</template>
 						</q-table>
@@ -107,6 +109,7 @@ export default {
 					{ name:'client', align:'left', label:'Cliente', field:'name', sortable:true },
 					{ name:'cstate', align:'center', label:'Estado', field:'created_at', sortable:true },
 					{ name:'timestart', align:'center', label:'Hora', field:'created_at', sortable:true },
+					{ name:'createdby', align:'center', label:'Agente', field:'created_by', sortable:true },
 				],
 				filtrator:''
 			},
@@ -118,7 +121,8 @@ export default {
 		localStorage.removeItem("printers");
 		// console.log(`Conectando a SOCKET`);
 		// await this.$sktPreventa.connect();
-		// this.$sktPreventa.emit('index',this.profile);
+		// this.$sktPreventa.emit('joinat',this.profile);
+		// this.$sktPreventa.on('joined',data=>{ console.log(data); });
 		// this.$sktPreventa.emit('joinat', { from:this.workin, user:this.profile, isdashboard:false } );
 	},
 	beforeDestroy() { 
@@ -141,8 +145,7 @@ export default {
 			}else{
 				this.$q.notify({
 					message:'Vaya, no hay impresoras disponibles',
-					color:'negative',
-					icon:'fas fa-exclamation-triangle'
+					color:'negative', icon:'fas fa-exclamation-triangle'
 				});
 			}
 		},
@@ -203,16 +206,19 @@ export default {
 	computed: {
 		profile(){ return this.$store.getters['Account/profile'];},
 		workin(){ return this.$store.getters['Account/workin'];},
+		visibleColumns(){
+			let urol = this.profile.me._rol;
+
+			if(urol==1||urol==2||urol==3){
+				return ['id','client', 'cstate', 'timestart', 'createdby' ];
+			}else{ return ['id','client', 'cstate', 'timestart' ];}
+		},
 		cancreate(){
 			let strlen = this.isclient ? 1 : 3 ;
 			return this.windCreate.ipt.client.length>=strlen?true:false;
 		},
-		orderStates(){
-			return this.index ? this.index.status.map( state => { return { id:state.id, name:state.name, orders:state.orders} } ) : [];
-		},
-		orders_db(){ 
-			return this.orderStates.length ? this.orderStates.map(state=>state.orders)[0] : [];
-		},
+		// orderStates(){ return this.index ? this.index.status : []; },
+		ordersDb(){ return this.index ? this.index.orders : []; },
 		series_chart(){
 			return [
 				this.orders_capture.length,

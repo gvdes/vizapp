@@ -24,16 +24,16 @@
 			<div class="col-md col-xs-12 q-pa-sm">
 				<q-card class="bg-darkl1">
 					<q-card-section>
-						<q-table :data="orders_db" flat
+						<q-table :data="ordersDb" flat
 							row-key="id" dark :filter="tableorders.filtrator"
-							card-class="q-pa-sm bg-none text-grey-6"
+							card-class="q-pa-sm bg-none"
 							:columns="tableorders.columns"
 						>
-							<template v-slot:top-left v-if="orders_db.length">
-								<div class="text-bold">{{orders_db.length}} pedidos</div>
+							<template v-slot:top-left v-if="ordersDb.length">
+								<div class="text-bold">{{ordersDb.length}} pedidos</div>
 							</template>
 
-							<template v-slot:top-right v-if="orders_db.length">
+							<template v-slot:top-right v-if="ordersDb.length">
 								<q-input color="green-13" dark dense debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
 									<template v-slot:append><q-icon name="search" /></template>
 								</q-input>
@@ -45,6 +45,7 @@
 									<q-td key="client" :props="props">{{props.row.name}}</q-td>
 									<q-td key="cstate" :props="props">{{props.row.status.name}}</q-td>
 									<q-td key="timestart" :props="props">{{humantime(props.row.created_at)}}</q-td>
+									<q-td key="createdby" :props="props">{{props.row.created_by.nick}}</q-td>
 								</q-tr>
 							</template>
 						</q-table>
@@ -92,6 +93,7 @@ export default {
 					{ name:'client', align:'left', label:'Cliente', field:'name', sortable:true },
 					{ name:'cstate', align:'center', label:'Estado', field:'created_at', sortable:true },
 					{ name:'timestart', align:'center', label:'Hora', field:'created_at', sortable:true },
+					{ name:'createdby', align:'center', label:'Agente', field:'created_by', sortable:true },
 				],
 				filtrator:''
 			},
@@ -168,12 +170,8 @@ export default {
         }
     },
     computed:{
-        orderStates(){
-			return this.index ? this.index.status.map( state => { return { id:state.id, name:state.name, orders:state.orders} } ) : [];
-		},
-		orders_db(){ 
-			return this.orderStates.length ? this.orderStates.map(state=>state.orders)[0] : [];
-		},
+		profile(){ return this.$store.getters['Account/profile'];},
+        ordersDb(){ return this.index ? this.index.orders : []; },
         humantime(){ return time =>{ 
 				let now = Date.now(); 
 				let timecalc = Date.parse(time);

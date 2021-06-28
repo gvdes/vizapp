@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 // ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
 // const URLBackend = 'http://192.168.10.4/public';
 // const URLFiles = 'http://192.168.10.4/files';
-// const URLSocket = 'http://192.168.10.4:7171';
+// const URLSocket = 'http://192.168.10.33:7171';
 
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
 const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
