@@ -5,7 +5,7 @@
                 <q-route-tab
                     icon="home"
                     :to="`/${modules.prefix}`"
-                    exact v-if="modules.prefix!='preventa'"
+                    exact v-if="showIndex"
                 />
 
                 <q-route-tab
@@ -24,6 +24,14 @@ export default {
     computed: {
         modules:{ get(){ return this.$store.getters['Account/toolbarModule'] } },
         layout:{ get(){ return this.$store.state.Layout } },
+        profile(){ return this.$store.getters['Account/profile'];},
+        showIndex(){
+            let show = false;
+
+            if(this.modules.prefix!='preventa'&&this.profile.me._rol!=4) { show = true; }
+
+            return show;
+        }
     },
 }
 </script>

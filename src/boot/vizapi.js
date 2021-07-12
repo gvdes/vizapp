@@ -3,14 +3,15 @@ import axios from 'axios'
 import { io } from "socket.io-client";
 
 // ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
-// const URLBackend = 'http://192.168.10.4/public';
-// const URLFiles = 'http://192.168.10.4/files';
-// const URLSocket = 'http://192.168.10.33:7171';
+const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/public';
+const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/files';
+const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4539';
+
 
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
-const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
-const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
-const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
+// const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
+// const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
+// const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
 
 // ❰❰❰❰❰ D E S A R R O L L O ❱❱❱❱❱
 // const URLBackend = 'http://192.168.1.144/vizapi/public';

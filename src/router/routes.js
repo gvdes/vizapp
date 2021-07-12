@@ -28,15 +28,15 @@ const routes = [
 	{
 		path:'/preventa', component: () => import('layouts/PreventaLy.vue'),
 		children:[
-			{path:'',component: () => import('pages/Preventa/Index.vue')},
-			{path:'pedidos',component: () => import('pages/Preventa/Orders.vue')},
-			{path:'pedidos/:id',component: () => import('pages/Preventa/Order.vue')},
-			{path:'bodega',component: () => import('pages/Preventa/Warehouse.vue')},
-			{path:'validar',component: () => import('pages/Preventa/Validates.vue')},
-			{path:'checkin',component: () => import('pages/Preventa/Checkin.vue')},
-			{path:'cobro',component: () => import('pages/Preventa/Order.vue')},
-			{path:'config',component: () => import('pages/Preventa/Order.vue')},
-			{path:'reporteria',component: () => import('pages/Preventa/Order.vue')},
+			{ path:'',component: () => import('pages/Preventa/Index.vue')},
+			{ path:'pedidos',component: () => import('pages/Preventa/Orders.vue') },
+			{ path:'pedidos/:id',component: () => import('pages/Preventa/Order.vue') },
+			{ path:'bodega',component: () => import('pages/Preventa/Warehouse.vue') },
+			{ path:'validar',component: () => import('pages/Preventa/Validates.vue') },
+			{ path:'checkin',component: () => import('pages/Preventa/Checkin.vue') },
+			{ path:'cobro',component: () => import('pages/Preventa/Order.vue') },
+			{ path:'config',component: () => import('pages/Preventa/Order.vue') },
+			{ path:'reporteria',component: () => import('pages/Preventa/Order.vue') },
 		]
 	},
 	{

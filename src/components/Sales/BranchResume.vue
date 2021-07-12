@@ -117,7 +117,7 @@ export default {
                 name:this.branch.main.name,
                 alias:this.branch.main.alias,
                 folio:data.num_ticket,
-                date:data.updated_at,
+                date:data.created_at,
                 paymet:data.paymet,
                 totaltkt:data.total,
                 cashdesk:data.cashdesk

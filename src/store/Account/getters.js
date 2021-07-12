@@ -22,8 +22,8 @@ export function toolbarModule (state) {
     let _prefix = state.workin.module.path;
     let _modules = state.workin.module.submodules;
 
-    let modules = _modules.map(item=>{
-        return {path:`/${_prefix}/${item.path}`,icon:icons[item.path],name:item.name,alias:item.path}
+    let modules = _modules.map( item => {
+        return { path:`/${_prefix}/${item.path}`,icon:icons[item.path],name:item.name,alias:item.path }
     });
 
     return { paths:modules, prefix:_prefix };

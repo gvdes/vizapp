@@ -155,7 +155,7 @@ export default {
 				console.log("%cAcceso a un solo modulo, autoseleccionar","color:gold;font-size:1.3em;");
 				console.log(this.modules);
 				this.workIn.module=this.modules[0];
-			}else if(this.modules.length>1){
+			}else if(this.modules.length>1){ 
 				console.log("%cAcceso a mas de un modulo","color:gold;font-size:1.3em;");
 			}
 		}

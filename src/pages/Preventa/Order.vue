@@ -58,7 +58,7 @@
             </q-table> -->
 
             <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
-                <q-card class="bg-darkl1 full-width q-mb-md" v-for="product in basket" :key="product.id" @click="selprod(product,'e')">
+                <q-card class="bg-darkl1 full-width q-mb-md" v-for="product in basket" :key="product.id" @click="setprod(product,'e')">
                     <div class="full-width row ds">
                         <!-- <div>check</div> -->
                         <div>
@@ -175,7 +175,7 @@
         <q-footer class="bg-darkl1 text-white" elevated>
             <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
                 <div><q-btn class="q-px-sm" flat @click="moreopts=!moreopts" :icon="moreopts?'fas fa-chevron-down':'fas fa-chevron-up'"/></div>
-                <div class="col text-center"><ProductAutocomplete @input="selprod"/></div>
+                <div class="col text-center"><ProductAutocomplete @input="setprod"/></div>
                 <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="wndPrinters.state=true" /></div>
             </div>
             <div v-if="moreopts" class="q-pa-md text-center">
@@ -190,14 +190,6 @@
 <script>
 import preventadb from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
-
-/**
- * 
- * mapear 
- * 
- * 
-*/
-
 
 export default {
     // name: 'PageName',
@@ -272,25 +264,39 @@ export default {
     },
     beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
     methods:{
-        selprod(product,opt='a'){
+        setprod(product,opt='a'){
+            let openWindow = true;
+
             if(this.currentStep.id==1){
-                this.wndAOE.product = product;
-                let type = this.productType();
 
-                if(type.type!='err'){
-                    this.wndAOE.action = opt;// define si se agrega o edita el producto
-                    this.wndAOE.params.type = type.type;// define el si el producto es oferta o standard
-                    this.wndAOE.params.prices = type.prices;// asigna los a utilizar
-                    
-                    if(this.wndAOE.action=='e'){
-                        this.wndAOE.params.amount = this.wndAOE.product.ordered.amount;
-                        this.metsupply.model = this.metsupply.opts.filter(met=>met.id==this.wndAOE.product.ordered._supply_by)[0];
-                        this.wndAOE.params.comments = product.ordered.comments;// asigna los a utilizar
-                    }
+                if(opt=='a'){//Queremos agregar un producto?
+                    let artexist = this.dbproducts.findIndex(art=>art.code==product.code);
 
-                    this.wAOEcalcs();//calcular totales del producto
-                    this.wndAOE.state = true;//despliega el modal para mostrar datos procesados dle producto
-                }else{ this.$q.notify({ message:type.msg, color:'negative', icon:'far fa-dizzy', position:'center' }); }
+                    if(artexist>=0){//producto ya esta en la lista
+                        this.$q.notify({ message:`<strong>${product.code}</strong> ya esta en la lista`, html:true, color:'orange-13', icon:'fas fa-exclamation-triangle' });
+                        openWindow=false;
+                    }else{ console.log("Se agregara el producto en lista"); }
+                }
+
+                if(openWindow){
+                    this.wndAOE.product = product;
+                    let type = this.productType();
+
+                    if(type.type!='err'){
+                        this.wndAOE.action = opt;// define si se agrega o edita el producto
+                        this.wndAOE.params.type = type.type;// define el si el producto es oferta o standard
+                        this.wndAOE.params.prices = type.prices;// asigna los a utilizar
+                        
+                        if(this.wndAOE.action=='e'){
+                            this.wndAOE.params.amount = this.wndAOE.product.ordered.amount;
+                            this.metsupply.model = this.metsupply.opts.filter(met=>met.id==this.wndAOE.product.ordered._supply_by)[0];
+                            this.wndAOE.params.comments = product.ordered.comments;// asigna los a utilizar
+                        }
+
+                        this.wAOEcalcs();//calcular totales del producto
+                        this.wndAOE.state = true;//despliega el modal para mostrar datos procesados dle producto
+                    }else{ this.$q.notify({ message:type.msg, color:'negative', icon:'far fa-dizzy', position:'center' }); }
+                }
             }
         },
         async archive(){
