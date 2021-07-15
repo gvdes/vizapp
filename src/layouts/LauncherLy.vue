@@ -48,7 +48,8 @@
 				v-model="wndSetWorkpoint.state" 
 				:maximized="ismobile"
 				transition-show="slide-up"
-      			transition-hide="slide-down">
+      			transition-hide="slide-down"
+			>
 
 				<q-layout view="Lhh lpR fff" container class="bg-darkl0 exo">
 					<q-header elevated class="bg-darkl1 text-grey-6">
