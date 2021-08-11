@@ -1,6 +1,11 @@
 export default function () {
 	return {
 		orders:[],
-		printers:[]
+		printers:[],
+		process:[],
+		layout:{
+			header:{ state:true, title:"" },
+			footer:{ state:true }
+		}
 	}
 }

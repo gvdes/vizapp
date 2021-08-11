@@ -1,9 +1,5 @@
 <template>
 	<q-layout view="hHh Lpr fFf" class="exo bg-darkl0 text-grey-6"> <!-- Be sure to play with the Layout demo on docs -->
-		<!-- (Optional) The Header -->
-		<!-- <q-header elevated class="bg-none">
-			<q-btn flat rounded @click="sessionDestroy" class="text-overline text-amber-13" label="salir"/>
-		</q-header> -->
 
 		<!-- (Optional) The Footer -->
 		<q-footer class="bg-none">
@@ -13,28 +9,30 @@
 		<q-page-container>
 			<!-- This is where pages get injected -->
 			<q-page class="row items-center justify-center">
-				<!-- saludo -->
 
-				<div style="min-width:250px;">
+				<div style="min-width:250px;" v-if="workIn.workpoint">
 					<div class="row items-center justify-center">
 						<q-img :src="picnick(session.me.pictures)" spinner-color="white" style="height: 140px; max-width: 140px"/>
 					</div>
 
 					<div class="text-center">
-						<div class="text-h4 q-py-sm"> <span>Hola </span><span class="text-green-13">{{ session.me.nick }}</span></div>
+						<div class="text-h4 q-py-sm"> <span>Hola </span><span :class="vsocket.connected ? 'text-green-13':''">{{ session.me.nick }}</span></div>
 						<div class="q-mb-md">¿por donde iniciamos?</div>
 					</div>
-					<!-- seleccion de sucursal -->
+					
+					
 					<q-card flat :class="{'bg-darkl1':true, 'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
 						<q-card-section>
 							<div>Punto de Trabajo:</div>
 							<div class="text-grey-4">{{ workIn.workpoint.name }}</div>
 						</q-card-section>
 					</q-card>
+
+
 					<q-card flat class="bg-darkl1 q-mt-md cursor-pointer" @click="openSetModule">
 						<q-card-section>
 							<div>Modulo:</div>
-							<div class="text-grey-4">{{ workIn.module?workIn.module.name:' --- ' }}</div>
+							<div class="text-grey-4">{{ workIn.module ? workIn.module.name:' --- ' }}</div>
 						</q-card-section>
 					</q-card>
 
@@ -50,8 +48,7 @@
 				transition-show="slide-up"
       			transition-hide="slide-down"
 			>
-
-				<q-layout view="Lhh lpR fff" container class="bg-darkl0 exo">
+				<q-layout view="Lhh lpR fff" container class="bg-darkl0 exo" v-if="workIn.workpoint">
 					<q-header elevated class="bg-darkl1 text-grey-6">
 						<q-toolbar>
 							Seleccione punto de trabajo
@@ -85,7 +82,7 @@
 				transition-show="slide-up"
       			transition-hide="slide-down">
 
-				<q-layout view="Lhh lpR fff" container class="bg-darkl0 exo">
+				<q-layout view="Lhh lpR fff" container class="bg-darkl0 exo" v-if="workIn.workpoint">
 					<q-header elevated class="bg-darkl1 text-grey-6">
 						<q-toolbar class="row justify-between">
 							<span>Seleccione modulo</span>
@@ -123,6 +120,7 @@ export default {
 	// name: 'LayoutName',
 	data () {
 		return { 
+			vsocket:null,
 			workIn:{workpoint:undefined,module:undefined},
 			modules:undefined,
 			wndSetWorkpoint:{state:false},
@@ -130,7 +128,19 @@ export default {
 		}
 	},
 	beforeMount(){
+		this.vsocket = this.$vSocket;
+
+		setTimeout(() => {
+			if(!this.vsocket.connected){
+				this.$q.notify({
+					message:'No se logor establecer conexion al socket',
+					color:'negative'
+				});
+			}
+		},300);
+
 		console.log(this.$vizapi.defaults.headers.common['Authorization']);
+
 		// por default selecciona el workpoint base
 		this.workIn.workpoint = this.session.workpoint;
 		
@@ -161,6 +171,9 @@ export default {
 			}
 		}
 	},
+	mounted(){
+		console.log("%cLauncherLy montado!!","background:#3c40c6;color:white;border-radius:10px;padding:6px;");
+	},
 	methods:{
 		openSetWorkpoint(){ if(this.workpoints.length>1){ this.wndSetWorkpoint.state=true; } },
 		openSetModule(){ if(this.modules.length>1){ this.wndSetModule.state=true; } },
@@ -187,17 +200,13 @@ export default {
 		go(){
 			let data = { "workpoint":this.workIn.workpoint.id };
 
-			console.log(data);
-
 			apiwkp.join(data).then(success=>{
 				let resp = success.data;
 				this.$store.commit('Account/join',resp);
 				this.$store.commit('Account/setworkpoint',this.workIn);
 				this.$router.push(`/${this.workIn.module.path}`);
-				console.log(resp);
-			}).catch(fail=>{
-				console.log(fail);
-			});
+				// console.log(resp);
+			}).catch(fail=>{ console.log(fail); });
 
 		}
 	},

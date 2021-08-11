@@ -104,7 +104,7 @@
                         <q-btn-group rounded class="bg-darkl1">
                             <q-btn v-if="scope.pagesNumber > 2" icon="first_page" color="green-13" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" />
                             <q-btn icon="chevron_left" color="green-13" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" />
-                                <div class="text-center descript2 q-pa-xs">
+                                <div class="text-center text--2 q-pa-xs">
                                     <div>PPP: {{scope.pagination.rowsPerPage}}</div>
                                     <div>Pagina: {{scope.pagination.page}} de {{scope.pagesNumber}}</div>
                                 </div>

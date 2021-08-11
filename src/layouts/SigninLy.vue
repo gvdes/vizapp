@@ -12,7 +12,7 @@
 						</div>
 					</transition>
 					
-					<transition appear enter-active-class="animated fadeInRightBig delay-1s">
+					<transition appear enter-active-class="animated fadeInUp delay-1s">
 						<q-card class="bg-darkl1 text-white" key="title">
 							<q-card-section class="row justify-between items-center">
 								<span class="text-h6">
@@ -23,7 +23,7 @@
 						</q-card>
 					</transition>
 
-					<transition appear enter-active-class="animated fadeInLeftBig delay-2s">
+					<transition appear enter-active-class="animated fadeInUp delay-2s">
 						<q-form @submit="tryLogin" v-if="credentials.formstate" class="column loginform">
 							<q-card flat class="q-mt-sm bg-darkl1 text-white">
 								<q-card-section>
@@ -64,7 +64,7 @@
 										class="ipt q-mb-xs" autocapitalize="off"
 										autocomplete="off" label="Contraseña"
 										v-model="setpass.pass"
-										:hint="setpass.pass.length>=4?'':'Minimo 4 caracteres'"
+										:hint="setpass.pass.length>=5?'':'Minimo 5 caracteres'"
 									>
 										<template v-slot:append>
 											<q-icon
@@ -119,9 +119,11 @@ export default {
 			credentials:{ nick:"", pass:"", formstate:true, logging:false },
 			resume:{ state:false, account:undefined, workpoints:undefined, text:"" },
 			setpass:{ pass:'', confirm:'', state:false },
-			ipttypepass:true
+			ipttypepass:true,
+			vsocket:null
 		}
 	},
+	beforeMount(){ this.vsocket = this.$vSocket; },
 	methods:{
 		tryLogin(){
 			let data = { "nick":this.credentials.nick, "password":this.credentials.pass }
@@ -180,12 +182,23 @@ export default {
 				workpoints:this.resume.workpoints,
 				stock:true
 			}
+
 			this.$store.commit('Account/setsession',data);
-			this.$router.push('/lanzador')
+			
+			this.vsocket.connect();
+
+			this.vsocket.on('socketid', data => {
+				this.vsocket.emit('session_start',{profile:this.profile,socketid:data.socketid,from:this.workin});
+				console.log("%cUnido al Canal Global (by LogIn)","background:#1B9CFC;color:white;border-radius:10px;padding:6px;");
+			});	
+			
+			this.$router.push('/lanzador');
 		},
 	},
 	computed:{
-		trysetpass(){ return (this.setpass.pass.length>4&&this.setpass.pass==this.setpass.confirm) }
+		trysetpass(){ return (this.setpass.pass.length>4&&this.setpass.pass==this.setpass.confirm) },
+		workin(){ return this.$store.getters['Account/workin']; },
+		profile(){ return this.$store.getters['Account/profile']; }
 	}
 }
 </script>

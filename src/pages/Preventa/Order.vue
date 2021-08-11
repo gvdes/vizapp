@@ -1,83 +1,113 @@
 <template>
 	<q-page padding>
-		<q-header elevated class="bg-darkl1">
-            <div class="row items-center">
-                <div>
-                    <q-btn @click="$router.push('/preventa')" flat icon="fas fa-chevron-left"/>
-                </div>
-                <div class="text-right text-white text-white">
-                    <div class="q-pa-sm row items-center justify-center text-uppercase" :class="client.type=='STD'?'bg-dark q-px-md':'bg-blue-grey-7'">
-                        <q-icon v-if="client.type!='STD'" name="fas fa-medal" class="q-mr-sm"/>
-                        {{ client.type == 'STD'? client.name : `${client.name} (${client.id})` }}
+		<q-header elevated class="bg-darkl0">
+            <div class="row items-stretch justify-between">
+                <q-btn @click="$router.push('/preventa')" flat icon="close"/>
+
+                <div class="row items-center col bg-dark divlcient">
+                    <div class="q-pa-sm col text-center">
+                        <div class="text--2">Cliente:</div>
+                        <div class="text-uppercase">
+                            <q-icon v-if="client.type!='STD'" name="fas fa-medal" class="q-mr-sm"/> {{ client.type == 'STD'? client.name : `${client.name} (${client.id})` }}
+                        </div>
+                    </div>
+
+                    <div class="q-pa-sm col text-center">
+                        <div class="text--2">Folio:</div>
+                        <div class="text-bold">{{ordercatch.id}}</div>
                     </div>
                 </div>
-                <div class="col text-right">
-                    <span class="text--2">Folio:</span> <span class="text-h6 text-bold q-px-sm">{{ordercatch.id}}</span>
-                </div>
+
+                <q-btn flat icon="menu" @click="ldrawer.state=true"/>
             </div>
-            <div class="row items-center q-py-sm">
-                <div class="col">
-                    <q-chip color="dark" class="text--1">
-                        <q-avatar color="dark" text-color="white">M</q-avatar>
-                        <span class="text-green-13">{{basket.length}}</span>
-                    </q-chip>
-                    <q-chip color="dark" class="text--1">
-                        <q-avatar color="dark" text-color="white">P</q-avatar>
-                        <span class="text-green-13">{{totaltkt_pzs}}</span>    
-                    </q-chip>
-                    <!-- <q-chip color="dark" class="text--1">
-                        <q-avatar color="dark" text-color="white">C</q-avatar>
-                        <span class="text-green-13">0</span>    
-                    </q-chip> -->
+            <div class="row items-center justify-between q-mt-sm">
+                <div class="row text-center">
+                    <div class="q-px-md">
+                        <div class="text--2">Modelos</div>
+                        <span class="text-green-13 text-bold">{{basket.length}}</span>
+                    </div>
+
+                    <div class="q-px-md">
+                        <div class="text--2">Unidades</div>
+                        <span class="text-green-13 text-bold">{{totaltkt_pzs}}</span>
+                    </div>
+
+                    <div class="q-px-md">
+                        <div class="text--2">Cajas</div>
+                        <span class="text-green-13 text-bold">0</span>
+                    </div>                    
                 </div>
-                
-                <div class="text-right text-green-13 text-h6 q-pr-sm">$ {{totaltkt_pay}}</div>
+
+                <div class="col text-right q-px-sm">
+                    <div class="text--2">Total</div>
+                    <div class="text-green-13 text-h6 text-bold">$ {{totaltkt_pay}}</div>
+                </div>
             </div>
         </q-header>
 
-        <div v-if="basket.length" class="q-mb-xl q-mt-sm">
-            <!-- <q-table grid :data="basket" >
-                <template v-slot:item="props">
-                    <transition appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
-                        <q-card class="bg-darkl1 full-width q-mb-md">
-                            <div class="full-width row ds">
-                                <div>check</div>
-                                <div class="divimg ds">imagen</div>
-                                <div class="col q-pa-sm">
-                                    <div class="text-white text-bold">{{props.row.code}}</div>
-                                    <div class="text--2 q-pb-sm">{{props.row.description}}</div>
-                                    <div class="row justify-between"><span>Unidades:</span> <span>1</span></div>
-                                    <div class="row justify-between"><span>Cajas:</span> <span>1</span></div>
-                                    <div class="row justify-between"><span>Precio:</span> <span>1</span></div>
-                                    <div class="text-green-13 text-right">$ 200</div>
-                                </div>
-                            </div>
-                        </q-card>
-                    </transition>
-                </template>
-            </q-table> -->
+        <q-drawer v-model="ldrawer.state" side="right" content-class="text-grey-5 bg-darkl0" @hide="startremove.state=false">
+            <div class="q-pa-md">
+                <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="startremove.state=true" v-if="!startremove.state"/>
+                <div v-else>
+                    <div class="q-mb-md">Archivar pedido?</div>
+                    <span class="col row q-gutter-md">
+                        <q-btn no-caps label="Si" class="col" color="negative" @click="archive"/>
+                        <q-btn no-caps label="No" class="col" color="primary" @click="startremove.state=false"/>
+                    </span>
+                </div>
+            </div>
+            <q-separator/>
+        </q-drawer>
 
-            <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
-                <q-card class="bg-darkl1 full-width q-mb-md" v-for="product in basket" :key="product.id" @click="setprod(product,'e')">
-                    <div class="full-width row ds">
-                        <!-- <div>check</div> -->
-                        <div>
-                            <div class="text-center text-white text-bold q-pa-sm">{{product.code}}</div>
-                            <q-img src="https://image.flaticon.com/icons/png/512/578/578158.png" class="divimg" />
-                            <!-- <div class="text--2 q-pb-sm">{{product.description}}</div> -->
-                        </div>
-                        <div class="col text-grey-4 text--2 q-px-sm column justify-around">
-                            <div class="text-white text-bold q-pt-sm">CC: {{product.name}}</div>
-                            <div class="text-grey-5">{{product.description}}</div>
-                            <div class="row justify-between"><span>Cantidad:</span><span>{{product.cant}}</span></div>
-                            <div class="row justify-between"><span>Piezas X Caja:</span><span>{{product.pieces}}</span></div>
-                            <div class="row justify-between"><span>Unidades:</span><span>{{product.ppp}}</span></div>
-                            <div class="row justify-between"><span>Precio Unitario:</span><span>$ {{product.uprice}}</span></div>
-                            <div class="row justify-between text-bold"><span>Total: </span><span class="text-h6 text-green-13"> $ {{product.total}}</span></div>
-                        </div>
+        <div v-if="basket.length" class="q-mb-xl q-mt-sm">
+            <q-table grid flat dark
+                row-key="id"
+                :columns="tableproducts.columns"
+                :data="basket"
+                :pagination="tableproducts.pagination"
+            >
+                <template v-slot:item="props">
+                    <div class="q-pa-sm col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
+                        <q-card class="bg-darkl1" @click="setprod(props.row,'e')">
+                            <!-- {{ props.row }} -->
+                            <div class="full-width row ds">
+                                <div>
+                                    <div class="text-center text-white text-bold q-pa-sm">{{props.row.code}}</div>
+                                    <q-img src="https://image.flaticon.com/icons/png/512/578/578158.png" class="divimg" />
+                                </div>
+                                <div class="col text-grey-4 text--2 q-px-sm column justify-around">
+                                    <div class="text-white text-bold q-pt-sm">CC: {{props.row.name}}</div>
+                                    <div class="text-grey-5">{{props.row.description}}</div>
+                                    <div class="row justify-between"><span>Cantidad:</span><span>{{props.row.cant}}</span></div>
+                                    <div class="row justify-between"><span>Piezas X Caja:</span><span>{{props.row.pieces}}</span></div>
+                                    <div class="row justify-between"><span>Unidades:</span><span>{{props.row.ppp}}</span></div>
+                                    <div class="row justify-between"><span>Precio Unitario:</span><span>$ {{props.row.uprice}}</span></div>
+                                    <div class="row justify-between text-bold"><span>Total: </span><span class="text-h6 text-green-13"> $ {{props.row.total}}</span></div>
+                                </div>
+                            </div> 
+                        </q-card>
                     </div>
-                </q-card>
-            </transition-group>
+                </template>
+
+                <template v-slot:bottom="scope">
+                    <q-page-sticky position="bottom-left" class="full-width" :offset="[10, 5]">
+                        <div class="row q-pt-xs">
+                            <!-- <div round class="text--2 text-white bg-teal q-py-xs q-px-md shadow-1" style="border-radius:20px;">
+                                <div>Pagina: <span class="text-teal-10 text-bold">{{scope.pagination.page}}</span> de <span class="text-teal-10 text-bold">{{scope.pagesNumber}}</span></div>
+                                <div>Ordenes por pagina: <span class="text-teal-10 text-bold">{{scope.pagination.rowsPerPage}}</span></div>
+                            </div> -->
+
+                            <q-btn-group rounded class="bg-dark text-white">
+                                <q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
+                                <q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
+                                <q-btn flat :label="scope.pagination.page" disable/>
+                                <q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
+                                <q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" />
+                            </q-btn-group>
+                        </div>
+                    </q-page-sticky> 
+                </template>
+            </q-table>
         </div>
         
         <q-dialog v-model="wndAOE.state" position="bottom" @hide="cleanWndAOE">
@@ -156,30 +186,13 @@
         </q-dialog>
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
-            <q-card class="bg-darkl1 exo ">
-                <q-card-section class="text-white">Seleccione Impresora</q-card-section>
-                <q-card-section>
-                    <div class="row text-grey-4 justify-around">
-                        <q-btn :class="printer.selected?'bg-primary text-white':''" v-for="printer in wndPrinters.devices.opts" flat :key="printer.id" stack no-caps @click="selPrinter(printer.id)">
-                            <q-icon name="print" size="xl"></q-icon>
-                            <div class="text--2">{{printer.name}}</div>
-                        </q-btn>
-                    </div>
-                </q-card-section>
-                <div v-if="wndPrinters.devices.model" class="text-right">
-                    <q-btn @click="nextStep" class="q-pa-md text-bold full-width" color="green-13" flat label="enviar" :loading="wndPrinters.next.loading" :disable="wndPrinters.next.dis" />
-                </div>
-            </q-card>
+            <PrinterSelect :options="printers" @clicked="setprinter" title="Continuar" ref="PrinterSelect"/>
         </q-dialog>
 
-        <q-footer class="bg-darkl1 text-white" elevated>
+        <q-footer class="bg-darkl0 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
-                <div><q-btn class="q-px-sm" flat @click="moreopts=!moreopts" :icon="moreopts?'fas fa-chevron-down':'fas fa-chevron-up'"/></div>
                 <div class="col text-center"><ProductAutocomplete @input="setprod"/></div>
                 <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="wndPrinters.state=true" /></div>
-            </div>
-            <div v-if="moreopts" class="q-pa-md text-center">
-                <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="archive"/>
             </div>
         </q-footer>
 	</q-page>
@@ -190,10 +203,11 @@
 <script>
 import preventadb from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
+import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
 
 export default {
     // name: 'PageName',
-    components:{ ProductAutocomplete:ProductAutocomplete },
+    components:{ ProductAutocomplete, PrinterSelect},
     data(){
         return {
             moreopts:false,
@@ -240,16 +254,37 @@ export default {
             },
             wndPrinters:{
                 state:false,
-                devices:{
-                    model:null,
-                    opts:[]
-                },
-                next:{loading:false,dis:false}
-            }
+                printer:null
+            },
+            socket:this.$sktPreventa,
+            ldrawer:{ state:false },
+            startremove:{ state:false },
+            tableproducts:{
+				columns:[
+					{ name:'id', align:'left', label:'ID', field:'id', sortable:true },
+					{ name:'code', align:'left', label:'Codigo', field:'code', sortable:true },
+					{ name:'name', align:'center', label:'Codigo Corto', field:'name', sortable:false },
+					{ name:'description', align:'center', label:'Description', field:'description', sortable:false },
+                    { name:'cant', align:'center', label:'Cantidad', field:'cant', sortable:true },
+					{ name:'pieces', align:'center', label:'PzsXCaj', field:'pieces', sortable:true },
+                    { name:'ppp', align:'center', label:'PPP', field:'ppp', sortable:true },
+                    { name:'uprice', align:'center', label:'Precio Unitario', field:'uprice', sortable:true },
+                    { name:'total', align:'center', label:'Total', field:'total', sortable:true },
+				],
+				filtrator:'',
+                pagination:{
+                    sortBy: 'id',
+                    descending: false,
+                    page: 1,
+                    rowsPerPage: 5
+                }
+			},
         }
     },
-    async beforeMount() {
-        this.$store.commit('Layout/hideToolbarModule');
+    async mounted() {
+        this.$store.commit('Preventa/setHeaderState', false);
+        this.$store.commit('Preventa/setFooterState', false);
+
         this.$q.loading.show({ message:'...' });
 
         this.index = await preventadb.order(this.ordercatch);
@@ -257,13 +292,17 @@ export default {
 
         this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
-        
-        let printers = JSON.parse(localStorage.getItem('printers'));
-        console.log(printers);
-        this.wndPrinters.devices.opts = printers ? printers.filter(printer=>printer.id == 1)[0].printers.map(printer => {printer.selected = false; return printer;}) : [];
+
+        this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:`ORD${this.ordercatch.id}` });
     },
-    beforeDestroy(){ this.$store.commit('Layout/showToolbarModule'); },
+    beforeDestroy(){
+        this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:`ORD${this.index.id}` });
+    },
     methods:{
+        sktorder_changestate(data){
+            console.log('Una orden ha cambiado...');
+            console.log(data);
+        },
         setprod(product,opt='a'){
             let openWindow = true;
 
@@ -465,39 +504,41 @@ export default {
             console.log("cancel AOE");
             this.wndAOE.state=false;
         },
+        setprinter(printer){
+            this.wndPrinters.printer = printer;
+            this.nextStep();
+        },
         async nextStep(step=null){
-            this.wndPrinters.next.loading=true;
-            this.wndPrinters.next.dis=true;
 
             this.$q.loading.show({ message:'Enviando...' });
 
             let data = {
                 "_order": this.ordercatch.id,
-                "_printer": this.wndPrinters.devices.model.id
-            }
+                "_printer": this.wndPrinters.printer.id
+            }            
 
             let resp = await preventadb.nextStep(data);
+            console.log(resp);
 
             if(resp.err){
                 this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
             }else{
-                this.$router.push('/preventa/pedidos');
+                console.log(resp.status);
+                let newstate = resp.status[resp.status.length-1];
+                let ordersend = Object.assign({}, this.index);
+                ordersend.status = newstate;
+
+                this.socket.emit("order_changestate",{ newstate:newstate, order: ordersend });
+                this.$router.push('/preventa/');
+                this.$q.notify({ message:`Pedido ${data._order} enviado a ${newstate.name}`, color:'positive', icon:'done' });
                 this.$q.loading.hide();
-                this.$q.notify({ message:'Enviado!', color:'positive', icon:'done' });
             }
         },
-        selPrinter(pid){
-            // console.log(pid);
-            this.wndPrinters.devices.opts.forEach(print => { 
-                if (print.id==pid) {
-                    console.log("aca esta la chida",print.name);
-                    print.selected = true;
-                    this.wndPrinters.devices.model=print;
-                }else{ print.selected = false; }
-            });
-        }
     },
     computed: {
+        profile(){ return this.$store.getters['Account/profile'];},
+		workin(){ return this.$store.getters['Account/workin'];},
+        printers(){ return this.$store.getters['Preventa/printersSale'];},
         ordercatch(){ return this.$route.params },
         client(){ 
             if(this.index){
@@ -540,4 +581,9 @@ export default {
         width: 140px;
         height: 140px;
     }
+
+    .divlcient{
+        border-radius:0px 0px 20px 20px;
+    }
+
 </style>

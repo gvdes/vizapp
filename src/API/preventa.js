@@ -23,7 +23,7 @@ export default{
     },
     nextStep(data){
         return vizapi.post('/order/next',data).then(success=>{
-            return { resp:success.data }
+            return success.data;
         }).catch(fail=>{
             return { err:fail }
         });
