@@ -492,9 +492,11 @@ export default {
 
                 if(this.wndAOE.action=='a'){
                     this.dbproducts.unshift(pvresp.resp);
+                    this.appsounds.added.play();
                 }else{
                     let idx = this.dbproducts.findIndex(item=>item.code==pvresp.resp.code);
                     this.dbproducts[idx].ordered = pvresp.resp.ordered;
+                    this.appsounds.added.play();
                 }
 
                 this.wndAOE.state=false;
@@ -529,6 +531,7 @@ export default {
                 ordersend.status = newstate;
 
                 this.socket.emit("order_changestate",{ newstate:newstate, order: ordersend });
+                this.appsounds.ok.play();
                 this.$router.push('/preventa/');
                 this.$q.notify({ message:`Pedido ${data._order} enviado a ${newstate.name}`, color:'positive', icon:'done' });
                 this.$q.loading.hide();
@@ -559,6 +562,7 @@ export default {
         totaltkt_pay(){ return this.basket.reduce((amm,item)=>{ return amm+item.total},0); },
         totaltkt_pzs(){ return this.basket.reduce((amm,item)=>{ return amm+item.ppp},0); },
         currentStep(){ return this.index ? this.index.status : null },
+        appsounds(){ return this.$store.getters['Multimediapp/sounds']; }
     },
 }
 </script>

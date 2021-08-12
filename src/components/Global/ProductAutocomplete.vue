@@ -56,17 +56,17 @@ export default {
     data() {
         return {
             autocom:{
-                "autocomplete":"",
-                "_category":null,
-                "_status":null,
-                "_location":null,
-                "with_locations":null,
+                "autocomplete":"",//codigo, codigo corto, codigo relacionado o codigo dde barras
+                "_category":null,//
+                "_status":null,//
+                "_location":null,//solo de una ubicacion en especifico (ID de ubicacion)
+                "with_locations":null,// traeme todas las ubicaciones del producto
                 "with_stock":true,// obtiene el stock de la tienada
                 "check_stock":null,//  valida que SI tenga stock
                 "paginate":null,
-                "with_prices":true,
-                "_celler":null,
-                "limit":30
+                "with_prices":true,//traeme precios
+                "_celler":null,//de un almacen en especifico (ID del almacen)
+                "limit":30// tamaño de resultados
             },
             iptsearch:{ processing:false, type:"number", icon:'fas fa-hashtag' },
             options:undefined

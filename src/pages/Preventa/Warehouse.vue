@@ -42,8 +42,10 @@ export default {
 
 			if(idx>=0){
 				console.log(`%cActualizar la orden ${ordercatch.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
+				this.appsounds.created.play();
 			}else{
 				console.log(`%cAgregar la orden ${ordercatch.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
+				this.appsounds.created.play();
 				this.$store.commit('Preventa/newOrder', ordercatch);
 			}
 		},
@@ -92,6 +94,7 @@ export default {
 				}
 			}
         },
+		appsounds(){ return this.$store.getters['Multimediapp/sounds']; }
     }
 }
 </script>

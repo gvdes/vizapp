@@ -70,8 +70,8 @@ export default {
 			// console.log(`%cTe uniste a ${data.room}`,"background:#3d3d3d;color:#3ae374;border-radius:10px;padding:6px;");
 		},
 		newjoin(data){
-			// console.log(data);
-			// console.log(`%c${data.profile.me.nick} se unio a ${data.room}`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
+			console.log(data);
+			console.log(`%c${data.profile.me.nick} se unio a ${data.room}`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
 		}
 	},
 	beforeDestroy(){

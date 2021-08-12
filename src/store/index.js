@@ -5,6 +5,7 @@ import Account from './Account'
 import Warehouse from './Warehouse'
 import Layout from './Layout'
 import Preventa from './Preventa'
+import Multimediapp from './Multimediapp'
 
 Vue.use(Vuex)
 
@@ -23,7 +24,8 @@ export default function (/* { ssrContext } */) {
       Account,
       Warehouse,
       Layout,
-      Preventa
+      Preventa,
+      Multimediapp
     },
 
     // enable strict mode (adds overhead!)

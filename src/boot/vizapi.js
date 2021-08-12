@@ -6,12 +6,12 @@ import { io } from "socket.io-client";
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/files';
 
-// const URLBackend = 'http://192.168.10.12/vizapi/public';
-// const URLFiles = 'http://192.168.10.12/vizapi/files';
+const URLBackend = 'http://192.168.10.12/vizapi/public';
+const URLFiles = 'http://192.168.10.12/vizapi/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
-const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
-const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
+// const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
+// const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
 // const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
 
 

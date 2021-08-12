@@ -6,6 +6,6 @@ export default function () {
 		layout:{
 			header:{ state:true, title:"" },
 			footer:{ state:true }
-		}
+		},
 	}
 }
