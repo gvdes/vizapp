@@ -48,5 +48,13 @@ export default{
         }).catch(fail=>{
             return { err:fail }
         });
+    },
+    setState(data){
+        return vizapi.post('order/changeConfig',data).then( done => {
+            return done.data;
+        }).catch( fail => {
+            console.log(fail);
+            return { err:fail }
+        });
     }
 }

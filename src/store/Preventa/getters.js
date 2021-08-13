@@ -9,6 +9,11 @@ export function OrdersCheckIn (state) {
     return state.orders.filter( order => order.status.id==3 );
 }
 
+export function process (state){
+    // devuelve los status disponibles de la aplicacion;
+    return state.process;
+}
+
 export function printers (state){
     // devuelve todas las impresoras de la sucursal;
     return state.printers.map( group => group.printers ).flat();

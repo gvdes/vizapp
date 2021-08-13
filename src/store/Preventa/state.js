@@ -5,7 +5,8 @@ export default function () {
 		process:[],
 		layout:{
 			header:{ state:true, title:"" },
-			footer:{ state:true }
+			footer:{ state:true },
+			viewsection:true
 		},
 	}
 }

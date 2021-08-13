@@ -35,8 +35,8 @@ const routes = [
 			// { path:'validar',component: () => import('pages/Preventa/Validates.vue') },
 			{ path:'checkin',component: () => import('pages/Preventa/Checkin.vue') },
 			{ path:'cobro',component: () => import('pages/Preventa/Order.vue') },
-			{ path:'config',component: () => import('pages/Preventa/Order.vue') },
-			{ path:'reporteria',component: () => import('pages/Preventa/Order.vue') },
+			{ path:'admin',component: () => import('pages/Preventa/Config.vue') },
+			{ path:'reporteria',component: () => import('pages/Preventa/Config.vue') },
 		]
 	},
 	{

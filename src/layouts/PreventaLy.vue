@@ -4,7 +4,7 @@
 			<q-header class="bg-none" v-if="layout.header.state">
 				<q-card class="bg-darkl1">
 					<HeaderApp :title="layout.header.title"/>
-					<div class="bg-darkl1 q-pa-sm row">
+					<div class="bg-darkl1 q-pa-sm row" v-if="layout.viewsection">
 						<div class="col-md col-xs-12">
 							<RangeDates @inputRanges="loadView"/>
 						</div>
@@ -39,7 +39,6 @@ export default {
 	mounted(){
 		if(this.socket.disconnected){ this.$sktPreventa.connect(); }
 
-		// this.socket.emit('joinrooms',{ profile:this.profile, workpoint:this.workin.workpoint });
 		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'main' });
 		this.socket.on('joinedat', data => this.joinedat(data) );//rooms a los que se unio este socket
 		this.socket.on('newjoin', data => this.newjoin(data) );//alguien se conecta al mismo room de este socket
