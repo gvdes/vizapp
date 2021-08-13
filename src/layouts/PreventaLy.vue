@@ -52,6 +52,7 @@ export default {
 			this.$q.loading.show({ message:"Cargando vista..." });
 			let vista = { "date_from":ranges.dbranges.from, "date_to":ranges.dbranges.to };
 			this.index = await PreventaDB.index(vista);
+			console.log(this.index.orders);
 
 			this.$store.commit('Preventa/startState',this.index);
 			this.$q.loading.hide();

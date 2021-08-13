@@ -26,9 +26,8 @@ export default {
 		}
 	},
 	beforeMount(){
-		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Surtido")
+		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Surtido");
 		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'warehouse' });
-
 		this.socket.on('order_changestate', data => this.skt_add_update_order(data));//
 	},
     methods:{
