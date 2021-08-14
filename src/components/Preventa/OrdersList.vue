@@ -9,7 +9,7 @@
 			:filter="tableorders.filtrator"
 		>
 			<template v-slot:top-right v-if="orders.length">
-				<q-input dark filled fill-input color="green-13" debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
+				<q-input v-if="use_searcher" dark filled fill-input color="green-13" debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
 					<template v-slot:prepend><q-icon name="search" /></template>
 				</q-input>
 			</template>
@@ -59,6 +59,7 @@ export default{
     name:'PreventaOrdersTable',
     props:{
         orders:{ type:Array, default:[] },
+		use_searcher:{ type:Boolean, default:true}
     },
     data(){
         return {
