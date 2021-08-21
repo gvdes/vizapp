@@ -1,10 +1,10 @@
 <template>
-	<q-page padding>
-		<q-header elevated class="bg-darkl0">
+	<q-page>
+		<q-header elevated class="bg-darkl1">
             <div class="row items-stretch justify-between">
                 <q-btn @click="$router.push('/preventa')" flat icon="close"/>
 
-                <div class="row items-center col bg-dark divlcient">
+                <div class="row items-center col bg-dark divlcient _client">
                     <div class="q-pa-sm col text-center">
                         <div class="text--2">Cliente:</div>
                         <div class="text-uppercase">
@@ -59,7 +59,7 @@
             <q-separator/>
         </q-drawer>
 
-        <div v-if="basket.length" class="q-mb-xl q-mt-sm">
+        <div v-if="basket.length">
             <q-table grid flat dark
                 row-key="id"
                 :columns="tableproducts.columns"
@@ -73,7 +73,7 @@
                             <div class="full-width row ds">
                                 <div>
                                     <div class="text-center text-white text-bold q-pa-sm">{{props.row.code}}</div>
-                                    <q-img src="https://image.flaticon.com/icons/png/512/578/578158.png" class="divimg" />
+                                    <q-img src="~/assets/_boxprod.png" class="divimg" />
                                 </div>
                                 <div class="col text-grey-4 text--2 q-px-sm column justify-around">
                                     <div class="text-white text-bold q-pt-sm">CC: {{props.row.name}}</div>
@@ -191,13 +191,13 @@
 
         <q-footer class="bg-darkl0 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
-                <div class="col text-center"><ProductAutocomplete @input="setprod"/></div>
+                <div class="col text-center">
+                    <ProductAutocomplete with_image with_prices with_stock @input="setprod" ref="comp_autocomplete" />
+                </div>
                 <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="wndPrinters.state=true" /></div>
             </div>
         </q-footer>
 	</q-page>
-
-    
 </template>
 
 <script>
@@ -288,7 +288,7 @@ export default {
         this.$q.loading.show({ message:'...' });
 
         this.index = await preventadb.order(this.ordercatch);
-        console.log(this.index);
+        // console.log(this.index);
 
         this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
@@ -306,9 +306,12 @@ export default {
         setprod(product,opt='a'){
             let openWindow = true;
 
-            if(this.currentStep.id==1){
+            if(this.currentStep.id==1){// Solo funciona si el status del pedido es "LEVANTANDO"
+
+                console.log(product);
 
                 if(opt=='a'){//Queremos agregar un producto?
+                    // validamos si el producto existe
                     let artexist = this.dbproducts.findIndex(art=>art.code==product.code);
 
                     if(artexist>=0){//producto ya esta en la lista
@@ -582,12 +585,11 @@ export default {
     }
 
     .divimg{
-        width: 140px;
-        height: 140px;
+        width: 120px;
+        height: 120px;
     }
 
     .divlcient{
         border-radius:0px 0px 20px 20px;
     }
-
 </style>

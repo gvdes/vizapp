@@ -1,25 +1,26 @@
 <template>
     <div>
-        <q-select dark dense filled fill-input color="green-13" class="text-uppercase"
+        <q-select dark dense filled color="green-13" class="text-uppercase"
             use-input
             hide-dropdown-icon
             option-value="id"
-            option-label="code"
+            option-label="id"
             hide-selected
             behavior="menu"
-            v-model="autocom.autocomplete"
-            :value="autocom.autocomplete"
+            v-model="target"
+            :value="target"
             :input-debounce="200"
             :autofocus="true"
             :options="options"
             :type="iptsearch.type"
             @filter="autocomplete"
             @input="selItem"
+            popup-content-class="bg-darkl1"
         >
             <template v-slot:no-option>
                 <q-item>
-                    <q-item-section avatar><q-icon name="fas fa-mug-hot" color="grey-8"/></q-item-section>
-                    <q-item-section class="text-grey exo">Sin coincidencias</q-item-section>
+                    <q-item-section avatar><q-img src="~/assets/chihuacry.png" width="50px"/></q-item-section>
+                    <q-item-section class="text-grey exo">Nada por aqui...</q-item-section>
                 </q-item>
             </template>
 
@@ -28,20 +29,23 @@
             </template>
 
             <template v-slot:option="scope">
-                <div v-if="scope.opt.status.id>3" class="text-grey-7 q-pa-sm exo" v-bind="scope.itemProps">
-                    <div class="text-bold">
-                        {{scope.opt.code}} - {{scope.opt.name}}
-                        <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" />
-                    </div>
-                    <div caption class="text--2">{{ scope.opt.description }}</div>
-                </div>
-                <div v-else class="q-pa-sm q-mb-sm exo" v-bind="scope.itemProps" v-on="scope.itemEvents">
-                    <div class="text-body1 text-bold">
-                        {{scope.opt.code}} - {{scope.opt.name}}
-                        <q-chip color="red" class="text--2" text-color="white" icon="warning" :label="scope.opt.status.name" v-if="scope.opt.status.id>1"/>
-                    </div>
-                    <div caption class="text--2">{{ scope.opt.description }}</div>
-                </div>
+                <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
+                    <q-item-section avatar v-if="with_image">
+                        <q-img src="~/assets/_boxprod.png" width="35px" />
+                    </q-item-section>
+                    
+                    <q-item-section>
+                        <div class="row items-center justify-between no-wrap exo">
+                            <div class="col">
+                                <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
+                                <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
+                            </div>
+
+                            <q-icon name="fas fa-circle" :class="`bullet-${scope.opt.status.id} q-pl-md`" size="10px"/>
+                        </div>
+                    </q-item-section>
+                </q-item>
+                <q-separator />
             </template>
         </q-select> 
     </div>
@@ -50,36 +54,38 @@
 import dbproduct from '../../API/Product'
 export default {
     props:{
-        checkState:{default:false,type:Boolean},
-        image:{default:false,type:Boolean}
+        "limit":{ default:30, type:Number },
+        "_category":{ default:null, type:Boolean },
+        "_status":{ default:null, type:Boolean },
+        "_location":{ default:null, type:Boolean },
+        "_celler":{ default:null, type:Boolean },
+        "check_stock":{ default:null, type:Boolean },
+        "with_locations":{ default:null, type:Boolean },
+        "with_image":{ default:null, type:Boolean },
+        "with_prices":{ default:null, type:Boolean },
+        "with_stock":{ default:null, type:Boolean },
     },
     data() {
         return {
-            autocom:{
-                "autocomplete":"",//codigo, codigo corto, codigo relacionado o codigo dde barras
-                "_category":null,//
-                "_status":null,//
-                "_location":null,//solo de una ubicacion en especifico (ID de ubicacion)
-                "with_locations":null,// traeme todas las ubicaciones del producto
-                "with_stock":true,// obtiene el stock de la tienada
-                "check_stock":null,//  valida que SI tenga stock
-                "paginate":null,
-                "with_prices":true,//traeme precios
-                "_celler":null,//de un almacen en especifico (ID del almacen)
-                "limit":30// tamaño de resultados
-            },
-            iptsearch:{ processing:false, type:"number", icon:'fas fa-hashtag' },
+            target:"",
+            iptsearch:{ processing:false, type:"number", icon:'fas fa-font' },
             options:undefined
         }
     },
     methods: {
         autocomplete (val, update, abort) {
             if(val.trim().length>1){
-                this.autocom.autocomplete = val.toUpperCase().trim();
+                this.target = val.toUpperCase().trim();
 
-                dbproduct.autocomplete(this.autocom).then(success=>{
+                dbproduct.autocomplete(this.attrs).then(success=>{
                     let resp = success.data;
-                    update(() => { this.options=resp; });
+                    update(
+                        () => { this.options=resp; },
+                        ref => {
+                            ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+                            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+                        }
+                    );
                 }).catch(fail=>{ console.log(fail); });
             }
         },
@@ -94,12 +100,33 @@ export default {
 					this.iptsearch.icon="fas fa-hashtag";
 				break;
 			}
-			// this.$refs.iptsearch.focus();
         },
-        selItem(opt){
-            this.$emit('input',opt);
-            setTimeout(()=>{ this.autocom.autocomplete = null; },80);
-        }
+        selItem(opt){ this.$emit('input',opt); },
+        clear(){ this.target = ""; }
     },
+    computed:{
+        attrs(){
+            return {
+                "autocomplete":this.target,
+                "_category":this._category,
+                "_status":this._status,
+                "_location":this._location,
+                "with_locations":this.with_locations,
+                "with_stock":this.with_stock,
+                "check_stock":this.check_stock,
+                "with_prices":this.with_prices,
+                "_celler":this._celler,
+                "limit":this.limit
+            }
+        }
+    }
 }
 </script>
+
+<style lang="scss" scoped>
+    .bullet-1{ color:#2ed573; } // Disponible
+    .bullet-2{ color:#1e90ff; } // Reservado
+    .bullet-3{ color:#ffa502; } // Agotado
+    .bullet-4{ color:#ff4757; } // Bloqueado
+    .bullet-5{ color:#57606f; } // Descatalogado
+</style>

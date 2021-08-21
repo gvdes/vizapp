@@ -21,6 +21,7 @@
 
 .bg-ubuntu{ background:linear-gradient(45deg, #dd4814, #77216f, #5e2750, #2c001e, #333333); }
 
+
 .bg-darkgradient{
     background: -moz-linear-gradient(top, #2d3035 0%, #22252a 100%); /* FF3.6-15 */
     background: -webkit-linear-gradient(top, #2d3035 0%,#22252a 100%); /* Chrome10-25,Safari5.1-6 */
@@ -39,9 +40,10 @@
 .bg-darkl1{ background: #2D3035; }
 .bg-darkl2{ background: #3E4148; }
 
-// .bg-darkl0{ background: #111; }
-// .bg-darkl1{ background: #22252A; }
-// .bg-darkl2{ background: #2D3035; }
+.bg-gold{ 
+    background: linear-gradient(to right, #959595 0%,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#4e4e4e 76%,#383838 87%,#1b1b1b 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#959595', endColorstr='#1b1b1b',GradientType=1 );
+}
 
 .bg-darkl3{ background: #8A8D93; }
 
@@ -59,5 +61,3 @@
 
 .otherdark{background-color: #171717;}
 .otherdark2{background-color: #0a0a0a;}
-
-.ipt-search{border-radius:20px; overflow:hidden;}
