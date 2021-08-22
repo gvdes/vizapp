@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="">
         <q-table grid flat dark
 			row-key="id"
 			:columns="tableorders.columns"
@@ -8,17 +8,28 @@
 			:pagination="initpagination"
 			:filter="tableorders.filtrator"
 		>
-			<template v-slot:top-right v-if="orders.length">
-				<q-input v-if="use_searcher" dark filled fill-input color="green-13" debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
-					<template v-slot:prepend><q-icon name="search" /></template>
-				</q-input>
-			</template>
+			<!-- <template v-slot:top="scope" v-if="orders.length">
+				<div class="full-width row items-center justify-between q-pa-none">
+					<q-btn-group rounded class="bg-darkl1 text-green-13">
+						<q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
+						<q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
+						<q-btn flat no-caps>{{scope.pagination.rowsPerPage}}</q-btn>
+						<q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
+						<q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
+						<q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" :disable="scope.isLastPage"/>
+					</q-btn-group>
+
+					<q-input v-if="use_searcher" dark filled fill-input color="green-13" debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
+						<template v-slot:prepend><q-icon name="search" /></template>
+					</q-input>
+				</div>
+			</template> -->
 
 			<template v-slot:item="props">
 				<div class="q-pa-sm col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
 					<q-card flat :class="`bg-darkl1 cardDesign-${props.row.status.id}`" @click="clicked(props.row)">
 						<div class="row justify-between items-center q-px-md q-py-sm ">
-							<div class="text-white text-h6">{{filltkt(props.row.num_ticket)}}{{props.row.num_ticket}}</div>
+							<div class="text-white text-h6">{{filltkt(props.row.num_ticket)}}</div>
 							<div class="text--2">{{props.row.status.name}}</div>
 						</div>
 
@@ -33,15 +44,17 @@
 			</template>
 
 			<template v-slot:bottom="scope">
-				<q-page-sticky position="bottom-left" :offset="[10, 3]" v-if="orders.length>10">
-					<q-btn-group rounded class="bg-darkl1 text-green-13">
-						<q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
-						<q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
-						<!-- <q-btn flat no-caps>{{scope.pagination.rowsPerPage}}</q-btn> -->
-						<q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
-						<q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
-						<q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" :disable="scope.isLastPage"/>
-					</q-btn-group>
+				<q-page-sticky position="bottom-left" :offset="[10, 3]" v-if="orders.length&&stickyfooter">
+					<div class="full-width text-center">
+						<q-btn-group rounded class="bg-darkl1 text-green-13">
+							<q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
+							<q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
+							<!-- <q-btn flat no-caps>{{scope.pagination.rowsPerPage}}</q-btn> -->
+							<q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
+							<q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
+							<q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" :disable="scope.isLastPage"/>
+						</q-btn-group>
+					</div>
 				</q-page-sticky>
 			</template>
 		</q-table>
@@ -54,7 +67,8 @@ export default{
     name:'PreventaOrdersTable',
     props:{
         orders:{ type:Array, default:[] },
-		use_searcher:{ type:Boolean, default:true}
+		use_searcher:{ type:Boolean, default: true },
+		stickyfooter:{ type:Boolean, default: true }
     },
     data(){
         return {
@@ -64,15 +78,15 @@ export default{
 					{ name:'tktday', align:'left', label:'Folio', field:'num_ticket', sortable:true },
 					{ name:'client', align:'left', label:'Cliente', field:'name', sortable:true },
 					{ name:'cstate', align:'center', label:'Estado', field:'created_at', sortable:true },
-					{ name:'timestart', align:'center', label:'Hora', field:'created_at', sortable:true },
+					{ name:'timestart', align:'center', label:'Hora', field:(row)=>row.status.name, sortable:true },
 					{ name:'createdby', align:'center', label:'Agente', field:'created_by', sortable:true },
 				],
 				filtrator:''
 			},
             initpagination:{
-                sortBy: 'id',
-                descending: false,
-                page: 1,
+                sortBy:'id',
+                descending:false,
+                page:1,
                 rowsPerPage: 15
             },
         }
@@ -96,7 +110,7 @@ export default{
 				let fill = '';
 
 				for (rounds; len < rounds; rounds--) { fill+='0'; }
-				return fill;
+				return `${fill}${id}`;
 			}
 		}
     }

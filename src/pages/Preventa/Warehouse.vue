@@ -1,6 +1,27 @@
 <template>
 	<q-page>
-		<OrdersList :orders="orders" @clicked="orderclicked"/>
+		<div class="row">
+			<div class="col q-pa-md">
+				<q-card class="bg-darkl1">
+					<q-card-section class="text-h6 text-green-13 text-uppercase">
+						Por surtir <span class="text-light-blue-14">[ {{forsuply.length}} ]</span>
+					</q-card-section>
+				</q-card>
+				
+				<OrdersList :orders="forsuply" @clicked="orderclicked"/>
+			</div>
+			<div class="col-8 q-pa-md">
+				<q-card class="bg-darkl1">
+					<q-card-section class="text-h6 text-green-13 text-uppercase">
+						Surtiendo <span class="text-light-blue-14">[ {{onsuply.length}} ]</span>
+					</q-card-section>
+				</q-card>
+				
+				<OrdersList :orders="onsuply" @clicked="orderclicked"/>
+			</div>
+		</div>
+
+		<!-- <OrdersList :orders="orders" @clicked="orderclicked"/> -->
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
 			<PrinterSelect :options="printers" @clicked="reprint"/>
@@ -78,6 +99,8 @@ export default {
 	},
     computed:{
 		orders(){ return this.$store.getters['Preventa/OrdersWarehouse'];},
+		forsuply(){ return this.orders.filter( ord => ord.status.id==4 ); },
+		onsuply(){ return this.orders.filter( ord => ord.status.id==5 ); },
 		profile(){ return this.$store.getters['Account/profile'];},
 		workin(){ return this.$store.getters['Account/workin'];},
 		printers(){ return this.$store.getters['Preventa/printersWarehouse'];},

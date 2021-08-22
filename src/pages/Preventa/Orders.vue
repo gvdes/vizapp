@@ -1,9 +1,6 @@
 <template>
 	<q-page>
-
-		<div class="q-mt-sm">
-			<OrdersList :orders="orders" @clicked="orderclicked"/>
-		</div>
+		<OrdersList :orders="orders" @clicked="orderclicked"/>
 
 		<q-dialog v-model="windCreate.state" position="bottom" :persistent="windCreate.blocked">
 			<q-card class="bg-darkl0 exo text-grey-5">
