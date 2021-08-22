@@ -9,8 +9,8 @@ import axios from 'axios'
 // const URLFiles = 'http://192.168.10.12/vizapi/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N ❱❱❱❱❱
-const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/vizapidev/public';
-const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/vizapidev/files';
+const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
+const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
 
 const vizapi = axios.create({ baseURL: URLBackend });
 
