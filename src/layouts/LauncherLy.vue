@@ -133,7 +133,7 @@ export default {
 		setTimeout(() => {
 			if(!this.vsocket.connected){
 				this.$q.notify({
-					message:'No se logor establecer conexion al socket',
+					message:'No se logro establecer conexion al socket',
 					color:'negative'
 				});
 			}

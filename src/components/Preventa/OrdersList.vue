@@ -8,22 +8,23 @@
 			:pagination="initpagination"
 			:filter="tableorders.filtrator"
 		>
-			<!-- <template v-slot:top="scope" v-if="orders.length">
+			<!-- <template v-slot:top-right="scope" v-if="orders.length"> -->
+			<template v-slot:top-right v-if="orders.length">
 				<div class="full-width row items-center justify-between q-pa-none">
-					<q-btn-group rounded class="bg-darkl1 text-green-13">
+					<!-- <q-btn-group rounded class="bg-darkl1 text-green-13">
 						<q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
 						<q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
 						<q-btn flat no-caps>{{scope.pagination.rowsPerPage}}</q-btn>
 						<q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
 						<q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
 						<q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" :disable="scope.isLastPage"/>
-					</q-btn-group>
+					</q-btn-group> -->
 
 					<q-input v-if="use_searcher" dark filled fill-input color="green-13" debounce="0" v-model="tableorders.filtrator" placeholder="Buscar (folio o nombre)">
 						<template v-slot:prepend><q-icon name="search" /></template>
 					</q-input>
 				</div>
-			</template> -->
+			</template>
 
 			<template v-slot:item="props">
 				<div class="q-pa-sm col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
