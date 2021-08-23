@@ -29,7 +29,7 @@
 
 		<q-dialog v-model="wndAddProduct.state" class="text-grey-6" position="bottom">
 			<q-card class="bg-darkl1 text-grey-6">
-				<ProductAutocomplete :checkState="false" @input="add" />
+				<ProductAutocomplete :checkState="false" @input="add" with_prices/>
 			</q-card>
 		</q-dialog>
 
