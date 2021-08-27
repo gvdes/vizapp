@@ -6,8 +6,9 @@ export default function () {
 			moved:new Audio('sounds/moved.mp3'),
 			removed:new Audio('sounds/removed.mp3'),
 			done:new Audio('sounds/done.mp3'),
-			added:new Audio('sounds/added.wav'),
-			ok:new Audio('sounds/done.wav')
+			added:new Audio('sounds/done.wav'),
+			ok:new Audio('sounds/goal.mp3'),
+			duply:new Audio('sounds/duply.mp3')
 		},
 	}
 }

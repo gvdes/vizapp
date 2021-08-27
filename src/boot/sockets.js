@@ -28,3 +28,9 @@ export default ({ Vue }) => {
 	}else{console.log("%cNo hay sesion activa, union a socket cancelada","background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"); }
 
 }
+
+/**
+ * alicia giron de co1 -> ap1
+ * mirna angelica ap1 -> rc1
+ * jareth ap2 -> ap1
+*/

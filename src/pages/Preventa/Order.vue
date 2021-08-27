@@ -59,56 +59,66 @@
             <q-separator/>
         </q-drawer>
 
-        <div v-if="basket.length">
-            <q-table grid flat dark
-                row-key="id"
-                :columns="tableproducts.columns"
-                :data="basket"
-                :pagination="tableproducts.pagination"
-            >
-                <template v-slot:item="props">
-                    <div class="q-pa-sm col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
-                        <q-card class="bg-darkl1" @click="setprod(props.row,'e')">
-                            <!-- {{ props.row }} -->
-                            <div class="full-width row ds">
-                                <div>
-                                    <div class="text-center text-white text-bold q-pa-sm">{{props.row.code}}</div>
-                                    <q-img src="~/assets/_boxprod.png" class="divimg" />
-                                </div>
-                                <div class="col text-grey-4 text--2 q-px-sm column justify-around">
-                                    <div class="text-white text-bold q-pt-sm">CC: {{props.row.name}}</div>
-                                    <div class="text-grey-5">{{props.row.description}}</div>
-                                    <div class="row justify-between"><span>Cantidad:</span><span>{{props.row.cant}}</span></div>
-                                    <div class="row justify-between"><span>Piezas X Caja:</span><span>{{props.row.pieces}}</span></div>
-                                    <div class="row justify-between"><span>Unidades:</span><span>{{props.row.ppp}}</span></div>
-                                    <div class="row justify-between"><span>Precio Unitario:</span><span>$ {{props.row.uprice}}</span></div>
-                                    <div class="row justify-between text-bold"><span>Total: </span><span class="text-h6 text-green-13"> $ {{props.row.total}}</span></div>
-                                </div>
-                            </div> 
-                        </q-card>
-                    </div>
+        <div v-if="wndAOE.wwd" class="q-pa-md q-mt-md">
+            <q-banner inline-actions squared rounded class="bg-amber-13 text-dark">
+                <template v-slot:avatar>
+                    <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
                 </template>
-
-                <template v-slot:bottom="scope">
-                    <q-page-sticky position="bottom-left" class="full-width" :offset="[10, 5]">
-                        <div class="row q-pt-xs">
-                            <!-- <div round class="text--2 text-white bg-teal q-py-xs q-px-md shadow-1" style="border-radius:20px;">
-                                <div>Pagina: <span class="text-teal-10 text-bold">{{scope.pagination.page}}</span> de <span class="text-teal-10 text-bold">{{scope.pagesNumber}}</span></div>
-                                <div>Ordenes por pagina: <span class="text-teal-10 text-bold">{{scope.pagination.rowsPerPage}}</span></div>
-                            </div> -->
-
-                            <q-btn-group rounded class="bg-dark text-white">
-                                <q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
-                                <q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
-                                <q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
-                                <q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
-                                <q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" />
-                            </q-btn-group>
-                        </div>
-                    </q-page-sticky> 
+                Ya agregaste esto...
+                <template v-slot:action inline-actions>
+                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="tableproducts.filtrator=''; wndAOE.wwd=false;"/>
                 </template>
-            </q-table>
+            </q-banner>
         </div>
+
+        <q-table grid flat dark
+            row-key="id"
+            :columns="tableproducts.columns"
+            :data="basket"
+            :pagination="tableproducts.pagination"
+            :filter="tableproducts.filtrator"
+        >
+            <template v-slot:item="props">
+                <div class="q-pa-sm col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
+                    <q-card class="bg-darkl1" @click="setprod(props.row,'e')">
+                        <div class="full-width row ds">
+                            <div>
+                                <div class="text-center text-white text-bold q-pa-sm">{{props.row.code}}</div>
+                                <q-img src="~/assets/_boxprod.png" class="divimg" />
+                            </div>
+                            <div class="col text-grey-4 text--2 q-px-sm column justify-around">
+                                <div class="text-white text-bold q-pt-sm">CC: {{props.row.name}}</div>
+                                <div class="text-grey-5">{{props.row.description}}</div>
+                                <div class="row justify-between"><span>Cantidad:</span><span>{{props.row.cant}}</span></div>
+                                <div class="row justify-between"><span>Piezas X Caja:</span><span>{{props.row.pieces}}</span></div>
+                                <div class="row justify-between"><span>Unidades:</span><span>{{props.row.ppp}}</span></div>
+                                <div class="row justify-between"><span>Precio Unitario:</span><span>$ {{props.row.uprice}}</span></div>
+                                <div class="row justify-between text-bold"><span>Total: </span><span class="text-h6 text-green-13"> $ {{props.row.total}}</span></div>
+                            </div>
+                        </div> 
+                    </q-card>
+                </div>
+            </template>
+
+            <template v-slot:bottom="scope">
+                <q-page-sticky position="bottom-left" class="full-width" :offset="[10, 5]">
+                    <div class="row q-pt-xs">
+                        <!-- <div round class="text--2 text-white bg-teal q-py-xs q-px-md shadow-1" style="border-radius:20px;">
+                            <div>Pagina: <span class="text-teal-10 text-bold">{{scope.pagination.page}}</span> de <span class="text-teal-10 text-bold">{{scope.pagesNumber}}</span></div>
+                            <div>Ordenes por pagina: <span class="text-teal-10 text-bold">{{scope.pagination.rowsPerPage}}</span></div>
+                        </div> -->
+
+                        <q-btn-group rounded class="bg-dark text-white">
+                            <q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
+                            <q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
+                            <q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
+                            <q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
+                            <q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" />
+                        </q-btn-group>
+                    </div>
+                </q-page-sticky> 
+            </template>
+        </q-table>
         
         <q-dialog v-model="wndAOE.state" position="bottom" @hide="cleanWndAOE">
             <q-card v-if="wndAOE.product" class="exo bg-darkl0 text-grey-4">
@@ -213,6 +223,7 @@ export default {
             moreopts:false,
             index:undefined,
             wndAOE:{
+                wwd:false,
                 state:false,//muestra o no el modal
                 product:undefined,//almacena el producto sobre el que se trabaja
                 params:{
@@ -276,7 +287,7 @@ export default {
                     sortBy: 'id',
                     descending: false,
                     page: 1,
-                    rowsPerPage: 5
+                    rowsPerPage: 10
                 }
 			},
         }
@@ -311,11 +322,14 @@ export default {
                 console.log(product);
 
                 if(opt=='a'){//Queremos agregar un producto?
-                    // validamos si el producto existe
+                    // validamos si el producto ya esta en la canasta
                     let artexist = this.dbproducts.findIndex(art=>art.code==product.code);
 
-                    if(artexist>=0){//producto ya esta en la lista
-                        this.$q.notify({ message:`<strong>${product.code}</strong> ya esta en la lista`, html:true, color:'orange-13', icon:'fas fa-exclamation-triangle' });
+                    if(artexist>=0){//el producto ya existe
+                        // this.$q.notify({ message:`<strong>${product.code}</strong> ya esta en la lista`, html:true, color:'orange-13', icon:'fas fa-exclamation-triangle' });
+                        this.tableproducts.filtrator=product.code;
+                        this.wndAOE.wwd = true;
+                        this.appsounds.duply.play();
                         openWindow=false;
                     }else{ console.log("Se agregara el producto en lista"); }
                 }
@@ -332,7 +346,7 @@ export default {
                         if(this.wndAOE.action=='e'){
                             this.wndAOE.params.amount = this.wndAOE.product.ordered.amount;
                             this.metsupply.model = this.metsupply.opts.filter(met=>met.id==this.wndAOE.product.ordered._supply_by)[0];
-                            this.wndAOE.params.comments = product.ordered.comments;// asigna los a utilizar
+                            this.wndAOE.params.comments = product.ordered.comments;
                         }
 
                         this.wAOEcalcs();//calcular totales del producto
@@ -448,8 +462,8 @@ export default {
             this.wndAOE.params.total = uprice.price*this.wndAOE.params.units;// precio utilizado * unidades totales => total
         },
         productType(_product=null){//
-            let product = _product ? _product : this.wndAOE.product;//determina si trabaja con un producto o el producto asignado al ventana modal
-            let product_proc = { type:null, prices:[], msg:null };//valores iniciales a retornar
+            let product = _product ? _product : this.wndAOE.product;//determina si trabaja con un producto que paso como parametro o el producto que esta en wndAOE.product
+            let product_proc = { type:null, prices:[], msg:null };//iniciando valores a retornar
 
             if(this.client.type=='STD'){//es un cliente precio publico?
                 let prices = product.prices;//obtiene los precios del producto
@@ -570,6 +584,8 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+    .dinobebe{border-radius:10px;}
+
     .fieldcant{
         width: 120px;
         padding: none;
