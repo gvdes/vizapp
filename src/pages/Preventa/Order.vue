@@ -103,11 +103,6 @@
             <template v-slot:bottom="scope">
                 <q-page-sticky position="bottom-left" class="full-width" :offset="[10, 5]">
                     <div class="row q-pt-xs">
-                        <!-- <div round class="text--2 text-white bg-teal q-py-xs q-px-md shadow-1" style="border-radius:20px;">
-                            <div>Pagina: <span class="text-teal-10 text-bold">{{scope.pagination.page}}</span> de <span class="text-teal-10 text-bold">{{scope.pagesNumber}}</span></div>
-                            <div>Ordenes por pagina: <span class="text-teal-10 text-bold">{{scope.pagination.rowsPerPage}}</span></div>
-                        </div> -->
-
                         <q-btn-group rounded class="bg-dark text-white">
                             <q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
                             <q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
@@ -284,7 +279,7 @@ export default {
 				],
 				filtrator:'',
                 pagination:{
-                    sortBy: 'id',
+                    // sortBy: 'id',
                     descending: false,
                     page: 1,
                     rowsPerPage: 10

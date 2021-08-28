@@ -93,7 +93,7 @@ export default {
 		listenipt(val){ this.iptsearch.focus = val; },
 		search(){
 			this.gstate = 'searching';
-			let idx = this.orders.findIndex( ord => this.iptsearch.model == `ID-${ord.id}`);
+			let idx = this.orders.findIndex( ord => this.iptsearch.model == ord.id);
 			
 			if(idx==-1){
 
