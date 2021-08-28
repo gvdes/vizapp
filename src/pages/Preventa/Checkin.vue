@@ -2,7 +2,7 @@
 	<q-page padding class="column items-center justify-center">
 		<!--  -->
 
-		<div v-if="gstate=='listen' ">
+		<!-- <div v-if="gstate=='listen' ">
 			<div v-if="iptsearch.focus" class="text-green-13 text-center">
 				<div class="text-h4 q-mb-md">Escanea tu código aqui.</div>
 				<div class="text-h1 text-center"> 
@@ -10,18 +10,26 @@
 				</div>
 			</div>
 			<div class="text-h1 text-center" v-else><q-icon name="fas fa-bug" color="red" size="2em" @click="$refs.ipt_search.focus()"/></div>
-			
-			<!-- <div class="q-mt-xl">
-				<div class="q-pa-md">Pedidos por llegar: {{orders.length}}</div>
-				<div class="row items-center q-gutter-sm">
-					<q-card v-for="ord in orders" :key="ord.id" class="bg-darkl1">
-						<q-card-section>
-							{{ord.name}} ({{ord.id}})
-						</q-card-section>
-					</q-card>
-				</div>
-			</div> -->
-		</div>
+		</div>-->
+		<div>Socket: {{socket.connected}}</div>
+		<input type="text" ref="ipt_search" v-model="iptsearch.model" 
+			@keypress.enter="search"
+			@focus="listenipt(true)"
+			@blur="listenipt(false)"
+			autocomplete="off"
+			id="ipt_search"
+		/>
+		
+		<div class="q-mt-xl" v-if="gstate=='listen'">
+			<div class="q-pa-md">Pedidos por llegar: {{orders.length}}</div>
+			<div class="row items-center q-gutter-sm">
+				<q-card v-for="ord in orders" :key="ord.id" class="bg-darkl1">
+					<q-card-section>
+						{{ord.name}} ({{ord.id}})
+					</q-card-section>
+				</q-card>
+			</div>
+		</div> 
 
 		<div v-if="gstate=='frontfounded'">
 			<div class="text-center">
@@ -49,14 +57,6 @@
 				</div>
 			</div>
 		</div>
-
-		<input type="text" ref="ipt_search" v-model="iptsearch.model" 
-			@keypress.enter="search"
-			@focus="listenipt(true)"
-			@blur="listenipt(false)"
-			autocomplete="off"
-			id="ipt_search"
-		/>
 	</q-page>
 </template>
 
@@ -177,11 +177,14 @@ export default {
 <style lang="scss" scoped>
 
 	#ipt_search{
-		background: none;
+		background: white;
 		border: none;
 		text-align: center;
-		color:white;
-		outline: none;
-		z-index: -1000;
+		color:black;
+		outline: white;
+		border-radius:10px;
+		padding: 2px 0;
+		font-size: 1.5em;
+		// z-index: -1000;
 	}
 </style>
