@@ -1,5 +1,5 @@
 <template>
-	<q-page padding class="column items-center justify-center">
+	<q-page padding>
 		<!--  -->
 
 		<!-- <div v-if="gstate=='listen' ">
@@ -11,27 +11,35 @@
 			</div>
 			<div class="text-h1 text-center" v-else><q-icon name="fas fa-bug" color="red" size="2em" @click="$refs.ipt_search.focus()"/></div>
 		</div>-->
-		<div>Socket: {{socket.connected}}</div>
-		<input type="text" ref="ipt_search" v-model="iptsearch.model" 
-			@keypress.enter="search"
-			@focus="listenipt(true)"
-			@blur="listenipt(false)"
-			autocomplete="off"
-			id="ipt_search"
-		/>
-		
-		<div class="q-mt-xl" v-if="gstate=='listen'">
-			<div class="q-pa-md">Pedidos por llegar: {{orders.length}}</div>
-			<div class="row items-center q-gutter-sm">
-				<q-card v-for="ord in orders" :key="ord.id" class="bg-darkl1">
-					<q-card-section>
-						{{ord.name}} ({{ord.id}})
-					</q-card-section>
-				</q-card>
-			</div>
-		</div> 
 
-		<div v-if="gstate=='frontfounded'">
+		<div class="text-center q-pt-md">
+			<!-- <input type="number" :class="socket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model" 
+				@keypress.enter="search"
+				@focus="listenipt(true)"
+				@blur="listenipt(false)"
+				autocomplete="off"
+				id="ipt_search"
+			/> -->
+			<input type="number" :class="socket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model" 
+				@keypress.enter="search"
+				autocomplete="off"
+				id="ipt_search"
+				:disabled="searching"
+			/>
+
+			<div class="q-pt-lg">
+				<!-- <div class="q-pa-md">Pedidos por llegar: <span class="text-h6 text-white">{{orders.length}}</span></div> -->
+				<div class="row items-center q-gutter-sm">
+					<q-card v-for="ord in orders" :key="ord.id" class="bg-darkl1">
+						<q-card-section>
+							{{ord.name}} (<span class="text-bold text-white">{{ord.id}}</span>)
+						</q-card-section>
+					</q-card>
+				</div>
+			</div> 
+		</div>
+
+		<!-- <div v-if="gstate=='frontfounded'">
 			<div class="text-center">
 				<div class="text-h1">
 					<q-spinner-hourglass color="light-blue-14" size="2em"/>
@@ -56,7 +64,7 @@
 					<q-img src="https://stickerly.pstatic.net/sticker_pack/13279e882d3a25af/9CZFJ4/2/3a788547-d7ef-4aa9-a93f-2f23ee9655c0-003.png" width="300px"/>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</q-page>
 </template>
 
@@ -77,7 +85,7 @@ export default {
 			},
 			gstate:'listen',
 			searching:false,
-			target:undefined
+			target:undefined,
 		}
 	},
 	beforeMount(){
@@ -92,25 +100,38 @@ export default {
 	methods:{
 		listenipt(val){ this.iptsearch.focus = val; },
 		search(){
-			this.gstate = 'searching';
+			// this.gstate = 'searching';
+			this.searching = true;
 			let idx = this.orders.findIndex( ord => this.iptsearch.model == ord.id);
-			
+
 			if(idx==-1){
 
-				this.gstate = 'frontnotfound';
+				this.$q.notify({
+					color:'negative',
+					message:`<b>${this.iptsearch.model}</b> No encontrado...`,
+					timeout:2000,
+					position:'center',
+					html:true
+				});
+
 				this.iptsearch.model = '';
+				this.$refs.ipt_search.focus();
+				this.searching = false;
 
-				//buscar el status actual de la base de datos
+				// this.gstate = 'frontnotfound';
+				// this.iptsearch.model = '';
 
-				setTimeout(()=>{
-					this.gstate = 'listen';
-					this.$refs.ipt_search.focus();
-				},3000);
+				// //buscar el status actual de la base de datos
+
+				// setTimeout(()=>{
+				// 	this.gstate = 'listen';
+				// 	this.$refs.ipt_search.focus();
+				// },3000);
 
 			}else{
 				this.target = this.orders[idx];
 
-				this.gstate = 'frontfounded';
+				// this.gstate = 'frontfounded';
 				this.nextStep();
 			}
 		},
@@ -126,16 +147,26 @@ export default {
 
 				this.$store.commit('Preventa/updateState', {order, newstate});
 
-				setTimeout(()=>{
-					this.gstate = 'changesuccess';
+				this.$q.notify({
+					color:'positive',
+					message:`Pedido <b>${order.id}</b> enviado!!`,
+					html:true
+				});
 
-					setTimeout(()=>{
-						this.gstate = 'listen';
-						this.$refs.ipt_search.focus();
-						this.target = undefined;
-					},4000);
+				this.$refs.ipt_search.focus();
+				this.target = undefined;
+				this.searching = false;
 
-				},2500);
+				// setTimeout(()=>{
+				// 	this.gstate = 'changesuccess';
+
+				// 	setTimeout(()=>{
+				// 		this.gstate = 'listen';
+				// 		this.$refs.ipt_search.focus();
+				// 		this.target = undefined;
+				// 	},4000);
+
+				// },2500);
 			}
 		},
 		skt_add_update_order(data){
@@ -176,14 +207,17 @@ export default {
 
 <style lang="scss" scoped>
 
+	.son{ border: 3px solid #2ed573!important; }
+	.soff{ border: 3px solid #ff4757!important; }
+
 	#ipt_search{
-		background: white;
+		background:none;
 		border: none;
 		text-align: center;
-		color:black;
-		outline: white;
+		color:white;
+		outline: none;
 		border-radius:10px;
-		padding: 2px 0;
+		padding: 6px 0;
 		font-size: 1.5em;
 		// z-index: -1000;
 	}

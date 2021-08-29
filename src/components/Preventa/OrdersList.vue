@@ -78,14 +78,14 @@ export default{
 					{ name:'id', align:'left', label:'id', field:'id', sortable:true },
 					{ name:'tktday', align:'left', label:'Folio', field:'num_ticket', sortable:true },
 					{ name:'client', align:'left', label:'Cliente', field:'name', sortable:true },
-					{ name:'cstate', align:'center', label:'Estado', field:'created_at', sortable:true },
-					{ name:'timestart', align:'center', label:'Hora', field:(row)=>row.status.name, sortable:true },
+					{ name:'cstate', align:'center', label:'Estado', field:(row)=>row.status.name, sortable:true },
+					{ name:'timestart', align:'center', label:'Hora', field:'created_at', sortable:true },
 					{ name:'createdby', align:'center', label:'Agente', field:'created_by', sortable:true },
 				],
 				filtrator:''
 			},
             initpagination:{
-                sortBy:'id',
+                sortBy:'cstate',
                 descending:false,
                 page:1,
                 rowsPerPage: 15

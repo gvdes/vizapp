@@ -1,11 +1,11 @@
 <template>
 	<q-page class="ds">
 		<div class="ds">
-			
+
 		</div>
-		<div class="ds">{{onsuply}}</div>
+		<!-- <div class="ds">{{onsuply}}</div>
 		<div class="ds">{{forvalidate}}</div>
-		<div class="ds">{{onvalidate}}</div>
+		<div class="ds">{{onvalidate}}</div> -->
 	</q-page>
 </template>
 
