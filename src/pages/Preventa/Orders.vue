@@ -52,16 +52,17 @@ export default {
 			socket:this.$sktPreventa
 		}
 	},
-	async mounted(){
+	async beforeMount(){
 		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Pedidos");
 
-		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:this.sktroom });
+		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'orders' });
 
 		this.socket.on('order_created', data => this.skt_order_created(data));
 		this.socket.on('order_changestate', data => this.skt_order_changestate(data));
 	},
-	beforeDestroy(){
-		this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:this.sktroom });
+	destroyed(){
+		this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:'orders' });
+
 	},
 	methods: {
 		skt_order_created(data){
@@ -142,7 +143,6 @@ export default {
 				}
 			}
         },
-		sktroom(){ return this.profile.me._rol<=3 ? 'admin':'orders'; }
 	},
 }
 </script>

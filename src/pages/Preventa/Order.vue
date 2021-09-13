@@ -301,8 +301,10 @@ export default {
 
         this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:`ORD${this.ordercatch.id}` });
     },
-    beforeDestroy(){
+    destroyed(){
         this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:`ORD${this.index.id}` });
+        this.$store.commit('Preventa/setHeaderState',true);
+		this.$store.commit('Preventa/setFooterState',true);
     },
     methods:{
         sktorder_changestate(data){

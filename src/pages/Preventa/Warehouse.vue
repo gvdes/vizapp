@@ -50,13 +50,13 @@ export default {
 		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Surtido");
 		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'warehouse' });
 		this.socket.on('order_changestate', data => this.skt_add_update_order(data));//
+		this.socket.on('unjoin_crash', data => this.unjoin_skt_crash(data));
 	},
     methods:{
 		skt_add_update_order(data){
 			console.log(data);
 			let ordercatch = data.order;
 			console.log(ordercatch);
-
 
 			let idx = this.orders.findIndex( order => { order.id == ordercatch.id });
 
@@ -68,6 +68,15 @@ export default {
 				this.appsounds.created.play();
 				this.$store.commit('Preventa/newOrder', ordercatch);
 			}
+		},
+		unjoin_skt_crash(data){
+			this.$q.notify({
+				message:`Error importante, notificar a DESARROLLO!!`,
+				timeout:10000,
+				color:'negative'
+			});
+			console.log(`%cError mamalon...`,"background:#c23616;color:#f5f6fa;border-radius:10px;padding:8px;");
+			console.log(data);
 		},
 		orderclicked(order){
 			this.orderselected = order;

@@ -129,16 +129,6 @@ export default {
 	},
 	beforeMount(){
 		this.vsocket = this.$vSocket;
-
-		setTimeout(() => {
-			if(!this.vsocket.connected){
-				this.$q.notify({
-					message:'No se logro establecer conexion al socket',
-					color:'negative'
-				});
-			}
-		},300);
-
 		console.log(this.$vizapi.defaults.headers.common['Authorization']);
 
 		// por default selecciona el workpoint base

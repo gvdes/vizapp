@@ -5,6 +5,6 @@ export default{
         return vizapi.get('/workpoint/join');
     },
     get(data){
-        return vizapi.post('account/users',data);
+        return vizapi.post('account/users',data).then( done =>{ return done.data; }).catch( fail =>{ return {error:fail} });
     }
 }

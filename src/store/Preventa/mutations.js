@@ -21,9 +21,10 @@ export function startState (state,data) {
         9:{ on:'',off:''},
     }
 
-    state.orders = data.orders;
-    state.printers = data.printers;
-    state.process = data.status.map( state => {
+    state.orders = data.index.orders;
+    state.printers = data.index.printers;
+    state.agents = data.agents.map( ag => { ag.rt={cnx:false,id:null}; return ag; });
+    state.process = data.index.status.map( state => {
         state.state = state.active ? true:false;
         state.descs = descriptions[state.id];
         return state;
@@ -58,3 +59,11 @@ export function setHeaderState(state,newstate){ state.layout.header.state = news
 export function setFooterState(state,newstate){ state.layout.footer.state = newstate; }
 
 export function setViewSection(state,newstate){ state.layout.viewsection = newstate; }
+
+export function setStatusSktUser(state,data){
+    let iduser = data.id;
+    let _state = data.state;
+    let idx = state.agents.findIndex(ag => ag.id==iduser);
+
+    idx<0 ? null : state.agents[idx].rt.cnx = _state ;
+}

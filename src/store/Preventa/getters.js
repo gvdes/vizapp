@@ -1,4 +1,3 @@
-
 export function OrdersWarehouse (state) {
     // devuelve las ordenes que estan por surtir o surtiendo
     return state.orders.filter( order => order.status.id==4 || order.status.id==5);
@@ -30,4 +29,13 @@ export function printersSale(state){
 
 export function printersWarehouse(state){
     return state.printers.length ? state.printers.find( group => group.id == 2).printers : [];
+}
+
+export function agents_orders(state){
+    return state.agents.map(agent => {
+        agent.orders = state.orders.filter( ord => agent.id == ord.created_by.id );
+        agent.ordersize = agent.orders.length;
+
+        return agent;
+    });
 }
