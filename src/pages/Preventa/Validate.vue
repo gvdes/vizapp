@@ -19,12 +19,8 @@ export default {
 	},
 	beforeMount(){
 		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Validacion");
-		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'validate' });
-		// this.socket.on('order_changestate', data => this.skt_add_update_order(data));//
 	},
-	beforeDestroy(){
-		this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:'validate' });
-	},
+	beforeDestroy(){},
 	computed:{
 		orders(){ return this.$store.getters['Preventa/OrdersWarehouse'];},
 		onsuply(){ return this.orders.filter( ord => ord.status.id==5 ); },

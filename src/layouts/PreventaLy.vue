@@ -34,23 +34,31 @@ export default {
 	components:{ ToolbarModule, RangeDates, HeaderApp },
 	data(){
 		return {
-			socket:this.$sktPreventa
+			psocket:this.$sktPreventa
 		}
 	},
-	mounted(){
-		if(this.socket.disconnected){
-			console.log(`%cIniciando RT Preventa`,"background:#2f3640;color:#fed330;border-radius:10px;padding:6px;");
-			this.socket.connect();
-			console.log(`%cRT Preventa OK!!`,"background:#2f3640;color:#3ae374;border-radius:10px;padding:6px;");
+	created (){
+		this.psocket.disconnect();
+		this.psocket.connect();
+
+		this.psocket.on('socketid', data => { this.sktId(data); });
+		this.psocket.on('joinedat', data => { this.sktJoinedAt(data); });
+		this.psocket.on('newjoin', data => { this.sktNewJoin(data); });
+		this.psocket.on('order_add', data => { this.sktOrderAdd(data); });
+		this.psocket.on('order_update', data => { this.sktOrderUpdate(data); });
+		this.psocket.on('order_aou', data => { this.sktAOU(data); });
+		this.psocket.on('module_update', data => { this.sktModuleUpdate(data); });
+
+		let room = null;
+
+		switch (this.profile.me._rol) {
+			case 1: case 2: case 3: room='admins'; break;
+			case 4: room='sales'; break;
+			case 6: case 7: room='supply'; break;
 		}
 
-		// this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'main' });
-		// this.socket.on('joinedat', data => this.joinedat(data) );//rooms a los que se unio este socket
-		// this.socket.on('newjoin', data => this.newjoin(data) );//alguien se conecta al mismo room de este socket
-
-		// this.socket.on('unjoined', data => this.room_unjoined(data) );//alguien se conecta al mismo room de este socket
-		// this.socket.on('socketunjoined', data => this.socketunjoined(data) );//alguien se conecta al mismo room de este socket
-		// this.socket.on('order_changestate', data => this.skt_order_change_state(data));//
+		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:room });
+		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'cfg' });		
 	},
 	methods:{
 		async loadView(ranges){
@@ -59,38 +67,62 @@ export default {
 			let index = await PreventaDB.index(vista);
 			let agents = await AccountsDB.get({ '_rol':[4] });
 
-			console.log(index); console.log(agents);
-
 			this.$store.commit('Preventa/startState',{ index, agents });
 			this.$q.loading.hide();
 		},
-		// room_unjoined(data){
-		// 	// console.log(`%cAbandonaste el room ${data.room}`,"background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;");	
-		// 	// console.log(data);
-		// },
-		// socketunjoined(data){
-		// 	// console.log(`%c${data.profile.me.nick} abandono el room ${data.room}`,"background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;");	
-		// 	// console.log(data);
-		// },
-		// joinedat(data){
-		// 	// console.log(data);
-		// 	console.log(`%cTe uniste a ${data.room}`,"background:#3d3d3d;color:#3ae374;border-radius:10px;padding:6px;");
-		// },
-		// newjoin(data){
-		// 	console.log(data);
-		// 	console.log(`%c${data.profile.me.nick} se unio a ${data.room}`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
-		// }
+		sktId(data){ console.log(`%cidSktPreventa: ${data}`,"background:#273c75;color:#f5f6fa;border-radius:10px;padding:10px;font-size:1.3em;"); },
+		sktJoinedAt(data){ console.log(`%cUnion a ${data.room} OK!!`,"background:#3d3d3d;color:#3ae374;border-radius:10px;padding:10px;"); },
+		sktNewJoin(data){ console.log(`%c${data.profile.me.nick} se unio a ${data.room}`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:10px;"); console.log(data); },
+		sktOrderAdd(data){
+			console.log(data);
+
+			let order = data.order;
+			let by = data.user.me;
+
+			console.log(`%c${by.nick} inicio la orden ${order.id}`,"background:#303952;color:#e66767;border-radius:10px;padding:8px;");
+			console.log(data);
+			this.$store.commit('Preventa/newOrder', order);
+		},
+		sktOrderUpdate(data){
+			console.log(data);
+			let order = data.order;
+			let newstate = data.newstate;
+
+			console.log(`%cLa orden ${data.order.id} cambio su status a ${data.newstate.name}`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
+			this.$store.commit('Preventa/updateState', { order, newstate });
+		},
+		sktModuleUpdate({by,_msgstate,state}){
+			this.$store.commit('Preventa/setState',state);
+			console.log(`%c--❯ ${by} ${_msgstate} el modulo ${state.name}`,"background:#fbc531;color:#2f3640;border-radius:10px;padding:10px;font-size:1.3em;");
+			this.appsounds.alert1.play();
+			this.$q.notify({
+				message:`${by} <b>${_msgstate}</b> el modulo <b>${state.name}</b>`,
+				type:'warning',
+				closeBtn:'Ok',
+				timeout:10000,
+				position:'center',
+				html:true
+			});
+		},
+		sktAOU(data){
+			console.log(data);
+			console.log(`%cAveriguando existencia de pedido ${data.order.id} para crear o actualizar!!`);
+			this.$store.commit('Preventa/orderAOU',data);
+		}
 	},
 	destroyed(){
 		console.log("%cDesconectando de preventa...","background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;");
-		// this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:'main' });
-		this.socket.off();
+		this.psocket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:'admins' });
+		this.psocket.off("admins");
+		this.psocket.off("orders");
+		this.psocket.disconnect();
 	},
 	computed:{
 		workin(){ return this.$store.getters['Account/workin']; },
 		profile(){ return this.$store.getters['Account/profile']; },
 		layout(){ return this.$store.state.Preventa.layout },
-		inc_home(){ return this.profile.me._rol <=3 }
+		inc_home(){ return this.profile.me._rol <=3 },
+		appsounds(){ return this.$store.getters['Multimediapp/sounds']; }
 	}
 }
 </script>

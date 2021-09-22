@@ -39,3 +39,7 @@ export function agents_orders(state){
         return agent;
     });
 }
+
+export function keepProcess(state){
+    return id => { return state.process.length ? state.process.find( p => p.id == id ).state : false; }
+}

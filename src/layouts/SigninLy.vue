@@ -120,10 +120,9 @@ export default {
 			resume:{ state:false, account:undefined, workpoints:undefined, text:"" },
 			setpass:{ pass:'', confirm:'', state:false },
 			ipttypepass:true,
-			vsocket:null
+			vsocket:this.$vSocket
 		}
 	},
-	beforeMount(){ this.vsocket = this.$vSocket; },
 	methods:{
 		tryLogin(){
 			let data = { "nick":this.credentials.nick, "password":this.credentials.pass }

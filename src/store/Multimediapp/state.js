@@ -8,7 +8,8 @@ export default function () {
 			done:new Audio('sounds/done.mp3'),
 			added:new Audio('sounds/done.wav'),
 			ok:new Audio('sounds/goal.mp3'),
-			duply:new Audio('sounds/duply.mp3')
+			duply:new Audio('sounds/duply.mp3'),
+			alert1:new Audio('sounds/orderwait_new.mp3')
 		},
 	}
 }

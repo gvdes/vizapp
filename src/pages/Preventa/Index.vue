@@ -92,6 +92,7 @@
 export default {
 	data(){
 		return{
+			// socket:this.$sktPreventa,
 			windCreate:{
 				state:false, blocked:false,
 				ipt:{ dis:true, load:false, client:'' }
@@ -125,56 +126,20 @@ export default {
 					rowsPerPage: 5
 				}
 			},
-			socket:this.$sktPreventa
 		}
 	},
-	mounted(){
-		let profile = JSON.parse(localStorage.getItem('profile'));
-		
-		switch (profile.me._rol) {
-			case 4: this.$router.push('/preventa/pedidos/'); break;
-			case 6: case 7: this.$router.push('/preventa/bodega/'); break;
-			case 1: case 2: case 3:
-				this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'admin' });
-				this.$store.commit('Preventa/setHeaderTitle',"Preventa");
-			break;
+	created(){
+		switch (this.profile.me._rol) {
+			case 1: case 2: case 3: console.log("Te quedaste en el INDEX"); this.$store.commit('Preventa/setHeaderTitle',"Preventa"); break;
+			case 4: console.log("Direccionando a PEDIDOS!!"); this.$router.push('/preventa/pedidos/'); break;
+			case 6: case 7: console.log("Direccionando a SURTIDO!!"); this.$router.push('/preventa/bodega/'); break;
 		}
-
-		this.socket.on('order_created', data => this.skt_order_created(data));
-		this.socket.on('order_changestate', data => this.skt_order_changestate(data));
-		this.socket.on('newjoin', data => this.newjoin(data) );//rooms a los que se unio este socket
-		this.socket.on('joinedat', data => this.joinedat(data) );//rooms a los que se unio este socket
 	},
-	destroyed(){
-		this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:'admin' });
-		console.log(`%cEl index fue destruido!!`,"background:#c23616;color:#f5f6fa;border-radius:10px;padding:6px;");
+	beforeDestroy(){
+		console.log(`%cEl Index será destruido!!`,"background:#40739e;color:#f5f6fa;border-radius:10px;padding:6px;");
 	},
 	methods:{
-		skt_order_created(data){
-			let order = data.order;
-			let by = data.user.me;
 
-			console.log(`%c${by.nick} inicio la orden ${order.id}`,"background:#303952;color:#e66767;border-radius:10px;padding:8px;");
-			console.log(data);
-			this.$store.commit('Preventa/newOrder', order);
-		},
-		skt_order_changestate(data){
-			console.log(data);
-			let order = data.order;
-			let newstate = data.newstate;
-
-			console.log(`%cLa orden ${data.order.id} cambio su status a ${data.newstate.name}`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
-			this.$store.commit('Preventa/updateState', { order, newstate });
-		},
-		newjoin(data){
-			console.log(`%c${data.profile.me.nick} se unio a ${data.room}`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
-			console.log(data);
-			this.$store.commit('Preventa/setStatusSktUser',{id:data.profile.me.id,state:true});
-		},
-		joinedat(data){
-			// console.log(data);
-			console.log(`%cTe uniste a ${data.room}`,"background:#3d3d3d;color:#3ae374;border-radius:10px;padding:6px;");
-		},
 	},
 	computed:{
 		profile(){ return this.$store.getters['Account/profile']; },

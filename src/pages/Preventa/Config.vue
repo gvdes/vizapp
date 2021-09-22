@@ -28,7 +28,7 @@ import PreventaDB from '../../API/preventa.js'
 export default {
 	data(){
 		return {
-			
+			psocket:this.$sktPreventa
 		}
 	},
 	beforeMount(){
@@ -37,13 +37,15 @@ export default {
 	},
 	methods:{
 		async setState(state){
-			console.log(`Modificando el paso ${state.name} (${state.id})`);
+			// console.log(`Modificando el paso ${state.name} (${state.id})`);
 
 			let data = { "_status": state.id };
 			let resp = await PreventaDB.setState(data);
 
 			if(resp.success){
 				this.$store.commit('Preventa/setState',state);
+
+				this.psocket.emit('module_update',{profile:this.profile,workpoint:this.workin.workpoint,state});
 
 				this.$q.notify({
 					color:'positive', icon:'done',
@@ -55,8 +57,6 @@ export default {
 					message:'No se logro actualizar el estado.'
 				});
 			}
-
-			console.log(resp);
 		},
 	},
 	beforeDestroy(){
@@ -64,6 +64,8 @@ export default {
 	},
 	computed:{
 		process(){ return this.$store.getters['Preventa/process'].filter(state => state.allow ); },
+		workin(){ return this.$store.getters['Account/workin']; },
+		profile(){ return this.$store.getters['Account/profile']; },
 	}
 }
 </script>

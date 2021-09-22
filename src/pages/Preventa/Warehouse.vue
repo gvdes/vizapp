@@ -1,27 +1,94 @@
 <template>
 	<q-page>
 		<div class="row">
-			<div class="col q-pa-md">
-				<q-card class="bg-darkl1">
-					<q-card-section class="text-h6 text-green-13 text-uppercase">
-						Por surtir <span class="text-light-blue-14">[ {{forsuply.length}} ]</span>
-					</q-card-section>
-				</q-card>
-				
-				<OrdersList :orders="forsuply" @clicked="orderclicked"/>
+			<div class="col-md-6 col-xs-12 q-pa-md">
+				<q-table flat dark
+					:data="forsupply"
+					:columns="tableforsupply.columns"
+					:filter="tableforsupply.filtrator"
+					:pagination="tableforsupply.pagination"
+					card-class="bg-darkl1"
+				>
+					<template v-slot:top-left>
+						<div>
+							<q-icon name="fas fa-power-off" :color="forsupplystate?'green-13':'grey-7'" size="1.2em"/> Por surtir [ {{forsupply.length}} ]
+						</div>
+					</template>
+
+					<template v-slot:top-right>
+						<q-input borderless dark filled dense fill-input color="green-13" debounce="0" v-model="tableforsupply.filtrator" placeholder="Buscar...">
+							<template v-slot:prepend><q-icon name="search" /></template>
+						</q-input>
+					</template>
+
+					<template v-slot:no-data>
+						<div class="full-width row flex-center q-gutter-sm q-pa-md">
+							<q-icon size="2em" name="sentiment_dissatisfied" />
+							<span>Nada por aqui.</span>
+						</div>
+					</template>
+
+					<template v-slot:body="props">
+						<q-tr>
+							<q-td key="id">
+								<div>{{props.row.id}}</div>
+								<div class="text--1 text-grey-5">{{filltkt(props.row.num_ticket)}}</div>
+							</q-td>
+							<q-td key="client">{{props.row.name}}</q-td>
+							<q-td key="cstate" align="center" :class="`st-${props.row.status.id}`">
+								<div class="text--2">{{props.row.status.name}}</div>
+							</q-td>
+							<q-td key="createdby" align="center">
+								<div><q-img src="~/assets/_usdeft.png" width="20px" height="20px" class="imguser2"/></div>
+								<div class="text--1">{{props.row.created_by.nick}}</div>
+							</q-td>
+						</q-tr>
+					</template>
+				</q-table>
 			</div>
-			<div class="col-8 q-pa-md">
-				<q-card class="bg-darkl1">
-					<q-card-section class="text-h6 text-green-13 text-uppercase">
-						Surtiendo <span class="text-light-blue-14">[ {{onsuply.length}} ]</span>
-					</q-card-section>
-				</q-card>
-				
-				<OrdersList :orders="onsuply" @clicked="orderclicked"/>
+
+			<div class="col-md-6 col-xs-12 q-pa-md">
+				<q-table flat dark
+					:data="onsupply"
+					:columns="tablesupply.columns"
+					:filter="tablesupply.filtrator"
+					:pagination="tablesupply.pagination"
+					card-class="bg-darkl1"
+				>
+					<template v-slot:top-left>Surtiendo [ {{onsupply.length}} ]</template>
+
+					<template v-slot:top-right>
+						<q-input borderless dark filled dense fill-input color="green-13" debounce="0" v-model="tablesupply.filtrator" placeholder="Buscar...">
+							<template v-slot:prepend><q-icon name="search" /></template>
+						</q-input>
+					</template>
+
+					<template v-slot:no-data>
+						<div class="full-width row flex-center q-gutter-sm q-pa-md">
+							<q-icon size="2em" name="sentiment_dissatisfied" />
+							<span>Nada por aqui.</span>
+						</div>
+					</template>
+
+					<template v-slot:body="props">
+						<q-tr>
+							<q-td key="id">
+								<div>{{props.row.id}}</div>
+								<div class="text--1 text-grey-5">{{filltkt(props.row.num_ticket)}}</div>
+							</q-td>
+							<q-td key="client">{{props.row.name}}</q-td>
+							<q-td key="cstate" align="center" :class="`st-${props.row.status.id}`">
+								<div class="text--2">{{props.row.status.name}}</div>
+							</q-td>
+							<q-td key="createdby" align="center">
+								<div><q-img src="~/assets/_usdeft.png" width="20px" height="20px" class="imguser2"/></div>
+								<div class="text--1">{{props.row.created_by.nick}}</div>
+							</q-td>
+						</q-tr>
+					</template>
+				</q-table>
 			</div>
 		</div>
-
-		<!-- <OrdersList :orders="orders" @clicked="orderclicked"/> -->
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
 			<PrinterSelect :options="printers" @clicked="reprint"/>
@@ -43,41 +110,39 @@ export default {
             wndPrinters:{ state:false },
             orderselected:null,
 			printerselected:null,
-			socket:this.$sktPreventa
+			socket:this.$sktPreventa,
+			tableforsupply:{
+				filtrator:'',
+				columns:[
+					{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
+					{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
+					// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
+					{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
+					{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
+				],
+				pagination:{
+					rowsPerPage: 20
+				}
+			},
+			tablesupply:{
+				filtrator:'',
+				columns:[
+					{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
+					{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
+					// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
+					{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
+					{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
+				],
+				pagination:{
+					rowsPerPage: 20
+				}
+			}
 		}
 	},
 	beforeMount(){
 		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Surtido");
-		this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'warehouse' });
-		this.socket.on('order_changestate', data => this.skt_add_update_order(data));//
-		this.socket.on('unjoin_crash', data => this.unjoin_skt_crash(data));
 	},
     methods:{
-		skt_add_update_order(data){
-			console.log(data);
-			let ordercatch = data.order;
-			console.log(ordercatch);
-
-			let idx = this.orders.findIndex( order => { order.id == ordercatch.id });
-
-			if(idx>=0){
-				console.log(`%cActualizar la orden ${ordercatch.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
-				this.appsounds.created.play();
-			}else{
-				console.log(`%cAgregar la orden ${ordercatch.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
-				this.appsounds.created.play();
-				this.$store.commit('Preventa/newOrder', ordercatch);
-			}
-		},
-		unjoin_skt_crash(data){
-			this.$q.notify({
-				message:`Error importante, notificar a DESARROLLO!!`,
-				timeout:10000,
-				color:'negative'
-			});
-			console.log(`%cError mamalon...`,"background:#c23616;color:#f5f6fa;border-radius:10px;padding:8px;");
-			console.log(data);
-		},
 		orderclicked(order){
 			this.orderselected = order;
             this.wndPrinters.state=true;
@@ -101,15 +166,23 @@ export default {
 				this.wndPrinters.state=false;
                 this.$q.notify({ message:'Impresion correcta.', color:'positive', icon:'done' });
 			}
-		},
+		}
     },
-	beforeDestroy(){
-		this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:'warehouse' });
-	},
     computed:{
+		forsupplystate(){ return this.$store.getters['Preventa/keepProcess'](4) },
+		filltkt(){
+			return id => { 
+				let rounds = 4;
+				let len = id.toString().length;
+				let fill = '';
+
+				for (rounds; len < rounds; rounds--) { fill+='0'; }
+				return `${fill}${id}`;
+			}
+		},
 		orders(){ return this.$store.getters['Preventa/OrdersWarehouse'];},
-		forsuply(){ return this.orders.filter( ord => ord.status.id==4 ); },
-		onsuply(){ return this.orders.filter( ord => ord.status.id==5 ); },
+		forsupply(){ return this.orders.filter( ord => ord.status.id==4 ); },
+		onsupply(){ return this.orders.filter( ord => ord.status.id==5 ); },
 		profile(){ return this.$store.getters['Account/profile'];},
 		workin(){ return this.$store.getters['Account/workin'];},
 		printers(){ return this.$store.getters['Preventa/printersWarehouse'];},

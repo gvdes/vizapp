@@ -34,19 +34,20 @@ export function startState (state,data) {
 }
 
 export function setState(state, newstate){
+    console.log(state.process);
+    console.log("Buscando "+newstate.name);
     let idx = state.process.findIndex( state => state.id == newstate.id );
-    console.log(idx);
+    //console.log(idx);
 
     state.process[idx].state = !state.process[idx].state;
 }
 
 export function newOrder(state, order){
-	console.log(`%cOrden ${order.id} creada!`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
+	// console.log(`%cOrden ${order.id} creada!`,"background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
     state.orders.push(order);
 }
 
 export function updateState(state, { order, newstate }){
-    console.log(`Buscando orden ${order.id} para actualizarla...`);
     let idx = state.orders.findIndex( ord => order.id == ord.id);
     console.log(idx);
     state.orders[idx].status = newstate;
@@ -66,4 +67,17 @@ export function setStatusSktUser(state,data){
     let idx = state.agents.findIndex(ag => ag.id==iduser);
 
     idx<0 ? null : state.agents[idx].rt.cnx = _state ;
+}
+
+export function orderAOU(state, data){
+    let order = data.order;
+
+    let idx = state.orders.findIndex( o => o.id == order.id);
+    
+    if(idx>=0){
+        console.log("El pedido EXISTE, hay que ACTUALIZARLO!!");
+    }else{
+        console.log("El pedido NO existe, hay que AGREGARLO!!");
+        state.orders.push(order);
+    }
 }

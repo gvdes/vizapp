@@ -2,7 +2,7 @@
 	<q-page>
 		<q-header elevated class="bg-darkl1">
             <div class="row items-stretch justify-between">
-                <q-btn @click="$router.push('/preventa')" flat icon="close"/>
+                <q-btn @click="$router.push('/preventa/pedidos')" flat icon="close"/>
 
                 <div class="row items-center col bg-dark divlcient _client">
                     <div class="q-pa-sm col text-center">
@@ -46,7 +46,7 @@
         </q-header>
 
         <q-drawer v-model="ldrawer.state" side="right" content-class="text-grey-5 bg-darkl0" @hide="startremove.state=false">
-            <div class="q-pa-md">
+            <div class="q-pa-md" v-if="currentStep&&currentStep.id==1">
                 <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="startremove.state=true" v-if="!startremove.state"/>
                 <div v-else>
                     <div class="q-mb-md">Archivar pedido?</div>
@@ -56,7 +56,23 @@
                     </span>
                 </div>
             </div>
+            
             <q-separator/>
+
+            <div v-if="currentStep&&(currentStep.id==3||currentStep.id==4)" class="q-pa-md">
+                <q-btn  label="Modificar" no-caps icon="fas fa-pencil-alt" color="orange-14"/>
+            </div>
+
+            <div v-if="currentStep&&currentStep.id==5" class="q-pa-md">
+                <q-btn label="Crear Anexo" no-caps icon="fas fa-project-diagram" color="primary" @click="startanx.state=true" v-if="!startanx.state"/>
+                <div v-else>
+                    <div class="q-mb-md">Crear Anexo?</div>
+                    <span class="col row q-gutter-md">
+                        <q-btn no-caps label="Si" class="col" color="primary" @click="createanx"/>
+                        <q-btn flat no-caps label="No" class="col" color="amber-13" @click="startanx.state=false"/>
+                    </span>
+                </div>
+            </div>
         </q-drawer>
 
         <div v-if="wndAOE.wwd" class="q-pa-md q-mt-md">
@@ -101,7 +117,7 @@
             </template>
 
             <template v-slot:bottom="scope">
-                <q-page-sticky position="bottom-left" class="full-width" :offset="[10, 5]">
+                <q-page-sticky position="bottom-left" class="full-width" :offset="[0, 8]">
                     <div class="row q-pt-xs">
                         <q-btn-group rounded class="bg-dark text-white">
                             <q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
@@ -195,7 +211,7 @@
         </q-dialog>
 
         <q-footer class="bg-darkl0 text-white">
-            <div class="q-pa-xs row items-center" v-if="currentStep&&currentStep.id==1">
+            <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
                     <ProductAutocomplete with_image with_prices with_stock @input="setprod" ref="comp_autocomplete" />
                 </div>
@@ -215,8 +231,9 @@ export default {
     components:{ ProductAutocomplete, PrinterSelect},
     data(){
         return {
-            moreopts:false,
+            psocket:this.$sktPreventa,
             index:undefined,
+            moreopts:false,
             wndAOE:{
                 wwd:false,
                 state:false,//muestra o no el modal
@@ -262,9 +279,9 @@ export default {
                 state:false,
                 printer:null
             },
-            socket:this.$sktPreventa,
             ldrawer:{ state:false },
             startremove:{ state:false },
+            startanx:{ state:false },
             tableproducts:{
 				columns:[
 					{ name:'id', align:'left', label:'ID', field:'id', sortable:true },
@@ -292,17 +309,15 @@ export default {
         this.$store.commit('Preventa/setFooterState', false);
 
         this.$q.loading.show({ message:'...' });
-
+ 
         this.index = await preventadb.order(this.ordercatch);
-        // console.log(this.index);
+        console.log("%cEl Pedido fue montado!!","background:green;color:white;padding:10px;font-size:1.5em;");
+        console.log(this.index);
 
         this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
-
-        this.socket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:`ORD${this.ordercatch.id}` });
     },
     destroyed(){
-        this.socket.emit('unjoin', { profile:this.profile, workpoint:this.workin.workpoint, room:`ORD${this.index.id}` });
         this.$store.commit('Preventa/setHeaderState',true);
 		this.$store.commit('Preventa/setFooterState',true);
     },
@@ -544,13 +559,38 @@ export default {
                 let ordersend = Object.assign({}, this.index);
                 ordersend.status = newstate;
 
-                this.socket.emit("order_changestate",{ newstate:newstate, order: ordersend });
+                this.psocket.emit("order_update",{ newstate:newstate, order:ordersend, update:'state' });
                 this.appsounds.ok.play();
                 this.$router.push('/preventa/');
                 this.$q.notify({ message:`Pedido ${data._order} enviado a ${newstate.name}`, color:'positive', icon:'done' });
                 this.$q.loading.hide();
             }
         },
+        createanx(){
+			this.$q.loading.show({ message:'Creando anexo, espera...' });
+			// this.windCreate.blocked=true;
+			let data = { name:this.index.name, "_order":this.index.id };
+            console.log(data);
+
+            preventadb.create(data).then( done =>{
+                let resp = done.data;
+                console.log(resp);
+
+                this.$q.notify({
+                    message:`Anexo creado con Folio <b>${resp.id}</b>`,
+                    color:'positive', icon:'done', html:true
+                });
+                this.$store.commit('Preventa/newOrder', resp);
+				this.psocket.emit('order_add',{ user:this.profile, order:resp });
+				this.$router.push(`/preventa/pedidos/${resp.id}`);
+                this.$router.go();
+                this.$q.loading.hide();
+
+            }).catch( fail => {
+                console.log(fail);
+			    this.$q.notify({ icon:'bug', message:fail, color:'negative' });
+            });
+		},
     },
     computed: {
         profile(){ return this.$store.getters['Account/profile'];},
