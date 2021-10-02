@@ -36,7 +36,8 @@
 							</q-td>
 							<q-td key="client">{{props.row.name}}</q-td>
 							<q-td key="cstate" align="center" :class="`st-${props.row.status.id}`">
-								<div class="text--2">{{props.row.status.name}}</div>
+								<div class="text--1">{{props.row.status.name}}</div>
+								<div class="text--2 text-grey-5">{{humantime(props.row.updated_at)}}</div>
 							</q-td>
 							<q-td key="createdby" align="center">
 								<div><q-img src="~/assets/_usdeft.png" width="20px" height="20px" class="imguser2"/></div>
@@ -78,7 +79,8 @@
 							</q-td>
 							<q-td key="client">{{props.row.name}}</q-td>
 							<q-td key="cstate" align="center" :class="`st-${props.row.status.id}`">
-								<div class="text--2">{{props.row.status.name}}</div>
+								<div class="text--1">{{props.row.status.name}}</div>
+								<div class="text--2 text-grey-5">{{humantime(props.row.updated_at)}}</div>
 							</q-td>
 							<q-td key="createdby" align="center">
 								<div><q-img src="~/assets/_usdeft.png" width="20px" height="20px" class="imguser2"/></div>

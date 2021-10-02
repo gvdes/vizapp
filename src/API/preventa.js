@@ -49,12 +49,26 @@ export default{
             return { err:fail }
         });
     },
-    setState(data){
+    setModState(data){
         return vizapi.post('order/changeConfig',data).then( done => {
             return done.data;
         }).catch( fail => {
             console.log(fail);
             return { err:fail }
+        });
+    },
+    setCashState(data){
+        return vizapi.post('cash/changeStatus',data).then(done => {
+            return done.data;
+        }).catch( fail => {
+            return { error:fail }
+        });
+    },
+    makeCheckout(data){
+        return vizapi.post('order/toDelivered',data).then( done => {
+            return done.data;
+        }).catch( fail => {
+            return { error: fail}
         });
     }
 }

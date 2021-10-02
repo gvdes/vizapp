@@ -8,7 +8,7 @@ export function OrdersCheckIn (state) {
     return state.orders.filter( order => order.status.id==3 );
 }
 
-export function OrdersValidate (state) {
+export function OrdersCheckout (state) {
     // devuelve las ordenes que estan en checkin
     return state.orders.filter( order => (order.status.id==5 || order.status.id==6 || order.status.id==7) );
 }
@@ -38,6 +38,10 @@ export function agents_orders(state){
 
         return agent;
     });
+}
+
+export function cashdesks(state){
+    return state.cashdesks;
 }
 
 export function keepProcess(state){

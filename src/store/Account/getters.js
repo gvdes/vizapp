@@ -14,7 +14,7 @@ export function toolbarModule (state) {
         "existencias":"grading",// almacen/existencias
         "bodega":"fas fa-warehouse",//preventa/bodega
         "checkin":"fas fa-sign-in-alt",//preventa/checkin
-        "validar":"fact_check",//preventa/validar
+        "checkout":"fact_check",//preventa/validar
         "caja":"fas fa-cash-register",//preventa/validar
         "pedidos":"receipt_long"//preventa/validar
     };

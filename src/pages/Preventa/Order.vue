@@ -12,7 +12,7 @@
                         </div>
                     </div>
 
-                    <div class="q-pa-sm col text-center">
+                    <div class="q-pa-sm col text-center" :class="haveparent ? 'ord_anx':''">
                         <div class="text--2">Folio:</div>
                         <div class="text-bold">{{ordercatch.id}}</div>
                     </div>
@@ -45,33 +45,71 @@
             </div>
         </q-header>
 
-        <q-drawer v-model="ldrawer.state" side="right" content-class="text-grey-5 bg-darkl0" @hide="startremove.state=false">
-            <div class="q-pa-md" v-if="currentStep&&currentStep.id==1">
-                <q-btn label="Archivar Pedido" icon="delete" color="negative" no-caps @click="startremove.state=true" v-if="!startremove.state"/>
-                <div v-else>
-                    <div class="q-mb-md">Archivar pedido?</div>
-                    <span class="col row q-gutter-md">
-                        <q-btn no-caps label="Si" class="col" color="negative" @click="archive"/>
-                        <q-btn no-caps label="No" class="col" color="primary" @click="startremove.state=false"/>
-                    </span>
+        <q-drawer v-model="ldrawer.state" side="right" content-class="bg-darkl0" @hide="startremove.state=false">
+
+            <div class="q-pa-md">
+                <div class="text-overline">Opciones</div>
+                <div>
+                    <q-btn-group spread class="bg-darkl1">
+                        <q-btn dark icon="print" @click="wndPrinters.state=true" />
+
+                        <template v-if="basket.length">
+                            <q-btn dark icon="fas fa-file-excel"/>
+                        </template>
+
+                        <template v-if="currentStep&&currentStep.id==1">
+                            <q-btn dark icon="fas fa-file-upload" />
+
+                            <q-btn icon="delete" color="negative" @click="startremove.state=true" v-if="!startremove.state"/>
+                            <div v-else>
+                                <div class="q-ma-sm">Archivar?</div>
+                                <span class="col row q-gutter-md">
+                                    <q-btn label="Si" class="col" color="negative" @click="archive"/>
+                                    <q-btn flat label="No" class="col" color="amber-13" @click="startremove.state=false"/>
+                                </span>
+                            </div>
+                        </template>
+
+                        <template v-if="currentStep&&(currentStep.id==3||currentStep.id==4)">
+                            <q-btn icon="fas fa-pencil-alt" color="orange-14"/>
+                        </template>
+
+                        <template v-if="currentStep&&currentStep.id==5" class="q-pa-md text-center">
+                            <q-btn icon="fas fa-file-medical" color="primary" @click="startanx.state=true" v-if="!startanx.state"/>
+                            <div v-else>
+                                <div class="q-ma-sm">Crear Anexo?</div>
+                                <span class="col row q-gutter-md">
+                                    <q-btn no-caps label="Si" class="col" color="primary" @click="createanx"/>
+                                    <q-btn flat no-caps label="No" class="col" color="amber-13" @click="startanx.state=false"/>
+                                </span>
+                            </div>
+                        </template>
+                    </q-btn-group>
+                </div>
+                <!-- <input type="file" ref="blobfile" id="blobfile" @input="readFile" hidden accept=".xlsx,.xls"/> -->
+            </div>
+
+            <div v-if="haveparent" class="q-pa-md">
+                <div>Origen: {{index._order}}</div>
+            </div>
+
+            <div v-if="havechildren.length" class="q-pa-md">
+                <div>Anexos:</div>
+                <div v-for="anx in havechildren" :key="anx.id">
+                    {{anx.id}}
                 </div>
             </div>
-            
-            <q-separator/>
 
-            <div v-if="currentStep&&(currentStep.id==3||currentStep.id==4)" class="q-pa-md">
-                <q-btn  label="Modificar" no-caps icon="fas fa-pencil-alt" color="orange-14"/>
-            </div>
-
-            <div v-if="currentStep&&currentStep.id==5" class="q-pa-md">
-                <q-btn label="Crear Anexo" no-caps icon="fas fa-project-diagram" color="primary" @click="startanx.state=true" v-if="!startanx.state"/>
-                <div v-else>
-                    <div class="q-mb-md">Crear Anexo?</div>
-                    <span class="col row q-gutter-md">
-                        <q-btn no-caps label="Si" class="col" color="primary" @click="createanx"/>
-                        <q-btn flat no-caps label="No" class="col" color="amber-13" @click="startanx.state=false"/>
-                    </span>
-                </div>
+            <div class="q-pt-md q-pl-md">
+                <q-timeline color="green-13" dark>
+                    <q-timeline-entry v-for="log in orderlog" :key="log.id"
+                        side="right"
+                    >
+                        <template v-slot:subtitle>{{log.name}}</template>
+                        <div class="text--2">{{humantime(log.created_at)}}</div>
+                        <div>{{log.responsable.nick ? log.responsable.nick:'VizApp'}}</div>
+                    </q-timeline-entry>
+                </q-timeline>
             </div>
         </q-drawer>
 
@@ -207,13 +245,13 @@
         </q-dialog>
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
-            <PrinterSelect :options="printers" @clicked="setprinter" title="Continuar" ref="PrinterSelect"/>
+            <PrinterSelect :options="printers" @clicked="initprint" title="Continuar" ref="PrinterSelect"/>
         </q-dialog>
 
         <q-footer class="bg-darkl0 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
-                    <ProductAutocomplete with_image with_prices with_stock @input="setprod" ref="comp_autocomplete" />
+                    <ProductAutocomplete with_image with_prices with_stock @input="setprod" />
                 </div>
                 <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="wndPrinters.state=true" /></div>
             </div>
@@ -222,6 +260,7 @@
 </template>
 
 <script>
+import { date } from 'quasar'
 import preventadb from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
 import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
@@ -277,7 +316,8 @@ export default {
             },
             wndPrinters:{
                 state:false,
-                printer:null
+                printer:null,
+                job:'print'
             },
             ldrawer:{ state:false },
             startremove:{ state:false },
@@ -377,8 +417,9 @@ export default {
             if(resp.err){
                 this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
             }else{
+                // this.psocket.emit('');
                 this.$q.notify({ message:'Archivado correcto!!', color:'positive', icon:'done' });
-                this.$router.push('/preventa');
+                this.$router.push('/preventa/pedidos');
             }
         },
         async remove(){
@@ -535,9 +576,15 @@ export default {
             console.log("cancel AOE");
             this.wndAOE.state=false;
         },
-        setprinter(printer){
+        initprint(printer){
             this.wndPrinters.printer = printer;
-            this.nextStep();
+            console.log(this.wndPrinters.job);
+
+            if(this.wndPrinters.job=='print'){
+                this.nextStep();
+            }else{
+                console.log("Vamo a reimprimir el ticket del cliente");
+            }
         },
         async nextStep(step=null){
 
@@ -616,7 +663,22 @@ export default {
         totaltkt_pay(){ return this.basket.reduce((amm,item)=>{ return amm+item.total},0); },
         totaltkt_pzs(){ return this.basket.reduce((amm,item)=>{ return amm+item.ppp},0); },
         currentStep(){ return this.index ? this.index.status : null },
-        appsounds(){ return this.$store.getters['Multimediapp/sounds']; }
+        appsounds(){ return this.$store.getters['Multimediapp/sounds']; },
+        haveparent(){ return this.index ? this.index._order : false; },
+        havechildren(){ return this.index ? this.index.children : false; },
+        orderlog(){ return this.index ? this.index.log:[] },
+        humantime(){ return time =>{ 
+				let now = Date.now(); 
+				let timecalc = Date.parse(time);
+				let diff = date.getDateDiff(now, timecalc, 'days');
+
+				switch (diff) {
+					case 0: return date.formatDate(timecalc, 'hh:mm a'); break;
+					case 1: return 'Ayer, '+date.formatDate(timecalc, 'hh:mm a'); break;
+					default: return `Hace ${diff} dias, `+date.formatDate(timecalc, 'hh:mm a'); break;
+				}
+			}
+        },
     },
 }
 </script>
@@ -645,4 +707,7 @@ export default {
     .divlcient{
         border-radius:0px 0px 20px 20px;
     }
+
+    .ord_anx{ color:#fff200; }
+    .ord_haveanx{ color:#fff200; }
 </style>

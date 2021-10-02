@@ -1,0 +1,201 @@
+<template>
+    <q-card class="bg-darkl1">
+        <!-- HEADER  -->
+            <q-card-section>
+                <div class="row justify-between items-start text-h6 text-bold">
+                    <div class="text-green-13">{{product.code}}</div>
+                    <div v-if="product.stocks">
+                        <q-btn flat dense no-caps class="text-bold"
+                            :color="product.stocks[0].stock?'green-13':'amber-13'"
+                            :label="`Stock: ${product.stocks[0].stock}`"
+                        />
+                    </div>
+                    <div class="text-light-blue-13">{{product.name}}</div>
+                </div>
+                <div class="text--2">{{product.description}}</div>
+            </q-card-section>
+        <!-- HEADER  -->
+
+        <!-- BODY  -->
+            <div>
+                <template v-if="!product.prices.length">
+                    <q-banner class="text-white bg-negative text-center">
+                        <q-icon name="fas fa-exclamation-triangle" size="md"/> Este producto no tiene precios!! :/
+                    </q-banner>
+                </template>
+                
+                <template v-else>
+                    <template v-if="showprices">
+                        <q-card-section class="text-center row justify-between q-px-md" v-if="productType=='std'">
+                            <div v-for="prc in prices" :key="prc.id" class="q-px-md q-py-sm" :class="prc.id==usedprice.id ? 'usedprice':'' ">
+                                <div class="text--2">{{prc.alias}}</div>
+                                <div class="text-bold">$ {{prc.price}}</div>
+                            </div>
+                        </q-card-section>
+
+                        <q-card-section class="text-center text-bold text-orange" v-if="productType=='off'">
+                            <div>OFERTA</div>
+                            <div class="text-h4">$ {{prices[0].price}}</div>
+                        </q-card-section>
+                    </template>
+
+                    <q-card-section>
+                        <div class="row items-end">
+                            <div class="text-center">
+                                <div class="column">
+                                    <div class="text-cemter">Cantidad:</div>
+                                    <q-btn icon="fas fa-chevron-up" class="q-py-xs" @click="ctrlPzsUp" flat/>
+                                    <div class="text-center col column q-py-md">
+                                        <input type="number" min="1" v-model="amount" class="text-center exo fieldcant"/>
+                                    </div>
+                                    <q-btn icon="fas fa-chevron-down" class="q-py-xs" @click="ctrlPzsDown" flat/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <q-markup-table dark flat dense square class="col q-mx-md bg-none text-grey-5">
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="2">
+                                                <q-select label="Surtir por" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="alias" :options="metsupply.opts" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <q-input borderless dense dark flat label="Notas" color="green-13" v-model="comments"/>
+                                            </td>
+                                        </tr>
+                                        <tr><td>Piezas X Caja</td><td align="right">{{ipack}}</td></tr>
+                                        <tr><td>Cajas</td><td align="right">{{boxes}}</td></tr>
+                                        <tr><td>Unidades</td><td align="right">{{units}}</td></tr>
+                                        <template v-if="showprices">
+                                            <tr><td>Precio unitario</td><td align="right">{{usedprice.price}}</td></tr>
+                                            <tr><td>Total</td><td align="right" class="text-green-13 text-bold">{{usedprice.price*units}}</td></tr>
+                                        </template>
+                                    </tbody>
+                                </q-markup-table>
+                            </div>
+                        </div>
+                    </q-card-section>
+
+                    <q-btn-group spread>
+                        <q-btn :load="actions.done.dis" :dis="actions.done.dis" icon="fas fa-check" class="q-py-md" color="primary" @click="confirm"/>
+                    </q-btn-group>
+                </template>
+            </div>
+    </q-card>
+</template>
+
+<script>
+export default {
+    props:{
+        product:{ type:Object, default:{} },
+        action:{ type:String, default:'add' },
+        client:{ type:Object, default:{} },
+        showprices:{ type:Boolean, default:false },
+        btnremove:{ type:Boolean, default:true }
+    },
+    data(){
+        return {
+            amount:1,
+            comments:"",
+            actions:{
+                done:{dis:false,load:false},
+                cancel:{dis:false},
+                remove:{dis:false,rem:false}
+            },
+            metsupply:{
+                model:{alias:'Piezas', id: 1},
+                opts:[
+                    {alias:'Piezas', id:1},
+                    {alias:'Docenas', id:2},
+                    {alias:'Cajas', id:3}
+                ]
+            },
+            pricelists:[
+                { id:1, alias:'MEN', name:'MENUDEO' },
+                { id:2, alias:'MAY', name:'MAYOREO' },
+                { id:3, alias:'DOC', name:'DOCENA' },
+                { id:4, alias:'CAJ', name:'CAJA' },
+            ]
+        }
+    },
+    methods:{
+        ctrlPzsUp(){ this.amount++; },
+        ctrlPzsDown(){ if(this.amount > 1){ this.amount--; } },
+        productRemove(){ 
+            console.log(this.params);
+            this.$emit('confirm',this.params);
+        },
+        confirm(){ this.$emit('confirm',this.params); },
+        remove(){ this.$emit('remove'); } 
+    },
+    computed:{
+        prices(){ return this.product ? this.product.prices : null; },
+        pricelistDefault(){ return this.pricelists.find( pl => pl.id==this.client._price_list); },
+        productType(){
+            if(this.prices.length){
+                let basePrice = this.prices[0].price;// obtiene el primer precio para comparar
+                let isOffer = this.prices.filter(item => item.id<=4 ).filter(item => basePrice==item.price).length==this.prices.length;//averigua si el precio es oferta
+                return isOffer ? 'off':'std'
+            }else{ return { error:true, msg:"Producto sin precios" } }
+        },
+        ipack(){ return this.product.pieces ? this.product.pieces : 1; },
+        units(){ //obtiene las unidades en base al metodo de surtido
+            switch (this.metsupply.model.id) {
+                case 2: return this.amount*12; //cantidad * 12 
+                case 3: return this.amount*this.ipack; //cantidad por piezas por caja
+                default: return this.amount;// retornar cantidad
+            }
+        },
+        boxes(){// obtiene las cajas en base a la unidad de surtido
+            // Math.floor(this.amount/this.product.pieces)
+            return (this.units/this.ipack).toFixed(1);
+        },
+        usedprice(){
+            switch (this.metsupply.model.id) {
+                case 2: return this.prices.find( pl => pl.id==3 ); // se utilizara el precio Docena
+                case 3: return this.prices.find( pl => pl.id==4 ); // se utilizara el precio Caja
+                default: 
+                    if(this.productType=='off'){//es oferta?
+                        return this.prices.find( pl => pl.id==1 );
+                    }else if(this.amount<3){//es menudeo ?
+                        return this.prices.find( pl => pl.id==1 );
+                    }else if(this.amount>=3){//es mayoreo ?
+                        return this.prices.find( pl => pl.id==2 );
+                    }
+                break;
+            }
+        },
+        params(){
+            return {
+                product:this.product,
+                comments:this.comments,
+                amount:this.amount,
+                units:this.units,
+                usedprice:this.usedprice,
+                metsupply:this.metsupply.model
+            }
+        }
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+    .fieldcant{
+        width: 100px;
+        padding: none;
+        margin: none;
+        font-size: 1.8em;
+        background: none;
+        outline: greenyellow;
+        color:white;
+        margin: auto auto;
+        border:none;
+
+        &:focus{ background: rgba(#FFF,.06); }
+    }
+
+    .usedprice{
+        border-bottom:3px solid #20bf6b;
+    }
+</style>

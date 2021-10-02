@@ -8,6 +8,7 @@ export default function () {
 			footer:{ state:true },
 			viewsection:true
 		},
-		agents:[]
+		agents:[],
+		cashdesks:[]
 	}
 }

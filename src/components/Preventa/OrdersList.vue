@@ -35,10 +35,10 @@
 						</div>
 
 						<q-card-section class="text--1">
-							<div>ID: {{props.row.id}}</div>
-							<div>Cliente: {{props.row.name}}</div>
-							<div>Creacion: {{props.row.created_at}}</div>
-							<div>Agente: {{props.row.created_by.nick}}</div>
+							<div>ID: {{ props.row.id }}</div>
+							<div>Cliente: {{ props.row.name }}</div>
+							<div>Creacion: {{ props.row.created_at }}</div>
+							<div>Agente: {{ props.row.created_by.nick }}</div>
 						</q-card-section>
 					</q-card>
 				</div>

@@ -41,13 +41,14 @@ export default {
 		this.psocket.disconnect();
 		this.psocket.connect();
 
-		this.psocket.on('socketid', data => { this.sktId(data); });
-		this.psocket.on('joinedat', data => { this.sktJoinedAt(data); });
-		this.psocket.on('newjoin', data => { this.sktNewJoin(data); });
-		this.psocket.on('order_add', data => { this.sktOrderAdd(data); });
-		this.psocket.on('order_update', data => { this.sktOrderUpdate(data); });
-		this.psocket.on('order_aou', data => { this.sktAOU(data); });
-		this.psocket.on('module_update', data => { this.sktModuleUpdate(data); });
+		this.psocket.on('socketid', data => this.sktId(data) );
+		this.psocket.on('joinedat', data => this.sktJoinedAt(data) );
+		this.psocket.on('newjoin', data => this.sktNewJoin(data) );
+		this.psocket.on('order_add', data => this.sktOrderAdd(data) );
+		this.psocket.on('order_update', data => this.sktOrderUpdate(data) );
+		this.psocket.on('order_aou', data => this.sktAOU(data) );
+		this.psocket.on('module_update', data => this.sktModuleUpdate(data) );
+		this.psocket.on('cash_update', data => this.sktCashUpdate(data) );
 
 		let room = null;
 
@@ -55,6 +56,7 @@ export default {
 			case 1: case 2: case 3: room='admins'; break;
 			case 4: room='sales'; break;
 			case 6: case 7: room='supply'; break;
+			case 9: room='checkout'; break;
 		}
 
 		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:room });
@@ -65,6 +67,7 @@ export default {
 			this.$q.loading.show({ message:"Cargando vista..." });
 			let vista = { "date_from":ranges.dbranges.from, "date_to":ranges.dbranges.to };
 			let index = await PreventaDB.index(vista);
+			console.log(index);
 			let agents = await AccountsDB.get({ '_rol':[4] });
 
 			this.$store.commit('Preventa/startState',{ index, agents });
@@ -84,7 +87,6 @@ export default {
 			this.$store.commit('Preventa/newOrder', order);
 		},
 		sktOrderUpdate(data){
-			console.log(data);
 			let order = data.order;
 			let newstate = data.newstate;
 
@@ -108,6 +110,19 @@ export default {
 			console.log(data);
 			console.log(`%cAveriguando existencia de pedido ${data.order.id} para crear o actualizar!!`);
 			this.$store.commit('Preventa/orderAOU',data);
+		},
+		sktCashUpdate({by,cash,newstate}){
+			let _msgstate = newstate.id==1 ? 'encendio':'apago';
+			this.$store.commit('Preventa/setCashState',{cash,newstate});
+
+			this.$q.notify({
+				message:`<b>${by}</b> ${_msgstate} la <b>${cash.name}</b>`,
+				type:'warning',
+				closeBtn:'Ok',
+				timeout:10000,
+				position:'center',
+				html:true
+			});
 		}
 	},
 	destroyed(){
@@ -126,7 +141,20 @@ export default {
 	}
 }
 </script>
-
 <style lang="scss">
-	.text--2{ font-size:.8em!important; }
+	.st-1{ color:#18dcff!important; }// levantando pedido LP
+	.st-2{ color:#b71540!important; }// asignando caja AC
+	.st-3{ color:#cd6133!important; }// En Recepcion ER
+	.st-4{ color:#fff200!important; }// Por surtir PS
+	.st-5{ color:#20bf6b!important; }// Surtiendo SR
+	.st-6{ color:#fdcb6e!important; }// Por validar PV
+	.st-7{ color:#cc8e35!important; }// Validando Mercancia VM
+	.st-8{ color:#0fb9b1!important; }// En Caja EC
+	.st-9{ color:#20bf6b!important; }// Cobrando CO
+	.st-10{ color:#cc8e35!important; }// Finalizado FZ
+	.st-100{ color:#a5b1c2!important; }// Cancelado CN
+
+	.custom-toggle{border: 2px solid #027be3}
+
+	.ord_anx{ border-bottom: 3px dashed #fff200 ; }
 </style>

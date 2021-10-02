@@ -133,6 +133,7 @@ export default {
 			case 1: case 2: case 3: console.log("Te quedaste en el INDEX"); this.$store.commit('Preventa/setHeaderTitle',"Preventa"); break;
 			case 4: console.log("Direccionando a PEDIDOS!!"); this.$router.push('/preventa/pedidos/'); break;
 			case 6: case 7: console.log("Direccionando a SURTIDO!!"); this.$router.push('/preventa/bodega/'); break;
+			case 9: console.log("Direccionando a CHECKOUT!!"); this.$router.push('/preventa/checkout/'); break;
 		}
 	},
 	beforeDestroy(){
@@ -176,16 +177,4 @@ export default {
 		border-radius: 50%;
 		border: 1px solid #a5b1c2;
 	}
-
-	.st-1{ color:#18dcff!important; }// levantando pedido LP
-	.st-2{ color:#b71540!important; }// asignando caja AC
-	.st-3{ color:#cd6133!important; }// En Recepcion ER
-	.st-4{ color:#fff200!important; }// Por surtir PS
-	.st-5{ color:#20bf6b!important; }// Surtiendo SR
-	.st-6{ color:#fdcb6e!important; }// Por validar PV
-	.st-7{ color:#20bf6b!important; }// Validando Mercancia VM
-	.st-8{ color:#0fb9b1!important; }// En Caja EC
-	.st-9{ color:#20bf6b!important; }// Cobrando CO
-	.st-10{ color:#cc8e35!important; }// Finalizado FZ
-	.st-100{ color:#a5b1c2!important; }// Cancelado CN
 </style>
