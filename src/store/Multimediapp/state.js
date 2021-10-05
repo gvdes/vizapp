@@ -11,6 +11,7 @@ export default function () {
 			duply:new Audio('sounds/duply.mp3'),
 			alert1:new Audio('sounds/orderwait_new.mp3'),
 			download: new Audio("sounds/download.mp3"),
+			download_label: new Audio("sounds/download_label.mp3"),
 		},
 	}
 }
