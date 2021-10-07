@@ -46,12 +46,11 @@
         </q-header>
 
         <q-drawer v-model="ldrawer.state" side="right" content-class="bg-darkl0" @hide="startremove.state=false">
-
             <div class="q-pa-md">
                 <div class="text-overline">Opciones</div>
                 <div>
                     <q-btn-group spread class="bg-darkl1">
-                        <q-btn dark icon="print" @click="wndPrinters.state=true" />
+                        <q-btn dark icon="print" @click="initPrinters('reprint');" />
 
                         <template v-if="basket.length">
                             <q-btn dark icon="fas fa-file-excel"/>
@@ -245,7 +244,7 @@
         </q-dialog>
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
-            <PrinterSelect :options="printers" @clicked="initprint" title="Continuar" ref="PrinterSelect"/>
+            <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/>
         </q-dialog>
 
         <q-footer class="bg-darkl0 text-white">
@@ -253,7 +252,7 @@
                 <div class="col text-center">
                     <ProductAutocomplete with_image with_prices with_stock @input="setprod" />
                 </div>
-                <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="wndPrinters.state=true" /></div>
+                <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" /></div>
             </div>
         </q-footer>
 	</q-page>
@@ -290,19 +289,19 @@ export default {
                     comments:''//notas del producto
                 },
                 actions:{
-                    done:{dis:false,save:false},
-                    cancel:{dis:false},
-                    remove:{dis:false,rem:false}
+                    done:{ dis:false, save:false },
+                    cancel:{ dis:false },
+                    remove:{ dis:false, rem:false }
                 },
                 action:'a'
             },
             dbproducts:[],
             metsupply:{
-                model:{alias:'Piezas', id: 1},
+                model:{ alias:'Piezas', id:1 },
                 opts:[
-                    {alias:'Piezas', id:1},
-                    {alias:'Docenas', id:2},
-                    {alias:'Cajas', id:3}
+                    { alias:'Piezas', id:1 },
+                    { alias:'Docenas', id:2 },
+                    { alias:'Cajas', id:3 }
                 ]
             },
             priceLists:{
@@ -576,15 +575,25 @@ export default {
             console.log("cancel AOE");
             this.wndAOE.state=false;
         },
-        initprint(printer){
+        initPrinters(job){
+            this.wndPrinters.job = job;
+            this.wndPrinters.state = true;
+        },
+        print(printer){
             this.wndPrinters.printer = printer;
-            console.log(this.wndPrinters.job);
+            this.wndPrinters.job=='print' ? this.nextStep() : this.reprint();
+        },
+        async reprint(){
+            this.$q.loading.show({ message:'Reimprimiendo...' });
 
-            if(this.wndPrinters.job=='print'){
-                this.nextStep();
-            }else{
-                console.log("Vamo a reimprimir el ticket del cliente");
-            }
+            let data = {
+                "_order": this.ordercatch.id,
+                "_printer": this.wndPrinters.printer.id
+            }  
+
+            let resp = await preventadb.rePrint(data);
+            this.$q.notify({ message:'Reimpresion correcta', color:'positive', icon:'done' });
+            this.$q.loading.hide();
         },
         async nextStep(step=null){
 
@@ -608,8 +617,8 @@ export default {
 
                 this.psocket.emit("order_update",{ newstate:newstate, order:ordersend, update:'state' });
                 this.appsounds.ok.play();
-                this.$router.push('/preventa/');
-                this.$q.notify({ message:`Pedido ${data._order} enviado a ${newstate.name}`, color:'positive', icon:'done' });
+                this.$router.push('/preventa/pedidos');
+                this.$q.notify({ message:`Pedido ${data._order} enviado a ${newstate.name}`, color:'positive', icon:'done', position:'center', timeout:1000 });
                 this.$q.loading.hide();
             }
         },
@@ -699,14 +708,8 @@ export default {
         &:focus{ background: rgba(#FFF,.06); }
     }
 
-    .divimg{
-        width: 120px;
-        height: 120px;
-    }
-
-    .divlcient{
-        border-radius:0px 0px 20px 20px;
-    }
+    .divimg{ width: 120px; height: 120px; }
+    .divlcient{ border-radius:0px 0px 20px 20px; }
 
     .ord_anx{ color:#fff200; }
     .ord_haveanx{ color:#fff200; }

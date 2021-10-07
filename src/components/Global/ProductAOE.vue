@@ -14,7 +14,7 @@
                 </div>
                 <div class="text--2">{{product.description}}</div>
             </q-card-section>
-        <!-- HEADER  -->
+        <!-- HEADER 6BRJYThutH  -->
 
         <!-- BODY  -->
             <div>
@@ -77,8 +77,8 @@
                         </div>
                     </q-card-section>
 
-                    <q-btn-group spread>
-                        <q-btn :load="actions.done.dis" :dis="actions.done.dis" icon="fas fa-check" class="q-py-md" color="primary" @click="confirm"/>
+                    <q-btn-group spread class="btn_focus">
+                        <q-btn :load="actions.done.dis" :dis="actions.done.dis" icon="fas fa-check" class="q-py-md" color="primary" @click="confirm" autofocus/>
                     </q-btn-group>
                 </template>
             </div>
@@ -117,6 +117,13 @@ export default {
                 { id:3, alias:'DOC', name:'DOCENA' },
                 { id:4, alias:'CAJ', name:'CAJA' },
             ]
+        }
+    },
+    mounted(){
+        if(this.product.metsupply){
+            this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
+            this.amount = this.product.ordered.amount;
+            this.comments = this.product.ordered.comments;
         }
     },
     methods:{
@@ -197,5 +204,11 @@ export default {
 
     .usedprice{
         border-bottom:3px solid #20bf6b;
+    }
+
+    .btn_focus button{
+        &:focus{
+            border: 4px solid #17c0eb !important;
+        }
     }
 </style>
