@@ -407,19 +407,22 @@ export default {
             }
         },
         async archive(){
-            this.$q.loading.show({message:'Archivando pedido...'});
+            // this.$q.loading.show({message:'Archivando pedido...'});
             let data = { "_order": this.ordercatch.id }
-            let resp = await preventadb.archive(data);
 
-            console.log(resp);
+            this.psocket.emit('order_archive', { order:this.index, profile:this.profile, workpoint:this.workin });
 
-            if(resp.err){
-                this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
-            }else{
-                // this.psocket.emit('');
-                this.$q.notify({ message:'Archivado correcto!!', color:'positive', icon:'done' });
-                this.$router.push('/preventa/pedidos');
-            }
+            // let resp = await preventadb.archive(data);
+
+            // console.log(resp);
+
+            // if(resp.err){
+            //     this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
+            // }else{
+            //     this.psocket.emit('');
+            //     this.$q.notify({ message:'Archivado correcto!!', color:'positive', icon:'done' });
+            //     this.$router.push('/preventa/pedidos');
+            // }
         },
         async remove(){
             let model = this.wndAOE.product;
