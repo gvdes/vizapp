@@ -1930,7 +1930,7 @@ export default {
         return newProducts;
       });
       products = newProducts;
-      console.log(products.length);
+      // console.log(products.length);
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
@@ -1941,30 +1941,24 @@ export default {
             pdf.rect(20, 20, width * (y + 1), height * countY);
             // pdf.text("Grupo Vizcarra", width * (y == 0 ? 0 : y) + 170, 32 + (countY == 1 ? 0 : counterCodeShort), null, null, 'center'); //18.3 12.5 6.75
             pdf.setFont("Montserrat-Bold");
-            if (products[i].code.length > 10) {
-              pdf.setFontSize(22);
-              pdf.text(
-                products[i].code,
-                width * (y == 0 ? 0 : y) + 30,
-                45 + (countY == 1 ? 0 : counterCodeShort),
-                null,
-                null,
-                "left"
-              );
+            console.log(products[i].code.length);
+            if (products[i].code.length >= 8) {
+              pdf.setFontSize(27);
+              
             } else {
-              pdf.setFontSize(26);
-              pdf.text(
+              pdf.setFontSize(33);
+            }
+            pdf.text(
                 products[i].code,
                 width * (y == 0 ? 0 : y) + 30,
-                45 + (countY == 1 ? 0 : counterCodeShort),
+                50 + (countY == 1 ? 0 : counterCodeShort),
                 null,
                 null,
                 "left"
               );
-            }
             pdf.setFont("Montserrat-Semi");
-            pdf.setFontSize(9);
-            let splitter = pdf.splitTextToSize(products[i].description, 170);
+            pdf.setFontSize(8);
+            let splitter = pdf.splitTextToSize(products[i].description.replace(/ *\([^)]*\) */g, ""), 170);
             pdf.text(
               splitter,
               width * (y == 0 ? 0 : y) + 30,
