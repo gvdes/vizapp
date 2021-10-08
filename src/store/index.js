@@ -7,6 +7,7 @@ import Layout from './Layout'
 import Preventa from './Preventa'
 import Multimediapp from './Multimediapp'
 import Labels from "./Labels"
+import Requisitions from './Requisitions'
 
 Vue.use(Vuex)
 
@@ -27,6 +28,7 @@ export default function (/* { ssrContext } */) {
       Layout,
       Preventa,
       Multimediapp,
+      Requisitions,
       Labels
     },
 

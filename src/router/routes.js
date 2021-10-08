@@ -21,8 +21,8 @@ const routes = [
 		path:'/pedidos', component: () => import('layouts/RequisitionsLy.vue'),
 		children:[
 			{ path:'',component: () => import('pages/Requisitions/Index.vue') },
-			{ path:'dashboard',component: () => import('pages/Requisitions/Dashboard/Index.vue') },
-			{ path:':id',component: () => import('pages/Requisitions/Orders/Order.vue') },
+			{ path:'dashboard',component: () => import('pages/Requisitions/Dashboard.vue') },
+			{ path:':id',component: () => import('pages/Requisitions/Order.vue') },
 		]
 	},
 	{
