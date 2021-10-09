@@ -1,3 +1,16 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Recibe las ordenes de surtido que generan en cada Sucursal,
+     *  gestiona y da seguimiento al flujo de cada estado para poder
+     *  culminar un proceso de surtido a Sucursal.
+     *  Gestiona la disponibilidad de los encargados en realizar el 
+     *  surtido, hasta el transporte que lo enviara.
+     */
+-->
 <template>
   <q-page
     :class="ismobile ? '' : 'q-pb-md overflow-hidden'"
@@ -264,7 +277,8 @@
                     :label="msgCEDIS"
                     @click="
                       checkState(wndLog.order.status.id)
-                        ? (wndStore.state = !wndStore.state)
+                        ? ((wndStore.state = !wndStore.state),
+                          (wndLog.state = !wndLog.state))
                         : changeState(
                             wndLog.order.status.id == 3
                               ? 7
@@ -287,6 +301,8 @@
           </div>
         </q-card-section>
       </q-card>
+    </q-dialog>
+    <q-dialog v-model="wndStore.state">
       <DeliveryOpt
         v-show="wndStore.state && checkState(wndLog.order.status.id)"
         :orders="wndLog.order"
@@ -295,104 +311,6 @@
         :state="1"
       />
     </q-dialog>
-
-    <!-- <q-dialog v-model="wndStore.state">
-      <q-card
-        class="exo bg-darkl0 text-grey-5"
-        style="width: 600px"
-      >
-        <q-card-section>
-          <q-btn icon="fas fa-arrow-circle-left" color="green-13" flat roun label="Regresar" @click="wndStore.state = !wndStore.state" />
-          <q-input
-            class="q-pa-md"
-            dense
-            color="green-13"
-            dark
-            debounce="0"
-            v-model="selectWarehouse"
-            placeholder="Buscar (Disponibilidad ó Nombre)"
-          >
-            <template v-slot:prepend
-              ><q-icon class="text-green-13" name="filter_alt"
-            /></template>
-          </q-input>
-          <q-table
-            grid
-            :rows-per-page-options="[0]"
-            dark
-            row-key="id"
-            :columns="tableorders.columns"
-            :data="optStoreDisplay"
-            :pagination="initpagination"
-            :filter="selectWarehouse"
-          >
-            <template v-slot:item="optStoreDisplay">
-              <div class="row col col-xs-12 col-sm-6">
-                <q-card
-                  class="
-                    justify-center
-                    items-center
-                    text-justify
-                    column
-                    my-card
-                    bg-darkl0
-                    shadow-1
-                    q-ma-sm
-                  "
-                >
-                  <div class="col items-center text-center">
-                    <q-avatar class="bg-none" size="100px">
-                      <q-img
-                        class="bg-darkl0 q-pa-md"
-                        transition="slide-up"
-                        ratio="1"
-                        :src="
-                          optStoreDisplay.row.state == 'Surtiendo'
-                            ? 'https://image.flaticon.com/icons/png/512/3595/3595827.png'
-                            : 'https://image.flaticon.com/icons/png/512/1108/1108334.png'
-                        "
-                      >
-                      </q-img>
-                    </q-avatar>
-                  </div>
-                  <q-card-actions>
-                    <div
-                      class="
-                        col-12
-                        text-h6 text-center text-grey-12 text-subtitle1
-                      "
-                      style="height: 50px"
-                    >
-                      {{ optStoreDisplay.row.name }}
-                    </div>
-                    <div
-                      :class="`col-auto text-subtitle2 ${optStoreDisplay.row.color}`"
-                    >
-                      <q-icon
-                        :class="optStoreDisplay.row.color"
-                        :name="optStoreDisplay.row.icon"
-                      ></q-icon>
-                      {{ optStoreDisplay.row.state }}
-                    </div>
-                    <q-space />
-                    <q-stepper-navigation>
-                      <q-btn
-                        rounded
-                        flat
-                        :class="`self-end ${optStoreDisplay.row.color}`"
-                        icon="double_arrow"
-                        :disable="optStoreDisplay.row.disable"
-                        @click="setStorage(optStoreDisplay.row.name, 3)"
-                      ></q-btn>
-                    </q-stepper-navigation>
-                  </q-card-actions>
-                </q-card>
-              </div>
-            </template>
-          </q-table>
-        </q-card-section>
-      </q-card>
-    </q-dialog> -->
   </q-page>
 </template>
 
@@ -553,7 +471,6 @@ export default {
   async beforeMount() {
     let params = { _rol: [7] };
     this.grocerAccnt = await dbAccount.get(params);
-    // this.optStoreDisplay = this.destructuringData(this.grocerAccnt);
     this.index = this.orders;
     this.$store.commit("Requisitions/setHeaderTitle", this.title);
     let aux = 0;
@@ -582,36 +499,6 @@ export default {
       this.visibleColumns = JSON.parse(localStorage.getItem("setup"));
       this.columns = JSON.parse(localStorage.getItem("setupTable"));
     }
-    // :orders="wndLog.order"
-    // @change="stateDxDiag"
-    // :data="grocerAccnt"
-    // :state="1"
-    //instanciar al socket
-    // await this.$sktRestock.connect();
-    // this.$sktRestock.emit("joinat", {
-    //   user: this.profile,
-    //   isdashboard: true,
-    //   from: this.workin.workpoint,
-    // });
-
-    //notifica que un usuario se unio a este dashboard, excepto cuando es el mismo
-    // this.$sktRestock.on("joineddashreq", (data) => {
-    //   console.log(data);
-    //   console.log(`%c${data.notify}`, "color:#3ae374;font-size:1.5em;");
-    // });
-
-    // this.$sktRestock.on("creating", (data) => {
-    //   this.sktOrderCreating(data);
-    // }); //notifica que un pedido, ha sido creado
-    // this.$sktRestock.on("order_open", (data) => {
-    //   this.orderHere(data) ? this.sktOrderOpen(data) : null;
-    // }); // hay un pedido en uso
-    // this.$sktRestock.on("order_update", (data) => {
-    //   this.orderHere(data) ? this.sktOrderUpdate(data) : null;
-    // }); // hay un pedido en uso
-    // this.$sktRestock.on("order_changestate", (data) => {
-    //   this.orderHere(data) ? this.sktOrderChangeState(data) : null;
-    // }); // cambiar status a pedido
   },
   beforeDestroy() {
     this.$sktRestock.emit("leave", {
@@ -620,18 +507,31 @@ export default {
     });
   },
   methods: {
+    /**
+     * @description Recibe la data del componente 'DeliveryOpt' y la transforma para gestionar los cambios estado.
+     * @param { Object[] } newState - Objeto que recibe la data del componente DeliveryOpt
+     */
     stateDxDiag(newState) {
       // console.log();
       if (newState._data.id == undefined) {
         this.wndStore.state = newState._state;
+        this.wndLog.state = !this.wndStore.state;
       } else {
         this.wndStore.state = newState._state;
+        this.wndLog.state = !this.wndStore.state;
         let actor = newState._data ? newState._data : [];
         console.log(actor);
         this.dataOrder = actor;
         this.changeState();
       }
     },
+    /**
+     * Aun no se utiliza.
+     * @description Asigna un valor dependiendo su estado y retorna un objeto.
+     * @param { string } storage - Valor que obtenemos del componente DeliveryOpt
+     * @param { number } step - Valor que obtenemos del componente DeliveryOpt
+     * @returns Object[]
+     */
     setStorage(storage, step) {
       this.step = step;
       console.log(step);
@@ -641,6 +541,11 @@ export default {
 
       return this.getObject();
     },
+    /**
+     * Aun no se utiliza.
+     * @description Asigna valor y agrega a un nuevo objeto que retornara del componente DeliveryOpt.
+     * @returns Object[]
+     */
     getObject() {
       let object = {
         store: this.selectWarehouse,
@@ -650,100 +555,9 @@ export default {
       console.log(object);
       return object;
     },
-    sktOrderUpdate(data) {
-      console.log(data);
-      let idx = this.ordersdb.findIndex((order) => order.id == data.order.id);
-      let pidx = null;
-
-      switch (data.cmd) {
-        case "add":
-          this.ordersdb[idx].products.push(data.product);
-          break;
-
-        case "edit":
-          pidx = this.ordersdb[idx].products.findIndex(
-            (art) => art.id == data.product.id
-          );
-          this.ordersdb[idx].products[pidx] = Object.assign(
-            this.ordersdb[idx].products[pidx],
-            data.product
-          );
-          break;
-
-        case "remove":
-          pidx = this.ordersdb[idx].products.findIndex(
-            (art) => art.id == data.product
-          );
-          this.ordersdb[idx].products.splice(pidx, 1);
-          break;
-
-        default:
-          console.log("Comando desconocido!!");
-          break;
-      }
-    },
-    sktOrderOpen(data) {
-      console.log(
-        `%cPedido ${data.order.id} ha sido abierto`,
-        "color:#3ae374;font-size:1.5em;"
-      );
-    },
-    sktOrderCreating(data) {
-      console.log(data.order);
-      console.log("Se esta levantando un pedido!!");
-      if (data.to.label == this.workin.workpoint.alias) {
-        console.log(
-          "%cEl pedido pertenece a este dashboard",
-          "font-size:1.5;color:#3ae374;"
-        );
-        let idx = this.ordersdb.findIndex((item) => {
-          return item.id == data.order.id;
-        });
-        if (idx < 0) {
-          this.orders.unshift(data.order);
-        } else {
-          this.ordersdb[idx] = Object.assign(this.ordersdb[idx], data.order);
-        }
-        this.sounds.creating.play();
-      } else {
-        console.log(
-          "%cPero no pertenece a este dashboard",
-          "font-size:1.5;color:#ff9f1a;"
-        );
-      }
-    },
-    sktOrderChangeState(data) {
-      console.log("Actualizando status a pedido");
-      let idx = this.ordersdb.findIndex((item) => {
-        return item.id == data.order.id;
-      });
-      console.log(data.order);
-      console.log(this.ordersdb[idx]);
-      let order = this.ordersdb[idx];
-      order.log = data.log;
-      order.status = data.state;
-      this.ordersdb[idx] = Object.assign(this.ordersdb[idx], order);
-
-      switch (data.state.id) {
-        case 2:
-          this.sounds.created.play();
-          break;
-        case 10:
-          this.sounds.done.play();
-          break;
-        case 100:
-          this.sounds.removed.play();
-          break;
-        default:
-          this.sounds.moved.play();
-          break;
-      }
-    },
-    orderHere(data) {
-      return this.ordersdb.findIndex((order) => order.id == data.order.id) >= 0
-        ? true
-        : false;
-    },
+    /**
+     * @description Función que reimprime un ticket.
+     */
     reprint() {
       console.log("reimprimiendo");
       let data = { _requisition: this.wndLog.order.id };
@@ -763,13 +577,15 @@ export default {
           console.log(fail);
         });
     },
+    /**
+     * @description Mostramos el timeline del flujo de surtido a Sucursal.
+     * @param { number } orderid ID de la orden
+     */
     showLog(orderid) {
-      // console.log(this.validateMarket(0,0))
       let idx = this.ordersdb.findIndex((item) => {
         return item.id == orderid;
       });
       this.wndLog.order = this.ordersdb[idx];
-      // console.log(this.wndLog.order.log[2].details.actors.id);
       if (this.wndLog.order.log.length > 2) {
         let index = this.grocerAccnt.findIndex((item) => {
           return item.id == this.wndLog.order.log[2].details.actors.id;
@@ -781,9 +597,6 @@ export default {
         );
         this.dataOrder = ord;
       }
-
-      // console.log(ord)
-      // this.dataOrder = this.ordersdb[idx];
       console.log(this.wndLog.order);
       this.wndLog.state = true;
     },
@@ -882,7 +695,7 @@ export default {
      * @description Nos retorna el Objeto del Actor para el Campo Libre
      * @param { Object } Orden Order
      * @param { Object } Objeto_Bodegueros OptDelivery
-     * @param { Number } State Estado de Siponibilidad
+     * @param { Number } State Estado de Disponibilidad
      */
     structuredDataDelivery() {
       return (order, optDelivery, state) => {
@@ -1146,6 +959,11 @@ export default {
         return stateCEDIS.includes(status);
       };
     },
+    /**
+     * @description Obtenemos la evaluacion de la condición para mostrar DxDialog de la Seleccioón de Bodegueros, Vehículos y Respartidores.
+     * @returns Retorna Booleano
+     * @param { number }  Id
+     */
     checkState() {
       return (state) => {
         let resp = state == 2 || state == 6;
@@ -1156,19 +974,6 @@ export default {
      * @description Retorna la configuración del tablero si solo es CEDIS
      * @returns Configuración del tablero por selección de items
      * @param {number} index
-     *
-     * 0 (Default) => LEVANTANDO
-     * 1 => POR SURTIR
-     * 2 => SURTIENDO
-     * 3 => POR VALIDAR EMBARQUE
-     * 4 => VALIDANDO EMBARQUE
-     * 5 => POR ENVIAR
-     * 6 => EN CAMINO
-     * 7 => POR VALIDAR RECEPCION
-     * 8 => VALIDANDO RECEPCION
-     * 9 => COMPLETADO
-     * 101 => CANCELADO
-     * 100 => EXPIRADO
      */
     isCEDIS() {
       return (index) => {
@@ -1184,19 +989,6 @@ export default {
      * @description Retorna la configuración del tablero si solo es Sucursal
      * @returns Configuración del tablero por selección de items
      * @param {number} index
-     *
-     * 0 (Default) => LEVANTANDO
-     * 1 => POR SURTIR
-     * 2 => SURTIENDO
-     * 3 => POR VALIDAR EMBARQUE
-     * 4 => VALIDANDO EMBARQUE
-     * 5 => POR ENVIAR
-     * 6 => EN CAMINO
-     * 7 => POR VALIDAR RECEPCION
-     * 8 => VALIDANDO RECEPCION
-     * 9 => COMPLETADO
-     * 101 => CANCELADO
-     * 100 => EXPIRADO
      */
     isMarket() {
       return (index) => {
