@@ -308,6 +308,7 @@
         :orders="wndLog.order"
         @change="stateDxDiag"
         :data="grocerAccnt"
+        :ordersAll="ordersdb"
         :state="1"
       />
     </q-dialog>
@@ -756,34 +757,6 @@ export default {
         );
       };
     },
-    orderTaking() {
-      return this.ordersdb.filter((order) => order.status.id == 1);
-    }, //levantando pedido
-    orderForSupply() {
-      return this.ordersdb.filter((order) => order.status.id == 2);
-    }, //Por surtir
-    orderSuppling() {
-      return this.ordersdb.filter((order) => order.status.id == 3);
-    }, //Surtiendo
-    orderCheckout() {
-      return this.ordersdb.filter((order) => order.status.id == 4);
-    }, //Surtido, esperando salida
-    orderToArrive() {
-      return this.ordersdb.filter((order) => order.status.id == 5);
-    }, //En camino
-    orderArrived() {
-      return this.ordersdb.filter(
-        (order) => order.status.id == 6 || order.status.id == 7
-      );
-    }, //Pedido recibido // validando/
-    orderOk() {
-      return this.ordersdb.filter((order) => order.status.id == 10);
-    }, //revisado OK
-    orderArchive() {
-      return this.ordersdb.filter(
-        (order) => order.status.id == 100 || order.status.id == 101
-      );
-    }, //Pedido cancelado/expirado
     noprinteds() {
       return this.orderForSupply.filter((order) => order.printed);
     },

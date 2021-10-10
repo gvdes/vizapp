@@ -117,6 +117,7 @@ export default {
     data: { type: Array, default: [] },
     orders: { type: Object, default: [] },
     state: { type: Number, default: 0 },
+    ordersAll: { type: Array, default: [] },
   },
   data() {
     return {
@@ -188,27 +189,21 @@ export default {
         let grocer = account;
         let aux = [];
         for (let i = 0; i < grocer.length; i++) {
-          let verify = this.getOrders.findIndex((item) => {
-            return (
-              item.log.length == 3 &&
-              item.log[2].details.actors.id == grocer[i].id
-            );
+          let structured = this.ordersAll.findIndex((item, idx) => {
+            return item.log.length == 3 && item.log[2].details.actors.id == grocer[i].id ?  idx : "";
           });
-          let structured = this.getOrders.findIndex((item) => {
-            return (
-              item.log.length == 3 &&
-              item.log[2].details.actors.id == grocer[i].id
-            );
-          });
-          // console.log(verify > 0)
-          if (verify > 0 && structured > 0) {
+          if (structured > 0) {
             aux.push({
               id: grocer[i].id,
               name: grocer[i].names,
               surname_mat: grocer[i].surname_mat,
               surname_pat: grocer[i].surname_pat,
               complete_name: `${grocer[i].names} ${grocer[i].surname_pat} ${grocer[i].surname_mat}`,
-              state: this.getOrders[structured].log[2].details.actors.state,
+              state:
+                this.ordersAll[structured].log[2].details.actors.id ==
+                grocer[i].id
+                  ? this.ordersAll[structured].log[2].details.actors.state
+                  : "",
               icon: "not_interested",
               color: "text-red-13",
               disable: true,
@@ -226,6 +221,7 @@ export default {
               disable: false,
             });
           }
+          structured--;
         }
         return aux;
       };
@@ -273,9 +269,6 @@ export default {
         };
         return data;
       };
-    },
-    getOrders() {
-      return this.$store.getters["Requisitions/getOrders"];
     },
   },
 };
