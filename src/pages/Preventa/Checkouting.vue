@@ -104,7 +104,8 @@
         <q-dialog v-model="wndCounter.state" position="bottom" @hide="cleanCounter">
             <template v-if="wndCounter.product">
                 <q-card class="bg-darkl1 text-white exo">
-                    <q-card-section>Confirmar</q-card-section>
+                    <q-card-section class="bg-blue-grey-9 text-white text-overline">CONFIRMAR PRODUCTO</q-card-section>
+                    <q-separator/>
                     <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" />
                 </q-card>
             </template>
@@ -114,7 +115,8 @@
         <q-dialog v-model="wndEditor.state" position="bottom" @hide="cleanEditor" class="exo">
             <template v-if="wndEditor.product">
                 <q-card class="bg-darkl1 text-white exo">
-                    <q-card-section>Editar</q-card-section>
+                    <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
+                    <q-separator/>
                     <ProductAOE :product="wndEditor.product" :client="order.client" showprices @confirm="productEdit" />
                 </q-card>
             </template>
@@ -123,10 +125,8 @@
         <!-- VENTANA DE PRODUCTOS PARA ANEXAR -->
         <q-dialog v-model="wndAdder.state" position="bottom" @hide="cleanAdder">
             <q-card class="text-white bg-darkl1 exo">
-                <q-card-section>
-                    <div class="q-pb-md">Anexar Producto</div>
-                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" />
-                </q-card-section>
+                <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
+                <div class="q-pa-sm"><ProductAutocomplete with_image with_prices with_stock @input="setProduct" /></div>
                 <template class="ds" v-if="wndAdder.product">
                     <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" />
                 </template>
@@ -215,7 +215,7 @@ export default {
         this.$store.commit('Preventa/setHeaderState', false);
         this.$store.commit('Preventa/setFooterState', false);
 
-        this.$q.loading.show({ message:'Cargando...' });
+        this.$q.loading.show({ message: 'Cargando...' });
 
         this.order = await PreventaDB.order(this.ordercatch);
         console.log(this.order);
@@ -274,7 +274,6 @@ export default {
             }
 
             let result = await PreventaDB.makeCheckout(data);
-            console.log(result);
 
             if(result.server_status == 400){
                 this.$q.notify({

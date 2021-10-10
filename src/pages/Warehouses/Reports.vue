@@ -52,7 +52,7 @@ export default {
     methods: {
         genReport(report){
 			this.$vizapi.defaults.responseType = 'blob';//convertir el tipo de retorno a strweam para póderlo descargar
-			let namereport = report.description;
+			let namereport = `${report.description} - ${this.workin.workpoint.alias}`;
 			this.$q.loading.show({message:`Generando reporte (${namereport}), porfavor espera...`});
 			let data = {"_type":report._excel}
 			console.log(data);
@@ -69,8 +69,7 @@ export default {
 			}).catch(fail=>{
 				console.log(fail);
 				this.$q.notify({
-					icon:"fas fa-bug",
-					color:"negative",
+					icon:"fas fa-bug", color:"negative",
 					message:"Vaya, algo salio mal "
 				});
 			});
@@ -83,10 +82,10 @@ export default {
 					item.clases = this.clases[item._excel];
 					return item;
 				});
-			}else{
-				return null 
-			}
-		}
+			}else{ return null; }
+		},
+		profile(){ return this.$store.getters['Account/profile'];},
+		workin(){ return this.$store.getters['Account/workin'];},
 	}
 }
 </script>

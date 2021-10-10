@@ -50,7 +50,7 @@
                 <div class="text-overline">Opciones</div>
                 <div>
                     <q-btn-group spread class="bg-darkl1">
-                        <q-btn dark icon="print" @click="initPrinters('reprint');" />
+                        <q-btn dark icon="print" @click="initPrinters('reprint');" v-if="currentStep&&currentStep.id>1" />
 
                         <template v-if="basket.length">
                             <q-btn dark icon="fas fa-file-excel"/>
@@ -409,20 +409,18 @@ export default {
         async archive(){
             // this.$q.loading.show({message:'Archivando pedido...'});
             let data = { "_order": this.ordercatch.id }
+            let resp = await preventadb.archive(data);
 
-            this.psocket.emit('order_archive', { order:this.index, profile:this.profile, workpoint:this.workin });
+            if(resp.err){
+                this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
+            }else{
+                let newstate = resp.status[resp.status.length-1];
+                let ordersend = Object.assign({}, this.index);
 
-            // let resp = await preventadb.archive(data);
-
-            // console.log(resp);
-
-            // if(resp.err){
-            //     this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
-            // }else{
-            //     this.psocket.emit('');
-            //     this.$q.notify({ message:'Archivado correcto!!', color:'positive', icon:'done' });
-            //     this.$router.push('/preventa/pedidos');
-            // }
+                this.psocket.emit('order_update', { newstate:newstate, order:ordersend });
+                this.$q.notify({ message:'Archivado correcto!!', color:'positive', icon:'done' });
+                this.$router.push('/preventa/pedidos');
+            }
         },
         async remove(){
             let model = this.wndAOE.product;
@@ -618,7 +616,7 @@ export default {
                 let ordersend = Object.assign({}, this.index);
                 ordersend.status = newstate;
 
-                this.psocket.emit("order_update",{ newstate:newstate, order:ordersend, update:'state' });
+                this.psocket.emit("order_update",{ newstate:newstate, order:ordersend });
                 this.appsounds.ok.play();
                 this.$router.push('/preventa/pedidos');
                 this.$q.notify({ message:`Pedido ${data._order} enviado a ${newstate.name}`, color:'positive', icon:'done', position:'center', timeout:1000 });

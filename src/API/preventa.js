@@ -40,8 +40,8 @@ export default{
         }).catch(fail=>{ return { err:fail } });
     },
     archive(data){
-        return vizapi.post('order/cancell',data).then(success=>{
-            return { resp:success.data }
+        return vizapi.post('order/cancell',data).then(done=>{
+            return done.data;
         }).catch(fail=>{ return { err:fail } });
     },
     setModState(data){

@@ -1,19 +1,21 @@
 <template>
     <q-card class="bg-darkl1">
         <!-- HEADER  -->
-            <q-card-section>
-                <div class="row justify-between items-start text-h6 text-bold">
-                    <div class="text-green-13">{{product.code}}</div>
-                    <div v-if="product.stocks">
-                        <q-btn flat dense no-caps class="text-bold"
-                            :color="product.stocks[0].stock?'green-13':'amber-13'"
-                            :label="`Stock: ${product.stocks[0].stock}`"
-                        />
+            <q-card class="bg-none">
+                <q-card-section>
+                    <div class="row justify-between items-start text-h6 text-bold">
+                        <div class="text-green-13">{{product.code}}</div>
+                        <div v-if="product.stocks">
+                            <q-btn flat dense no-caps class="text-bold"
+                                :color="product.stocks[0].stock?'green-13':'amber-13'"
+                                :label="`Stock: ${product.stocks[0].stock}`"
+                            />
+                        </div>
+                        <div class="text-light-blue-13">{{product.name}}</div>
                     </div>
-                    <div class="text-light-blue-13">{{product.name}}</div>
-                </div>
-                <div class="text--2">{{product.description}}</div>
-            </q-card-section>
+                    <div class="text--2">{{product.description}}</div>
+                </q-card-section>
+            </q-card>
         <!-- HEADER 6BRJYThutH  -->
 
         <!-- BODY  -->
@@ -52,7 +54,7 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <q-markup-table dark flat dense square class="col q-mx-md bg-none text-grey-5">
+                                <q-markup-table flat dense square class="col q-mx-md bg-none text-white">
                                     <tbody>
                                         <tr>
                                             <td colspan="2">
@@ -76,9 +78,24 @@
                             </div>
                         </div>
                     </q-card-section>
+                </template>
+            </div>
 
-                    <q-btn-group spread class="btn_focus">
-                        <q-btn :load="actions.done.dis" :dis="actions.done.dis" icon="fas fa-check" class="q-py-md" color="primary" @click="confirm" autofocus/>
+            <div>
+                <template v-if="action=='add'">
+                    <q-separator/>
+                    <q-btn-group spread>
+                        <q-btn flat icon="fas fa-check" class="q-py-md" color="green-13" @click="confirm" autofocus/>
+                        <q-btn flat icon="fas fa-times" class="q-py-md" color="amber-13" @click="cancel"/>
+                    </q-btn-group>
+                </template>
+
+                <template v-if="action=='edit'">
+                    <q-separator/>
+                    <q-btn-group spread flat>
+                        <q-btn flat icon="fas fa-check" class="q-py-md" color="green-13" @click="confirm" autofocus/>
+                        <q-btn flat icon="fas fa-times" class="q-py-md" color="amber-13" @click="cancel"/>
+                        <q-btn flat icon="fas fa-trash" class="q-py-md" color="pink-13" @click="remove"/>
                     </q-btn-group>
                 </template>
             </div>
@@ -91,18 +108,12 @@ export default {
         product:{ type:Object, default:{} },
         action:{ type:String, default:'add' },
         client:{ type:Object, default:{} },
-        showprices:{ type:Boolean, default:false },
-        btnremove:{ type:Boolean, default:true }
+        showprices:{ type:Boolean, default:false }
     },
     data(){
         return {
             amount:1,
             comments:"",
-            actions:{
-                done:{dis:false,load:false},
-                cancel:{dis:false},
-                remove:{dis:false,rem:false}
-            },
             metsupply:{
                 model:{alias:'Piezas', id: 1},
                 opts:[
@@ -134,7 +145,8 @@ export default {
             this.$emit('confirm',this.params);
         },
         confirm(){ this.$emit('confirm',this.params); },
-        remove(){ this.$emit('remove'); } 
+        cancel(){ this.$emit('cancel',this.params); },
+        remove(){ this.$emit('remove',this.params); } 
     },
     computed:{
         prices(){ return this.product ? this.product.prices : null; },
