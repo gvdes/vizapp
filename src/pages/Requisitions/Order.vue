@@ -283,175 +283,17 @@
       </q-card>
     </q-dialog>
 
-    <!-- <q-dialog v-model="wndAOE.state" position="bottom" @hide="cleanWndAOE">
-      <q-card v-if="wndAOE.product" class="exo bg-darkl0 text-grey-4">
-        <q-card-section>
-          <div class="row justify-between items-start text-h6 text-bold">
-            <div class="text-green-13">{{ wndAOE.product.code }}</div>
-            <div class="text-light-blue-13">{{ wndAOE.product.name }}</div>
-          </div>
-          <div class="text--2">{{ wndAOE.product.description }}</div>
-        </q-card-section>
-
-        <div>
-          <template v-if="wndAOE.params.type == 'std'">
-            <div class="text-center row justify-between q-px-md">
-              <div
-                v-for="prc in wndAOE.product.prices"
-                :key="prc.id"
-                class="q-px-md"
-              >
-                <div class="text--2">{{ prc.alias }}</div>
-                <div class="text-bold">$ {{ prc.price }}</div>
-              </div>
-            </div>
-          </template>
-
-          <template v-if="wndAOE.params.type == 'off'">
-            <div class="text-center text-bold text-orange">
-              <div>OFERTA</div>
-              <div class="text-h4">$ {{ wndAOE.product.prices[0].price }}</div>
-            </div>
-          </template>
-
-          <div class="q-mt-lg row items-end">
-            <div class="text-center">
-              <div class="column">
-                <div v-if="wndAOE.product.stocks">
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    class="text-bold"
-                    :color="
-                      wndAOE.product.stocks[0].stock ? 'green-13' : 'amber-13'
-                    "
-                    :label="`Stock: ${wndAOE.product.stocks[0].stock}`"
-                  />
-                </div>
-                <q-btn
-                  icon="fas fa-chevron-up"
-                  class="q-py-xs"
-                  @click="ctrlPzsUp"
-                  flat
-                />
-                <div class="text-center col column q-py-md">
-                  <input
-                    type="number"
-                    min="1"
-                    v-model="wndAOE.params.amount"
-                    class="text-center exo fieldcant"
-                    @keyup="wAOEcalcs"
-                  />
-                </div>
-                <q-btn
-                  icon="fas fa-chevron-down"
-                  class="q-py-xs"
-                  @click="ctrlPzsDown"
-                  flat
-                />
-              </div>
-            </div>
-            <div class="col">
-              <q-markup-table
-                dark
-                flat
-                dense
-                square
-                class="col q-mx-md bg-none text-grey-5"
-              >
-                <tbody>
-                  <tr>
-                    <td colspan="2">
-                      <q-select
-                        label="Surtir por"
-                        @input="wAOEcalcs"
-                        borderless
-                        dense
-                        dark
-                        color="green-13"
-                        v-model="metsupply.model"
-                        option-value="id"
-                        option-label="alias"
-                        :options="metsupply.opts"
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colspan="2">
-                      <q-input
-                        borderless
-                        dense
-                        dark
-                        flat
-                        label="Notas"
-                        color="green-13"
-                        v-model="wndAOE.params.comments"
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Piezas X Caja</td>
-                    <td align="right">{{ wndAOE.product.pieces }}</td>
-                  </tr>
-                  <tr>
-                    <td>Cajas</td>
-                    <td align="right">{{ wndAOE.params.boxes }}</td>
-                  </tr>
-                  <tr>
-                    <td>Unidades</td>
-                    <td align="right">{{ wndAOE.params.units }}</td>
-                  </tr>
-                  <tr>
-                    <td>Precio unitario</td>
-                    <td align="right">{{ wndAOE.params.price }}</td>
-                  </tr>
-                  <tr>
-                    <td>Total</td>
-                    <td align="right">{{ wndAOE.params.total }}</td>
-                  </tr>
-                </tbody>
-              </q-markup-table>
-            </div>
-          </div>
-        </div>
-        <q-separator />
-        <div class="row">
-          <q-btn
-            class="col q-py-md"
-            color="green-13"
-            icon="done"
-            :label="wndAOE.action == 'a' ? 'Agregar' : 'Aplicar'"
-            no-caps
-            flat
-            @click="doneAOE"
-            :loading="wndAOE.actions.done.save"
-            :disable="wndAOE.actions.done.dis"
+    <q-dialog position="bottom" v-model="flagProducts">
+      <q-card class="text-white bg-darkl1 exo">
+        <template class="ds">
+          <ProductAOE
+            :product="wndSetItem.art"
+            :client="{}"
+            @confirm="addProduct"
           />
-          <q-btn
-            v-if="wndAOE.action == 'e'"
-            class="col q-py-md"
-            color="amber-13"
-            icon="delete"
-            label="Remover"
-            no-caps
-            flat
-            @click="remove"
-            :loading="wndAOE.actions.remove.rem"
-            :disable="wndAOE.actions.remove.dis"
-          />
-          <q-btn
-            class="col q-py-md"
-            color="light-blue-14"
-            icon="close"
-            label="Cancelar"
-            no-caps
-            flat
-            @click="cancelAOE"
-          />
-        </div>
+        </template>
       </q-card>
-    </q-dialog> -->
+    </q-dialog>
 
     <q-dialog v-model="wndSelectSupply.wndDialogState" position="bottom">
       <q-card class="exo bg-darkl0 text-grey-4">
@@ -751,8 +593,8 @@
             />
           </div>
         </template>
-
-        <template v-else-if="order.status.id == 7"><!-- El pedido esta en camino -->
+        <template v-else-if="order.status.id == 7"
+          ><!-- El pedido esta en camino -->
           <template v-if="!tostock.state">
             <span class="text-grey-4 q-pl-md">{{ order.status.name }}</span>
             <span>
@@ -786,13 +628,11 @@
             </span>
           </template>
         </template>
-
         <template v-else
           ><!-- El pedido puede mostrar el log -->
           <span class="text-grey-4 q-pl-md">{{ order.status.name }}</span>
           <q-btn flat color="green-13" icon="history" @click="showLog" />
         </template>
-
         <q-btn
           icon="print"
           flat
@@ -814,10 +654,12 @@ import ExcelJS from "exceljs";
 import dbreqs from "../../API/requisitions";
 import ProductAutocomplete from "../../components/Global/ProductAutocomplete.vue";
 import saved from "file-saver";
+import ProductAOE from "../../components/Global/ProductAOE.vue";
 export default {
-  components: { ProductAutocomplete },
+  components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
+      flagProducts: false,
       flagPrompt: false,
       saveNameExport: "",
       orderProd: [],
@@ -857,6 +699,7 @@ export default {
         units: 1,
         notes: "",
         unittype: undefined,
+        metsupply: 1,
       },
       wndLog: {
         state: false,
@@ -1177,11 +1020,19 @@ export default {
           console.log(fail);
         });
     },
-    addProduct() {
+    addProduct(params) {
+      console.log(params);
       this.wndSetItem.adding = true;
       this.filteringItems = "";
 
       let data = new Object();
+      this.wndSetItem.art = params.product;
+      this.wndSetItem.units = params.units;
+      this.wndSetItem.amount = params.amount;
+      this.wndSetItem.notes = params.notes;
+      this.wndSetItem.metsupply = params.metsupply;
+      // this.wndSetItem.art = this.wndSetItem.art.concat(params.metsupply);
+      // console.log(this.wndSetItem.art);
       let product = this.wndSetItem.art;
       product.amount = this.wndSetItem.units;
       product.comments = this.wndSetItem.notes;
@@ -1190,6 +1041,7 @@ export default {
       data.amount = product.amount;
       data.comments = product.comments;
       data._requisition = this.params.id;
+      data._supply_by = params.metsupply.id;
 
       dbreqs
         .add(data)
@@ -1211,12 +1063,18 @@ export default {
           } else {
             console.log("Articulo agregado");
             console.log(resp);
-            this.products.unshift(resp);
-            cmd = "add";
-            sktproduct = resp;
+            if (resp.success == false) {
+              this.messageDuplicate = `${resp.msg}, producto: ${this.wndSetItem.art.description}, código: ${this.wndSetItem.art.code}`;
+              this.flagDuplicate = !this.flagDuplicate;
+            } else {
+              // resp = resp.concat(params.metsupply);
+              this.products.unshift(resp);
+              cmd = "add";
+              sktproduct = resp;
+            }
           } // el articulo fue agregado
 
-          this.wndSetItem.state = false;
+          this.flagProducts = !this.flagProducts;
           this.autocom.options = undefined;
           this.autocom.model = null;
 
@@ -1249,7 +1107,7 @@ export default {
       if (idx >= 0) {
         // el producto ya esta en la lista
         if (id == 2) {
-          this.wndSetItem.state = true;
+          // this.flagProducts = !this.flagProducts;
           // this.filteringItems = '';
         } else {
           this.flagDuplicate = !this.flagDuplicate;
@@ -1258,24 +1116,28 @@ export default {
           this.filteringItems = opt.code;
           console.log(this.filteringItems);
         }
-
         console.log("Editando producto");
         let art = this.products[idx];
-        this.duplicate = !this.duplicate;
+        // console.log(art)
+        this.flagProducts = !this.flagProducts;
         this.wndSetItem.notes = art.ordered.comments;
         this.wndSetItem.units = art.ordered.amount;
         this.wndSetItem.idxlist = idx;
-        this.wndSetItem.art = art;
+        // let newArr = [];
+        let newArr = art;
+        let newWs = Object.assign(newArr, this._metsupply(art)[0]);
+        console.log(newWs);
+        this.wndSetItem.art = newWs;
         // this.wndSetItem.state = true
       } else {
         // agregar nuevo producto
         console.log("Agregando producto...");
         this.duplicate = false;
         this.wndSetItem.art = opt;
-        this.wndSetItem.state = true;
+        this.flagProducts = !this.flagProducts;
+        // this.wndSetItem.state = true;
         this.filteringItems = "";
       }
-      // this.flagDuplicate = this.flagDuplicate ? this.wndSetItem.state = true : this.wndSetItem.state = false;
     },
     toogleIptSearch() {
       switch (this.iptsearch.type) {
@@ -1327,7 +1189,7 @@ export default {
         typeB.eachCell({ includeEmpty: true }, function (cell, rowNumber) {
           cell.value ? extractTypeB.push(cell.value) : null;
         });
-        
+
         let diference = extractTypeA.filter((item, pos, self) => {
           return self.indexOf(item) == pos;
         });
@@ -1345,18 +1207,17 @@ export default {
         if (diference.length != extractTypeA.length) {
           // this.wndImportJSON.state = false;
           this.flagDuplicate = !this.flagDuplicate;
-          this.messageDuplicate =
-            `Durante el análisis nos percatamos de ${convert == 1 ? `un folio` : convert + ` folios`} duplicados. Los retiramos para el proceso de subida de información, sin embargo le recomendamos revisar sus archivos antes de subirlos.`;
-          
-        } 
-        
+          this.messageDuplicate = `Durante el análisis nos percatamos de ${
+            convert == 1 ? `un folio` : convert + ` folios`
+          } duplicados. Los retiramos para el proceso de subida de información, sin embargo le recomendamos revisar sus archivos antes de subirlos.`;
+        }
+
         let data = {
           _requisition: this.setupToolbar.verify,
           products: extractJSON,
           _supply_by: this.wndImportJSON._supply_by,
         };
         console.log(data);
-        
 
         // HABILITAR BOTON DE LIMPIAR / REMOVER FOLIOS
 
@@ -1367,15 +1228,15 @@ export default {
             let data = [];
             data = success.data;
             for (let i = 0; i < data.notFound.length; i++) {
-                this.wndImportJSON.wndNoDataFound.push(data.notFound[i]);
-              }
-              this.wndImportJSON.wndTotal = extractJSON.length;
-              this.wndImportJSON.wndGetRows = data.added.length;
-              this.wndImportJSON.state = !this.wndImportJSON.state;
-              this.wndImportJSON.wndGetAdded = data.added;
-              this.wndImportJSON.wndGetAdded.map((item) => {
-                this.products.push(item);
-              });
+              this.wndImportJSON.wndNoDataFound.push(data.notFound[i]);
+            }
+            this.wndImportJSON.wndTotal = extractJSON.length;
+            this.wndImportJSON.wndGetRows = data.added.length;
+            this.wndImportJSON.state = !this.wndImportJSON.state;
+            this.wndImportJSON.wndGetAdded = data.added;
+            this.wndImportJSON.wndGetAdded.map((item) => {
+              this.products.push(item);
+            });
           })
           .catch((log) => {
             console.log(log);
@@ -1425,10 +1286,6 @@ export default {
       this.triggerInputFile();
     },
     emptyOrder() {
-      // let data = {
-      //   _product: this.wndSetItem.art.id,
-      //   _requisition: this.params.id,
-      // };
       this.$q.loading.show({ message: "Removiendo datos, espera..." });
       console.log(this.products);
       let articles = this.products.length - 1;
@@ -1440,9 +1297,50 @@ export default {
       } while (articles >= 0);
       this.$q.loading.hide();
       // console.log(this.params.id);
-    }
+    },
   },
   computed: {
+    _metsupply() {
+      return (data) => {
+        let newMetSupply = [];
+        switch (data.ordered._supply_by) {
+          case 1:
+            newMetSupply = [
+              {
+                metsupply: {
+                  id: data.ordered._supply_by,
+                  name: "Piezas",
+                },
+              },
+            ];
+            break;
+          case 2:
+            newMetSupply = [
+              {
+                metsupply: {
+                  id: data.ordered._supply_by,
+                  name: "Docena",
+                },
+              },
+            ];
+            break;
+          case 3:
+            newMetSupply = [
+              {
+                metsupply: {
+                  id: data.ordered._supply_by,
+                  name: "Cajas",
+                },
+              },
+            ];
+            break;
+
+          default:
+            break;
+        }
+        return newMetSupply;
+      };
+    },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
     },
@@ -1536,7 +1434,6 @@ export default {
         ? this.order.created_by.id == this.profile.me.id
         : false;
     },
-    // isduplicate(){ return code => { this.products.findIndex(item=>{return item.code==code}) } }
     isduplicate() {
       return (code) => {
         return (
