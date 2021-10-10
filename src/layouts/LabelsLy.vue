@@ -205,7 +205,7 @@
             </q-input>
           </template>
         </div> -->
-        <div class="q-gutter-sm">
+        <div class="q-gutter-lg">
           <q-table
             grid
             flat
@@ -217,84 +217,88 @@
             :filter="filteringItems"
           >
             <template v-slot:item="labels">
-              <q-card class="bg-darkl1 full-width q-mb-sm">
-                <q-card-section>
-                  <div class="row items-center">
-                    <q-chip
-                      size="sm"
-                      class="
-                        fixed-right
-                        absolute-right
-                        text-bold text-white text-uppercase
-                      "
-                      :color="colorLabel(labels.row.type)"
-                      >{{ labels.row.type }}</q-chip
-                    >
-                    <div class="col text-center">
-                      <div class="text-h5">{{ labels.row.code }}</div>
-                      <div class="text-bold">{{ labels.row.name }}</div>
-                      <div class="text--2">{{ labels.row.description }}</div>
-                      <div class="text-bold" v-if="useIpack">
-                        <div><q-icon size="lg" name="fas fa-barcode" /></div>
-                        <div>
-                          <span>{{ labels.row.barcode }}</span>
+              <div class="col-xs-6 text-grey-4 col-sm-6 col-md-4 col-lg-3 q-mb-sm">
+                <q-card
+                  class="bg-darkl1 full-height"
+                  style="margin-right: 5px"
+                >
+                  <q-card-section>
+                    <div class="row items-center">
+                      <q-chip
+                        size="sm"
+                        class="
+                          fixed-right
+                          absolute-right
+                          text-bold text-white text-uppercase
+                        "
+                        :color="colorLabel(labels.row.type)"
+                        >{{ labels.row.type }}</q-chip
+                      >
+                      <div class="col text-center">
+                        <div class="text-h5">{{ labels.row.code }}</div>
+                        <div class="text-bold">{{ labels.row.name }}</div>
+                        <div class="text--2">{{ labels.row.description }}</div>
+                        <div class="text-bold" v-if="useIpack">
+                          <div><q-icon size="lg" name="fas fa-barcode" /></div>
+                          <div>
+                            <span>{{ labels.row.barcode }}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </q-card-section>
-                <q-card-section>
-                  <div class="row items-start text-white">
-                    <div
-                      class="col text-center"
-                      v-for="(price, idx) in labels.row.usedPrices"
-                      :key="idx"
-                    >
-                      <div>{{ price.alias }}</div>
-                      <div>{{ price.price }}</div>
-                    </div>
-                  </div>
-                </q-card-section>
-                <q-card-section>
-                  <div class="row items-start text-white">
-                    <div class="col text-center">
-                      <div>{{ labels.row.usedPrices.alias }}</div>
-                      <div>{{ labels.row.usedPrices.price }}</div>
-                      <div class="justify-around">
-                        <q-btn-group
-                          spread
-                          class="text-grey-5 no-shadow q-mt-sm q-mb-none"
-                        >
-                          <q-btn
-                            flat
-                            color="negative"
-                            icon="delete"
-                            @click="remove(labels.row.code)"
-                          />
-                          <q-btn flat icon="settings" disable />
-                          <q-btn
-                            flat
-                            icon="remove"
-                            @click="updateCopies(labels.row.code, 'd')"
-                          />
-                          <span class="text-center self-center q-px-md">
-                            <div class="text-caption text--2">copias</div>
-                            <div class="text-bold q-pb-sm">
-                              <!-- <q-input type="number" min="1" v-model="label.copies" borderless/> -->
-                              {{ labels.row.copies }}
-                            </div>
-                          </span>
-                          <q-btn
-                            flat
-                            icon="add"
-                            @click="updateCopies(labels.row.code, 'u')"
-                          />
-                        </q-btn-group>
+                  </q-card-section>
+                  <q-card-section>
+                    <div class="row items-start text-white">
+                      <div
+                        class="col text-center"
+                        v-for="(price, idx) in labels.row.usedPrices"
+                        :key="idx"
+                      >
+                        <div>{{ price.alias }}</div>
+                        <div>{{ price.price }}</div>
                       </div>
                     </div>
-                  </div>
-                </q-card-section>
-              </q-card>
+                  </q-card-section>
+                  <q-card-section>
+                    <div class="row items-start text-white">
+                      <div class="col text-center">
+                        <div>{{ labels.row.usedPrices.alias }}</div>
+                        <div>{{ labels.row.usedPrices.price }}</div>
+                        <div class="justify-around">
+                          <q-btn-group
+                            spread
+                            class="text-grey-5 no-shadow q-mt-xs q-mb-none"
+                          >
+                            <q-btn
+                              flat
+                              color="negative"
+                              icon="delete"
+                              @click="remove(labels.row.code)"
+                            />
+                            <q-btn flat icon="settings" disable />
+                            <q-btn
+                              flat
+                              icon="remove"
+                              @click="updateCopies(labels.row.code, 'd')"
+                            />
+                            <span class="text-center self-center ">
+                              <div class="text-caption text--2">copias</div>
+                              <div class="text-bold q-pb-sm">
+                                {{ labels.row.copies }}
+                              </div>
+                            </span>
+                            <q-btn
+                              flat
+                              icon="add"
+                              @click="updateCopies(labels.row.code, 'u')"
+                            />
+                          </q-btn-group>
+                        </div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </div>
             </template>
             <template v-slot:bottom="scope">
               <q-page-sticky
@@ -406,7 +410,7 @@ export default {
       pagination: {
         descending: false,
         page: 1,
-        rowsPerPage: 4,
+        rowsPerPage: 6,
       },
       columns: [
         {
@@ -830,7 +834,7 @@ export default {
       nick = `${nick.me.names} ${nick.me.surname_pat} ${nick.me.surname_mat}`;
       // console.log(nick)
       let labels = JSON.parse(localStorage.getItem("applabels"));
-      let settingsRND = [5, 10, 15, 20];
+      let settingsRND = [15];
       //   console.log(this.labelsPage);
       let products = this.labelsPage.map((item, id) => {
         return {
@@ -845,8 +849,9 @@ export default {
           }),
           pieces: item.pieces,
           variants: item.variants,
-          discount: settingsRND[Math.floor(Math.random() * (3 - 0))],
+          discount: settingsRND[0],
           large: item.large,
+          label: item.label,
         };
       });
       //   console.log(products);
@@ -1063,7 +1068,7 @@ export default {
                 );
             pdf.setFontSize(9);
             pdf.setFont("Montserrat");
-            let splitter = pdf.splitTextToSize(products[i].description, 180);
+            let splitter = pdf.splitTextToSize(products[i].label, 180);
             pdf.text(
               splitter,
               width * (y == 0 ? 0 : y) + 25,
@@ -1089,6 +1094,10 @@ export default {
               let convert =
                 products[i].prices[0].price +
                 (products[i].prices[0].price * products[i].discount) / 100;
+              convert =
+                Math.floor(convert) == products[i].prices[0].price
+                  ? convert + 1
+                  : convert;
               pdf.text(
                 `De $${Math.floor(convert).toFixed(2)} a`,
                 width * (y == 0 ? 0 : y) + 90,
@@ -1385,7 +1394,7 @@ export default {
                 );
             pdf.setFontSize(12);
             pdf.setFont("Montserrat");
-            let splitter = pdf.splitTextToSize(products[i].description, 260);
+            let splitter = pdf.splitTextToSize(products[i].label, 260);
             pdf.text(
               splitter,
               width * (y == 0 ? 0 : y) + 25,
@@ -1411,6 +1420,10 @@ export default {
               let convert =
                 products[i].prices[0].price +
                 (products[i].prices[0].price * products[i].discount) / 100;
+              convert =
+                Math.floor(convert) == products[i].prices[0].price
+                  ? convert + 1
+                  : convert;
               pdf.text(
                 `De $${Math.floor(convert).toFixed(2)} a`,
                 width * (y == 0 ? 0 : y) + 115,
@@ -1697,7 +1710,7 @@ export default {
                 );
             pdf.setFontSize(9);
             pdf.setFont("Montserrat-Semi");
-            let splitter = pdf.splitTextToSize(products[i].description, 120);
+            let splitter = pdf.splitTextToSize(products[i].label, 120);
             pdf.text(
               splitter,
               width * (y == 0 ? 0 : y) + 30,
@@ -1715,6 +1728,10 @@ export default {
               let convert =
                 products[i].prices[0].price +
                 (products[i].prices[0].price * products[i].discount) / 100;
+              convert =
+                Math.floor(convert) == products[i].prices[0].price
+                  ? convert + 1
+                  : convert;
               pdf.text(
                 `De $${Math.floor(convert).toFixed(2)} a`,
                 width * (y == 0 ? 0 : y) + 50,
@@ -1865,8 +1882,22 @@ export default {
               pdf.setFontSize(12);
             }
             let large = products[i].large != undefined;
-            pdf.text(`${products[i].pieces}PZ`, width * (y == 0 ? 0 : y) + (large ? 25 : 30), 223 + (countY == 1 ? 0 : counterCodeShort), null, null, "left");
-            pdf.text(`${large ? products[i].large : ""}`, width * (y == 0 ? 0 : y) + (products[i].pieces < 100 ? 58 : 68), 223 + (countY == 1 ? 0 : counterCodeShort), null, null, "left");
+            pdf.text(
+              `${products[i].pieces}PZ`,
+              width * (y == 0 ? 0 : y) + (large ? 25 : 30),
+              223 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
+            pdf.text(
+              `${large ? products[i].large : ""}`,
+              width * (y == 0 ? 0 : y) + (products[i].pieces < 100 ? 58 : 68),
+              223 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
             pdf.setFont("Montserrat-Semi");
 
             if (products[i].code.length > 10) {
@@ -1874,7 +1905,14 @@ export default {
             } else {
               pdf.setFontSize(12);
             }
-            pdf.text(`${products[i].code}`, width * (y == 0 ? 0 : y) + + (large ? 80 : 75), 223 + (countY == 1 ? 0 : counterCodeShort), null, null, "left");
+            pdf.text(
+              `${products[i].code}`,
+              width * (y == 0 ? 0 : y) + +(large ? 80 : 75),
+              223 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
             this.useIpack
               ? pdf.addImage(
                   this.convertTextToBase64Barcode(products[i].name),
@@ -1944,21 +1982,20 @@ export default {
             console.log(products[i].code.length);
             if (products[i].code.length >= 8) {
               pdf.setFontSize(27);
-              
             } else {
               pdf.setFontSize(33);
             }
             pdf.text(
-                products[i].code,
-                width * (y == 0 ? 0 : y) + 30,
-                50 + (countY == 1 ? 0 : counterCodeShort),
-                null,
-                null,
-                "left"
-              );
+              products[i].code,
+              width * (y == 0 ? 0 : y) + 30,
+              50 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
             pdf.setFont("Montserrat-Semi");
             pdf.setFontSize(8);
-            let splitter = pdf.splitTextToSize(products[i].description.replace(/ *\([^)]*\) */g, ""), 170);
+            let splitter = pdf.splitTextToSize(products[i].label, 170);
             pdf.text(
               splitter,
               width * (y == 0 ? 0 : y) + 30,
@@ -2078,7 +2115,7 @@ export default {
               );
           pdf.setFontSize(10);
           pdf.setFont("Montserrat");
-          let splitter = pdf.splitTextToSize(products[i].description, 270);
+          let splitter = pdf.splitTextToSize(products[i].label, 270);
           pdf.text(
             splitter,
             width / 10,
@@ -2106,6 +2143,10 @@ export default {
             let convert =
               products[i].prices[0].price +
               (products[i].prices[0].price * products[i].discount) / 100;
+            convert =
+              Math.floor(convert) == products[i].prices[0].price
+                ? convert + 1
+                : convert;
             pdf.text(
               `De $${Math.floor(convert).toFixed(2)} a`,
               width / 2.2,
@@ -2347,7 +2388,7 @@ export default {
               );
           pdf.setFontSize(10);
           pdf.setFont("Montserrat");
-          let splitter = pdf.splitTextToSize(products[i].description, 270);
+          let splitter = pdf.splitTextToSize(products[i].label, 270);
           pdf.text(
             splitter,
             width * 1.1,
@@ -2374,6 +2415,10 @@ export default {
             let convert =
               products[i].prices[0].price +
               (products[i].prices[0].price * products[i].discount) / 100;
+            convert =
+              Math.floor(convert) == products[i].prices[0].price
+                ? convert + 1
+                : convert;
             pdf.text(
               `De $${Math.floor(convert).toFixed(2)} a`,
               width * 1.46,

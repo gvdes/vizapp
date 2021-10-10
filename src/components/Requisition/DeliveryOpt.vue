@@ -28,76 +28,83 @@
               ><q-icon class="text-green-13" name="filter_alt"
             /></template>
           </q-input>
-          <q-table
-            grid
-            :rows-per-page-options="[0]"
-            dark
-            row-key="id"
-            :columns="tableorders.columns"
-            :data="destructuringData(this.data)"
-            :pagination="initpagination"
-            :filter="selectWarehouse"
+          <q-scroll-area
+            :thumb-style="thumbStyle"
+            :bar-style="barStyle"
+            style="height: 80vh; max-width: 100%"
           >
-            <template v-slot:item="props">
-              <div class="col col-xs-12 col-sm-6">
-                <q-card
-                  class="
-                    justify-center
-                    items-center
-                    text-justify
-                    bg-darkl0
-                    shadow-1
-                    q-ma-sm
-                  "
-                >
-                  <div class="col items-center text-center">
-                    <q-avatar class="bg-none" size="100px">
-                      <q-img
-                        class="bg-darkl0 q-pa-md"
-                        transition="slide-up"
-                        ratio="1"
-                        :src="
-                          props.row.state == 'Surtiendo'
-                            ? 'https://image.flaticon.com/icons/png/512/3595/3595827.png'
-                            : 'https://image.flaticon.com/icons/png/512/1108/1108334.png'
+            <q-table
+              grid
+              :rows-per-page-options="[0]"
+              dark
+              row-key="id"
+              :columns="tableorders.columns"
+              :data="destructuringData(this.data)"
+              :filter="selectWarehouse"
+            >
+              <template v-slot:item="props">
+                <div class="col col-xs-12 col-sm-6">
+                  <q-card
+                    class="
+                      justify-center
+                      items-center
+                      text-justify
+                      bg-darkl0
+                      shadow-1
+                      q-ma-sm
+                    "
+                  >
+                    <div class="col items-center text-center">
+                      <q-avatar class="bg-none" size="100px">
+                        <q-img
+                          class="bg-darkl0 q-pa-md"
+                          transition="slide-up"
+                          ratio="1"
+                          :src="
+                            props.row.state == 'Surtiendo'
+                              ? 'https://image.flaticon.com/icons/png/512/3595/3595827.png'
+                              : 'https://image.flaticon.com/icons/png/512/1108/1108334.png'
+                          "
+                        >
+                        </q-img>
+                      </q-avatar>
+                    </div>
+                    <q-card-actions>
+                      <div
+                        class="
+                          col-12
+                          text-h6 text-center text-grey-12 text-subtitle1
                         "
+                        style="height: 50px"
                       >
-                      </q-img>
-                    </q-avatar>
-                  </div>
-                  <q-card-actions>
-                    <div
-                      class="
-                        col-12
-                        text-h6 text-center text-grey-12 text-subtitle1
-                      "
-                      style="height: 50px"
-                    >
-                      {{ props.row.complete_name.trim() }}
-                    </div>
-                    <div :class="`col-auto text-subtitle2 ${props.row.color}`">
-                      <q-icon
-                        :class="props.row.color"
-                        :name="props.row.icon"
-                      ></q-icon>
-                      {{ props.row.state }}
-                    </div>
-                    <q-space />
-                    <q-stepper-navigation>
-                      <q-btn
-                        rounded
-                        flat
-                        :class="`self-end ${props.row.color}`"
-                        icon="double_arrow"
-                        :disable="props.row.disable"
-                        @click="returnState(false, orders, props.row, state)"
-                      ></q-btn>
-                    </q-stepper-navigation>
-                  </q-card-actions>
-                </q-card>
-              </div>
-            </template>
-          </q-table>
+                        {{ props.row.complete_name.trim() }}
+                      </div>
+                      <div
+                        :class="`col-auto text-subtitle2 ${props.row.color}`"
+                      >
+                        <q-icon
+                          :class="props.row.color"
+                          :name="props.row.icon"
+                        ></q-icon>
+                        {{ props.row.state }}
+                      </div>
+                      <q-space />
+                      <q-stepper-navigation>
+                        <q-btn
+                          rounded
+                          flat
+                          :class="`self-end ${props.row.color}`"
+                          icon="double_arrow"
+                          :disable="props.row.disable"
+                          @click="returnState(false, orders, props.row, state)"
+                        ></q-btn>
+                      </q-stepper-navigation>
+                    </q-card-actions>
+                  </q-card>
+                </div>
+              </template>
+            </q-table>
+          </q-scroll-area>
         </q-card-section>
       </q-card>
     </div>
@@ -109,10 +116,24 @@ export default {
   props: {
     data: { type: Array, default: [] },
     orders: { type: Object, default: [] },
-    state: { type: Number, default: 0 }
+    state: { type: Number, default: 0 },
   },
   data() {
     return {
+      thumbStyle: {
+        right: "4px",
+        borderRadius: "5px",
+        backgroundColor: "#00e676",
+        width: "5px",
+        opacity: 0.75,
+      },
+      barStyle: {
+        right: "2px",
+        borderRadius: "9px",
+        backgroundColor: "#00e676",
+        width: "9px",
+        opacity: 0.2,
+      },
       optStoreDisplay: [],
       selectWarehouse: undefined,
       tableorders: {
