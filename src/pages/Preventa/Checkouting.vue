@@ -312,7 +312,6 @@ export default {
             }else{
 
                 product.ordered.amount = params.amount;
-                product.ordered.toDelivered = params.amount;
                 product.ordered.comments = params.comments;
                 product.ordered.toDelivered = params.amount;
                 product.ordered._supply_by = params.metsupply.id;

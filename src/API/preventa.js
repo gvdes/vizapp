@@ -15,8 +15,8 @@ export default{
         return vizapi.get(`/order/${order.id}`).then(success => { return success.data; }).catch(fail=>{ console.log(fail); });
     },
     add(data){
-        return vizapi.post('/order/add',data).then(success=>{
-            return {resp:success.data,err:null};
+        return vizapi.post('/order/add',data).then( done => {
+            return done.data;
         }).catch(fail=>{ return {resp:fail,err:true} });
     },
     nextStep(data){
