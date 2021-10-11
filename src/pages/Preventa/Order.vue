@@ -160,7 +160,7 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndEditor.product" :client="index.client" showprices @confirm="productEdit" />
+                    <ProductAOE :product="wndEditor.product" :client="index.client" showprices @confirm="productEdit" @remove="remove" />
                 </q-card>
             </template>
         </q-dialog>
@@ -306,30 +306,28 @@ export default {
                 this.$router.push('/preventa/pedidos');
             }
         },
-        async remove(){
-            let model = this.wndAOE.product;
-            this.$q.loading.show({message:`Removiendo ${model.code}...`});
+        async remove(product){
+            console.log(product);
+            this.$q.loading.show({message:`Removiendo ${product.product.code}...`});
 
             let data = {
-                "_product": model.id,
+                "_product": product.product.id,
                 "_order": this.ordercatch.id
             }
 
-            console.log(data);
-
             let resp = await preventadb.removeProduct(data);
-
-            console.log(resp);
 
             if(resp.err){
                 this.$q.notify({message:resp.err,icon:'fas fa-exclamation-triangle',color:'negative'});
             }else{
-                let idx = this.dbproducts.findIndex(prod=>prod.id==model.id);
+                let idx = this.index.products.findIndex( prod => prod.id==product.product.id );
 
-                this.dbproducts.splice(idx,1);
-                this.$q.notify({message:`${model.code} eliminado!`,icon:'done',color:'positive'});
+                this.index.products.splice(idx,1);
+                this.$q.notify({message:`${product.product.code} eliminado!`,icon:'done',color:'positive'});
+                
+                this.wndEditor.product = undefined;
+                this.wndEditor.state = false;
                 this.$q.loading.hide();
-                this.wndAOE.state = false;
             }
         },
         async productAdd(params){
