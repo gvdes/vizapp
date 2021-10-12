@@ -58,7 +58,7 @@
                                     <tbody>
                                         <tr>
                                             <td colspan="2">
-                                                <q-select label="Surtir por" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="alias" :options="metsupply.opts" />
+                                                <q-select label="Surtir por" disable borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="name" :options="metsupply.opts" />
                                             </td>
                                         </tr>
                                         <tr>
@@ -117,9 +117,9 @@ export default {
             metsupply:{
                 model:{alias:'Piezas', id: 1},
                 opts:[
-                    {alias:'Piezas', id:1},
-                    {alias:'Docenas', id:2},
-                    {alias:'Cajas', id:3}
+                    {alias:'PZS', name:'Piezas', id:1},
+                    {alias:'DOC', name:'Docenas', id:2},
+                    {alias:'CJS', name:'Cajas', id:3}
                 ]
             },
             pricelists:[
@@ -131,10 +131,13 @@ export default {
         }
     },
     mounted(){
+        console.log(this.product.units);
+        this.metsupply.model = this.product.units;
         if(this.product.metsupply){
-            this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
+            // this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
             this.amount = this.product.ordered.amount;
             this.comments = this.product.ordered.comments;
+            // this.metsupply.model = this.product.units;
         }
     },
     methods:{
