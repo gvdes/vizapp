@@ -12,10 +12,6 @@ import axios from 'axios'
 const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/public';
 const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/files';
 
-// ❰❰❰❰❰ P R O D U C C I O N IN❱❱❱❱❱
-// const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/public';
-// const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapidev/files';
-
 const vizapi = axios.create({ baseURL: URLBackend });
 
 // para usar dentro de componentes

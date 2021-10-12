@@ -58,7 +58,7 @@
                                     <tbody>
                                         <tr>
                                             <td colspan="2">
-                                                <q-select label="Surtir por" disable borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="name" :options="metsupply.opts" />
+                                                <q-select label="Surtir por" :disable="disunitsupply" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="name" :options="metsupply.opts" />
                                             </td>
                                         </tr>
                                         <tr>
@@ -108,14 +108,15 @@ export default {
     props:{
         product:{ type:Object, default:{} },
         client:{ type:Object, default:{} },
-        showprices:{ type:Boolean, default:false }
+        showprices:{ type:Boolean, default:false },
+        disunitsupply:{ type:Boolean, default:true }
     },
     data(){
         return {
             amount:1,
             comments:"",
             metsupply:{
-                model:{alias:'Piezas', id: 1},
+                model:{alias:'PZS', name:'Piezas', id: 1},
                 opts:[
                     {alias:'PZS', name:'Piezas', id:1},
                     {alias:'DOC', name:'Docenas', id:2},
@@ -131,7 +132,7 @@ export default {
         }
     },
     mounted(){
-        console.log(this.product.units);
+        console.log(this.product);
         this.metsupply.model = this.product.units;
         if(this.product.metsupply){
             // this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
@@ -163,10 +164,11 @@ export default {
         },
         ipack(){ return this.product.pieces ? this.product.pieces : 1; },
         units(){ //obtiene las unidades en base al metodo de surtido
+            // console.log(this.metsupply.model);
             switch (this.metsupply.model.id) {
                 case 2: return this.amount*12; //cantidad * 12 
                 case 3: return this.amount*this.ipack; //cantidad por piezas por caja
-                default: return this.amount;// retornar cantidad
+                default: return this.amount;// retornar cantidad325
             }
         },
         boxes(){// obtiene las cajas en base a la unidad de surtido

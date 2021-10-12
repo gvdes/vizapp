@@ -149,7 +149,7 @@
             <q-card class="text-white bg-darkl1 exo">
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
                 <template class="ds" v-if="wndAdder.product">
-                    <ProductAOE :product="wndAdder.product" :client="index.client" showprices @confirm="productAdd" />
+                    <ProductAOE :product="wndAdder.product" :client="index.client" showprices @confirm="productAdd"  :disunitsupply="false" />
                 </template>
             </q-card>
         </q-dialog>
@@ -160,7 +160,7 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndEditor.product" :client="index.client" showprices @confirm="productEdit" @remove="remove" />
+                    <ProductAOE :product="wndEditor.product" :client="index.client" showprices @confirm="productEdit" @remove="remove" :disunitsupply="false" />
                 </q-card>
             </template>
         </q-dialog>
@@ -252,8 +252,8 @@ export default {
         this.$q.loading.show({ message:'...' });
  
         this.index = await preventadb.order(this.ordercatch);
-        console.log("%cEl Pedido fue montado!!","background:green;color:white;padding:10px;font-size:1.5em;");
-        console.log(this.index);
+        // console.log("%cEl Pedido fue montado!!","background:green;color:white;padding:10px;font-size:1.5em;");
+        // console.log(this.index);
 
         this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
