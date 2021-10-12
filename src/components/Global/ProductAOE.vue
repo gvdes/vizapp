@@ -81,6 +81,7 @@
                 </template>
             </div>
 
+        <!-- ACTIONS -->
             <div>
                 <template v-if="action=='add'">
                     <q-separator/>

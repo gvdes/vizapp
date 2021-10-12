@@ -135,8 +135,8 @@
                                 <span>{{ prod.name }}</span>
                             </div>
                             <div class="text--2 text-grey-5">{{ prod.description }}</div>
-                            <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                             <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
+                            <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                         </div>
                         <div class="text-right text-green-13">$ {{prod.total}}</div>
                     </div>
@@ -306,31 +306,8 @@ export default {
                 this.$router.push('/preventa/pedidos');
             }
         },
-        async remove(product){
-            console.log(product);
-            this.$q.loading.show({message:`Removiendo ${product.product.code}...`});
-
-            let data = {
-                "_product": product.product.id,
-                "_order": this.ordercatch.id
-            }
-
-            let resp = await preventadb.removeProduct(data);
-
-            if(resp.err){
-                this.$q.notify({message:resp.err,icon:'fas fa-exclamation-triangle',color:'negative'});
-            }else{
-                let idx = this.index.products.findIndex( prod => prod.id==product.product.id );
-
-                this.index.products.splice(idx,1);
-                this.$q.notify({message:`${product.product.code} eliminado!`,icon:'done',color:'positive'});
-                
-                this.wndEditor.product = undefined;
-                this.wndEditor.state = false;
-                this.$q.loading.hide();
-            }
-        },
         async productAdd(params){
+            this.$q.loading.show({message:`Agregando ${params.product.code}...`});
 
             let data = {
                 "_product": params.product.id,
@@ -353,8 +330,11 @@ export default {
                 this.wndAdder.product = undefined;
                 this.wndAdder.state = false;
             }
+            this.$q.loading.hide();
         },
         async productEdit(params){
+            this.$q.loading.show({message:`Guardando ${params.product.code}...`});
+
             let product = this.wndEditor.product;
             
             let data = {
@@ -389,6 +369,31 @@ export default {
                 this.wndEditor.state = false;
                 this.wndEditor.product = undefined;
             }
+
+            this.$q.loading.hide();
+        },
+        async remove(params){
+            this.$q.loading.show({message:`Quitando ${params.product.code}...`});
+
+            let data = {
+                "_product": params.product.id,
+                "_order": this.ordercatch.id
+            }
+
+            let resp = await preventadb.removeProduct(data);
+
+            if(resp.err){
+                this.$q.notify({message:resp.err,icon:'fas fa-exclamation-triangle',color:'negative'});
+            }else{
+                let idx = this.index.products.findIndex( prod => prod.id==params.product.id );
+
+                this.index.products.splice(idx,1);
+                this.$q.notify({message:`${params.product.code} eliminado!`,icon:'done',color:'positive'});
+                
+                this.wndEditor.product = undefined;
+                this.wndEditor.state = false;
+            }
+            this.$q.loading.hide();
         },
         initPrinters(job){
             this.wndPrinters.job = job;
