@@ -54,6 +54,7 @@
             type="text"
             @keyup.enter="tryCreate"
             v-model="neworder.notes"
+            autofocus
           />
         </q-card-section>
         <q-card-actions align="right">
@@ -119,6 +120,7 @@ export default {
   },
   async beforeMount() {
     this.index = await this.loadIndex();
+    // console.log(this.index);
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", true);
@@ -287,6 +289,7 @@ export default {
     combowkps() {
       if (this.index) {
         return this.index.workpoints.map((item) => {
+          // console.log(item);
           return { label: item.alias, value: item.id };
         });
       } else {

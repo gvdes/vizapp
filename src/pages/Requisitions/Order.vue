@@ -124,7 +124,7 @@
         dark
         row-key="id"
         :columns="tableproducts.columns"
-        :data="products"
+        :data="__basket"
         :pagination="tableproducts.pagination"
         :filter="filteringItems"
       >
@@ -155,7 +155,7 @@
                 <q-markup-table flat dark class="bg-none">
                   <thead>
                     <tr>
-                      <th>Sol. ({{ products.row.units.name }}s)</th>
+                      <th>Sol. ({{ products.row._name }})</th>
                       <th>pzs / caj</th>
                       <th>Disp. (piezas)</th>
                     </tr>
@@ -181,10 +181,23 @@
               </div>
               <q-banner
                 rounded
-                class="bg-orange text-white"
-                v-if="products.row.ordered.comments"
-                >{{ products.row.ordered.comments }}</q-banner
+                class="bg-darkl0 text-amber-13"
+                v-if="
+                  products.row.ordered.comments ||
+                  products.row.ordered._supply_by
+                "
               >
+                <span class="text--2">
+                  Se surtira la cantidad de
+                  <span class="text-weight-bold"
+                    >{{ products.row._units }}pz</span
+                  >
+                  correspondiente a la unidad de
+                  <span class="text-weight-bold">{{ products.row._name }}</span>
+                  <q-separator dark />
+                  Notas: {{ products.row.ordered.comments }}
+                </span>
+              </q-banner>
             </q-card>
           </div>
         </template>
@@ -290,6 +303,9 @@
             :product="wndSetItem.art"
             :client="{}"
             @confirm="addProduct"
+            :action="stateAOE"
+            @remove="removeProduct"
+            @cancel="cancelproduct"
           />
         </template>
       </q-card>
@@ -659,6 +675,7 @@ export default {
   components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
+      stateAOE: "add",
       flagProducts: false,
       flagPrompt: false,
       saveNameExport: "",
@@ -809,6 +826,17 @@ export default {
         ],
       },
       rsocket: this.$sktRestock,
+      pricelists: [
+        { id: 1, alias: "MEN", name: "MENUDEO" },
+        { id: 2, alias: "MAY", name: "MAYOREO" },
+        { id: 3, alias: "DOC", name: "DOCENA" },
+        { id: 4, alias: "CAJ", name: "CAJA" },
+      ],
+      metsupplies: [
+        { name: "Piezas", id: 1, alias: "pzs" },
+        { name: "Docenas", id: 2, alias: "dcs" },
+        { name: "Cajas", id: 3, alias: "cjs" },
+      ],
     };
   },
   beforeDestroy() {
@@ -904,7 +932,7 @@ export default {
       let data = { id: this.params.id, _status: atstate };
       let message = "";
       let newstatus = { id: atstate, name: undefined };
-
+      this.$q.loading.show("Enviando orden, favor de esperar...");
       switch (atstate) {
         case 2:
           console.log("Moviendo a por surtir");
@@ -918,6 +946,7 @@ export default {
           message = "Recibiendo y finalizando...";
           break;
       }
+
       dbreqs
         .nextstep(data)
         .then((success) => {
@@ -925,6 +954,7 @@ export default {
             "%cEl pedido ha cambiado de status...",
             "font-size:1.5em;color:yellow;"
           );
+          this.$q.loading.hide();
           let resp = success.data.updates;
           let newState = [];
           // debugger
@@ -992,10 +1022,14 @@ export default {
           console.log(fail);
         });
     },
-    removeProduct() {
+    cancelproduct(params) {
+      this.flagProducts = !this.flagProducts;
+    },
+    removeProduct(params) {
+      // console.log(params);
       this.erasing.state = true;
       let data = {
-        _product: this.wndSetItem.art.id,
+        _product: params.product.id,
         _requisition: this.params.id,
       };
       let proderase = this.wndSetItem.art.id;
@@ -1007,6 +1041,14 @@ export default {
           this.products.splice(this.wndSetItem.idxlist, 1);
           this.erasing.state = false;
           this.wndSetItem.state = false;
+          this.flagProducts = !this.flagProducts;
+
+          this.$q.notify({
+            message: "El producto ha sido removido.",
+            color: "positive",
+            type: "positive",
+            position: "center",
+          });
 
           this.rsocket.emit("order_update", {
             user: this.profile,
@@ -1029,12 +1071,12 @@ export default {
       this.wndSetItem.art = params.product;
       this.wndSetItem.units = params.units;
       this.wndSetItem.amount = params.amount;
-      this.wndSetItem.notes = params.notes;
+      this.wndSetItem.notes = params.comments;
       this.wndSetItem.metsupply = params.metsupply;
       // this.wndSetItem.art = this.wndSetItem.art.concat(params.metsupply);
       // console.log(this.wndSetItem.art);
       let product = this.wndSetItem.art;
-      product.amount = this.wndSetItem.units;
+      product.amount = this.wndSetItem.amount;
       product.comments = this.wndSetItem.notes;
 
       data._product = product.id;
@@ -1043,6 +1085,8 @@ export default {
       data._requisition = this.params.id;
       data._supply_by = params.metsupply.id;
 
+      this.$q.loading.show({ message: "Enviando archivo, espera..." });
+
       dbreqs
         .add(data)
         .then((success) => {
@@ -1050,23 +1094,29 @@ export default {
           let resp = success.data;
           let sktproduct = null;
           let cmd = null;
+          this.$q.loading.hide();
 
           if (artidx >= 0) {
             // el articulo fue editado
             console.log("Articulo editado");
-            let _product = this.products[artidx];
-            sktproduct = _product;
-            _product.ordered.amount = this.wndSetItem.units;
-            _product.ordered.comments = this.wndSetItem.notes;
+            // let _product = this.products[artidx];
+            sktproduct = this.products[artidx];
+            // console.log(_product);
+            this.products[artidx].ordered._supply_by =
+              this.wndSetItem.metsupply.id;
+            this.products[artidx].ordered.amount = this.wndSetItem.amount;
+            this.products[artidx].ordered.comments = this.wndSetItem.notes;
             cmd = "edit";
             this.flagDuplicate = false;
           } else {
             console.log("Articulo agregado");
-            console.log(resp);
             if (resp.success == false) {
               this.messageDuplicate = `${resp.msg}, producto: ${this.wndSetItem.art.description}, código: ${this.wndSetItem.art.code}`;
               this.flagDuplicate = !this.flagDuplicate;
             } else {
+              console.log(resp);
+              resp = Object.assign(resp, this._metsupply(resp)[0]);
+              console.log(resp);
               // resp = resp.concat(params.metsupply);
               this.products.unshift(resp);
               cmd = "add";
@@ -1096,7 +1146,7 @@ export default {
       // console.log(ids);
       await this.getOrder(ids);
       let units = this.orderProd;
-      console.log(units);
+      // console.log(units);
       opt = Object.assign(opt, units);
       let idx = this.products.findIndex((item) => {
         return opt.id == item.id;
@@ -1114,12 +1164,14 @@ export default {
           this.messageDuplicate =
             "Haz seleccionado este producto dos veces, te sugiero que ingreses la cantidad correcta.";
           this.filteringItems = opt.code;
-          console.log(this.filteringItems);
+          this.flagProducts = true;
+          // console.log(this.filteringItems);
         }
         console.log("Editando producto");
         let art = this.products[idx];
         // console.log(art)
         this.flagProducts = !this.flagProducts;
+        this.stateAOE = "edit";
         this.wndSetItem.notes = art.ordered.comments;
         this.wndSetItem.units = art.ordered.amount;
         this.wndSetItem.idxlist = idx;
@@ -1128,6 +1180,8 @@ export default {
         let newWs = Object.assign(newArr, this._metsupply(art)[0]);
         console.log(newWs);
         this.wndSetItem.art = newWs;
+        this.products[idx] = newArr;
+        // console.log(this.__basket);
         // this.wndSetItem.state = true
       } else {
         // agregar nuevo producto
@@ -1135,6 +1189,7 @@ export default {
         this.duplicate = false;
         this.wndSetItem.art = opt;
         this.flagProducts = !this.flagProducts;
+        this.stateAOE = "add";
         // this.wndSetItem.state = true;
         this.filteringItems = "";
       }
@@ -1300,6 +1355,97 @@ export default {
     },
   },
   computed: {
+    __basket() {
+      /**
+       * DEFINIR PRODUCTOS
+       *
+       */
+      if (this.products) {
+        return this.products.map((p) => {
+          p.ipack = p.pieces ? p.pieces : 1;
+          // p.pricelistDefault = { id:1, alias:'MEN', name:'MENUDEO' };
+          p.metsupply = ((p) =>
+            this.metsupplies.find((ms) => ms.id == p.ordered._supply_by))(p);
+          // p.productType = ((p) => {
+          //   if (p.prices.length) {
+          //     let basePrice = p.prices[0].price; // obtiene el primer precio para comparar
+          //     let isOffer =
+          //       p.prices
+          //         .filter((item) => item.id <= 4)
+          //         .filter((item) => basePrice == item.price).length ==
+          //       p.prices.length; //averigua si el precio es oferta
+          //     return isOffer ? "off" : "std";
+          //   } else {
+          //     return { error: true, msg: "Producto sin precios" };
+          //   }
+          // })(p);
+          p._units = ((p) => {
+            switch (p.ordered._supply_by) {
+              case 2:
+                return p.ordered.amount * 12; //cantidad * 12
+              case 3:
+                return p.ordered.amount * p.ipack; //cantidad por piezas por caja
+              default:
+                return p.ordered.amount; // retornar cantidad
+            }
+          })(p);
+          p._name = ((p) => {
+            switch (p.ordered._supply_by) {
+              case 2:
+                return "Docenas"; //cantidad * 12
+              case 3:
+                return "Cajas"; //cantidad por piezas por caja
+              default:
+                return "Piezas"; // retornar cantidad
+            }
+          })(p);
+          p.boxes = ((p) => (p._units / p.ipack).toFixed(1))(p);
+          // p.usedprice = ((p) => {
+          //   switch (p.ordered._supply_by) {
+          //     case 2:
+          //       return p.prices.find((pl) => pl.id == 3); // se utilizara el precio Docena
+          //     case 3:
+          //       return p.prices.find((pl) => pl.id == 4); // se utilizara el precio Caja
+          //     default:
+          //       if (p.productType == "off") {
+          //         //es oferta?
+          //         return p.prices.find((pl) => pl.id == 1);
+          //       } else if (p.ordered.amount < 3) {
+          //         //es menudeo ?
+          //         return p.prices.find((pl) => pl.id == 1);
+          //       } else if (p.ordered.amount >= 3) {
+          //         //es mayoreo ?
+          //         return p.prices.find((pl) => pl.id == 2);
+          //       }
+          //       break;
+          //   }
+          // })(p);
+          // p.total = p._units * p.usedprice.price;
+
+          // console.log(p.usedprice);
+          return p;
+        });
+      } else {
+        return [];
+      }
+    },
+    supply() {
+      return (params) => {
+        switch (params.ordered._supply_by) {
+          case 1:
+            return params.amount;
+            break;
+          case 2:
+            return params.units * params.amount;
+            break;
+          case 3:
+            return params.units * params.amount;
+            break;
+          default:
+            break;
+        }
+      };
+    },
     _metsupply() {
       return (data) => {
         let newMetSupply = [];
