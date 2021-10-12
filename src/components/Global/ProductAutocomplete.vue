@@ -3,7 +3,17 @@
         <q-btn flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="read_barcode=!read_barcode"/>
 
         <template v-if="read_barcode">
-            <q-input ref="ipt_search" :loading="iptsearch.processing" :disable="iptsearch.processing" v-model="target" dense dark filled color="green-13" autofocus class="text-uppercase col" @keypress.enter="search"/>
+            <q-input 
+                ref="iptsearch"
+                :loading="iptsearch.processing"
+                :disable="iptsearch.processing"
+                v-model="target" dense dark filled 
+                color="green-13" 
+                class="text-uppercase col" 
+                @keypress.enter="search"
+                autocomplete
+                autofocus
+            />
         </template>
 
         <template v-else>
@@ -122,19 +132,37 @@ export default {
 
                     switch (resp.length) {
                         case 0:
-                            console.log("Uuuy, no encontre este codigo :(");
-                            break;
+                            let code = this.target;
+                            this.$q.notify({
+                                message:`Sin resultados para <b>${code}</b>`,
+                                color:'negative',
+                                icon:'fas fa-times',
+                                html:true,
+                                timeout:1500,
+                                position:'center'
+                            });
+                        break;
 
                         case 1:
                             console.log("Perfecto, aqui esta tu producto");
                             this.selItem(resp[0]);
-                            break;
+                        break;
                     
-                        default: console.log("Vaya, este error si que es grave... codigos duplicados"); break;
+                        default: 
+                            this.$q.notify({
+                                message:`Mas de un producto coincide con este codigo`,
+                                color:'orange-13',
+                                icon:'fas fa-bug',
+                                html:true,
+                                timeout:1500,
+                                position:'center'
+                            });
+                        break;
                     }
                     this.target = "";
                     this.iptsearch.processing = false;
-                    this.$refs.ipt_search.focus();
+                    this.$refs.iptsearch.focus();
+                    console.log(this.$refs);
                 }).catch( fail => { console.log(fail); });
 
             }

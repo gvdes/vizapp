@@ -58,7 +58,7 @@
                                     <tbody>
                                         <tr>
                                             <td colspan="2">
-                                                <q-select label="Surtir por" :disable="disunitsupply" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="name" :options="metsupply.opts" />
+                                                <q-select label="Surtir por" :disable="blockunitsupply" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="name" :options="metsupply.opts" />
                                             </td>
                                         </tr>
                                         <tr>
@@ -109,7 +109,8 @@ export default {
         product:{ type:Object, default:{} },
         client:{ type:Object, default:{} },
         showprices:{ type:Boolean, default:false },
-        disunitsupply:{ type:Boolean, default:true }
+        blockunitsupply:{ type:Boolean, default:false },
+        deftunitsupply:{ type:Number, default:null }
     },
     data(){
         return {
@@ -132,13 +133,26 @@ export default {
         }
     },
     mounted(){
-        console.log(this.product);
-        this.metsupply.model = this.product.units;
-        if(this.product.metsupply){
-            // this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
+
+        if(this.action == 'add'){
+            console.log("El producto es para agregar");
+            /**
+             * obligamos al metodo de surtido a tomar como valor el dato que se define en el 
+             * componente padre y si no esta, a tomar el valor que el producto trae por 
+             * default en surtido
+             */
+            this.metsupply.model = this.deftunitsupply ? 
+                                    this.metsupply.opts.find( ms => ms.id == this.deftunitsupply ) : 
+                                    this.product.units;
+        }else{
+            /**
+             * Si el producto trae la propiedad ordered, significa que tomara el valor que ya fue seteado
+             * con anterioridad
+             */
+            console.log("El producto es para editar");
             this.amount = this.product.ordered.amount;
             this.comments = this.product.ordered.comments;
-            // this.metsupply.model = this.product.units;
+            this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
         }
     },
     methods:{

@@ -306,6 +306,7 @@
             :action="stateAOE"
             @remove="removeProduct"
             @cancel="cancelproduct"
+            blockunitsupply
           />
         </template>
       </q-card>
