@@ -1,60 +1,67 @@
 <template>
-    <div>
-        <q-select dark dense filled color="green-13" class="text-uppercase"
-            use-input
-            hide-dropdown-icon
-            option-value="id"
-            option-label="id"
-            hide-selected
-            behavior="menu"
-            v-model="target"
-            :value="target"
-            :input-debounce="200"
-            :autofocus="true"
-            :options="options"
-            :type="iptsearch.type"
-            @filter="autocomplete"
-            @input="selItem"
-            popup-content-class="bg-darkl1"
-        >
-            <template v-slot:no-option>
-                <q-item>
-                    <q-item-section avatar><q-img src="~/assets/chihuacry.png" width="50px"/></q-item-section>
-                    <q-item-section class="text-grey exo">Nada por aqui...</q-item-section>
-                </q-item>
-            </template>
+    <div class="row items-center">
+        <q-btn flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="read_barcode=!read_barcode"/>
 
-            <template v-slot:prepend>
-                <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-            </template>
+        <template v-if="read_barcode">
+            <q-input ref="ipt_search" :loading="iptsearch.processing" :disable="iptsearch.processing" v-model="target" dense dark filled color="green-13" autofocus class="text-uppercase col" @keypress.enter="search"/>
+        </template>
 
-            <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
-                    <q-item-section avatar v-if="with_image">
-                        <q-img src="~/assets/_boxprod.png" width="35px" />
-                    </q-item-section>
-                    
-                    <q-item-section>
-                        <div class="row items-center justify-between no-wrap exo">
-                            <div class="col">
-                                <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
-                                <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
+        <template v-else>
+            <q-select dark dense filled color="green-13" class="text-uppercase col"
+                use-input
+                hide-dropdown-icon
+                option-value="id"
+                option-label="id"
+                hide-selected
+                behavior="menu"
+                v-model="target"
+                :value="target"
+                :input-debounce="200"
+                :autofocus="true"
+                :options="options"
+                :type="iptsearch.type"
+                @filter="autocomplete"
+                @input="selItem"
+                popup-content-class="bg-darkl1"
+            >
+                <template v-slot:no-option>
+                    <q-item>
+                        <q-item-section avatar><q-img src="~/assets/chihuacry.png" width="50px"/></q-item-section>
+                        <q-item-section class="text-grey exo">Nada por aqui...</q-item-section>
+                    </q-item>
+                </template>
+
+                <template v-slot:prepend>
+                    <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
+                </template>
+
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
+                        <q-item-section avatar v-if="with_image">
+                            <q-img src="~/assets/_boxprod.png" width="35px" />
+                        </q-item-section>
+                        
+                        <q-item-section>
+                            <div class="row items-center justify-between no-wrap exo">
+                                <div class="col">
+                                    <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
+                                    <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
+                                </div>
+
+                                <q-icon name="fas fa-circle" :class="`bullet-${scope.opt.status.id} q-pl-md`" size="10px"/>
                             </div>
-
-                            <q-icon name="fas fa-circle" :class="`bullet-${scope.opt.status.id} q-pl-md`" size="10px"/>
-                        </div>
-                    </q-item-section>
-                </q-item>
-                <q-separator />
-            </template>
-        </q-select> 
+                        </q-item-section>
+                    </q-item>
+                    <q-separator />
+                </template>
+            </q-select> 
+        </template>
     </div>
 </template>
 <script>
 import dbproduct from '../../API/Product'
 export default {
     props:{
-        "mode":'autocomplete',
         "limit":{ default:30, type:Number },
         "_category":{ default:null, type:Boolean },
         "_status":{ default:null, type:Boolean },
@@ -70,7 +77,8 @@ export default {
         return {
             target:"",
             iptsearch:{ processing:false, type:"number", icon:'fas fa-font' },
-            options:undefined
+            options:undefined,
+            read_barcode:false
         }
     },
     methods: {
@@ -103,6 +111,34 @@ export default {
 			}
         },
         selItem(opt){ this.$emit('input',opt); },
+        search(){
+            this.target.trim().toUpperCase();
+
+            if(this.target.length){
+                this.iptsearch.processing = true;
+
+                dbproduct.autocomplete(this.attrs).then( done => {
+                    let resp = done.data;
+
+                    switch (resp.length) {
+                        case 0:
+                            console.log("Uuuy, no encontre este codigo :(");
+                            break;
+
+                        case 1:
+                            console.log("Perfecto, aqui esta tu producto");
+                            this.selItem(resp[0]);
+                            break;
+                    
+                        default: console.log("Vaya, este error si que es grave... codigos duplicados"); break;
+                    }
+                    this.target = "";
+                    this.iptsearch.processing = false;
+                    this.$refs.ipt_search.focus();
+                }).catch( fail => { console.log(fail); });
+
+            }
+        },
         clear(){ this.target = ""; }
     },
     computed:{
