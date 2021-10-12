@@ -54,6 +54,7 @@
 import dbproduct from '../../API/Product'
 export default {
     props:{
+        "mode":'autocomplete',
         "limit":{ default:30, type:Number },
         "_category":{ default:null, type:Boolean },
         "_status":{ default:null, type:Boolean },

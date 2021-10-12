@@ -4,7 +4,7 @@
             <div class="row items-stretch justify-between">
                 <q-btn @click="$router.push('/preventa/pedidos')" flat icon="close"/>
 
-                <div class="row items-center col bg-dark divlcient _client">
+                <div class="row items-center col bg-dark divclient _client">
                     <div class="q-pa-sm col text-center">
                         <div class="text--2">Cliente:</div>
                         <div class="text-uppercase">
@@ -28,19 +28,19 @@
                     </div>
 
                     <div class="q-px-md">
-                        <div class="text--2">Unidades</div>
-                        <span class="text-green-13 text-bold">{{totaltkt_pzs}}</span>
+                        <div class="text--2">Piezas</div>
+                        <span class="text-green-13 text-bold">{{pzsBasket}}</span>
                     </div>
 
                     <div class="q-px-md">
                         <div class="text--2">Cajas</div>
-                        <span class="text-green-13 text-bold">0</span>
+                        <span class="text-green-13 text-bold">{{bxsBasket}}</span>
                     </div>                    
                 </div>
 
                 <div class="col text-right q-px-sm">
                     <div class="text--2">Total</div>
-                    <div class="text-green-13 text-h6 text-bold">$ {{totaltkt_pay}}</div>
+                    <div class="text-green-13 text-h6 text-bold">$ {{totalBasket}}</div>
                 </div>
             </div>
         </q-header>
@@ -112,7 +112,7 @@
             </div>
         </q-drawer>
 
-        <div v-if="wndAOE.wwd" class="q-pa-md q-mt-md">
+        <!-- <div v-if="wndAOE.wwd" class="q-pa-md q-mt-md">
             <q-banner inline-actions squared rounded class="bg-amber-13 text-dark">
                 <template v-slot:avatar>
                     <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
@@ -122,126 +122,49 @@
                     <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="tableproducts.filtrator=''; wndAOE.wwd=false;"/>
                 </template>
             </q-banner>
+        </div> -->
+
+        <div class="q-mb-xl">
+            <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                <div v-for="prod in basket" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
+                    <div class="row items-center">
+                        <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                        <div class="col q-pr-sm">
+                            <div>
+                                <span>{{ prod.code }}</span> --
+                                <span>{{ prod.name }}</span>
+                            </div>
+                            <div class="text--2 text-grey-5">{{ prod.description }}</div>
+                            <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
+                            <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                        </div>
+                        <div class="text-right text-green-13">$ {{prod.total}}</div>
+                    </div>
+                </div>
+            </transition-group>
         </div>
 
-        <q-table grid flat dark
-            row-key="id"
-            :columns="tableproducts.columns"
-            :data="basket"
-            :pagination="tableproducts.pagination"
-            :filter="tableproducts.filtrator"
-        >
-            <template v-slot:item="props">
-                <div class="q-pa-sm col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
-                    <q-card class="bg-darkl1" @click="setprod(props.row,'e')">
-                        <div class="full-width row ds">
-                            <div>
-                                <div class="text-center text-white text-bold q-pa-sm">{{props.row.code}}</div>
-                                <q-img src="~/assets/_boxprod.png" class="divimg" />
-                            </div>
-                            <div class="col text-grey-4 text--2 q-px-sm column justify-around">
-                                <div class="text-white text-bold q-pt-sm">CC: {{props.row.name}}</div>
-                                <div class="text-grey-5">{{props.row.description}}</div>
-                                <div class="row justify-between"><span>Cantidad:</span><span>{{props.row.cant}}</span></div>
-                                <div class="row justify-between"><span>Piezas X Caja:</span><span>{{props.row.pieces}}</span></div>
-                                <div class="row justify-between"><span>Unidades:</span><span>{{props.row.ppp}}</span></div>
-                                <div class="row justify-between"><span>Precio Unitario:</span><span>$ {{props.row.uprice}}</span></div>
-                                <div class="row justify-between text-bold"><span>Total: </span><span class="text-h6 text-green-13"> $ {{props.row.total}}</span></div>
-                            </div>
-                        </div> 
-                    </q-card>
-                </div>
-            </template>
-
-            <template v-slot:bottom="scope">
-                <q-page-sticky position="bottom-left" class="full-width" :offset="[0, 8]">
-                    <div class="row q-pt-xs">
-                        <q-btn-group rounded class="bg-dark text-white">
-                            <q-btn v-if="scope.pagesNumber > 2" icon="first_page" round dense flat :disable="scope.isFirstPage" @click="scope.firstPage" class="q-px-sm"/>
-                            <q-btn icon="chevron_left" round dense flat :disable="scope.isFirstPage" @click="scope.prevPage" class="q-px-sm"  />
-                            <q-btn flat disable no-caps>{{scope.pagination.page}} / {{scope.pagesNumber}}</q-btn>
-                            <q-btn icon="chevron_right" round dense flat :disable="scope.isLastPage" @click="scope.nextPage" class="q-px-sm" />
-                            <q-btn v-if="scope.pagesNumber > 2" icon="last_page" round dense flat @click="scope.lastPage" class="q-px-sm" />
-                        </q-btn-group>
-                    </div>
-                </q-page-sticky> 
-            </template>
-        </q-table>
-        
-        <q-dialog v-model="wndAOE.state" position="bottom" @hide="cleanWndAOE">
-            <q-card v-if="wndAOE.product" class="exo bg-darkl0 text-grey-4">
-                <q-card-section>
-                    <div class="row justify-between items-start text-h6 text-bold">
-                        <div class="text-green-13">{{wndAOE.product.code}}</div>
-                        <div class="text-light-blue-13">{{wndAOE.product.name}}</div>
-                    </div>
-                    <div class="text--2">{{wndAOE.product.description}}</div>
-                </q-card-section>
-
-                <div>
-                    <template v-if="wndAOE.params.type=='std'">
-                        <div class="text-center row justify-between q-px-md">
-                            <div v-for="prc in wndAOE.product.prices" :key="prc.id" class="q-px-md">
-                                <div class="text--2">{{prc.alias}}</div>
-                                <div class="text-bold">$ {{prc.price}}</div>
-                            </div>
-                        </div>
-                    </template>
-
-                    <template v-if="wndAOE.params.type=='off'">
-                        <div class="text-center text-bold text-orange">
-                            <div>OFERTA</div>
-                            <div class="text-h4">$ {{wndAOE.product.prices[0].price}}</div>
-                        </div>
-                    </template>
-
-                    <div class="q-mt-lg row items-end">
-                        <div class="text-center">
-                            <div class="column">
-                                <div v-if="wndAOE.product.stocks">
-                                    <q-btn flat dense no-caps class="text-bold"
-                                        :color="wndAOE.product.stocks[0].stock?'green-13':'amber-13'"
-                                        :label="`Stock: ${wndAOE.product.stocks[0].stock}`"
-                                    />
-                                </div>
-                                <q-btn icon="fas fa-chevron-up" class="q-py-xs" @click="ctrlPzsUp" flat/>
-                                <div class="text-center col column q-py-md">
-                                    <input type="number" min="1" v-model="wndAOE.params.amount" class="text-center exo fieldcant" @keyup="wAOEcalcs"/>
-                                </div>
-                                <q-btn icon="fas fa-chevron-down" class="q-py-xs" @click="ctrlPzsDown" flat/>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <q-markup-table dark flat dense square class="col q-mx-md bg-none text-grey-5">
-                                <tbody>
-                                    <tr>
-                                        <td colspan="2">
-                                            <q-select label="Surtir por" @input="wAOEcalcs" borderless dense dark color="green-13" v-model="metsupply.model" option-value="id" option-label="alias" :options="metsupply.opts" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <q-input borderless dense dark flat label="Notas" color="green-13" v-model="wndAOE.params.comments"/>
-                                        </td>
-                                    </tr>
-                                    <tr><td>Piezas X Caja</td><td align="right">{{wndAOE.product.pieces}}</td></tr>
-                                    <tr><td>Cajas</td><td align="right">{{wndAOE.params.boxes}}</td></tr>
-                                    <tr><td>Unidades</td><td align="right">{{wndAOE.params.units}}</td></tr>
-                                    <tr><td>Precio unitario</td><td align="right">{{wndAOE.params.price}}</td></tr>
-                                    <tr><td>Total</td><td align="right">{{wndAOE.params.total}}</td></tr>
-                                </tbody>
-                            </q-markup-table>
-                        </div>
-                    </div>
-                </div>
-                <q-separator />
-                <div class="row">
-                    <q-btn class="col q-py-md" color="green-13" icon="done" :label="wndAOE.action=='a'?'Agregar':'Aplicar'" no-caps flat @click="doneAOE" :loading="wndAOE.actions.done.save" :disable="wndAOE.actions.done.dis"/>
-                    <q-btn v-if="wndAOE.action=='e'" class="col q-py-md" color="amber-13" icon="delete" label="Remover" no-caps flat @click="remove" :loading="wndAOE.actions.remove.rem" :disable="wndAOE.actions.remove.dis"/>
-                    <q-btn class="col q-py-md" color="light-blue-14" icon="close" label="Cancelar" no-caps flat @click="cancelAOE"/>
-                </div>
+        <!-- VENTANA DE PRODUCTOS PARA AGREGAR -->
+        <q-dialog v-model="wndAdder.state" position="bottom">
+            <q-card class="text-white bg-darkl1 exo">
+                <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
+                <template class="ds" v-if="wndAdder.product">
+                    <ProductAOE :product="wndAdder.product" :client="index.client" showprices @confirm="productAdd" />
+                </template>
             </q-card>
         </q-dialog>
+
+        <!-- VENTANA DE PRODUCTOS PARA EDITAR -->
+        <q-dialog v-model="wndEditor.state" position="bottom" @hide="cleanEditor" class="exo">
+            <template v-if="wndEditor.product">
+                <q-card class="bg-darkl1 text-white exo">
+                    <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
+                    <q-separator/>
+                    <ProductAOE :product="wndEditor.product" :client="index.client" showprices @confirm="productEdit" @remove="remove" />
+                </q-card>
+            </template>
+        </q-dialog>
+
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
             <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/>
@@ -250,7 +173,7 @@
         <q-footer class="bg-darkl0 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
-                    <ProductAutocomplete with_image with_prices with_stock @input="setprod" />
+                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" />
                 </div>
                 <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" /></div>
             </div>
@@ -262,56 +185,24 @@
 import { date } from 'quasar'
 import preventadb from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
+import ProductAOE from '../../components/Global/ProductAOE.vue'
 import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
 
 export default {
     // name: 'PageName',
-    components:{ ProductAutocomplete, PrinterSelect},
+    components:{ ProductAutocomplete, PrinterSelect, ProductAOE },
     data(){
         return {
             psocket:this.$sktPreventa,
             index:undefined,
             moreopts:false,
-            wndAOE:{
-                wwd:false,
-                state:false,//muestra o no el modal
-                product:undefined,//almacena el producto sobre el que se trabaja
-                params:{
-                    amount:1,//cantidad
-                    units:0,//unidades
-                    boxes:0,//cajas
-                    type:'std',//tipo de producto
-                    prices:[],//precios utilizados
-                    pricelist:null,//lista de precios utilizado
-                    price:0,//total por precio unitario
-                    total:0,//total del producto por precio unitario,
-                    stock:0,//stock al consultar el producto,
-                    comments:''//notas del producto
-                },
-                actions:{
-                    done:{ dis:false, save:false },
-                    cancel:{ dis:false },
-                    remove:{ dis:false, rem:false }
-                },
-                action:'a'
+            wndAdder:{
+                state:false,
+                product:undefined
             },
-            dbproducts:[],
-            metsupply:{
-                model:{ alias:'Piezas', id:1 },
-                opts:[
-                    { alias:'Piezas', id:1 },
-                    { alias:'Docenas', id:2 },
-                    { alias:'Cajas', id:3 }
-                ]
-            },
-            priceLists:{
-                model:{id:1, name:"Menudo", alias:"MEN"},
-                opts:[
-                    { id:1, name:"Menudo", alias:"MEN" },
-                    { id:2, name:"Mayoreo", alias:"MAY" },
-                    { id:3, name:"Docena", alias:"DOC" },
-                    { id:4, name:"Caja", alias:"CAJ" },
-                ]
+            wndEditor:{
+                state:false,
+                product:undefined
             },
             wndPrinters:{
                 state:false,
@@ -341,6 +232,17 @@ export default {
                     rowsPerPage: 10
                 }
 			},
+            pricelists:[
+                { id:1, alias:'MEN', name:'MENUDEO' },
+                { id:2, alias:'MAY', name:'MAYOREO' },
+                { id:3, alias:'DOC', name:'DOCENA' },
+                { id:4, alias:'CAJ', name:'CAJA' },
+            ],
+            metsupplies:[
+                {name:'Piezas', id:1, alias:'pzs'},
+                {name:'Docenas', id:2, alias:'dcs'},
+                {name:'Cajas', id:3, alias:'cjs'}
+            ],
         }
     },
     async mounted() {
@@ -365,47 +267,29 @@ export default {
             console.log('Una orden ha cambiado...');
             console.log(data);
         },
-        setprod(product,opt='a'){
-            let openWindow = true;
-
-            if(this.currentStep.id==1){// Solo funciona si el status del pedido es "LEVANTANDO"
-
-                console.log(product);
-
-                if(opt=='a'){//Queremos agregar un producto?
-                    // validamos si el producto ya esta en la canasta
-                    let artexist = this.dbproducts.findIndex(art=>art.code==product.code);
-
-                    if(artexist>=0){//el producto ya existe
-                        // this.$q.notify({ message:`<strong>${product.code}</strong> ya esta en la lista`, html:true, color:'orange-13', icon:'fas fa-exclamation-triangle' });
-                        this.tableproducts.filtrator=product.code;
-                        this.wndAOE.wwd = true;
-                        this.appsounds.duply.play();
-                        openWindow=false;
-                    }else{ console.log("Se agregara el producto en lista"); }
-                }
-
-                if(openWindow){
-                    this.wndAOE.product = product;
-                    let type = this.productType();
-
-                    if(type.type!='err'){
-                        this.wndAOE.action = opt;// define si se agrega o edita el producto
-                        this.wndAOE.params.type = type.type;// define el si el producto es oferta o standard
-                        this.wndAOE.params.prices = type.prices;// asigna los a utilizar
-                        
-                        if(this.wndAOE.action=='e'){
-                            this.wndAOE.params.amount = this.wndAOE.product.ordered.amount;
-                            this.metsupply.model = this.metsupply.opts.filter(met=>met.id==this.wndAOE.product.ordered._supply_by)[0];
-                            this.wndAOE.params.comments = product.ordered.comments;
-                        }
-
-                        this.wAOEcalcs();//calcular totales del producto
-                        this.wndAOE.state = true;//despliega el modal para mostrar datos procesados dle producto
-                    }else{ this.$q.notify({ message:type.msg, color:'negative', icon:'far fa-dizzy', position:'center' }); }
+        setProduct(product){
+            if(this.currentStep.id==1){
+                let artexist = this.index.products.find(art=>art.code==product.code);
+                
+                if(artexist){
+                    this.$q.notify({
+                        message:'Esto ya esta en la lista',
+                        icon:'fas fa-bug',
+                        color:'orange-13'
+                    });
+                }else{
+                    this.wndAdder.product = product;
+                    this.wndAdder.state = true;
                 }
             }
         },
+        edit(prod){
+            if(this.currentStep.id==1){
+                this.wndEditor.product = prod;
+                this.wndEditor.state = true;
+            }
+        },
+        cleanEditor(){ this.wndEditor.product = undefined; },
         async archive(){
             // this.$q.loading.show({message:'Archivando pedido...'});
             let data = { "_order": this.ordercatch.id }
@@ -422,159 +306,94 @@ export default {
                 this.$router.push('/preventa/pedidos');
             }
         },
-        async remove(){
-            let model = this.wndAOE.product;
-            this.$q.loading.show({message:`Removiendo ${model.code}...`});
+        async productAdd(params){
+            this.$q.loading.show({message:`Agregando ${params.product.code}...`});
 
             let data = {
-                "_product": model.id,
-                "_order": this.ordercatch.id
+                "_product": params.product.id,
+                "_order": this.ordercatch.id,
+                "_supply_by": params.metsupply.id ,
+                "amount": params.amount,
+                "comments": params.comments
             }
 
             console.log(data);
+            let resp = await preventadb.add(data);
+
+            if (resp.err) {
+                console.log(resp.err);
+            }else{
+                console.log(resp);
+                this.index.products.unshift(resp);
+                this.appsounds.added.play();
+
+                this.wndAdder.product = undefined;
+                this.wndAdder.state = false;
+            }
+            this.$q.loading.hide();
+        },
+        async productEdit(params){
+            this.$q.loading.show({message:`Guardando ${params.product.code}...`});
+
+            let product = this.wndEditor.product;
+            
+            let data = {
+                "_product": params.product.id,
+                "_order": this.ordercatch.id,
+                "_supply_by": params.metsupply.id ,
+                "amount": params.amount,
+                "comments": params.comments
+            }
+
+            console.log(data);
+            let resp = await preventadb.add(data);
+
+            if(resp.error){
+                console.log(resp.error);
+                this.$q.notify({
+                    message:'No se pudo actualizar el producto',
+                    icon:'close', color:'negative'
+                });
+            }else{
+
+                product.ordered.amount = params.amount;
+                product.ordered.comments = params.comments;
+                product.ordered._supply_by = params.metsupply.id;
+
+                this.$q.notify({
+                    message:'Producto Actualizado!!',
+                    position:'center', color:'positive',
+                    icon:'done'
+                });
+
+                this.wndEditor.state = false;
+                this.wndEditor.product = undefined;
+            }
+
+            this.$q.loading.hide();
+        },
+        async remove(params){
+            this.$q.loading.show({message:`Quitando ${params.product.code}...`});
+
+            let data = {
+                "_product": params.product.id,
+                "_order": this.ordercatch.id
+            }
 
             let resp = await preventadb.removeProduct(data);
-
-            console.log(resp);
 
             if(resp.err){
                 this.$q.notify({message:resp.err,icon:'fas fa-exclamation-triangle',color:'negative'});
             }else{
-                let idx = this.dbproducts.findIndex(prod=>prod.id==model.id);
+                let idx = this.index.products.findIndex( prod => prod.id==params.product.id );
 
-                this.dbproducts.splice(idx,1);
-                this.$q.notify({message:`${model.code} eliminado!`,icon:'done',color:'positive'});
-                this.$q.loading.hide();
-                this.wndAOE.state = false;
+                this.index.products.splice(idx,1);
+                this.$q.notify({message:`${params.product.code} eliminado!`,icon:'done',color:'positive'});
+                
+                this.wndEditor.product = undefined;
+                this.wndEditor.state = false;
             }
-        },
-        ctrlPzsUp(){
-            this.wndAOE.params.amount++;//incrementar el amount
-            this.wAOEcalcs();
-        },
-        ctrlPzsDown(){ 
-            if(this.wndAOE.params.amount > 1){
-                this.wndAOE.params.amount--;
-                this.wAOEcalcs();
-            }
-        },
-        cleanWndAOE(){
-            this.wndAOE.product=undefined;
-            this.wndAOE.action='a';
-            this.wndAOE.params.amount=1;
-            this.wndAOE.params.units=0;
-            this.wndAOE.params.boxes=0;
-            this.wndAOE.params.type='std';
-            this.wndAOE.params.prices=[];
-            this.wndAOE.params.pricelist=null;
-            this.wndAOE.params.price=0;
-            this.wndAOE.params.total=0;
-            this.wndAOE.params.stock=0;
-            this.wndAOE.params.comments='';
-
-            this.wndAOE.actions.done.dis=false;
-            this.wndAOE.actions.done.save=false;
-            this.wndAOE.actions.cancel.dis=false;
-
-            this.metsupply.model = {alias:'Piezas', id: 1};
-        },
-        wAOEcalcs(){//calculo de totales de ventana de agregar o editar
-            let prices = this.wndAOE.params.prices;
-            let uprice = null;
-
-            switch (this.metsupply.model.id) {
-                case 2://calcular precio por docenas
-                    uprice = prices.filter(pl=>pl.id==3)[0];//lista de precio a utilizar
-                    this.wndAOE.params.price = uprice.price;//precio a utilizar
-                    this.wndAOE.params.units = this.wndAOE.params.amount*12;//amount x 12 piezas => unidades totales
-                    this.wndAOE.params.boxes = (this.wndAOE.params.units/this.wndAOE.product.pieces).toFixed(1);//unidades totales / (innerpack) => cajas
-                break;
-
-                case 3://calculando por cajas
-                    uprice = prices.filter(pl=>pl.id==4)[0];//lista de precios a usar
-                    this.wndAOE.params.price = uprice.price;//precio a utilizar
-                    this.wndAOE.params.units = this.wndAOE.params.amount*this.wndAOE.product.pieces;//amount * piezas x caja => unidades totales
-                    this.wndAOE.params.boxes = this.wndAOE.params.amount;//cajas
-                break;
-            
-                default://calcular por piezas
-                    if(this.wndAOE.params.type=='off'){//es oferta?
-                        uprice = prices[0];
-                    }else if(this.wndAOE.params.amount<3){//es menudeo ?
-                        uprice = prices.filter(pl=>pl.id==1)[0];
-                    }else if(this.wndAOE.params.amount>=3){//es mayoreo ?
-                        uprice = prices.filter(pl=>pl.id==2)[0];
-                    }
-
-                    this.wndAOE.params.price = uprice.price;//precio utilizado
-                    this.wndAOE.params.units = this.wndAOE.params.amount;//total de unidades 
-                    this.wndAOE.params.boxes = Math.floor(this.wndAOE.params.amount/this.wndAOE.product.pieces);// cajas
-                break;
-            }
-            
-            this.wndAOE.params.total = uprice.price*this.wndAOE.params.units;// precio utilizado * unidades totales => total
-        },
-        productType(_product=null){//
-            let product = _product ? _product : this.wndAOE.product;//determina si trabaja con un producto que paso como parametro o el producto que esta en wndAOE.product
-            let product_proc = { type:null, prices:[], msg:null };//iniciando valores a retornar
-
-            if(this.client.type=='STD'){//es un cliente precio publico?
-                let prices = product.prices;//obtiene los precios del producto
-
-                if( (prices.length) && (prices.reduce((amm,item)=>{ return amm+item.price},0)) ){//averigua si hay precios en el prodcuto
-                        let basePrice = prices[0].price;// obtiene el primer precio para comparar
-                        let isOffer = prices.filter(item => item.id<=4 ).filter(item => basePrice==item.price).length==prices.length;//averigua si el precio es oferta
-
-                        //determinar el numero de saber el metodo de surtido
-                        product_proc.type = isOffer ? 'off':'std';// averigua si es oferta o no
-                        product_proc.prices = prices;//asignar las listas de precios utilizadas
-
-                        return product_proc;
-                }else{ //si no hay precios, devuelve un error para notificar al usuario
-                    product_proc.msg = 'Vaya!!, este producto no tiene precios aun';
-                    product_proc.type = 'err';
-                    return product_proc;
-                }
-            }else{ //trabajar con lista de precio del cliente (cuando este lista)
-
-            }
-        },
-        async doneAOE(){
-            console.log("Aplicando...");
-            this.wndAOE.actions.done.dis=true;
-            this.wndAOE.actions.done.save=true;
-            this.wndAOE.actions.cancel.dis=true;
-
-            let data = {
-                "_product": this.wndAOE.product.id,
-                "_order": this.ordercatch.id,
-                "_supply_by": this.metsupply.model.id ,
-                "amount": this.wndAOE.params.amount,
-                "comments": this.wndAOE.params.comments
-            }
-
-            let pvresp = await preventadb.add(data);
-
-            if(pvresp.err){
-                console.log(pvresp.err);
-            }else{
-                console.log(pvresp.resp);
-
-                if(this.wndAOE.action=='a'){
-                    this.dbproducts.unshift(pvresp.resp);
-                    this.appsounds.added.play();
-                }else{
-                    let idx = this.dbproducts.findIndex(item=>item.code==pvresp.resp.code);
-                    this.dbproducts[idx].ordered = pvresp.resp.ordered;
-                    this.appsounds.added.play();
-                }
-
-                this.wndAOE.state=false;
-            }
-        },
-        cancelAOE(){
-            console.log("cancel AOE");
-            this.wndAOE.state=false;
+            this.$q.loading.hide();
         },
         initPrinters(job){
             this.wndPrinters.job = job;
@@ -659,19 +478,52 @@ export default {
                 return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name }; 
             }else{ return {type:'STD'}; }
         },
-        basket(){
-            return this.dbproducts.map(item => {
-                let _methsupply = this.metsupply.opts.filter(met=>met.id==item.ordered._supply_by)[0];
-                item.cant = (item.ordered.amount)+' '+(_methsupply.alias);
-                item.type = this.productType(item).type;
-                item.uprice = item.ordered.price;
-                item.ppp = item.ordered.units; //piezas por producto (en base al metsupply)
-                item.total = item.ordered.units*item.ordered.price;
-                return item;
-            });
+        basket(){ 
+            if (this.index) {
+                return this.index.products.map( p => {
+                    p.ipack = p.pieces ? p.pieces : 1;
+                    p.pricelistDefault = this.pricelists.find( pl => pl.id==this.index.client._price_list);
+                    p.metsupply = ( p => this.metsupplies.find( ms => ms.id == p.ordered._supply_by ) )(p);
+                    p.productType = ( p =>{
+                        if(p.prices.length){
+                            let basePrice = p.prices[0].price;// obtiene el primer precio para comparar
+                            let isOffer = p.prices.filter(item => item.id<=4 ).filter(item => basePrice==item.price).length==p.prices.length;//averigua si el precio es oferta
+                            return isOffer ? 'off':'std'
+                        }else{ return { error:true, msg:"Producto sin precios" } }
+                    })(p);
+                    p.units = ( p => {
+                        switch (p.ordered._supply_by) {
+                            case 2: return p.ordered.amount*12; //cantidad * 12 
+                            case 3: return p.ordered.amount*p.ipack; //cantidad por piezas por caja
+                            default: return p.ordered.amount;// retornar cantidad
+                        }
+                    })(p);
+                    p.boxes = ( p => (p.units/p.ipack).toFixed(1) )(p);
+                    p.usedprice = ( p => {
+                        switch (p.ordered._supply_by) {
+                            case 2: return p.prices.find( pl => pl.id==3 ); // se utilizara el precio Docena
+                            case 3: return p.prices.find( pl => pl.id==4 ); // se utilizara el precio Caja
+                            default: 
+                                if(p.productType=='off'){//es oferta?
+                                    return p.prices.find( pl => pl.id==1 );
+                                }else if(p.ordered.amount<3){//es menudeo ?
+                                    return p.prices.find( pl => pl.id==1 );
+                                }else if(p.ordered.amount>=3){//es mayoreo ?
+                                    return p.prices.find( pl => pl.id==2 );
+                                }
+                            break;
+                        }
+                    })(p);                    
+                    p.total = p.units*p.usedprice.price;
+
+                    // console.log(p.usedprice);
+                    return p;
+                });
+            }else { return []; }
         },
-        totaltkt_pay(){ return this.basket.reduce((amm,item)=>{ return amm+item.total},0); },
-        totaltkt_pzs(){ return this.basket.reduce((amm,item)=>{ return amm+item.ppp},0); },
+        totalBasket(){ return this.basket.length ? this.basket.reduce((am,p) => { return p.total+am },0) : 0; },
+        pzsBasket(){ return this.basket.length ? this.basket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
+        bxsBasket(){ return this.basket.length ? this.basket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; },
         currentStep(){ return this.index ? this.index.status : null },
         appsounds(){ return this.$store.getters['Multimediapp/sounds']; },
         haveparent(){ return this.index ? this.index._order : false; },
@@ -693,24 +545,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+    .wrapper_prod{ border-bottom:1px solid #4b4b4b; }
+    .divclient{ border-radius:0px 0px 20px 20px; }
+
     .dinobebe{border-radius:10px;}
-
-    .fieldcant{
-        width: 120px;
-        padding: none;
-        margin: none;
-        font-size: 1.8em;
-        background: none;
-        outline: greenyellow;
-        color:white;
-        margin: auto auto;
-        border:none;
-
-        &:focus{ background: rgba(#FFF,.06); }
-    }
-
-    .divimg{ width: 120px; height: 120px; }
-    .divlcient{ border-radius:0px 0px 20px 20px; }
 
     .ord_anx{ color:#fff200; }
     .ord_haveanx{ color:#fff200; }

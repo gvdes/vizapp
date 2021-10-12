@@ -81,6 +81,7 @@
                 </template>
             </div>
 
+        <!-- ACTIONS -->
             <div>
                 <template v-if="action=='add'">
                     <q-separator/>
@@ -106,7 +107,6 @@
 export default {
     props:{
         product:{ type:Object, default:{} },
-        action:{ type:String, default:'add' },
         client:{ type:Object, default:{} },
         showprices:{ type:Boolean, default:false }
     },
@@ -194,6 +194,11 @@ export default {
                 usedprice:this.usedprice,
                 metsupply:this.metsupply.model
             }
+        },
+        action (){
+            if (this.product) {
+                return this.product.ordered ? 'edit':'add';
+            }else { return 'add'; }
         }
     }
 }
