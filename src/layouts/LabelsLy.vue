@@ -861,16 +861,32 @@ export default {
 
       stdProduts = this.getSTD(products);
       offProducts = this.getOFF(products);
-      let newObject = [
-        {
-          manager: offProducts,
-        },
-        {
-          manager: stdProduts,
-        },
-      ];
-      // console.log(newObject);
-      // console.log(stdProduts)
+      // console.log(stdProduts.length);
+      // console.log(offProducts.length);
+      let newObject = [];
+      if (stdProduts.length == 0 && offProducts.length != 0) {
+        newObject = [
+          {
+            manager: offProducts,
+          },
+        ];
+      } else if (stdProduts.length != 0 && offProducts.length == 0) {
+        newObject = [
+          {
+            manager: stdProduts,
+          },
+        ];
+      } else {
+        newObject = [
+          {
+            manager: offProducts,
+          },
+          {
+            manager: stdProduts,
+          },
+        ];
+      }
+
       let folio = Math.floor(Math.random() * 1000000);
       let getDate = new Date();
       let docname = `${this.$moment(getDate).format("YYMMDD")}_${folio}.pdf`;
@@ -885,9 +901,13 @@ export default {
       pdf.setFont("Montserrat");
       pdf.setFontSize(12);
 
+      // console.log(flag);
+      // console.log(newObject);
       if (type != 5) {
+        this.appsounds.download_label.play();
         this.methodStructuredOFFSTD(pdf, count, newObject, docname, nick, type);
       } else {
+        this.appsounds.download_label.play();
         this.methodStructuredOFFSTD(pdf, count, products, docname, nick, type);
       }
 
@@ -902,42 +922,72 @@ export default {
       switch (type) {
         case 1:
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel2x4(pdf, count, products[i].manager, docname, nick);
-            pdf.addPage();
+            this.methodSquareToysLabel2x4(
+              pdf,
+              count,
+              products[i].manager,
+              docname,
+              nick
+            );
+            products.length > 1 ? pdf.addPage() : null;
           }
-          this.appsounds.download_label.play();
+          // this.appsounds.download_label.play();
           break;
         case 2:
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel3x5(pdf, count, products[i].manager, docname, nick);
-            pdf.addPage();
+            this.methodSquareToysLabel3x5(
+              pdf,
+              count,
+              products[i].manager,
+              docname,
+              nick
+            );
+            products.length > 1 ? pdf.addPage() : null;
           }
-          this.appsounds.download_label.play();
+          // this.appsounds.download_label.play();
           break;
         case 3:
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel2x3(pdf, count, products[i].manager, docname, nick);
-            pdf.addPage();
+            this.methodSquareToysLabel2x3(
+              pdf,
+              count,
+              products[i].manager,
+              docname,
+              nick
+            );
+            products.length > 1 ? pdf.addPage() : null;
           }
-          this.appsounds.download_label.play();
+          // this.appsounds.download_label.play();
           break;
         case 4:
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel4x3(pdf, count, products[i].manager, docname, nick);
-            pdf.addPage();
+            this.methodSquareToysLabel4x3(
+              pdf,
+              count,
+              products[i].manager,
+              docname,
+              nick
+            );
+            products.length > 1 ? pdf.addPage() : null;
           }
-          this.appsounds.download_label.play();
+          // this.appsounds.download_label.play();
           break;
         case 5:
           this.methodSquareToysLabel9x2(pdf, count, products, docname, nick);
-          this.appsounds.download_label.play();
+          // this.appsounds.download_label.play();
           break;
         case 6:
           for (let i = 0; i < products.length; i++) {
-            this.methodGiantStarPrint(pdf, count, products[i].manager, docname, nick);
-            pdf.addPage();
+            this.methodGiantStarPrint(
+              pdf,
+              count,
+              products[i].manager,
+              docname,
+              nick
+            );
+            products.length > 1 ? pdf.addPage() : null;
           }
-          this.appsounds.download_label.play();
+          // this.appsounds.download_label.play();
           break;
         default:
           break;
@@ -1127,7 +1177,7 @@ export default {
                   ? convert + 1
                   : convert;
               pdf.text(
-                `De $${Math.floor(convert)} a`,
+                `De $${Math.floor(convert) + 1} a`,
                 width * (y == 0 ? 0 : y) + 90,
                 115 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -1147,7 +1197,7 @@ export default {
               );
               pdf.setFontSize(16);
               pdf.text(
-                `$${parseFloat(products[i].prices[0].price)}`,
+                `$${parseFloat(products[i].prices[0].price != 0 ? products[i].prices[0].price : 1)}`,
                 width * (y == 0 ? 0 : y) + 98,
                 133 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -1443,7 +1493,7 @@ export default {
                   ? convert + 1
                   : convert;
               pdf.text(
-                `De $${Math.floor(convert)} a`,
+                `De $${Math.floor(convert) + 1} a`,
                 width * (y == 0 ? 0 : y) + 115,
                 147 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -1463,7 +1513,7 @@ export default {
               );
               pdf.setFontSize(30);
               pdf.text(
-                `$${parseFloat(products[i].prices[0].price)}`,
+                `$${parseFloat(products[i].prices[0].price != 0 ? products[i].prices[0].price : 1)}`,
                 width * (y == 0 ? 0 : y) + 120,
                 185 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -1747,7 +1797,7 @@ export default {
                   ? convert + 1
                   : convert;
               pdf.text(
-                `De $${Math.floor(convert)} a`,
+                `De $${Math.floor(convert) + 1} a`,
                 width * (y == 0 ? 0 : y) + 50,
                 155 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -1767,7 +1817,7 @@ export default {
               );
               pdf.setFontSize(24);
               pdf.text(
-                `$${parseFloat(products[i].prices[0].price)}`,
+                `$${parseFloat(products[i].prices[0].price != 0 ? products[i].prices[0].price : 1)}`,
                 width * (y == 0 ? 0 : y) + 60,
                 185 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -2162,7 +2212,7 @@ export default {
                 ? convert + 1
                 : convert;
             pdf.text(
-              `De $${Math.floor(convert)} a`,
+              `De $${Math.floor(convert) + 1} a`,
               width / 2.2,
               128 + (countY == 1 ? 0 : counterCodeShort) + aux,
               null,
@@ -2182,7 +2232,7 @@ export default {
             );
             pdf.setFontSize(22);
             pdf.text(
-              `$${parseFloat(products[i].prices[0].price)}`,
+              `$${parseFloat(products[i].prices[0].price != 0 ? products[i].prices[0].price : 1)}`,
               width / 2,
               155 + (countY == 1 ? 0 : counterCodeShort) + aux,
               null,
@@ -2431,7 +2481,7 @@ export default {
                 ? convert + 1
                 : convert;
             pdf.text(
-              `De $${Math.floor(convert)} a`,
+              `De $${Math.floor(convert) + 1} a`,
               width * 1.46,
               128 + (countX == 1 ? 0 : counterCodeShortX) + aux,
               null,
@@ -2451,7 +2501,7 @@ export default {
             );
             pdf.setFontSize(22);
             pdf.text(
-              `$${parseFloat(products[i].prices[0].price)}`,
+              `$${parseFloat(products[i].prices[0].price != 0 ? products[i].prices[0].price : 1)}`,
               width * 1.51,
               155 + (countX == 1 ? 0 : counterCodeShortX) + aux,
               null,
@@ -2727,7 +2777,9 @@ export default {
     },
     getSTD() {
       return (products) => {
-        return products.filter((item) => item.type == "std" || item.type == "may");
+        return products.filter(
+          (item) => item.type == "std" || item.type == "may"
+        );
       };
     },
     getOFF() {
