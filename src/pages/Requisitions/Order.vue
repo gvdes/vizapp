@@ -290,6 +290,9 @@
             :product="wndSetItem.art"
             :client="{}"
             @confirm="addProduct"
+            :action="stateAOE"
+            @remove="removeProduct"
+            @cancel="cancelproduct"
           />
         </template>
       </q-card>
@@ -659,6 +662,7 @@ export default {
   components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
+      stateAOE: "add",
       flagProducts: false,
       flagPrompt: false,
       saveNameExport: "",
@@ -992,10 +996,14 @@ export default {
           console.log(fail);
         });
     },
-    removeProduct() {
+    cancelproduct(params) {
+      this.flagProducts = !this.flagProducts;
+    },
+    removeProduct(params) {
+      // console.log(params);
       this.erasing.state = true;
       let data = {
-        _product: this.wndSetItem.art.id,
+        _product: params.product.id,
         _requisition: this.params.id,
       };
       let proderase = this.wndSetItem.art.id;
@@ -1007,6 +1015,14 @@ export default {
           this.products.splice(this.wndSetItem.idxlist, 1);
           this.erasing.state = false;
           this.wndSetItem.state = false;
+          this.flagProducts = !this.flagProducts;
+
+          this.$q.notify({
+            message: "El producto ha sido removido.",
+            color: "positive",
+            type: "positive",
+            position: "center",
+          });
 
           this.rsocket.emit("order_update", {
             user: this.profile,
@@ -1028,13 +1044,13 @@ export default {
       let data = new Object();
       this.wndSetItem.art = params.product;
       this.wndSetItem.units = params.units;
-      this.wndSetItem.amount = params.amount;
+      this.wndSetItem.amount = this.supply(params);
       this.wndSetItem.notes = params.notes;
       this.wndSetItem.metsupply = params.metsupply;
       // this.wndSetItem.art = this.wndSetItem.art.concat(params.metsupply);
       // console.log(this.wndSetItem.art);
       let product = this.wndSetItem.art;
-      product.amount = this.wndSetItem.units;
+      product.amount = this.wndSetItem.amount;
       product.comments = this.wndSetItem.notes;
 
       data._product = product.id;
@@ -1043,6 +1059,8 @@ export default {
       data._requisition = this.params.id;
       data._supply_by = params.metsupply.id;
 
+      this.$q.loading.show({ message: "Enviando archivo, espera..." });
+
       dbreqs
         .add(data)
         .then((success) => {
@@ -1050,18 +1068,21 @@ export default {
           let resp = success.data;
           let sktproduct = null;
           let cmd = null;
+          this.$q.loading.hide();
 
-          if (artidx >= 0) {
+          if (artidx > 0) {
             // el articulo fue editado
             console.log("Articulo editado");
-            let _product = this.products[artidx];
-            sktproduct = _product;
-            _product.ordered.amount = this.wndSetItem.units;
-            _product.ordered.comments = this.wndSetItem.notes;
+            // let _product = this.products[artidx];
+            sktproduct = this.products[artidx];
+            // console.log(_product);
+            this.products[artidx].ordered.amount = this.wndSetItem.amount;
+            this.products[artidx].ordered.comments = this.wndSetItem.notes;
             cmd = "edit";
             this.flagDuplicate = false;
           } else {
             console.log("Articulo agregado");
+            resp = Object.assign(resp, this._metsupply(resp)[0]);
             console.log(resp);
             if (resp.success == false) {
               this.messageDuplicate = `${resp.msg}, producto: ${this.wndSetItem.art.description}, código: ${this.wndSetItem.art.code}`;
@@ -1096,7 +1117,7 @@ export default {
       // console.log(ids);
       await this.getOrder(ids);
       let units = this.orderProd;
-      console.log(units);
+      // console.log(units);
       opt = Object.assign(opt, units);
       let idx = this.products.findIndex((item) => {
         return opt.id == item.id;
@@ -1114,12 +1135,14 @@ export default {
           this.messageDuplicate =
             "Haz seleccionado este producto dos veces, te sugiero que ingreses la cantidad correcta.";
           this.filteringItems = opt.code;
-          console.log(this.filteringItems);
+          this.flagProducts = true;
+          // console.log(this.filteringItems);
         }
         console.log("Editando producto");
         let art = this.products[idx];
         // console.log(art)
         this.flagProducts = !this.flagProducts;
+        this.stateAOE = "edit";
         this.wndSetItem.notes = art.ordered.comments;
         this.wndSetItem.units = art.ordered.amount;
         this.wndSetItem.idxlist = idx;
@@ -1135,6 +1158,7 @@ export default {
         this.duplicate = false;
         this.wndSetItem.art = opt;
         this.flagProducts = !this.flagProducts;
+        this.stateAOE = "add";
         // this.wndSetItem.state = true;
         this.filteringItems = "";
       }
@@ -1300,6 +1324,23 @@ export default {
     },
   },
   computed: {
+    supply() {
+      return (params) => {
+        switch (params.product.units.id) {
+          case 1:
+            return params.amount;
+            break;
+          case 2:
+            return params.units * params.amount;
+            break;
+          case 3:
+            return params.units * params.amount;
+            break;
+          default:
+            break;
+        }
+      }
+    },
     _metsupply() {
       return (data) => {
         let newMetSupply = [];

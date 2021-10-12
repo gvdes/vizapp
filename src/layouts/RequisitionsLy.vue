@@ -225,7 +225,7 @@ export default {
       console.log(data);
       let newState = {
         state: data.state,
-        log: data.log
+        log: data.log,
       };
       let order = data.order;
       order.log = data.log;
@@ -239,13 +239,21 @@ export default {
     },
     sktUpdateOrd(data) {
       console.log(data);
-      let order = data.order;
-      let product = data.product;
+      if (data.product) {
+        let order = data.order;
+        console.log(
+          `%cLa orden ${order.id} no añadio el producto seleccionado.`,
+          "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
+        );
+      } else {
+        let order = data.order;
+        let product = data.product;
+        console.log(
+          `%cLa orden ${order.id} añadio ${product.description}`,
+          "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
+        );
+      }
 
-      console.log(
-        `%cLa orden ${order.id} añadio ${product.description}`,
-        "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
-      );
       // this.$store.commit("Requisitions/updateState", { order, newState });
     },
     markets(api) {

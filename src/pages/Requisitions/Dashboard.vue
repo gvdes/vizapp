@@ -58,104 +58,89 @@
         </div>
       </div>
 
-      <q-table
-        dark
-        grid
-        flat
-        :data="index"
-        :columns="columns"
-        row-key="id"
-        :rows-per-page-options="[0]"
-        :visible-columns="visibleColumns"
-        :pagination="dashboardPagination"
-        :filter="searchID"
-      >
-        <template v-slot:top>
-          <div class="row justify-between full-width q-ma-sm">
-            <div
-              class="col q-pa-xs"
-              v-for="(header, key) in visibleColumns"
-              :key="key"
+      <div class="row justify-between full-width q-ma-sm">
+        <div
+          class="col q-pa-xs"
+          v-for="(header, key) in visibleColumns"
+          :key="key"
+        >
+          <q-card class="bg-none">
+            <q-toolbar
+              class="
+                q-mb-sm
+                text-green-13
+                bg-darkl1
+                text-uppercase text-thin
+                subtitle1
+              "
             >
-              <q-card class="bg-none">
-                <q-toolbar
-                  class="
-                    q-mb-sm
-                    text-green-13
-                    bg-darkl1
-                    text-uppercase text-thin
-                    subtitle1
-                  "
-                >
-                  {{ header }}
-                  <q-space />
-                  <span class="text-white items-end q-pr-sm text-weight-bold">{{
-                    orderManagement(header).length
-                  }}</span>
-                  <q-avatar class="q-pl-sm" size="sm" rounded>
-                    <img :src="avatar(key, 'toolbar')" />
-                  </q-avatar>
-                </q-toolbar>
-              </q-card>
+              {{ header }}
+              <q-space />
+              <span class="text-white items-end q-pr-sm text-weight-bold">{{
+                orderManagement(header).length
+              }}</span>
+              <q-avatar class="q-pl-sm" size="sm" rounded>
+                <img :src="avatar(key, 'toolbar')" />
+              </q-avatar>
+            </q-toolbar>
+          </q-card>
 
-              <q-scroll-area
-                :thumb-style="thumbStyle"
-                :bar-style="barStyle"
-                style="height: 70vh; max-width: 100%"
+          <q-scroll-area
+            :thumb-style="thumbStyle"
+            :bar-style="barStyle"
+            style="height: 70vh; max-width: 100%"
+          >
+            <transition-group
+              appear
+              enter-active-class="animated zoomIn"
+              leave-active-class="animated zoomOut"
+            >
+              <q-card
+                v-for="order in orderManagement(header)"
+                :key="order.id"
+                class="column bg-darkl1 q-mb-sm"
+                v-ripple
+                clickable
+                @click="showLog(order.id)"
               >
-                <transition-group
-                  appear
-                  enter-active-class="animated zoomIn"
-                  leave-active-class="animated zoomOut"
-                >
-                  <q-card
-                    v-for="order in orderManagement(header)"
-                    :key="order.id"
-                    class="column bg-darkl1 q-mb-sm"
-                    v-ripple
-                    clickable
-                    @click="showLog(order.id)"
+                <q-card-section>
+                  <!-- <div class="row justify-between items-center col-sm-3 col-md-4 col-xs-6"> -->
+                  <div
+                    :class="
+                      visibleColumns.length < 8
+                        ? 'row justify-between items-center col-sm-3 col-md-4 col-xs-6'
+                        : 'column justify-between text-center items-center col-sm-3 col-md-4 col-xs-6'
+                    "
                   >
-                    <q-card-section>
-                      <!-- <div class="row justify-between items-center col-sm-3 col-md-4 col-xs-6"> -->
-                      <div
-                        :class="
-                          visibleColumns.length < 8
-                            ? 'row justify-between items-center col-sm-3 col-md-4 col-xs-6'
-                            : 'column justify-between text-center items-center col-sm-3 col-md-4 col-xs-6'
-                        "
-                      >
-                        <div class="col-3">
-                          <div class="text-h5 text-white">{{ order.id }}</div>
-                          <div class="text-h6 text-light-blue">
-                            {{ order.from.alias }}
-                          </div>
-                          <div class="text-amber-13">{{ order.notes }}</div>
-                        </div>
-                        <div class="text-center col-auto">
-                          <div>
-                            <q-avatar class="q-ma-sm" size="5rem" square
-                              ><img
-                                transition="slide-up"
-                                :src="buildlog(order, 'avatar')"
-                            /></q-avatar>
-                          </div>
-                          <div>{{ buildlog(order, "resp") }}</div>
-                          <div>
-                            <span class="text-white text-bold">{{
-                              buildlog(order, "time")
-                            }}</span>
-                          </div>
-                        </div>
+                    <div class="col-3">
+                      <div class="text-h5 text-white">{{ order.id }}</div>
+                      <div class="text-h6 text-light-blue">
+                        {{ order.from.alias }}
                       </div>
-                    </q-card-section>
-                  </q-card>
-                </transition-group>
-              </q-scroll-area>
-            </div>
-          </div>
-        </template>
-      </q-table>
+                      <div class="text-amber-13">{{ order.notes }}</div>
+                    </div>
+                    <div class="text-center col-auto">
+                      <div>
+                        <q-avatar class="q-ma-sm" size="5rem" square
+                          ><img
+                            transition="slide-up"
+                            :src="buildlog(order, 'avatar')"
+                        /></q-avatar>
+                      </div>
+                      <div>{{ buildlog(order, "resp") }}</div>
+                      <div>
+                        <span class="text-white text-bold">{{
+                          buildlog(order, "time")
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </transition-group>
+          </q-scroll-area>
+        </div>
+      </div>
     </div>
 
     <q-dialog v-model="wndLog.state">
@@ -473,6 +458,7 @@ export default {
     let params = { _rol: [7] };
     this.grocerAccnt = await dbAccount.get(params);
     this.index = this.orders;
+    this.$store.commit("Requisitions/getAllCleanDuplicates", this.orders);
     this.$store.commit("Requisitions/setHeaderTitle", this.title);
     let aux = 0;
     let blocked = [3, 4, 5, 7, 8, 10, 11];
@@ -572,7 +558,7 @@ export default {
           let idx = this.ordersdb.findIndex((item) => {
             return item.id == this.wndLog.order.id;
           });
-          this.ordersdb[idx].printed += 1;
+         this.$store.commit("Requisitions/printed", this.ordersdb[idx]);
         })
         .catch((fail) => {
           console.log(fail);
@@ -586,19 +572,30 @@ export default {
       let idx = this.ordersdb.findIndex((item) => {
         return item.id == orderid;
       });
+      this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
       this.wndLog.order = this.ordersdb[idx];
       if (this.wndLog.order.log.length > 2) {
-        let index = this.grocerAccnt.findIndex((item) => {
-          return item.id == this.wndLog.order.log[2].details.actors.id;
-        });
-        let ord = this.structuredDataDelivery(
-          this.wndLog.order,
-          this.grocerAccnt[index],
-          0
-        );
-        this.dataOrder = ord;
+        try {
+          let index = this.grocerAccnt.findIndex((item) => {
+            return item.id == this.wndLog.order.log[2].details.actors.id;
+          });
+          console.log(index);
+          let ord = this.structuredDataDelivery(
+            this.wndLog.order,
+            this.grocerAccnt[index],
+            0
+          );
+          this.dataOrder = ord;
+        } catch (error) {
+          this.$q.notify({
+            message: "La orden contiene estados duplicados.",
+            color: "negative",
+            type: "negative",
+            position: "center",
+          });
+        }
       }
-      console.log(this.wndLog.order);
+      // console.log(this.wndLog.order);
       this.wndLog.state = true;
     },
     changeState(_atstate = null) {

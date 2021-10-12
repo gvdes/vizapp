@@ -192,6 +192,7 @@ export default {
           let structured = this.ordersAll.findIndex((item, idx) => {
             return item.log.length == 3 && item.log[2].details.actors.id == grocer[i].id ?  idx : "";
           });
+          // console.log(structured);
           if (structured > 0) {
             aux.push({
               id: grocer[i].id,
