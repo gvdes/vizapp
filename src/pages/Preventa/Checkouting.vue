@@ -52,7 +52,7 @@
             <!-- LISTA INICIAL DE PRODUCTOS -->
             <div>
                 <div class="q-pa-md bg-blue-grey-8 row items-center justify-between">
-                    <span>Canasta: {{outbasket.length}}</span>
+                    <span>Por Confirmar: {{outbasket.length}}</span>
                     <span>$ {{totalOutBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
@@ -106,7 +106,7 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">CONFIRMAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" />
+                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" @cancel="cancelAOE"/>
                 </q-card>
             </template>
         </q-dialog>
@@ -117,7 +117,14 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndEditor.product" :client="order.client" showprices @confirm="productEdit" />
+                    <ProductAOE
+                        showprices
+                        :product="wndEditor.product"
+                        :client="order.client" 
+                        @confirm="productEdit"
+                        @cancel="cancelAOE"
+                        @remove="productDelete"
+                    />
                 </q-card>
             </template>
         </q-dialog>
@@ -126,9 +133,23 @@
         <q-dialog v-model="wndAdder.state" position="bottom" @hide="cleanAdder">
             <q-card class="text-white bg-darkl1 exo">
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
-                <div class="q-pa-sm"><ProductAutocomplete with_image with_prices with_stock @input="setProduct" /></div>
-                <template class="ds" v-if="wndAdder.product">
-                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" />
+                <div class="q-pa-sm"><ProductAutocomplete with_image with_prices with_stock @input="setProduct"  @similarcodes="similarCodes"/></div>
+                <template v-if="wndAdder.product">
+                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOE"/>
+                </template>
+
+                <template v-if="wndAdder.similars.length">
+                    <q-card-section>
+                        <div>Varios productos coinciden con tu lectura</div>
+                        <div class="row">
+                            <div class="col-6 q-pa-xs" v-for="art in wndAdder.similars" :key="art.id">
+                                <q-card class="q-pa-sm bg-darkl2" @click="setProduct(art)">
+                                    <div>{{art.code}} -- {{art.name}}</div>
+                                    <div class="text--3">{{art.description}}</div>
+                                </q-card>
+                            </div>
+                        </div>
+                    </q-card-section>
                 </template>
             </q-card>
         </q-dialog>
@@ -193,7 +214,8 @@ export default {
             },
             wndAdder:{
                 state:false,
-                product:undefined
+                product:undefined,
+                similars:[]
             },
             definitor:'',
             pricelists:[
@@ -326,10 +348,34 @@ export default {
                 this.wndEditor.product = undefined;
             }
         },
+        async productDelete(params){
+            this.$q.loading.show({message:`Devlviendo ${params.product.code}...`});
+
+            let product = this.wndEditor.product;
+            
+            let data = {
+                "_product": params.product.id,
+                "_order": this.ordercatch.id,
+                "_supply_by": params.metsupply.id,
+                "amount": 0,
+                "comments": ""
+            }
+
+            let resp = await PreventaDB.makeCheckout(data);
+            if (resp.error) {
+                console.log("No se pudo devolver el producto");
+            }else{
+                product.ordered.toDelivered = null;
+                this.wndEditor.product = undefined;
+                this.wndEditor.state = false;
+            }
+
+            this.$q.loading.hide();
+        },
         codeDefine(){
             let target = this.definitor.toUpperCase();
 
-            let product = this.products.find( prod => ( prod.code==target||prod.name==target ) );
+            let product = this.products.find( prod => ( prod.barcode==target||prod.name==target||prod.code==target ) );
 
             if (product) {
                 product.ordered.toDelivered ? this.edit(product) : this.confirm(product);
@@ -352,10 +398,27 @@ export default {
         setProduct(product){
             console.log(product);
             this.wndAdder.product = product;
+            this.wndAdder.similars=[];
         },
         cleanCounter(){ this.wndCounter.product = undefined; },
         cleanEditor(){ this.wndEditor.product = undefined; },
-        cleanAdder(){ this.wndAdder.product = undefined; },
+        cleanAdder(){
+            this.wndAdder.product = undefined;
+            this.wndAdder.similars=[];
+        },
+        cancelAOE(){
+            this.wndAdder.product = undefined;
+            this.wndAdder.state = false;
+
+            this.wndEditor.product = undefined;
+            this.wndEditor.state = false;
+
+            this.wndCounter.product = undefined;
+            this.wndCounter.state = false;
+        },
+        similarCodes(products){
+            this.wndAdder.similars = products;
+        },
         async nextStep(){
 
             this.$q.loading.show({ message:'Creando folio...' });

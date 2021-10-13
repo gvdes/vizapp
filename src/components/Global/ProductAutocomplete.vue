@@ -1,6 +1,6 @@
 <template>
     <div class="row items-center">
-        <q-btn flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="read_barcode=!read_barcode"/>
+        <q-btn flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="switchMode()"/>
 
         <template v-if="read_barcode">
             <q-input 
@@ -91,7 +91,15 @@ export default {
             read_barcode:false
         }
     },
+    mounted(){
+        this.read_barcode = JSON.parse(localStorage.getItem('barcodereader'));
+    },
     methods: {
+        switchMode(){
+            this.read_barcode=!this.read_barcode;
+            this.target='';
+            localStorage.setItem('barcodereader',this.read_barcode);
+        },
         autocomplete (val, update, abort) {
             if(val.trim().length>1){
                 this.target = val.toUpperCase().trim();
@@ -121,6 +129,7 @@ export default {
 			}
         },
         selItem(opt){ this.$emit('input',opt); },
+        similarCodes(opts){ console.log("Similar codes ejecutado!!!"); this.$emit('similarcodes',opts); },
         search(){
             this.target.trim().toUpperCase();
 
@@ -149,20 +158,13 @@ export default {
                         break;
                     
                         default: 
-                            this.$q.notify({
-                                message:`Mas de un producto coincide con este codigo`,
-                                color:'orange-13',
-                                icon:'fas fa-bug',
-                                html:true,
-                                timeout:1500,
-                                position:'center'
-                            });
+                            console.log(resp);
+                            this.similarCodes(resp);
                         break;
                     }
                     this.target = "";
                     this.iptsearch.processing = false;
                     this.$refs.iptsearch.focus();
-                    console.log(this.$refs);
                 }).catch( fail => { console.log(fail); });
 
             }
