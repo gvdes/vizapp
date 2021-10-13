@@ -295,7 +295,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
     <q-dialog position="bottom" v-model="flagProducts">
       <q-card class="text-white bg-darkl1 exo">
         <template class="ds">
@@ -303,6 +302,7 @@
             :product="wndSetItem.art"
             :client="{}"
             @confirm="addProduct"
+            blockunitsupply
             :action="stateAOE"
             @remove="removeProduct"
             @cancel="cancelproduct"
@@ -676,6 +676,7 @@ export default {
   data() {
     return {
       stateAOE: "add",
+      alias: "",
       flagProducts: false,
       flagPrompt: false,
       saveNameExport: "",
@@ -865,7 +866,8 @@ export default {
 
     this.setupToolbar.destiny = this.order.to.alias;
     this.setupToolbar.verify = this.order.id;
-    this.saveNameExport = `FOLIO-${this.setupToolbar.verify}`;
+    this.alias = this.workin.workpoint.alias;
+    this.saveNameExport = `${this.alias}_${this.setupToolbar.verify}_RES`;
   },
   methods: {
     sktOrderHere(data) {
@@ -1308,15 +1310,27 @@ export default {
       let worksheet = workbook.addWorksheet("My Sheet");
 
       worksheet.columns = [
-        { header: "", key: "code", width: 15 },
-        { header: "", key: "cajas", width: 10 },
+        // { header: "Comanda", key: "comanda", width: 15 },
+        { header: "Código", key: "code", width: 15 },
+        { header: "Modelo", key: "model", width: 15 },
+        { header: "Descripción", key: "description", width: 60 },
+        { header: "Sección", key: "section", width: 15 },
+        { header: "Familia", key: "family", width: 15 },
+        { header: "Categoría", key: "category", width: 15 },
+        { header: "Piezas", key: "pieces", width: 10 },
       ];
 
-      // console.log(this.products);
+      console.log(this.products);
       for (let i = 0; i < this.products.length; i++) {
         worksheet.addRow({
-          code: this.products[i].code,
-          cajas: this.products[i].boxes,
+          // comanda: this.setupToolbar.verify,
+          code: parseInt(this.products[i].name),
+          model: this.products[i].code,
+          description: this.products[i].description,
+          section: this.products[i].section,
+          family: this.products[i].family,
+          category: this.products[i].category,
+          pieces: this.products[i].ordered.units,
         });
       }
       // this.flagPrompt = !this.flagPrompt;
@@ -1331,7 +1345,7 @@ export default {
           `${name}.xlsx`
         );
       });
-      this.saveNameExport = `FOLIO-${this.setupToolbar.verify}`;
+      this.saveNameExport = `${this.alias}_${this.setupToolbar.verify}_RES`;
     },
     setSupplyTarget(value) {
       console.log(value);
