@@ -250,18 +250,13 @@ export default {
         localStorage.removeItem('statelocator');
         this.$store.commit('Layout/hideToolbarModule');
         this.data = await invsdb.find(this.$route.params.id);
-        this.__accounts = await accountsdb.get({ "_rol":[6,7,8] });
+        // this.__accounts = await accountsdb.get({ "_rol":[6,7,8] });
         this.listProducts = this.data.inventory.products;
-        
-        
-
-        console.log(this.__accounts);
-        console.log(this.data);
         this.getAccounts();
     },
     methods: {
         getAccounts(){
-            accountsdb.get({"_rol":[7]}).then(success=>{
+            accountsdb.get({"_rol":[6,7,8]}).then(success=>{
                 console.log(success.data);
                 this.natAccounts = success.data.map(acc=>{//iterar cuentas obtenidas
                     this.data.inventory.responsables.forEach(respo => {//contra responsables actuales del inventario
