@@ -594,7 +594,7 @@
               v-show="products.length"
               flat
               color="green-13"
-              label="terminar"
+              icon="fas fa-arrow-right"
               @click="changeState()"
               :disable="nextstep.state"
               :loading="nextstep.state"

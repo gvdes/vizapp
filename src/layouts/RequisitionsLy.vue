@@ -239,7 +239,7 @@ export default {
     },
     sktUpdateOrd(data) {
       console.log(data);
-      if (data.product != null) {
+      if (data.product == null) {
         let order = data.order;
         console.log(
           `%cLa orden ${order.id} no añadio el producto seleccionado.`,
