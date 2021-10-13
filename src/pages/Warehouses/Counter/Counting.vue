@@ -362,7 +362,14 @@ export default {
                 this.$sktCounters.emit('countingconfirmed',{room:this.socketroom,product:product,by:this.profile,settings:data});
 
                 this.counterReset(); this.wndCounter.state=false;
-            }).catch(fail=>{ console.log(fail); });
+            }).catch(fail=>{
+                this.$q.notify({
+                    message:'Error durante la generacion del documento, porfavor recarga la aplicaicon',
+                    color:'orange-13',
+                    icon:'fas fa-bug'
+                });
+                console.log(fail);
+            });
         },
         rowCalcs(row){
             let rowcalcs = { ufs:null, presition:null, by:null, settings:null, state:3 };

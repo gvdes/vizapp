@@ -256,7 +256,7 @@ export default {
     },
     methods: {
         getAccounts(){
-            accountsdb.get({"_rol":[6,7,8]}).then(success=>{
+            accountsdb.list({"_rol":[6,7,8]}).then(success=>{
                 console.log(success.data);
                 this.natAccounts = success.data.map(acc=>{//iterar cuentas obtenidas
                     this.data.inventory.responsables.forEach(respo => {//contra responsables actuales del inventario
