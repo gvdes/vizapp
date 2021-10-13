@@ -592,6 +592,7 @@ export default {
             color: "negative",
             type: "negative",
             position: "center",
+            timeout: 1000
           });
         }
       }
