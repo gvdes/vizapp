@@ -155,7 +155,7 @@ export default {
                 this.psocket.emit("order_update",{ newstate:newstate, order:this.ordersend, update:'state' });
                 this.appsounds.ok.play();
                 this.$router.push(`/preventa/checkout/${this.ordersend.id}`);
-                this.$q.notify({ message:`Checkout iniciado`, color:'positive', icon:'done' });
+                this.$q.notify({ message:`Checkout iniciado`, color:'positive', icon:'done', position:'center' });
                 this.$q.loading.hide();
             }
 		},
