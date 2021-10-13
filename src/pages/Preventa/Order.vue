@@ -47,6 +47,12 @@
 
         <q-drawer v-model="ldrawer.state" side="right" content-class="bg-darkl0" @hide="startremove.state=false">
             <div class="q-pa-md">
+                <template v-if="currentStep&&currentStep.id==1">
+                    <div class="text-overline">Unidad de surtido</div>
+                    <q-select borderless dense dark color="green-13" v-model="metdeftsupply" option-value="id" option-label="name" :options="metsupplies" />
+                    <q-separator />
+                </template>
+
                 <div class="text-overline">Opciones</div>
                 <div>
                     <q-btn-group spread class="bg-darkl1">
@@ -149,7 +155,14 @@
             <q-card class="text-white bg-darkl1 exo">
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
                 <template class="ds" v-if="wndAdder.product">
-                    <ProductAOE :product="wndAdder.product" :client="index.client" showprices @confirm="productAdd"  :disunitsupply="false" />
+                    <ProductAOE
+                        showprices
+                        :product="wndAdder.product"
+                        :client="index.client"
+                        @confirm="productAdd"
+                        @cancel="cancelAOE"
+                        :deftunitsupply="metdeftsupply.id"
+                    />
                 </template>
             </q-card>
         </q-dialog>
@@ -160,7 +173,14 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndEditor.product" :client="index.client" showprices @confirm="productEdit" @remove="remove" :disunitsupply="false" />
+                    <ProductAOE 
+                        showprices
+                        :product="wndEditor.product" 
+                        :client="index.client" 
+                        @confirm="productEdit"
+                        @cancel="cancelAOE"
+                        @remove="remove" 
+                    />
                 </q-card>
             </template>
         </q-dialog>
@@ -170,7 +190,7 @@
             <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/>
         </q-dialog>
 
-        <q-footer class="bg-darkl0 text-white">
+        <q-footer class="bg-darkl1 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
                     <ProductAutocomplete with_image with_prices with_stock @input="setProduct" />
@@ -238,10 +258,11 @@ export default {
                 { id:3, alias:'DOC', name:'DOCENA' },
                 { id:4, alias:'CAJ', name:'CAJA' },
             ],
+            metdeftsupply:{name:'Piezas', id:1, alias:'PZS'},
             metsupplies:[
-                {name:'Piezas', id:1, alias:'pzs'},
-                {name:'Docenas', id:2, alias:'dcs'},
-                {name:'Cajas', id:3, alias:'cjs'}
+                {name:'Piezas', id:1, alias:'PZS'},
+                {name:'Docenas', id:2, alias:'DOC'},
+                {name:'Cajas', id:3, alias:'CJS'}
             ],
         }
     },
@@ -252,8 +273,6 @@ export default {
         this.$q.loading.show({ message:'...' });
  
         this.index = await preventadb.order(this.ordercatch);
-        // console.log("%cEl Pedido fue montado!!","background:green;color:white;padding:10px;font-size:1.5em;");
-        // console.log(this.index);
 
         this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
@@ -467,6 +486,13 @@ export default {
 			    this.$q.notify({ icon:'bug', message:fail, color:'negative' });
             });
 		},
+        cancelAOE(){
+            this.wndAdder.product = undefined;
+            this.wndAdder.state = false;
+
+            this.wndEditor.product = undefined;
+            this.wndEditor.state = false;
+        }
     },
     computed: {
         profile(){ return this.$store.getters['Account/profile'];},

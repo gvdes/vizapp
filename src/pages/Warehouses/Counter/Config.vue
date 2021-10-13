@@ -243,14 +243,20 @@ export default {
                 products:true
             },
             settings:new Object(),
+            __accounts:[]
         }
     },
     async beforeMount() { 
         localStorage.removeItem('statelocator');
         this.$store.commit('Layout/hideToolbarModule');
         this.data = await invsdb.find(this.$route.params.id);
-        console.log(this.data);
+        this.__accounts = await accountsdb.get({ "_rol":[6,7,8] });
         this.listProducts = this.data.inventory.products;
+        
+        
+
+        console.log(this.__accounts);
+        console.log(this.data);
         this.getAccounts();
     },
     methods: {

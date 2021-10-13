@@ -29,7 +29,7 @@
 					</template>
 
 					<template v-slot:body="props">
-						<q-tr>
+						<q-tr @click="orderclicked(props.row)">
 							<q-td key="id">
 								<div>{{props.row.id}}</div>
 								<div class="text--1 text-grey-5">{{filltkt(props.row.num_ticket)}}</div>
@@ -72,7 +72,7 @@
 					</template>
 
 					<template v-slot:body="props">
-						<q-tr>
+						<q-tr @click="orderclicked(props.row)">
 							<q-td key="id">
 								<div>{{props.row.id}}</div>
 								<div class="text--1 text-grey-5">{{filltkt(props.row.num_ticket)}}</div>

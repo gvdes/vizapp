@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-// ❰❰❰❰❰ P R U E B A S ❱❱❱❱❱
+// ❰❰❰❰❰ O U T   T E S T ❱❱❱❱❱
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/files';
 
