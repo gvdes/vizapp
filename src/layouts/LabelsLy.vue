@@ -919,87 +919,147 @@ export default {
     methodStructuredOFFSTD(pdf, count, products, docname, nick, type) {
       console.log(nick);
       let _delete = undefined;
+      let zip = 0;
+      let counter = 0;
       switch (type) {
         case 1:
+          zip = 0;
+          counter = 0;
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel2x4(
+            counter += this.methodSquareToysLabel2x4(
               pdf,
               count,
               products[i].manager,
-              nick
+              nick,
+              zip
             );
             products.length > 1 ? pdf.addPage() : null;
           }
-          _delete = products.length > 2 ? pdf.internal.getNumberOfPages() : 0;
+          console.log(counter);
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
           pdf.deletePage(_delete);
           break;
         case 2:
+          zip = 0;
+          counter = 0;
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel3x5(
+            counter += this.methodSquareToysLabel3x5(
               pdf,
               count,
               products[i].manager,
-              nick
+              nick,
+              zip
             );
             products.length > 1 ? pdf.addPage() : null;
           }
-          _delete = products.length > 2 ? pdf.internal.getNumberOfPages() : 0;
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
           pdf.deletePage(_delete);
           break;
         case 3:
+          zip = 0;
+          counter = 0;
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel2x3(
+            counter += this.methodSquareToysLabel2x3(
               pdf,
               count,
               products[i].manager,
-              nick
+              nick,
+              zip
             );
             products.length > 1 ? pdf.addPage() : null;
           }
-          _delete = products.length > 2 ? pdf.internal.getNumberOfPages() : 0;
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
           pdf.deletePage(_delete);
           break;
         case 4:
+          zip = 0;
+          counter = 0;
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel4x3(
+            counter += this.methodSquareToysLabel4x3(
               pdf,
               count,
               products[i].manager,
-              nick
+              nick,
+              zip
             );
             products.length > 1 ? pdf.addPage() : null;
           }
-          _delete = products.length > 2 ? pdf.internal.getNumberOfPages() : 0;
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
           pdf.deletePage(_delete);
           break;
         case 5:
-          this.methodSquareToysLabel9x2(pdf, count, products, nick);
+          zip = 0;
+          counter = 0;
+          counter += this.methodSquareToysLabel9x2(
+            pdf,
+            count,
+            products,
+            nick,
+            zip
+          );
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
+          pdf.deletePage(_delete);
           break;
         case 6:
+          zip = 0;
+          counter = 0;
           for (let i = 0; i < products.length; i++) {
-            this.methodGiantStarPrint(
+            counter += this.methodGiantStarPrint(
               pdf,
               count,
               products[i].manager,
-              nick
+              nick,
+              zip
             );
             products.length > 1 ? pdf.addPage() : null;
           }
-          _delete = products.length > 2 ? pdf.internal.getNumberOfPages() : 0;
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
           pdf.deletePage(_delete);
           break;
         case 7:
+          zip = 0;
+          counter = 0;
           for (let i = 0; i < products.length; i++) {
-            this.methodSquareToysLabel3x6(
+            counter += this.methodSquareToysLabel3x6(
               pdf,
               count,
               products[i].manager,
-              nick
+              nick,
+              zip
             );
             products.length > 1 ? pdf.addPage() : null;
           }
-          _delete = products.length > 2 ? pdf.internal.getNumberOfPages() : 0;
-          pdf.deletePage(_delete);
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
+          let rest = pdf.internal.getNumberOfPages() - counter;
+          // console.log(pdf.internal.getNumberOfPages());
+          if (rest != 0) {
+            for (let j = 0; j < rest; j++) {
+              pdf.deletePage(pdf.internal.getNumberOfPages());
+            }
+          } else {
+            pdf.deletePage(_delete);
+          }
           break;
         default:
           break;
@@ -1007,9 +1067,17 @@ export default {
 
       pdf.save(docname);
     },
-    methodGiantStarPrint(pdf, count, products, nick) {
+    methodGiantStarPrint(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth();
       let height = pdf.internal.pageSize.getHeight();
+      let newProducts = [];
+      products.map((item) => {
+        for (let i = 0; i < item.copies; i++) {
+          newProducts.push(item);
+        }
+        return newProducts;
+      });
+      products = newProducts;
       for (let i = 0; i < products.length; i++) {
         if (i % 2 == 0) {
           pdf.setFont("Montserrat");
@@ -1094,11 +1162,11 @@ export default {
           );
           pdf.addPage();
         }
-        // pdf.addImage("pdf/img/STAR12.png", "PNG", 15, (height / 2.2) + 30*(i+1), width - 30, height / 2.2);
+        i % 2 == 0 ? zip++ : 1;
       }
-      // pdf.save(docname);
+      return zip;
     },
-    methodSquareToysLabel3x5(pdf, count, products, nick) {
+    methodSquareToysLabel3x5(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 3.2;
       let height = pdf.internal.pageSize.getHeight() / 5.3;
       let countY = 1;
@@ -1117,8 +1185,9 @@ export default {
         return newProducts;
       });
       products = newProducts;
-      console.log(products.length);
+      // console.log(products.length);
       // let productsMat = new Array(products.length);
+
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
@@ -1410,16 +1479,19 @@ export default {
             }
             _y++;
           }
+          i % 15 == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
-        // console.log(i)
         counterCodeShort += 149;
         countY++;
+        // (countY == 5 ? zip++ : 1);
       }
+      // console.log(pdf.internal.getNumberOfPages());
+      return zip;
     },
-    methodSquareToysLabel3x6(pdf, count, products, nick) {
+    methodSquareToysLabel3x6(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 3.2;
       let height = pdf.internal.pageSize.getHeight() / 6.3;
       let countY = 1;
@@ -1440,7 +1512,6 @@ export default {
         return newProducts;
       });
       products = newProducts;
-      console.log(products.length);
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
@@ -1460,7 +1531,10 @@ export default {
                     : 1
                 )}`,
                 width * (y == 0 ? 0 : y) + auy + (y > 0 ? y * 15 : 0),
-                70 + (countY == 1 ? 0 : counterCodeShort) + aux + (x <= 3 ? x * 2 : 0),
+                70 +
+                  (countY == 1 ? 0 : counterCodeShort) +
+                  aux +
+                  (x <= 3 ? x * 2 : 0),
                 null,
                 null,
                 "center"
@@ -1625,16 +1699,19 @@ export default {
             }
             _y++;
           }
+          i % 18 == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
         // console.log(i)
-        x == 3 ? (counterCodeShort += 135) : (counterCodeShort += 125);
+        x < 4 ? (counterCodeShort += 127) : (counterCodeShort += 128);
+        // counterCodeShort += 130;
         countY++;
       }
+      return zip;
     },
-    methodSquareToysLabel2x3(pdf, count, products, nick) {
+    methodSquareToysLabel2x3(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2.1;
       let height = pdf.internal.pageSize.getHeight() / 3.2;
       let countY = 1;
@@ -1939,6 +2016,7 @@ export default {
             }
             _y++;
           }
+          i % 6 == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
@@ -1947,10 +2025,10 @@ export default {
         counterCodeShort += 247;
         countY++;
       }
-      // pdf.save(docname);
+      return zip;
     },
     // ETIQUETAS DE 5 X 7.5
-    methodSquareToysLabel4x3(pdf, count, products, nick) {
+    methodSquareToysLabel4x3(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 4.2;
       let height = pdf.internal.pageSize.getHeight() / 3.2;
       let countY = 1;
@@ -2241,6 +2319,7 @@ export default {
             }
             _y++;
           }
+          i % 12 == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
@@ -2250,9 +2329,10 @@ export default {
         countY++;
       }
       // pdf.save(docname);
+      return zip;
     },
     // ETIQUETAS DE 9.5 X 3.5
-    methodSquareToysLabel9x2(pdf, count, products, nick) {
+    methodSquareToysLabel9x2(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2.1;
       let height = pdf.internal.pageSize.getHeight() / 9.4;
       let countY = 1;
@@ -2358,6 +2438,7 @@ export default {
             }
             _y++;
           }
+          i % 18 == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
@@ -2366,9 +2447,9 @@ export default {
         counterCodeShort += 84;
         countY++;
       }
-      // pdf.save(docname);
+      return zip;
     },
-    methodSquareToysLabel2x4(pdf, count, products, nick) {
+    methodSquareToysLabel2x4(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2.15;
       let height = pdf.internal.pageSize.getHeight() / 4.3;
       let countX = 1;
@@ -2943,8 +3024,9 @@ export default {
             counterCodeShortX += 182 + (i < 3 ? 4 : 2);
           }
         }
+        i % 8 == 0 ? zip++ : 1;
       }
-      // pdf.save(docname);
+      return zip;
     },
 
     async generateAndDownloadBarcodeInPDF(orderNo) {
