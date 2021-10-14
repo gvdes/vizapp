@@ -19,6 +19,7 @@
         <!-- HEADER 6BRJYThutH  -->
 
         <!-- BODY  -->
+        
             <div>
                 <template v-if="!product.prices.length">
                     <q-banner class="text-white bg-negative text-center">

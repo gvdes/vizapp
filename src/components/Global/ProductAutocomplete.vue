@@ -93,8 +93,8 @@ export default {
     },
     mounted(){
         this.read_barcode = JSON.parse(localStorage.getItem('barcodereader'));
-
         let keyboard = JSON.parse(localStorage.getItem('typeiptsearch'));
+        
         if(keyboard){
             this.iptsearch.type=keyboard.type;
 			this.iptsearch.icon=keyboard.icon;
