@@ -282,7 +282,8 @@ export default {
                 console.log(result.error);
                 this.$q.notify({
                     message:'Confirmacion erronea!',
-                    icon:'close', color:'negative'
+                    icon:'close', color:'negative',
+                    timeout:1000
                 });
             }else{
 
@@ -295,7 +296,7 @@ export default {
                 this.$q.notify({
                     message:'Producto Confirmado!!',
                     position:'center', color:'positive',
-                    icon:'done'
+                    icon:'done', timeout:1000
                 });
 
                 this.wndCounter.state = false;

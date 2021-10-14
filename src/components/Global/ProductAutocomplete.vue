@@ -136,8 +136,8 @@ export default {
 
             localStorage.setItem('typeiptsearch',JSON.stringify(this.iptsearch));
         },
-        selItem(opt){ this.$emit('input',opt); },
-        similarCodes(opts){ console.log("Similar codes ejecutado!!!"); this.$emit('similarcodes',opts); },
+        selItem(opt){ this.target=''; this.$emit('input',opt); },
+        similarCodes(opts){ console.log("Similar codes ejecutado!!!"); this.target=''; this.$emit('similarcodes',opts); },
         search(){
             this.target.trim().toUpperCase();
 
@@ -155,7 +155,7 @@ export default {
                                 color:'negative',
                                 icon:'fas fa-times',
                                 html:true,
-                                timeout:1500,
+                                timeout:1000,
                                 position:'center'
                             });
                         break;
