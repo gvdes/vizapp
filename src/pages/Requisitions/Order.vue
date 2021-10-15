@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <q-header elevated class="bg-darkl0">
-      <div class="row items-stretch justify-between">
+      <div class="row items-stretch justify-between" v-show="stateDelete">
         <q-btn @click="$router.go(-1)" flat icon="close" />
 
         <div class="row items-center col bg-dark divlcient">
@@ -79,11 +79,13 @@
     >
       <div class="q-pa-md">
         <q-btn
+          v-show="stateOrder"
           class="q-mb-md"
           label="Vaciar Orden"
           icon="remove_circle_outline"
           color="red-10"
           no-caps
+          :disable="products.length == 0"
           @click="emptyOrder"
         />
         <q-btn
@@ -295,6 +297,35 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="stateDone" persistent>
+      <q-card class="bg-darkl0 exo">
+        <q-card-section class="row items-center">
+          <q-avatar icon="notifications_active" color="orange-13" />
+          <span class="q-ml-sm text-white"
+            >¿Estas seguro de terminar esta orden?</span
+          >
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="Cancelar"
+            icon="close"
+            color="red-5"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            label="Terminar"
+            icon="done"
+            color="green-13"
+            @click="changeState()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog position="bottom" v-model="flagProducts">
       <q-card class="text-white bg-darkl1 exo">
         <template class="ds">
@@ -555,7 +586,7 @@
     </q-dialog>
 
     <q-footer class="bg-darkl1 text-white" elevated v-if="order">
-      <div class="q-pa-xs row justify-center items-center">
+      <div class="q-pa-xs row justify-center items-center" v-show="stateDelete">
         <template v-if="order.products.length != 0">
           <div>
             <q-btn
@@ -570,6 +601,7 @@
         <template v-if="order.status.id == 1">
           <div>
             <q-btn
+              dense
               class="q-mr-sm no-shadow"
               flat
               @click="
@@ -591,11 +623,12 @@
           </div>
           <div class="text-right">
             <q-btn
+              dense
               v-show="products.length"
               flat
               color="green-13"
               icon="fas fa-arrow-right"
-              @click="changeState()"
+              @click="stateDone = !stateDone"
               :disable="nextstep.state"
               :loading="nextstep.state"
             />
@@ -616,6 +649,7 @@
             <span>
               <q-btn flat color="green-13" icon="history" @click="showLog" />
               <q-btn
+                dense
                 flat
                 color="green-13"
                 icon="fas fa-people-carry"
@@ -631,12 +665,14 @@
               <!-- <q-btn flat color="green-13" label="validar"/> -->
               <q-btn
                 flat
+                dense
                 color="green-13"
                 label="Confirmar entrega"
                 @click="changeState(10)"
               />
               <q-btn
                 flat
+                dense
                 color="amber-13"
                 label="cancelar"
                 @click="tostock.state = false"
@@ -652,6 +688,7 @@
         <q-btn
           icon="print"
           flat
+          dense
           color="green-13"
           v-if="order.printed"
           @click="reprint"
@@ -671,10 +708,14 @@ import dbreqs from "../../API/requisitions";
 import ProductAutocomplete from "../../components/Global/ProductAutocomplete.vue";
 import saved from "file-saver";
 import ProductAOE from "../../components/Global/ProductAOE.vue";
+
 export default {
   components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
+      stateDelete: true,
+      stateOrder: true,
+      stateDone: false,
       stateAOE: "add",
       alias: "",
       flagProducts: false,
@@ -859,6 +900,8 @@ export default {
     this.$store.commit("Layout/hideToolbarModule");
     this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
+    // console.log(this.order);
+    this.stateOrder = this.order.status.id == 1 ? true : false;
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
     this.products = this.order.products;
@@ -930,11 +973,12 @@ export default {
       }
     },
     changeState(_atstate = null) {
+      this.stateDone = !this.stateDone;
       let atstate = _atstate ? _atstate : parseInt(this.order.status.id) + 1;
       let data = { id: this.params.id, _status: atstate };
       let message = "";
       let newstatus = { id: atstate, name: undefined };
-      this.$q.loading.show("Enviando orden, favor de esperar...");
+      this.$q.loading.show({ message: "Enviando orden, favor de esperar..." });
       switch (atstate) {
         case 2:
           console.log("Moviendo a por surtir");
@@ -1029,12 +1073,13 @@ export default {
     },
     removeProduct(params) {
       // console.log(params);
+      let _params = params.product.id;
+      let _order = params.product;
       this.erasing.state = true;
       let data = {
-        _product: params.product.id,
+        _product: _params,
         _requisition: this.params.id,
       };
-      let proderase = this.wndSetItem.art.id;
 
       dbreqs
         .remove(data)
@@ -1042,7 +1087,8 @@ export default {
           // let resp = success.data;
           this.products.splice(this.wndSetItem.idxlist, 1);
           this.erasing.state = false;
-          this.wndSetItem.state = false;
+          // this.wndSetItem.state = false;
+          // this.flagProducts = false;
           this.flagProducts = !this.flagProducts;
 
           this.$q.notify({
@@ -1050,6 +1096,7 @@ export default {
             color: "positive",
             type: "positive",
             position: "center",
+            timeout: 1500,
           });
 
           this.rsocket.emit("order_update", {
@@ -1057,8 +1104,48 @@ export default {
             from: this.workin,
             cmd: "remove",
             order: this.params.data,
-            product: proderase,
+            product: _order,
           });
+        })
+        .catch((fail) => {
+          console.log(fail);
+        });
+    },
+    removeAllProduct(params) {
+      this.$q.loading.show({ message: "Removiendo datos, espera..." });
+      // console.log(params);
+      let _params = params.id;
+      let _order = params;
+      this.erasing.state = true;
+      let data = {
+        _product: _params,
+        _requisition: this.params.id,
+      };
+
+      dbreqs
+        .remove(data)
+        .then((success) => {
+          // let resp = success.data;
+          this.products.splice(this.wndSetItem.idxlist, 1);
+          this.erasing.state = false;
+
+          this.$q.notify({
+            message: "El producto ha sido removido.",
+            color: "positive",
+            type: "positive",
+            position: "center",
+            timeout: 1500,
+          });
+
+          this.rsocket.emit("order_update", {
+            user: this.profile,
+            from: this.workin,
+            cmd: "remove",
+            order: this.params.data,
+            product: _order,
+          });
+          this.stateDelete = this.products.length == 0 ? true : false;
+          this.$q.loading.hide();
         })
         .catch((fail) => {
           console.log(fail);
@@ -1080,7 +1167,7 @@ export default {
       let product = this.wndSetItem.art;
       product.amount = this.wndSetItem.amount;
       product.comments = this.wndSetItem.notes;
-
+      product.prices = this.wndSetItem.art.prices;
       data._product = product.id;
       data.amount = product.amount;
       data.comments = product.comments;
@@ -1094,16 +1181,16 @@ export default {
         .then((success) => {
           let artidx = this.wndSetItem.idxlist;
           let resp = success.data;
+          console.log(resp);
           let sktproduct = null;
           let cmd = null;
           this.$q.loading.hide();
 
-          if (artidx >= 0) {
+          if (artidx > 0) {
             // el articulo fue editado
             console.log("Articulo editado");
             // let _product = this.products[artidx];
             sktproduct = this.products[artidx];
-            // console.log(_product);
             this.products[artidx].ordered._supply_by =
               this.wndSetItem.metsupply.id;
             this.products[artidx].ordered.amount = this.wndSetItem.amount;
@@ -1112,12 +1199,14 @@ export default {
             this.flagDuplicate = false;
           } else {
             console.log("Articulo agregado");
+            // console.log(product.prices);
+            let _prices = {prices : product.prices};
             if (resp.success == false) {
-              this.messageDuplicate = `${resp.msg}, producto: ${this.wndSetItem.art.description}, código: ${this.wndSetItem.art.code}`;
+              this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
               this.flagDuplicate = !this.flagDuplicate;
             } else {
-              console.log(resp);
               resp = Object.assign(resp, this._metsupply(resp)[0]);
+              resp = Object.assign(resp, _prices);
               console.log(resp);
               // resp = resp.concat(params.metsupply);
               this.products.unshift(resp);
@@ -1145,16 +1234,15 @@ export default {
     async selItem(opt, id) {
       console.log(opt);
       let ids = opt.code;
-      // console.log(ids);
-      await this.getOrder(ids);
-      let units = this.orderProd;
-      // console.log(units);
-      opt = Object.assign(opt, units);
+
+      // let units = await this.getOrder(ids);
+      // console.log(units[0]);
+      // opt = Object.assign(opt, units[0]);
       let idx = this.products.findIndex((item) => {
         return opt.id == item.id;
       });
       // id = opt.code;
-      console.log(idx);
+      // console.log(idx);
 
       if (idx >= 0) {
         // el producto ya esta en la lista
@@ -1171,8 +1259,10 @@ export default {
         }
         console.log("Editando producto");
         let art = this.products[idx];
-        // console.log(art)
-        this.flagProducts = !this.flagProducts;
+        console.log(this.products[idx])
+        this.order.status.id >= 2
+          ? (this.flagProducts = false)
+          : (this.flagProducts = !this.flagProducts);
         this.stateAOE = "edit";
         this.wndSetItem.notes = art.ordered.comments;
         this.wndSetItem.units = art.ordered.amount;
@@ -1180,7 +1270,7 @@ export default {
         // let newArr = [];
         let newArr = art;
         let newWs = Object.assign(newArr, this._metsupply(art)[0]);
-        console.log(newWs);
+        // console.log(newWs);
         this.wndSetItem.art = newWs;
         this.products[idx] = newArr;
         // console.log(this.__basket);
@@ -1189,8 +1279,9 @@ export default {
         // agregar nuevo producto
         console.log("Agregando producto...");
         this.duplicate = false;
+        this.wndSetItem.idxlist = 0;
         this.wndSetItem.art = opt;
-        this.flagProducts = !this.flagProducts;
+        this.flagProducts = true;
         this.stateAOE = "add";
         // this.wndSetItem.state = true;
         this.filteringItems = "";
@@ -1211,27 +1302,28 @@ export default {
       this.$refs.iptsearch.focus();
     },
     async getOrder(val) {
+      let _data = [];
       let data = { params: { code: val } };
       await dbproduct
         .autocompleteGET(data)
         .then((success) => {
           let resp = success.data;
-          let idx = resp.findIndex((idx) => idx.code == val);
-          console.log(resp[idx]);
-          this.orderProd = resp[idx];
+          _data = resp;
+          // let idx = resp.findIndex((idx) => idx.code == val);
+          // _data = resp[idx];
         })
         .catch((fail) => {
           console.log(fail);
         });
-      // console.log(this.orderProd);
+        return _data;
     },
     triggerInputFile() {
       this.$refs.blobfile.click();
     },
     async deliveryJSON() {
-      this.$q.loading.show({ message: "Procesando archivo, espera..." });
       let inputFile = document.getElementById("blobfile").files[0];
       let workbook = new ExcelJS.Workbook();
+      this.$q.loading.show({message: "El documento se esta importando, favor de esperar..."});
 
       workbook.xlsx.load(inputFile).then(() => {
         let worksheet = workbook.worksheets[0];
@@ -1284,6 +1376,7 @@ export default {
             console.log(success.data);
             let data = [];
             data = success.data;
+            console.log(data);
             for (let i = 0; i < data.notFound.length; i++) {
               this.wndImportJSON.wndNoDataFound.push(data.notFound[i]);
             }
@@ -1294,12 +1387,11 @@ export default {
             this.wndImportJSON.wndGetAdded.map((item) => {
               this.products.push(item);
             });
+            this.$q.loading.hide();
           })
           .catch((log) => {
             console.log(log);
           });
-
-        this.$q.loading.hide();
         document.getElementById("blobfile").value = "";
         // console.log(extractJSON.length);
         // console.log(this.setupToolbar.verify);
@@ -1355,20 +1447,23 @@ export default {
       this.triggerInputFile();
     },
     emptyOrder() {
-      this.$q.loading.show({ message: "Removiendo datos, espera..." });
-      console.log(this.products);
+      this.stateDelete = false;
       let articles = this.products.length - 1;
       this.ldrawer.state = !this.ldrawer.state;
       do {
         this.wndSetItem.art = this.products[articles];
-        this.removeProduct();
+        this.removeAllProduct(this.wndSetItem.art);
+        // console.log(this.stateDelete);
         articles--;
       } while (articles >= 0);
-      this.$q.loading.hide();
+      
       // console.log(this.params.id);
     },
   },
   computed: {
+    getState() {
+      return (articles) => articles == -1 ? true : false;
+    },
     __basket() {
       /**
        * DEFINIR PRODUCTOS

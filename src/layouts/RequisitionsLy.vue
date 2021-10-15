@@ -248,8 +248,9 @@ export default {
       } else {
         let order = data.order;
         let product = data.product;
+        let cmd = data.cmd == 'remove' ? "removio" : "añadio";
         console.log(
-          `%cLa orden ${order.id} añadio ${product.description}`,
+          `%cLa orden ${order.id} ${cmd} ${product.description}`,
           "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
         );
       }

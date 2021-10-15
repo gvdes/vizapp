@@ -120,23 +120,11 @@ export default {
   },
   async beforeMount() {
     this.index = await this.loadIndex();
-    // console.log(this.index);
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
     this.$store.commit("Requisitions/setHeaderTitle", this.name);
-
-    // this.socket.emit("join", {
-    //   profile: this.profile,
-    //   workpoint: this.workin,
-    //   room: this.sktroom,
-    // });
-
-    // this.socket.on("order_created", (data) => this.skt_order_created(data));
-    // this.socket.on("order_changestate", (data) =>
-    //   this.skt_order_changestate(data)
-    // );
   },
   beforeDestroy() {
     this.socket.emit("unjoin", {
