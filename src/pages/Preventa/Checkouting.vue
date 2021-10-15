@@ -101,18 +101,18 @@
         </div>
 
         <!-- VENTADA DE PRODUCTOS A CONFIRMAR -->
-        <q-dialog v-model="wndCounter.state" position="bottom" @hide="cleanCounter">
+        <q-dialog v-model="wndCounter.state" position="bottom" @hide="cancelAOEs">
             <template v-if="wndCounter.product">
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">CONFIRMAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" @cancel="cancelAOE"/>
+                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" @cancel="cancelAOEs"/>
                 </q-card>
             </template>
         </q-dialog>
 
         <!-- VENTANA DE PRODUCTOS CONFIRMADOS / PARA EDITAR -->
-        <q-dialog v-model="wndEditor.state" position="bottom" @hide="cleanEditor" class="exo">
+        <q-dialog v-model="wndEditor.state" position="bottom" @hide="cancelAOEs" class="exo">
             <template v-if="wndEditor.product">
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
@@ -122,7 +122,7 @@
                         :product="wndEditor.product"
                         :client="order.client" 
                         @confirm="productEdit"
-                        @cancel="cancelAOE"
+                        @cancel="cancelAOEs"
                         @remove="productDelete"
                     />
                 </q-card>
@@ -130,12 +130,12 @@
         </q-dialog>
 
         <!-- VENTANA DE PRODUCTOS PARA ANEXAR -->
-        <q-dialog v-model="wndAdder.state" position="bottom" @hide="cleanAdder">
+        <q-dialog v-model="wndAdder.state" position="bottom" @hide="cancelAOEs">
             <q-card class="text-white bg-darkl1 exo">
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
                 <div class="q-pa-sm"><ProductAutocomplete with_image with_prices with_stock @input="setProduct"  @similarcodes="similarCodes"/></div>
                 <template v-if="wndAdder.product">
-                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOE"/>
+                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOEs"/>
                 </template>
 
                 <template v-if="wndAdder.similars.length">
@@ -430,21 +430,19 @@ export default {
             this.wndAdder.product = product;
             this.wndAdder.similars=[];
         },
-        cleanCounter(){ this.wndCounter.product = undefined; },
-        cleanEditor(){ this.wndEditor.product = undefined; },
-        cleanAdder(){
-            this.wndAdder.product = undefined;
-            this.wndAdder.similars=[];
-        },
-        cancelAOE(){
+        cancelAOEs(){
             this.wndAdder.product = undefined;
             this.wndAdder.state = false;
+            this.wndAdder.similars=[];
 
             this.wndEditor.product = undefined;
             this.wndEditor.state = false;
 
             this.wndCounter.product = undefined;
             this.wndCounter.state = false;
+
+            this.$refs.searcher.focus();
+            this.definitor='';
         },
         similarCodes(products){ this.wndAdder.similars = products; },
         async nextStep(){

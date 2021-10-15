@@ -20,6 +20,7 @@
 
                 <q-btn flat icon="menu" @click="ldrawer.state=true"/>
             </div>
+
             <div class="row items-center justify-between q-mt-sm">
                 <div class="row text-center">
                     <div class="q-px-md">
@@ -118,19 +119,39 @@
             </div>
         </q-drawer>
 
-        <!-- <div v-if="wndAOE.wwd" class="q-pa-md q-mt-md">
+        <div v-if="artduplicate.state" class="q-pa-md q-mt-md">
             <q-banner inline-actions squared rounded class="bg-amber-13 text-dark">
                 <template v-slot:avatar>
                     <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
                 </template>
-                Ya agregaste esto...
+                
+                Esto ya esta en la lista
+
                 <template v-slot:action inline-actions>
-                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="tableproducts.filtrator=''; wndAOE.wwd=false;"/>
+                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="artduplicate.state=false; artduplicate.state=undefined;"/>
                 </template>
             </q-banner>
-        </div> -->
 
-        <div class="q-mb-xl">
+            <transition appear enter-active-class="animated bounceInUp" leave-active-class="animated zoomOut">
+                <div  @click="edit(artduplicate.product)" class="q-py-lg q-px-sm wrapper_prod">
+                    <div class="row items-center">
+                        <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                        <div class="col q-pr-sm">
+                            <div>
+                                <span>{{ artduplicate.product.code }}</span> --
+                                <span>{{ artduplicate.product.name }}</span>
+                            </div>
+                            <div class="text--2 text-grey-5">{{ artduplicate.product.description }}</div>
+                            <div class="col text--2">{{artduplicate.product.metsupply.name}} {{artduplicate.product.ordered.amount}}{{ artduplicate.product.metsupply.id!=1 ? ` (${artduplicate.product.units} pzs)`:``}}, PU: ${{artduplicate.product.usedprice.price}}</div>
+                            <div class="text--2 text-amber-13">{{ artduplicate.product.ordered.comments }}</div>
+                        </div>
+                        <div class="text-right text-green-13">$ {{artduplicate.product.total}}</div>
+                    </div>
+                </div>
+            </transition>
+        </div>
+
+        <div class="q-mb-xl" v-if="!artduplicate.state">
             <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
                 <div v-for="prod in basket" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
                     <div class="row items-center">
@@ -185,7 +206,6 @@
             </template>
         </q-dialog>
 
-
         <q-dialog v-model="wndPrinters.state" position="bottom">
             <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/>
         </q-dialog>
@@ -216,6 +236,10 @@ export default {
             psocket:this.$sktPreventa,
             index:undefined,
             moreopts:false,
+            artduplicate:{
+                state:false,
+                product:undefined
+            },
             wndAdder:{
                 state:false,
                 product:undefined
@@ -291,11 +315,8 @@ export default {
                 let artexist = this.index.products.find(art=>art.code==product.code);
                 
                 if(artexist){
-                    this.$q.notify({
-                        message:'Esto ya esta en la lista',
-                        icon:'fas fa-bug',
-                        color:'orange-13'
-                    });
+                    this.artduplicate.state=true;
+                    this.artduplicate.product=artexist;
                 }else{
                     this.wndAdder.product = product;
                     this.wndAdder.state = true;
@@ -336,13 +357,11 @@ export default {
                 "comments": params.comments
             }
 
-            console.log(data);
             let resp = await preventadb.add(data);
 
             if (resp.err) {
                 console.log(resp.err);
             }else{
-                console.log(resp);
                 this.index.products.unshift(resp);
                 this.appsounds.added.play();
 
@@ -428,10 +447,24 @@ export default {
             let data = {
                 "_order": this.ordercatch.id,
                 "_printer": this.wndPrinters.printer.id
-            }  
+            }
 
             let resp = await preventadb.rePrint(data);
-            this.$q.notify({ message:'Reimpresion correcta', color:'positive', icon:'done' });
+
+            if (resp.err) {
+                this.$q.notify({
+                    message:'Error de impresion :(',
+                    color:'negative',
+                    icon:'fas fa-bug',
+                    timeout:1500, 
+                    position:'center'
+                });
+            }else{
+                this.$q.notify({ message:'Reimpresion correcta', color:'positive', icon:'done' });
+            }
+            
+            this.wndPrinters.job = 'print';
+            this.wndPrinters.state = false;
             this.$q.loading.hide();
         },
         async nextStep(step=null){
@@ -504,7 +537,7 @@ export default {
                 return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name }; 
             }else{ return {type:'STD'}; }
         },
-        basket(){ 
+        basket(){
             if (this.index) {
                 return this.index.products.map( p => {
                     p.ipack = p.pieces ? p.pieces : 1;
