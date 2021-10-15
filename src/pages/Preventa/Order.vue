@@ -12,9 +12,13 @@
                         </div>
                     </div>
 
-                    <div class="q-pa-sm col text-center" :class="haveparent ? 'ord_anx':''">
+                    <div class="q-pa-sm col text-center">
                         <div class="text--2">Folio:</div>
                         <div class="text-bold">{{ordercatch.id}}</div>
+                        <div class="text--3 text-amber-13" v-if="haveparent">{{haveparent}}</div>
+                        <div class="text--3 text-orange-13" v-if="havechildren.length">
+                            <span v-for="(ord,idx) in havechildren" :key="idx">{{ord.id}} </span>
+                        </div>
                     </div>
                 </div>
 
@@ -94,18 +98,7 @@
                 </div>
                 <!-- <input type="file" ref="blobfile" id="blobfile" @input="readFile" hidden accept=".xlsx,.xls"/> -->
             </div>
-
-            <div v-if="haveparent" class="q-pa-md">
-                <div>Origen: {{index._order}}</div>
-            </div>
-
-            <div v-if="havechildren.length" class="q-pa-md">
-                <div>Anexos:</div>
-                <div v-for="anx in havechildren" :key="anx.id">
-                    {{anx.id}}
-                </div>
-            </div>
-
+            
             <div class="q-pt-md q-pl-md">
                 <q-timeline color="green-13" dark>
                     <q-timeline-entry v-for="log in orderlog" :key="log.id"
@@ -609,6 +602,6 @@ export default {
 
     .dinobebe{border-radius:10px;}
 
-    .ord_anx{ color:#fff200; }
+    .ord_isanx{ color:#fff200; }
     .ord_haveanx{ color:#fff200; }
 </style>
