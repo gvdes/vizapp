@@ -101,18 +101,18 @@
         </div>
 
         <!-- VENTADA DE PRODUCTOS A CONFIRMAR -->
-        <q-dialog v-model="wndCounter.state" position="bottom" @hide="cleanCounter">
+        <q-dialog v-model="wndCounter.state" position="bottom" @hide="cancelAOEs">
             <template v-if="wndCounter.product">
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">CONFIRMAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" @cancel="cancelAOE"/>
+                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" @cancel="cancelAOEs"/>
                 </q-card>
             </template>
         </q-dialog>
 
         <!-- VENTANA DE PRODUCTOS CONFIRMADOS / PARA EDITAR -->
-        <q-dialog v-model="wndEditor.state" position="bottom" @hide="cleanEditor" class="exo">
+        <q-dialog v-model="wndEditor.state" position="bottom" @hide="cancelAOEs" class="exo">
             <template v-if="wndEditor.product">
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
@@ -122,7 +122,7 @@
                         :product="wndEditor.product"
                         :client="order.client" 
                         @confirm="productEdit"
-                        @cancel="cancelAOE"
+                        @cancel="cancelAOEs"
                         @remove="productDelete"
                     />
                 </q-card>
@@ -130,12 +130,12 @@
         </q-dialog>
 
         <!-- VENTANA DE PRODUCTOS PARA ANEXAR -->
-        <q-dialog v-model="wndAdder.state" position="bottom" @hide="cleanAdder">
+        <q-dialog v-model="wndAdder.state" position="bottom" @hide="cancelAOEs">
             <q-card class="text-white bg-darkl1 exo">
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
                 <div class="q-pa-sm"><ProductAutocomplete with_image with_prices with_stock @input="setProduct"  @similarcodes="similarCodes"/></div>
                 <template v-if="wndAdder.product">
-                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOE"/>
+                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOEs"/>
                 </template>
 
                 <template v-if="wndAdder.similars.length">
@@ -175,14 +175,15 @@
                 <div class="col text-center">
                     <q-input filled dark autofocus dense label color="green-13"
                         v-model="definitor" @keypress.enter="codeDefine"
-                        class="text-uppercase"
+                        class="text-uppercase" :type="iptsearch.type"
+                        ref="searcher"
                     >
                         <template v-slot:prepend>
-                            <q-btn icon="fas fa-hashtag" dense rounded/>
+                            <q-btn dense flat rounded :icon="iptsearch.icon" @click="toogleIptSearch"/>
                         </template>
 
-                        <template v-slot:label>
-                            <q-icon name="search" size="sm"/> barcode, Codigo o codigo corto
+                        <template v-slot:append>
+                            <q-btn icon="close" dense rounded flat v-if="definitor.length" @click="definitor=''"/>
                         </template>
                     </q-input>
                 </div>
@@ -203,6 +204,7 @@ export default {
     data(){
         return {
             psocket:this.$sktPreventa,
+            iptsearch:{ processing:false, type:"number", icon:'fas fa-font' },
             order:null,
             wndCounter:{
                 state:false,
@@ -242,8 +244,26 @@ export default {
         this.order = await PreventaDB.order(this.ordercatch);
         console.log(this.order);
         this.$q.loading.hide();
+
+        this.$refs.searcher.focus();
     },
     methods:{
+        toogleIptSearch(){
+			switch (this.iptsearch.type) {
+				case "text": 
+					this.iptsearch.type="number";
+					this.iptsearch.icon="fas fa-font";
+				break;
+				case "number": 
+					this.iptsearch.type="text";
+					this.iptsearch.icon="fas fa-hashtag";
+				break;
+			}
+
+            this.$refs.searcher.focus();
+
+            // localStorage.setItem('typeiptsearch',JSON.stringify(this.iptsearch));
+        },
         async productConfirm(params){
             console.log(params);
             let product = this.wndCounter.product;
@@ -262,7 +282,8 @@ export default {
                 console.log(result.error);
                 this.$q.notify({
                     message:'Confirmacion erronea!',
-                    icon:'close', color:'negative'
+                    icon:'close', color:'negative',
+                    timeout:1000
                 });
             }else{
 
@@ -275,13 +296,13 @@ export default {
                 this.$q.notify({
                     message:'Producto Confirmado!!',
                     position:'center', color:'positive',
-                    icon:'done'
+                    icon:'done', timeout:1000
                 });
 
                 this.wndCounter.state = false;
                 this.wndCounter.product = undefined;
             }
-
+            this.definitor = '';
         },
         async productAdd(params){
             console.log(params);
@@ -373,19 +394,28 @@ export default {
             this.$q.loading.hide();
         },
         codeDefine(){
-            let target = this.definitor.toUpperCase();
+            if(this.definitor.trim().length){
+                switch (this.listProducts.length) {
+                    case 0: console.log("sin coincidencias, abrir el buscador"); break;
 
-            let product = this.products.find( prod => ( prod.barcode==target||prod.name==target||prod.code==target ) );
-
-            if (product) {
-                product.ordered.toDelivered ? this.edit(product) : this.confirm(product);
-            }else { 
-                console.log("No encontrado en products, Abrir wndAdder");
-                this.wndAdder.state = true;
-                this.wndAdder.product = null;
-            }
-
-            this.definitor = '';
+                    case 1:
+                        console.log("Excelente, una coincidencia, validar en que lista esta...");
+                        let product = this.listProducts[0];
+                        product.ordered.toDelivered ? this.edit(product) : this.confirm(product);
+                        break;
+                
+                    default:
+                        this.$q.notify({
+                            message:`Varias opciones disponibles, selecciona alguna ...`,
+                            icon:'far fa-grin-beam-sweat',
+                            color:'orange-14',
+                            position:'top',
+                            timeout:1700
+                        });
+                        console.log("Hay mas de una coincidencia, agregaras el primero");
+                    break;
+                }
+            }else{ console.log("Abrir buscador..."); this.definitor='';}
         },
         confirm(prod){
             this.wndCounter.product = prod;
@@ -400,25 +430,21 @@ export default {
             this.wndAdder.product = product;
             this.wndAdder.similars=[];
         },
-        cleanCounter(){ this.wndCounter.product = undefined; },
-        cleanEditor(){ this.wndEditor.product = undefined; },
-        cleanAdder(){
-            this.wndAdder.product = undefined;
-            this.wndAdder.similars=[];
-        },
-        cancelAOE(){
+        cancelAOEs(){
             this.wndAdder.product = undefined;
             this.wndAdder.state = false;
+            this.wndAdder.similars=[];
 
             this.wndEditor.product = undefined;
             this.wndEditor.state = false;
 
             this.wndCounter.product = undefined;
             this.wndCounter.state = false;
+
+            this.$refs.searcher.focus();
+            this.definitor='';
         },
-        similarCodes(products){
-            this.wndAdder.similars = products;
-        },
+        similarCodes(products){ this.wndAdder.similars = products; },
         async nextStep(){
 
             this.$q.loading.show({ message:'Creando folio...' });
@@ -452,7 +478,7 @@ export default {
     },
     computed:{
         ordercatch(){ return this.$route.params },
-        products(){ 
+        originProducts(){ 
             if (this.order) {
                 return this.order.products.map( p => {
                     p.ipack = p.pieces ? p.pieces : 1;
@@ -490,13 +516,19 @@ export default {
                     })(p);                    
                     p.total = p.units*p.usedprice.price;
 
-                    // console.log(p.usedprice);
                     return p;
                 });
             }else { return []; }
         },
-        outbasket(){ return this.products.filter( prod => !prod.ordered.toDelivered ) },
-        inbasket(){ return this.products.filter( prod => prod.ordered.toDelivered ) },
+        listProducts(){
+            if(this.definitor.length){
+                let _target = this.definitor.toUpperCase().trim();
+                let similars = this.originProducts.filter( p => ( p.barcode.match(_target) || p.code.match(_target) || p.name.match(_target) || p.description.match(_target) ) );
+                return similars.length ? similars : [];
+            }else{ return this.originProducts; }
+        },
+        outbasket(){ return this.listProducts.filter( prod => !prod.ordered.toDelivered ) },
+        inbasket(){ return this.listProducts.filter( prod => prod.ordered.toDelivered ) },
         totalBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => { return p.total+am },0) : 0; },
         totalOutBasket(){ return this.outbasket.length ? this.outbasket.reduce((am,p) => { return p.total+am },0) : 0; },
         pzsBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },

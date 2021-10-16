@@ -93,6 +93,12 @@ export default {
     },
     mounted(){
         this.read_barcode = JSON.parse(localStorage.getItem('barcodereader'));
+        let keyboard = JSON.parse(localStorage.getItem('typeiptsearch'));
+        
+        if(keyboard){
+            this.iptsearch.type=keyboard.type;
+			this.iptsearch.icon=keyboard.icon;
+        }
     },
     methods: {
         switchMode(){
@@ -127,9 +133,11 @@ export default {
 					this.iptsearch.icon="fas fa-hashtag";
 				break;
 			}
+
+            localStorage.setItem('typeiptsearch',JSON.stringify(this.iptsearch));
         },
-        selItem(opt){ this.$emit('input',opt); },
-        similarCodes(opts){ console.log("Similar codes ejecutado!!!"); this.$emit('similarcodes',opts); },
+        selItem(opt){ this.target=''; this.$emit('input',opt); },
+        similarCodes(opts){ console.log("Similar codes ejecutado!!!"); this.target=''; this.$emit('similarcodes',opts); },
         search(){
             this.target.trim().toUpperCase();
 
@@ -147,7 +155,7 @@ export default {
                                 color:'negative',
                                 icon:'fas fa-times',
                                 html:true,
-                                timeout:1500,
+                                timeout:1000,
                                 position:'center'
                             });
                         break;

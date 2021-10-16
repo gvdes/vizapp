@@ -17,7 +17,6 @@
             <div class="text-bold">{{ setupToolbar.verify }}</div>
           </div>
         </div>
-
         <q-btn
           v-if="flag"
           flat
@@ -43,6 +42,23 @@
             <div class="text--2">Cajas</div>
             <span class="text-green-13 text-bold">{{ boxesBucket }}</span>
           </div>
+        </div>
+        <div class="col-md-6 col-xs-4 q-ma-xs" style="max-width: 20rem">
+          <q-select
+            transition-show="scale"
+            transition-hide="scale"
+            v-model="selectAvailable"
+            color="green-13"
+            label="Disponibilidad"
+            :options="available"
+            @click="filterAvailable"
+            dark
+            options-selected-class="text-green-13"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="filter_alt" />
+            </template>
+          </q-select>
         </div>
       </div>
     </q-header>
@@ -126,7 +142,7 @@
         dark
         row-key="id"
         :columns="tableproducts.columns"
-        :data="__basket"
+        :data.sync="filterAvailable"
         :pagination="tableproducts.pagination"
         :filter="filteringItems"
       >
@@ -713,6 +729,12 @@ export default {
   components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
+      selectAvailable: "",
+      available: [
+        { label: "Todos", value: 1 },
+        { label: "Disponible", value: 2 },
+        { label: "No Disponible", value: 3 },
+      ],
       stateDelete: true,
       stateOrder: true,
       stateDone: false,
@@ -901,6 +923,9 @@ export default {
     this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
     // console.log(this.order);
+    // this.order.map((idx) => {
+    //   return this.available.push({ label: idx.name, value: idx.id });
+    // });
     this.stateOrder = this.order.status.id == 1 ? true : false;
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
@@ -1162,8 +1187,7 @@ export default {
       this.wndSetItem.amount = params.amount;
       this.wndSetItem.notes = params.comments;
       this.wndSetItem.metsupply = params.metsupply;
-      // this.wndSetItem.art = this.wndSetItem.art.concat(params.metsupply);
-      // console.log(this.wndSetItem.art);
+
       let product = this.wndSetItem.art;
       product.amount = this.wndSetItem.amount;
       product.comments = this.wndSetItem.notes;
@@ -1179,14 +1203,16 @@ export default {
       dbreqs
         .add(data)
         .then((success) => {
-          let artidx = this.wndSetItem.idxlist;
           let resp = success.data;
           console.log(resp);
+          let artidx = this.products.findIndex((item) => {
+            return resp.id == item.id;
+          });
           let sktproduct = null;
           let cmd = null;
           this.$q.loading.hide();
-
-          if (artidx > 0) {
+          console.log(artidx);
+          if (artidx >= 0) {
             // el articulo fue editado
             console.log("Articulo editado");
             // let _product = this.products[artidx];
@@ -1200,7 +1226,7 @@ export default {
           } else {
             console.log("Articulo agregado");
             // console.log(product.prices);
-            let _prices = {prices : product.prices};
+            let _prices = { prices: product.prices };
             if (resp.success == false) {
               this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
               this.flagDuplicate = !this.flagDuplicate;
@@ -1233,16 +1259,10 @@ export default {
     },
     async selItem(opt, id) {
       console.log(opt);
-      let ids = opt.code;
 
-      // let units = await this.getOrder(ids);
-      // console.log(units[0]);
-      // opt = Object.assign(opt, units[0]);
       let idx = this.products.findIndex((item) => {
         return opt.id == item.id;
       });
-      // id = opt.code;
-      // console.log(idx);
 
       if (idx >= 0) {
         // el producto ya esta en la lista
@@ -1259,7 +1279,7 @@ export default {
         }
         console.log("Editando producto");
         let art = this.products[idx];
-        console.log(this.products[idx])
+        console.log(this.products[idx]);
         this.order.status.id >= 2
           ? (this.flagProducts = false)
           : (this.flagProducts = !this.flagProducts);
@@ -1315,7 +1335,7 @@ export default {
         .catch((fail) => {
           console.log(fail);
         });
-        return _data;
+      return _data;
     },
     triggerInputFile() {
       this.$refs.blobfile.click();
@@ -1323,7 +1343,9 @@ export default {
     async deliveryJSON() {
       let inputFile = document.getElementById("blobfile").files[0];
       let workbook = new ExcelJS.Workbook();
-      this.$q.loading.show({message: "El documento se esta importando, favor de esperar..."});
+      this.$q.loading.show({
+        message: "El documento se esta importando, favor de esperar...",
+      });
 
       workbook.xlsx.load(inputFile).then(() => {
         let worksheet = workbook.worksheets[0];
@@ -1456,13 +1478,24 @@ export default {
         // console.log(this.stateDelete);
         articles--;
       } while (articles >= 0);
-      
+
       // console.log(this.params.id);
     },
+    
   },
   computed: {
+    filterAvailable() {
+      switch (this.selectAvailable.value) {
+        case 2:
+          return this.__basket.filter((stock) => stock.ordered.stock != 0);
+        case 3:
+          return this.__basket.filter((stock) => stock.ordered.stock == 0);
+        default:
+          return this.__basket;
+      }
+    },
     getState() {
-      return (articles) => articles == -1 ? true : false;
+      return (articles) => (articles == -1 ? true : false);
     },
     __basket() {
       /**

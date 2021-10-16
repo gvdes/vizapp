@@ -37,7 +37,10 @@
                 width="80px"
               />
             </template>
-            <span class="text-subtitle1 text-dark text-weight-bold">
+            <span v-if="dataBanner.length != 0" class="text-subtitle1 text-dark exo-med">
+              El producto <strong>{{dataBanner.description}}</strong> con código <strong>{{dataBanner.code}}</strong> no tiene precio.
+            </span>
+            <span v-else class="text-subtitle1 text-dark text-weight-bold">
               {{ messageDuplicate }}
             </span>
             <template v-slot:action>
@@ -48,7 +51,7 @@
                 label="Entendido"
                 icon-right="double_arrow"
                 class="text-weight-bold"
-                @click="(filteringItems = ''), (flagDuplicate = !flagDuplicate)"
+                @click="(filteringItems = ''), (flagDuplicate = !flagDuplicate), dataBanner = [];"
               />
             </template>
           </q-banner>
@@ -82,7 +85,7 @@
           <span class="text-green-13 text-weight-bold">{{
             wndImportJSON.wndGetRows
           }}</span>
-          modelos fueron encontrados y agregados a la lista pero;
+          modelos fueron encontrados y agregados a la lista{{`${wndImportJSON.wndNoDataFound.length != 0 ? ", sin embargo;": "."}`}}
         </q-card-section>
         <q-card-section v-if="wndImportJSON.wndNoDataFound.length">
           <div>
@@ -101,12 +104,42 @@
             <span class="text--2 exo-med">Producto: {{ code.description}} | Código: {{ code.code}}</span>
           </div>
           <div class="text--2 text-amber-13">Nota: {{ wndImportJSON.message }}</div>
+          <div class="text--2 text-amber-13" v-show="wndImportJSON.messageRepeat.length != 0">Nota: {{ wndImportJSON.messageRepeat }}</div>
         </q-card-section>
         <q-card-actions align="center">
           <q-btn
             class="full-width"
             flat
             label="Ok"
+            color="green-13"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="exportstate.state">
+      <q-card class="bg-darkl0 text-grey-5 exo text-subtitle1">
+        <q-card-section>
+          <span class="text-h5">Favor de colocar en la impresora</span>
+          <div
+            class="text-uppercase"
+            v-for="(code, idx) in exportstate.data"
+            :key="idx"
+          >
+            
+            <q-avatar size="xs" :class="idx == 0 ? 'text-orange-6' : 'text-green-6'" icon="fas fa-circle" />
+            <span v-if="code <= 1" class="text-h6 exo-med">{{ `${idx == 0 ? code + ' Hoja Naranja.' : code + ' Hojas Verdes.'}`  }}</span>
+            <span v-else-if="code > 1" class="text-h6 exo-med">{{ `${idx == 0 ? code + ' Hojas Naranjas.' : code + ' Hojas Verdes.'}`  }}</span>
+            <span v-else class="text-h6 exo-med">{{ `${idx == 0 ? code + ' Hojas Naranjas.' : code + ' Hoja Verde.'}`  }}</span>
+          </div>
+        </q-card-section>
+        <q-card-actions align="center">
+          <q-btn
+            class="full-width"
+            flat
+            label="Ok"
+            @click="exportstate.data = []"
             color="green-13"
             v-close-popup
           />
@@ -452,13 +485,18 @@ export default {
   },
   data() {
     return {
+      exportstate: {
+        state: false,
+        data: [],
+      },
+      dataBanner: [],
       flagDuplicate: false,
       messageDuplicate: "",
       filteringItems: undefined,
       pagination: {
         descending: false,
         page: 1,
-        rowsPerPage: 6,
+        rowsPerPage: 15,
       },
       columns: [
         {
@@ -568,6 +606,7 @@ export default {
         wndGetAdded: [],
         _supply_by: 0,
         message: "",
+        messageRepeat: "",
       },
     };
   },
@@ -618,7 +657,10 @@ export default {
         this.flagDuplicate = !this.flagDuplicate;
         this.filteringItems = newLabel.code;
         if (flag) {
-          this.messageDuplicate = `El producto ${newLabel.description} con código ${newLabel.code} no tiene precio.`;
+          let obj = new Object();
+          obj.description = newLabel.description;
+          obj.code = newLabel.code;
+          this.dataBanner = obj;
         } else {
           this.messageDuplicate =
             "Haz seleccionado este producto dos veces, te sugiero que ingreses el código correcto.";
@@ -841,6 +883,8 @@ export default {
       let inputFile = document.getElementById("blobfile").files[0];
       let workbook = new ExcelJS.Workbook();
       let codesToSend = [];
+      let diference = [];
+      let convert = 0;
 
       workbook.xlsx.load(inputFile).then((data) => {
         let worksheet = workbook.worksheets[0];
@@ -849,10 +893,15 @@ export default {
           cell.value ? codesToSend.push(cell.value) : null;
         });
 
+        diference = codesToSend.filter((item, pos, self) => {
+          return self.indexOf(item) == pos;
+        });
+        // console.log(diference);
+
         if (codesToSend.length) {
-          console.log(codesToSend);
+          // console.log(codesToSend);
           let data = { codes: codesToSend };
-          this.wndImport.rows = codesToSend.length;
+          this.wndImportJSON.wndTotal  = codesToSend.length;
           this.$q.loading.show({ message: "Procesando archivo, espera.." });
           dbproduct
             .getMassive(data)
@@ -861,13 +910,15 @@ export default {
               let addeds = 0;
               let _data = this.checkPrices(resp);
               console.log(_data);
-              this.wndImportJSON.wndTotal = resp.products.length;
+              // this.wndImportJSON.wndTotal = resp.products.length;
               this.wndImportJSON.wndGetRows = _data.add.length;
               this.wndImportJSON.state = !this.wndImportJSON.state;
               this.wndImportJSON.wndGetAdded = data.add;
               this.wndImportJSON.wndNoDataFound = _data.notFound;
+              
               if (this.wndImportJSON.wndNoDataFound.length > 0) {
-                this.wndImportJSON.message = "El producto no contiene precios."
+                let long = this.wndImportJSON.wndNoDataFound.length;
+                this.wndImportJSON.message = long <= 1 ? "El producto no contiene precios." : "Los productos no contienen precios."
               } 
               _data.add.map((item) => {
                 let _labelType = this.labelType(item.prices, item.pieces);
@@ -887,7 +938,7 @@ export default {
               if (
                 addeds &&
                 !resp.fails.notFound.length &&
-                !resp.fails.repeat.length
+                diference.length == codesToSend.length
               ) {
                 this.$q.notify({
                   message: `Etiquetas generadas: ${addeds}`,
@@ -897,9 +948,9 @@ export default {
                 });
                 this.updateCacheLabels();
               } else {
-                this.wndImport.notfound = resp.fails.notFound;
-                this.wndImport.repeat = resp.fails.repeat;
-                this.wndImport.state = true;
+                convert = codesToSend.length - diference.length;
+                this.wndImportJSON.messageRepeat = convert <= 1 ? `${convert} producto se repitio. Favor de validar su documento antes de subirlo.` : `${convert} productos se repitieron. Favor de validar su documento antes de subirlo.`
+                this.updateCacheLabels();
               }
             })
             .catch((fail) => {
@@ -1037,6 +1088,7 @@ export default {
       let _delete = undefined;
       let zip = 0;
       let counter = 0;
+      let aux = 0;
       switch (type) {
         case 1:
           zip = 0;
@@ -1049,9 +1101,11 @@ export default {
               nick,
               zip
             );
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
-          console.log(counter);
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1061,6 +1115,7 @@ export default {
         case 2:
           zip = 0;
           counter = 0;
+          aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodSquareToysLabel3x5(
               pdf,
@@ -1069,8 +1124,11 @@ export default {
               nick,
               zip
             );
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1080,6 +1138,7 @@ export default {
         case 3:
           zip = 0;
           counter = 0;
+          aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodSquareToysLabel2x3(
               pdf,
@@ -1088,9 +1147,11 @@ export default {
               nick,
               zip
             );
-
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1100,6 +1161,7 @@ export default {
         case 4:
           zip = 0;
           counter = 0;
+          aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodSquareToysLabel4x3(
               pdf,
@@ -1108,8 +1170,11 @@ export default {
               nick,
               zip
             );
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1135,6 +1200,7 @@ export default {
         case 6:
           zip = 0;
           counter = 0;
+          aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodGiantStarPrint(
               pdf,
@@ -1143,8 +1209,11 @@ export default {
               nick,
               zip
             );
+            aux = Math.round(counter / 2) - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? pdf.addPage() : null;
           }
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1154,6 +1223,7 @@ export default {
         case 7:
           zip = 0;
           counter = 0;
+          aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodSquareToysLabel3x6(
               pdf,
@@ -1162,8 +1232,11 @@ export default {
               nick,
               zip
             );
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1181,6 +1254,7 @@ export default {
         case 8:
           zip = 0;
           counter = 0;
+          aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodStarToysLabel4x6(
               pdf,
@@ -1189,8 +1263,11 @@ export default {
               nick,
               zip
             );
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
+          this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1200,7 +1277,7 @@ export default {
         default:
           break;
       }
-
+      // this.exportstate.data = [];
       pdf.save(docname);
     },
     methodGiantStarPrint(pdf, count, products, nick, zip) {

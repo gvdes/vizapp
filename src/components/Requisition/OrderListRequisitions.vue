@@ -148,6 +148,13 @@ export default {
             field: (row) => row.created_by.nick,
             sortable: true,
           },
+          {
+            name: "notes",
+            align: "center",
+            label: "Notas",
+            field: "notes",
+            sortable: true,
+          },
         ],
         filtrator: "",
       },
@@ -172,7 +179,7 @@ export default {
       let urol = this.profile.me._rol;
 
       if (urol == 1 || urol == 2 || urol == 3) {
-        return ["id", "client", "cstate", "timestart", "createdby"];
+        return ["id", "client", "cstate", "timestart", "createdby", "notes"];
       } else {
         return ["id", "client", "cstate", "timestart"];
       }
