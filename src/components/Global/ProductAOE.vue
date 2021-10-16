@@ -5,7 +5,7 @@
                 <q-card-section>
                     <div class="row justify-between items-start text-h6 text-bold">
                         <div class="text-green-13">{{product.code}}</div>
-                        <div v-if="product.stocks.length">
+                        <div v-if="product.stocks && product.stocks.length">
                             <q-btn flat dense no-caps class="text-bold"
                                 :color="product.stocks[0].stock?'green-13':'amber-13'"
                                 :label="`Stock: ${product.stocks[0].stock}`"
@@ -21,7 +21,7 @@
         <!-- BODY  -->
 
             <div>
-                <template v-if="!product.stocks.length">
+                <template v-if="product.stocks && !product.stocks.length">
                     <q-banner class="text-white bg-negative text-center">
                         <q-icon name="fas fa-exclamation-triangle" size="md"/> STOCK INDEFINIDO!! :/
                     </q-banner>

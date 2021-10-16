@@ -12,7 +12,8 @@
 					<q-card-section :class="report.clases">
 						<span>{{ report.value }}</span>
 					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">{{ report.description }}</div>
+					<div class="text--1 text-right q-pa-xs text-white">{{ report.description }}</div>
+
 				</q-card>
 			</div>
 		</div>
@@ -47,7 +48,7 @@ export default {
     },
     components:{ ToolbarAccount:ToolbarAccount },
     async beforeMount(){
-		this.stats = await warehousesdb.index(); console.log(this.stats);
+		this.stats = await warehousesdb.index();
 	},
     methods: {
         genReport(report){
@@ -78,6 +79,7 @@ export default {
 	computed:{
 		reports(){
 			if(this.stats){
+				console.log(this.stats);
 				return this.stats.map(item=>{
 					item.clases = this.clases[item._excel];
 					return item;
