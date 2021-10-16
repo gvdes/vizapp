@@ -1,10 +1,6 @@
 import { io } from "socket.io-client";
 
-<<<<<<< HEAD
 // const URLSocket = 'http://192.168.10.210:7171';
-=======
-// const URLSocket = 'http://192.168.10.33:7171';
->>>>>>> b1fef2e9219f4202ba598d15ae98fe7567f62817
 
 const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
 // const URLSocket = 'http://192.168.10.15:7171';
