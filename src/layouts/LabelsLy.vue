@@ -1084,7 +1084,6 @@ export default {
     },
     // ---------- ///////// TERMINAR SELECCION DE BODEGUERO, DISPONIBILIDAD Y PISTOLEO DE PRODUCTOS
     methodStructuredOFFSTD(pdf, count, products, docname, nick, type) {
-      console.log(nick);
       let _delete = undefined;
       let zip = 0;
       let counter = 0;
@@ -1462,28 +1461,6 @@ export default {
                     pdf.setFontSize(35);
                     pdf.text(
                       products[i].prices[z].alias,
-                      width / 3,
-                      240 + aux + counterCodeShort,
-                      null,
-                      null,
-                      "left"
-                    );
-                    pdf.setFontSize(38);
-                    pdf.setFont("Montserrat-Bold");
-                    pdf.text(
-                      `$${parseFloat(products[i].prices[z].price)}`,
-                      width / 1.55,
-                      240 + aux + counterCodeShort,
-                      null,
-                      null,
-                      "left"
-                    );
-                    aux += 50;
-                  } else if (z == 0 || z == 2) {
-                    pdf.setFont("Montserrat");
-                    pdf.setFontSize(35);
-                    pdf.text(
-                      products[i].prices[z].alias,
                       width + 20,
                       240 + aux + counterCodeShort,
                       null,
@@ -1495,6 +1472,28 @@ export default {
                     pdf.text(
                       `$${parseFloat(products[i].prices[z].price)}`,
                       width * 1.35,
+                      240 + aux + counterCodeShort,
+                      null,
+                      null,
+                      "left"
+                    );
+                    aux += 50;
+                  } else if (z == 0 || z == 2) {
+                    pdf.setFont("Montserrat");
+                    pdf.setFontSize(35);
+                    pdf.text(
+                      products[i].prices[z].alias,
+                      width / 3,
+                      240 + aux + counterCodeShort,
+                      null,
+                      null,
+                      "left"
+                    );
+                    pdf.setFontSize(38);
+                    pdf.setFont("Montserrat-Bold");
+                    pdf.text(
+                      `$${parseFloat(products[i].prices[z].price)}`,
+                      width / 1.55,
                       240 + aux + counterCodeShort,
                       null,
                       null,

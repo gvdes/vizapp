@@ -1431,7 +1431,9 @@ export default {
         { header: "Sección", key: "section", width: 15 },
         { header: "Familia", key: "family", width: 15 },
         { header: "Categoría", key: "category", width: 15 },
-        { header: "Piezas", key: "pieces", width: 10 },
+        { header: "Solicitud", key: "request", width: 10 },
+        { header: "Unidad", key: "unity", width: 10 },
+        { header: "Disponible (pzs)", key: "stock", width: 15 },
       ];
 
       console.log(this.products);
@@ -1444,7 +1446,9 @@ export default {
           section: this.products[i].section,
           family: this.products[i].family,
           category: this.products[i].category,
-          pieces: this.products[i].ordered.units,
+          request: `${parseInt(this.products[i].ordered.units)}`,
+          unity: this.products[i].metsupply.name,
+          stock: `${this.products[i].ordered.stock}`,
         });
       }
       // this.flagPrompt = !this.flagPrompt;
