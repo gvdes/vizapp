@@ -597,6 +597,10 @@ export default {
           id: 8,
           name: "Estrella Pequeña (24 Etiquetas)",
         },
+        {
+          id: 9,
+          name: "Estrella Mediana (12 Etiquetas)",
+        },
       ],
       wndImportJSON: {
         state: false,
@@ -1084,6 +1088,7 @@ export default {
     },
     // ---------- ///////// TERMINAR SELECCION DE BODEGUERO, DISPONIBILIDAD Y PISTOLEO DE PRODUCTOS
     methodStructuredOFFSTD(pdf, count, products, docname, nick, type) {
+      this.exportstate.data = []
       let _delete = undefined;
       let zip = 0;
       let counter = 0;
@@ -1256,6 +1261,29 @@ export default {
           aux = 0;
           for (let i = 0; i < products.length; i++) {
             counter += this.methodStarToysLabel4x6(
+              pdf,
+              count,
+              products[i].manager,
+              nick,
+              zip
+            );
+            aux = counter - aux;
+            this.exportstate.data.push(aux);
+            counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
+          }
+          this.exportstate.state = !this.exportstate.state;
+          _delete =
+            counter < pdf.internal.getNumberOfPages()
+              ? pdf.internal.getNumberOfPages()
+              : 0;
+          pdf.deletePage(_delete);
+          break;
+        case 9:
+          zip = 0;
+          counter = 0;
+          aux = 0;
+          for (let i = 0; i < products.length; i++) {
+            counter += this.methodStarToysLabel3x4(
               pdf,
               count,
               products[i].manager,
@@ -2622,6 +2650,297 @@ export default {
           break;
         }
         counterCodeShort += 125;
+        countY++;
+      }
+      return zip;
+    },
+    methodStarToysLabel3x4(pdf, count, products, nick, zip) {
+      let width = pdf.internal.pageSize.getWidth() / 3.2;
+      let height = pdf.internal.pageSize.getHeight() / 4.3;
+      let countY = 1;
+      let counterCodeShort = 0;
+      let forCounterX = 4;
+      let forCounterY = 3;
+      let _y = 0;
+      let newProducts = [];
+      let i = 0;
+      let x = 0;
+      let y = 0;
+      products.map((item) => {
+        for (let i = 0; i < item.copies; i++) {
+          newProducts.push(item);
+        }
+        return newProducts;
+      });
+      products = newProducts;
+      for (x = 0; x < forCounterX; x++) {
+        for (y = 0; y < forCounterY; y++) {
+          i = _y;
+          if (_y - 1 === products.length - 1) {
+            break;
+          } else {
+            // /*----------  PRIMERA ETIQUETA  -----------*/
+            pdf.setFontSize(12);
+            pdf.setFont("Montserrat-Semi");
+            pdf.addImage(
+              "pdf/img/STAR10.png",
+              "PNG",
+              20 + y * (145 * 1.3),
+              20 + x * (125 * 1.5),
+              145 * 1.3,
+              125 * 1.5
+            );
+            pdf.text(
+              "Grupo Vizcarra",
+              width * (y == 0 ? 0 : y) + 112,
+              50 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "center"
+            ); //18.3 12.5 6.75
+            pdf.setFont("Montserrat-Bold");
+            pdf.setFontSize(22);
+            pdf.text(
+              products[i].name,
+              width * (y == 0 ? 0 : y) + 110,
+              70 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "center"
+            );
+            pdf.setFont("Montserrat-Semi");
+            pdf.setFontSize(9);
+            let splitter = pdf.splitTextToSize(products[i].label, 160);
+            pdf.text(
+              splitter,
+              width * (y == 0 ? 0 : y) + 30,
+              85 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
+            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
+            let aux = 0;
+            if (products[i].type == "off") {
+              pdf.setTextColor(0);
+              pdf.setFont("Montserrat-Bold");
+              pdf.setFontSize(16);
+              pdf.text(
+                `¡¡OFERTA!!`,
+                width * (y == 0 ? 0 : y) + 70,
+                105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                null,
+                null,
+                "left"
+              );
+              pdf.setFontSize(30);
+              pdf.text(
+                `$${parseFloat(
+                  products[i].prices[0].price != 0
+                    ? products[i].prices[0].price
+                    : 1
+                )}`,
+                width * (y == 0 ? 0 : y) + 110,
+                135 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                null,
+                null,
+                "center"
+              );
+              pdf.setFontSize(22);
+              // pdf.text(`-${products[i].discount}%`, width * (y == 0 ? 0 : y) + 47, 174 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
+              aux += aux + 30;
+            } else {
+              switch (products[i].prices.length) {
+                case 1:
+                  pdf.setFont("Montserrat");
+                  pdf.setFontSize(18);
+                  pdf.text(
+                    products[i].prices[0].alias,
+                    width * (y == 0 ? 0 : y) + 110,
+                    105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                    null,
+                    null,
+                    "center"
+                  );
+                  pdf.setFontSize(30);
+                  pdf.setFont("Montserrat-Semi");
+                  pdf.text(
+                    `$${parseFloat(products[i].prices[0].price)}`,
+                    width * (y == 0 ? 0 : y) + 110,
+                    135 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                    null,
+                    null,
+                    "center"
+                  );
+                  aux += aux + 30;
+                  break;
+                case 2:
+                  for (let z = 0; z < products[i].prices.length; z++) {
+                    pdf.setFont("Montserrat");
+                    pdf.setFontSize(18);
+                    pdf.text(
+                      products[i].prices[z].alias,
+                      width * (y == 0 ? 0 : y) + 65,
+                      110 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      null,
+                      null,
+                      "left"
+                    );
+                    pdf.setFontSize(20);
+                    pdf.setFont("Montserrat-Semi");
+                    pdf.text(
+                      `$${parseFloat(products[i].prices[z].price)}`,
+                      width * (y == 0 ? 0 : y) + 120,
+                      110 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      null,
+                      null,
+                      "left"
+                    );
+                    aux += aux + 25;
+                  }
+                  break;
+                case 3:
+                  for (let z = 0; z < products[i].prices.length; z++) {
+                    pdf.setFont("Montserrat");
+                    pdf.setFontSize(16);
+                    pdf.text(
+                      products[i].prices[z].alias,
+                      width * (y == 0 ? 0 : y) + 65,
+                      105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      null,
+                      null,
+                      "left"
+                    );
+                    pdf.setFontSize(18);
+                    pdf.setFont("Montserrat-Semi");
+                    pdf.text(
+                      `$${parseFloat(products[i].prices[z].price)}`,
+                      width * (y == 0 ? 0 : y) + 120,
+                      105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      null,
+                      null,
+                      "left"
+                    );
+                    aux += 18;
+                  }
+                  break;
+                case 4:
+                  for (let z = 0; z < products[i].prices.length; z++) {
+                    // console.log(prices.reverse());
+                    if (z == 1) {
+                      aux = 0;
+                    }
+                    if (z == 1 || z == 3) {
+                      pdf.setFont("Montserrat");
+                      pdf.setFontSize(13);
+                      pdf.text(
+                        products[i].prices[z].alias,
+                        width * (y == 0 ? 0 : y) + 145,
+                        105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                        null,
+                        null,
+                        "center"
+                      );
+                      pdf.setFontSize(15);
+                      pdf.setFont("Montserrat-Semi");
+                      pdf.text(
+                        `$${parseFloat(products[i].prices[z].price)}`,
+                        width * (y == 0 ? 0 : y) + 145,
+                        120 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                        null,
+                        null,
+                        "center"
+                      );
+                      aux += 28;
+                    } else if (z == 0 || z == 2) {
+                      pdf.setFont("Montserrat");
+                      pdf.setFontSize(13);
+                      pdf.text(
+                        products[i].prices[z].alias,
+                        width * (y == 0 ? 0 : y) + 75,
+                        105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                        null,
+                        null,
+                        "center"
+                      );
+                      pdf.setFontSize(15);
+                      pdf.setFont("Montserrat-Semi");
+                      pdf.text(
+                        `$${parseFloat(products[i].prices[z].price)}`,
+                        width * (y == 0 ? 0 : y) + 75,
+                        120 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                        null,
+                        null,
+                        "center"
+                      );
+                    }
+                  }
+
+                  break;
+              }
+            }
+            // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
+            pdf.setFont("Montserrat");
+            pdf.setFontSize(11);
+            pdf.text(
+              `${products[i].pieces}pz`,
+              width * (y == 0 ? 0 : y) + 55,
+              160 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
+            pdf.setFont("Montserrat-Bold");
+            pdf.text(
+              `${products[i].large}`,
+              width * (y == 0 ? 0 : y) + 85,
+              160 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
+            pdf.setFont("Montserrat-Semi");
+            pdf.setFontSize(9);
+            pdf.text(
+              `${products[i].code}`,
+              width * (y == 0 ? 0 : y) + 115,
+              160 + (countY == 1 ? 0 : counterCodeShort),
+              null,
+              null,
+              "left"
+            );
+            this.useIpack
+              ? pdf.addImage(
+                  this.convertTextToBase64Barcode(products[i].name),
+                  "PNG",
+                  width * (y == 0 ? 0 : y) + 75,
+                  165 + (countY == 1 ? 0 : counterCodeShort),
+                  80,
+                  20
+                )
+              : "";
+            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON SELECCIONADOS TODOS  -----------*/
+
+            if ((i + 1) % 12 == 0) {
+              pdf.setFont("Montserrat");
+              pdf.setFontSize(12);
+              pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
+              products.length > 24 ? pdf.addPage() : "";
+              // pdf.addPage();
+              count++;
+              counterCodeShort = 0;
+              countY = 1;
+              y = -1;
+              x = 0;
+            }
+            _y++;
+          }
+          i % 12 == 0 ? zip++ : 1;
+        }
+        if (_y - 1 === products.length - 1) {
+          break;
+        }
+        counterCodeShort += 188;//125
         countY++;
       }
       return zip;
