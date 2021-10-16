@@ -48,11 +48,43 @@
             </div>
         </q-header>
 
-        <div class="q-mb-xl">
+        <div v-if="artduplicate.state" class="q-pa-md q-mt-md">
+            <q-banner inline-actions squared rounded class="bg-amber-13 text-dark">
+                <template v-slot:avatar>
+                    <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
+                </template>
+                
+                Esto ya esta en la lista
+
+                <template v-slot:action inline-actions>
+                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="artduplicate.state=false; artduplicate.state=undefined;"/>
+                </template>
+            </q-banner>
+
+            <transition appear enter-active-class="animated bounceInUp" leave-active-class="animated zoomOut">
+                <div  @click="edit(artduplicate.product)" class="q-py-lg q-px-sm wrapper_prod">
+                    <div class="row items-center">
+                        <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                        <div class="col q-pr-sm">
+                            <div>
+                                <span>{{ artduplicate.product.code }}</span> --
+                                <span>{{ artduplicate.product.name }}</span>
+                            </div>
+                            <div class="text--2 text-grey-5">{{ artduplicate.product.description }}</div>
+                            <div class="col text--2">{{artduplicate.product.metsupply.name}} {{artduplicate.product.ordered.amount}}{{ artduplicate.product.metsupply.id!=1 ? ` (${artduplicate.product.units} pzs)`:``}}, PU: ${{artduplicate.product.usedprice.price}}</div>
+                            <div class="text--2 text-amber-13">{{ artduplicate.product.ordered.comments }}</div>
+                        </div>
+                        <div class="text-right text-green-13">$ {{artduplicate.product.total}}</div>
+                    </div>
+                </div>
+            </transition>
+        </div>
+
+        <div class="q-mb-xl" v-if="!artduplicate.state">
             <!-- LISTA INICIAL DE PRODUCTOS -->
             <div>
                 <div class="q-pa-md bg-blue-grey-8 row items-center justify-between">
-                    <span>Por Confirmar: {{outbasket.length}}</span>
+                    <span>Por Contar: {{outbasket.length}}</span>
                     <span>$ {{totalOutBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
@@ -77,7 +109,7 @@
             <!-- LISTA DE PRODUCTOS CONFIRMADOS -->
             <div>
                 <div class="q-pa-md bg-primary row items-center justify-between">
-                    <span>Canasta: {{inbasket.length}}</span>
+                    <span>Contados: {{inbasket.length}}</span>
                     <span>$ {{totalBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
@@ -133,9 +165,17 @@
         <q-dialog v-model="wndAdder.state" position="bottom" @hide="cancelAOEs">
             <q-card class="text-white bg-darkl1 exo">
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
-                <div class="q-pa-sm"><ProductAutocomplete with_image with_prices with_stock @input="setProduct"  @similarcodes="similarCodes"/></div>
+                <div class="q-pa-sm">
+                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" @similarcodes="similarCodes" ref="comp_proauto"/>
+
+                    <div class="row items-bottom justify-between q-py-md">
+                        <q-select dark dense color="green-13" class="col-6" :options="metsupplies" v-model="wndAdder.settings.deftsupply" option-value="id" option-label="name" label="Unidad de surtido" @input="setSettings"/>
+                        <q-checkbox v-model="wndAdder.settings.stillAdding" label="Mantener ventana" dark color="green-13" class="text--2" @input="setSettings" />
+                    </div>
+                </div>
                 <template v-if="wndAdder.product">
-                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOEs"/>
+                    <q-separator />
+                    <ProductAOE :product="wndAdder.product" :client="order.client" showprices @confirm="productAdd" @cancel="cancelAOEs" :deftunitsupply="wndAdder.settings.deftsupply.id"/>
                 </template>
 
                 <template v-if="wndAdder.similars.length">
@@ -154,6 +194,7 @@
             </q-card>
         </q-dialog>
 
+        <!--  -->
         <q-dialog v-model="wndSending.state" :persistent="wndSending.persistent" position="bottom">
             <q-card class="bg-darkl1 text-white exo">
                 <q-card-section class="text-h6 bfv">Confirmar Pedido...</q-card-section>
@@ -217,7 +258,11 @@ export default {
             wndAdder:{
                 state:false,
                 product:undefined,
-                similars:[]
+                similars:[],
+                settings:{
+                    stillAdding:false,
+                    deftsupply:{name:'Piezas', id:1, alias:'pzs'}
+                }
             },
             definitor:'',
             pricelists:[
@@ -232,22 +277,29 @@ export default {
                 {name:'Cajas', id:3, alias:'cjs'}
             ],
             finish:{ state:false },
-            wndSending:{ state:false, step:1, serie:undefined, folio:undefined, persistent:false }
+            wndSending:{ state:false, step:1, serie:undefined, folio:undefined, persistent:false },
+            artduplicate:{
+                state:false,
+                product:undefined
+            },
         }
     },
     async mounted(){
+        let checkout_adder = JSON.parse(localStorage.getItem('checkout_adder'));
+        if(checkout_adder){ this.wndAdder.settings = checkout_adder }
+
         this.$store.commit('Preventa/setHeaderState', false);
         this.$store.commit('Preventa/setFooterState', false);
 
         this.$q.loading.show({ message: 'Cargando...' });
 
         this.order = await PreventaDB.order(this.ordercatch);
-        console.log(this.order);
         this.$q.loading.hide();
 
         this.$refs.searcher.focus();
     },
     methods:{
+        setSettings(){ localStorage.setItem('checkout_adder',JSON.stringify(this.wndAdder.settings) ) },
         toogleIptSearch(){
 			switch (this.iptsearch.type) {
 				case "text": 
@@ -266,6 +318,7 @@ export default {
         },
         async productConfirm(params){
             console.log(params);
+            this.$q.loading.show({message:`Confirmando ${params.product.code}...`});
             let product = this.wndCounter.product;
 
             let data = {
@@ -283,7 +336,7 @@ export default {
                 this.$q.notify({
                     message:'Confirmacion erronea!',
                     icon:'close', color:'negative',
-                    timeout:1000
+                    timeout:1000, position:'top'
                 });
             }else{
 
@@ -303,9 +356,11 @@ export default {
                 this.wndCounter.product = undefined;
             }
             this.definitor = '';
+            this.$q.loading.hide();
         },
         async productAdd(params){
             console.log(params);
+            this.$q.loading.show({message:`Agregando ${params.product.code}...`});
             let product = this.wndAdder.product;
 
             let data = {
@@ -327,12 +382,19 @@ export default {
                 let newProduct = result.data;
                 console.log(newProduct);
                 this.order.products.unshift(newProduct);
+                
                 this.wndAdder.product = undefined;
-                this.wndAdder.state = false;
-            }  
+
+                if(this.wndAdder.stillAdding){
+                    this.$refs.comp_proauto.putFocus();
+                }else{
+                    this.wndAdder.state = false;
+                }
+            }
+            this.$q.loading.hide();
         },
         async productEdit(params){
-            console.log(`El producto fue modificado, enviando actualizacion ... `,"");
+            this.$q.loading.show({message:`Aplicando cambios ${params.product.code}...`});
             console.log(params);
             let product = this.wndEditor.product;
             
@@ -350,7 +412,7 @@ export default {
                 console.log(result.error);
                 this.$q.notify({
                     message:'No se pudo actualizar el producto',
-                    icon:'close', color:'negative'
+                    icon:'close', color:'negative', timeout:1000
                 });
             }else{
 
@@ -361,16 +423,17 @@ export default {
 
                 this.$q.notify({
                     message:'Producto Actualizado!!',
-                    position:'center', color:'positive',
-                    icon:'done'
+                    position:'top', color:'positive',
+                    icon:'done', timeout:1000
                 });
 
                 this.wndEditor.state = false;
                 this.wndEditor.product = undefined;
             }
+            this.$q.loading.hide();
         },
         async productDelete(params){
-            this.$q.loading.show({message:`Devlviendo ${params.product.code}...`});
+            this.$q.loading.show({message:`Devolviendo ${params.product.code}...`});
 
             let product = this.wndEditor.product;
             
@@ -428,6 +491,7 @@ export default {
         setProduct(product){
             console.log(product);
             this.wndAdder.product = product;
+            this.wndAdder.state = true;
             this.wndAdder.similars=[];
         },
         cancelAOEs(){
@@ -538,6 +602,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wrapper_prod{ border-bottom:1px solid #4b4b4b; }
-.divlcient{ border-radius:0px 0px 20px 20px; }
+    .wrapper_prod{ border-bottom:1px solid #4b4b4b; }
+    .divlcient{ border-radius:0px 0px 20px 20px; }
 </style>
