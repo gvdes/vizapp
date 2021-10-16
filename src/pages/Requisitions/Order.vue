@@ -18,6 +18,7 @@
           </div>
         </div>
         <q-btn
+          v-show="flagArchive"
           v-if="flag"
           flat
           icon="menu"
@@ -89,6 +90,7 @@
 
     <q-drawer
       v-model="ldrawer.state"
+      v-show="flagArchive"
       side="right"
       content-class="text-grey-5 bg-darkl1"
       @hide="startremove.state = false"
@@ -729,7 +731,8 @@ export default {
   components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
-      selectAvailable: "",
+      flagArchive: false,
+      selectAvailable: "Todos",
       available: [
         { label: "Todos", value: 1 },
         { label: "Disponible", value: 2 },
@@ -922,10 +925,7 @@ export default {
     this.$store.commit("Layout/hideToolbarModule");
     this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
-    // console.log(this.order);
-    // this.order.map((idx) => {
-    //   return this.available.push({ label: idx.name, value: idx.id });
-    // });
+    this.flagArchive = this.order.status.id <= 2 ? true : false;
     this.stateOrder = this.order.status.id == 1 ? true : false;
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
