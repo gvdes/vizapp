@@ -98,7 +98,7 @@
                 </div>
                 <!-- <input type="file" ref="blobfile" id="blobfile" @input="readFile" hidden accept=".xlsx,.xls"/> -->
             </div>
-            
+
             <div class="q-pt-md q-pl-md">
                 <q-timeline color="green-13" dark>
                     <q-timeline-entry v-for="log in orderlog" :key="log.id"
@@ -206,10 +206,28 @@
         <q-footer class="bg-darkl1 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
-                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" />
+                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" @similarcodes="similarCodes"/>
                 </div>
                 <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" /></div>
             </div>
+
+            <q-card v-if="wndAdder.similars.length" class="bg-darkl1">
+                <q-card-section>
+                    <div>Varios productos coinciden con tu lectura</div>
+                    <div class="row">
+                        <div class="col-6 q-pa-xs" v-for="art in wndAdder.similars" :key="art.id">
+                            <q-card class="q-pa-sm bg-darkl2" @click="setProduct(art)">
+                                <div>{{art.code}} -- {{art.name}}</div>
+                                <div class="text--3">{{art.description}}</div>
+                                <div class="text--3" :class="art.status.id == 1 ? 'text-green-13':'text-amber-13'">{{art.status.name}}</div>
+                            </q-card>
+                        </div>
+                    </div>
+                </q-card-section>
+                <q-card-actions>
+                    <q-btn class="full-width" @click="wndAdder.similars = []" icon="close"/>
+                </q-card-actions>
+            </q-card>
         </q-footer>
 	</q-page>
 </template>
@@ -235,7 +253,8 @@ export default {
             },
             wndAdder:{
                 state:false,
-                product:undefined
+                product:undefined,
+                similars:[]
             },
             wndEditor:{
                 state:false,
@@ -303,6 +322,7 @@ export default {
             console.log('Una orden ha cambiado...');
             console.log(data);
         },
+        similarCodes(products){ this.wndAdder.similars = products; },
         setProduct(product){
             if(this.currentStep.id==1){
                 let artexist = this.index.products.find(art=>art.code==product.code);
@@ -359,6 +379,7 @@ export default {
                 this.appsounds.added.play();
 
                 this.wndAdder.product = undefined;
+                this.wndAdder.similars = [];
                 this.wndAdder.state = false;
             }
             this.$q.loading.hide();
@@ -515,6 +536,7 @@ export default {
         cancelAOE(){
             this.wndAdder.product = undefined;
             this.wndAdder.state = false;
+            this.wndAdder.similars = [];
 
             this.wndEditor.product = undefined;
             this.wndEditor.state = false;

@@ -4,20 +4,21 @@
 
         <template v-if="read_barcode">
             <q-input 
-                ref="iptsearch"
+                ref="iptbarcode"
                 :loading="iptsearch.processing"
                 :disable="iptsearch.processing"
                 v-model="target" dense dark filled 
                 color="green-13" 
                 class="text-uppercase col" 
                 @keypress.enter="search"
-                autocomplete
+                autocomplete="off"
                 autofocus
             />
         </template>
 
         <template v-else>
             <q-select dark dense filled color="green-13" class="text-uppercase col"
+                ref="iptatc"
                 use-input
                 hide-dropdown-icon
                 option-value="id"
@@ -88,7 +89,7 @@ export default {
             target:"",
             iptsearch:{ processing:false, type:"number", icon:'fas fa-font' },
             options:undefined,
-            read_barcode:false
+            read_barcode:true
         }
     },
     mounted(){
@@ -136,8 +137,14 @@ export default {
 
             localStorage.setItem('typeiptsearch',JSON.stringify(this.iptsearch));
         },
-        selItem(opt){ this.target=''; this.$emit('input',opt); },
-        similarCodes(opts){ console.log("Similar codes ejecutado!!!"); this.target=''; this.$emit('similarcodes',opts); },
+        selItem(opt){
+            this.target='';
+            this.$emit('input',opt);
+        },
+        similarCodes(opts){
+            this.target='';
+            this.$emit('similarcodes',opts);
+        },
         search(){
             this.target.trim().toUpperCase();
 
@@ -172,12 +179,22 @@ export default {
                     }
                     this.target = "";
                     this.iptsearch.processing = false;
-                    this.$refs.iptsearch.focus();
                 }).catch( fail => { console.log(fail); });
 
             }
         },
-        clear(){ this.target = ""; }
+        clear(){ this.target = ""; },
+        putFocus(){
+            console.log("putFocus ejecutada!!");
+
+            // if(this.read_barcode){
+            //     console.log("focus en iptbarcode!!");
+            //     this.$refs.iptbardcode.focus()
+            // }else{
+            //     console.log("focus en iptatc!!");
+            //     this.$refs.iptatc.focus();
+            // }
+        }
     },
     computed:{
         attrs(){
