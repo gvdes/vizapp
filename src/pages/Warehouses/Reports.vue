@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div v-else class="q-py-xl text-center text-green-13">
-			Calculando, porfavor espera...
+			Calculando, porfavor espera..
 		</div>
     </q-page>
 </template>
