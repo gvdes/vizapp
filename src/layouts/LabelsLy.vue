@@ -121,18 +121,11 @@
     <q-dialog v-model="exportstate.state">
       <q-card class="bg-darkl0 text-grey-5 exo text-subtitle1">
         <q-card-section>
-          <span class="text-h5">Favor de colocar en la impresora</span>
-          <div
-            class="text-uppercase"
-            v-for="(code, idx) in exportstate.data"
-            :key="idx"
-          >
-            
-            <q-avatar size="xs" :class="idx == 0 ? 'text-orange-6' : 'text-green-6'" icon="fas fa-circle" />
-            <span v-if="code <= 1" class="text-h6 exo-med">{{ `${idx == 0 ? code + ' Hoja Naranja.' : code + ' Hojas Verdes.'}`  }}</span>
-            <span v-else-if="code > 1" class="text-h6 exo-med">{{ `${idx == 0 ? code + ' Hojas Naranjas.' : code + ' Hojas Verdes.'}`  }}</span>
-            <span v-else class="text-h6 exo-med">{{ `${idx == 0 ? code + ' Hojas Naranjas.' : code + ' Hoja Verde.'}`  }}</span>
-          </div>
+          <span class="text-h5">Etiquetas generadas</span>
+          <q-space />
+          <span class="text-h6 exo-med text-orange-6"><q-avatar icon="description" /> {{ `Hojas Naranjas: ${exportstate.data[0]}`  }}</span>
+          <q-space />
+          <span class="text-h6 exo-med text-green-6"><q-avatar icon="description" /> {{ `Hojas Verdes: ${exportstate.data[1]}`  }}</span>
         </q-card-section>
         <q-card-actions align="center">
           <q-btn
@@ -488,6 +481,7 @@ export default {
       exportstate: {
         state: false,
         data: [],
+        type: "",
       },
       dataBanner: [],
       flagDuplicate: false,
@@ -642,7 +636,7 @@ export default {
   methods: {
     add(opt) {
       // JL96151
-      let newLabel = opt;
+      let newLabel = JSON.parse(JSON.stringify(opt));
       console.log(newLabel);
       let flag =
         newLabel.prices[0].price == 0 &&
@@ -1020,12 +1014,14 @@ export default {
               manager: offProducts,
             },
           ];
+          this.exportstate.type = "off";
         } else if (stdProduts.length != 0 && offProducts.length == 0) {
           newObject = [
             {
               manager: stdProduts,
             },
           ];
+          this.exportstate.type = "std";
         } else {
           newObject = [
             {
@@ -1035,6 +1031,7 @@ export default {
               manager: stdProduts,
             },
           ];
+          this.exportstate.type = "two";
         }
 
         let folio = Math.floor(Math.random() * 1000000);
@@ -1106,7 +1103,15 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1129,7 +1134,15 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1152,7 +1165,15 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1175,7 +1196,15 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1214,7 +1243,15 @@ export default {
               zip
             );
             aux = Math.round(counter / 2) - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? pdf.addPage() : null;
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1237,7 +1274,15 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1268,7 +1313,15 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
@@ -1291,9 +1344,18 @@ export default {
               zip
             );
             aux = counter - aux;
-            this.exportstate.data.push(aux);
+            if (products.length <= 1 && this.exportstate.type == "std" && this.exportstate.type != "off") {
+              this.exportstate.data.push(0);
+              this.exportstate.data.push(aux);
+            } else if (products.length <= 1 && this.exportstate.type != "std" && this.exportstate.type == "off") {
+              this.exportstate.data.push(aux);
+              this.exportstate.data.push(0);
+            } else {
+              this.exportstate.data.push(aux);
+            }
             counter < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
+          console.log(this.exportstate.data);
           this.exportstate.state = !this.exportstate.state;
           _delete =
             counter < pdf.internal.getNumberOfPages()
@@ -2710,11 +2772,11 @@ export default {
             );
             pdf.setFont("Montserrat-Semi");
             pdf.setFontSize(9);
-            let splitter = pdf.splitTextToSize(products[i].label, 160);
+            let splitter = pdf.splitTextToSize(products[i].label, 150);
             pdf.text(
               splitter,
-              width * (y == 0 ? 0 : y) + 30,
-              85 + (countY == 1 ? 0 : counterCodeShort),
+              width * (y == 0 ? 0 : y) + 35,
+              83 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
               "left"
@@ -2728,7 +2790,7 @@ export default {
               pdf.text(
                 `¡¡OFERTA!!`,
                 width * (y == 0 ? 0 : y) + 70,
-                105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                115 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
                 null,
                 "left"
@@ -2741,7 +2803,7 @@ export default {
                     : 1
                 )}`,
                 width * (y == 0 ? 0 : y) + 110,
-                135 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                145 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
                 null,
                 "center"
@@ -2757,7 +2819,7 @@ export default {
                   pdf.text(
                     products[i].prices[0].alias,
                     width * (y == 0 ? 0 : y) + 110,
-                    105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                    110 + (countY == 1 ? 0 : counterCodeShort) + aux,
                     null,
                     null,
                     "center"
@@ -2767,7 +2829,7 @@ export default {
                   pdf.text(
                     `$${parseFloat(products[i].prices[0].price)}`,
                     width * (y == 0 ? 0 : y) + 110,
-                    135 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                    140 + (countY == 1 ? 0 : counterCodeShort) + aux,
                     null,
                     null,
                     "center"
@@ -2781,7 +2843,7 @@ export default {
                     pdf.text(
                       products[i].prices[z].alias,
                       width * (y == 0 ? 0 : y) + 65,
-                      110 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      115 + (countY == 1 ? 0 : counterCodeShort) + aux,
                       null,
                       null,
                       "left"
@@ -2791,7 +2853,7 @@ export default {
                     pdf.text(
                       `$${parseFloat(products[i].prices[z].price)}`,
                       width * (y == 0 ? 0 : y) + 120,
-                      110 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      115 + (countY == 1 ? 0 : counterCodeShort) + aux,
                       null,
                       null,
                       "left"
@@ -2806,7 +2868,7 @@ export default {
                     pdf.text(
                       products[i].prices[z].alias,
                       width * (y == 0 ? 0 : y) + 65,
-                      105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      110 + (countY == 1 ? 0 : counterCodeShort) + aux,
                       null,
                       null,
                       "left"
@@ -2816,7 +2878,7 @@ export default {
                     pdf.text(
                       `$${parseFloat(products[i].prices[z].price)}`,
                       width * (y == 0 ? 0 : y) + 120,
-                      105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+                      110 + (countY == 1 ? 0 : counterCodeShort) + aux,
                       null,
                       null,
                       "left"
@@ -3604,7 +3666,7 @@ export default {
             pdf.rect(20, 20, width * (y + 1), height * countY);
             // pdf.text("Grupo Vizcarra", width * (y == 0 ? 0 : y) + 170, 32 + (countY == 1 ? 0 : counterCodeShort), null, null, 'center'); //18.3 12.5 6.75
             pdf.setFont("Montserrat-Bold");
-            console.log(products[i].code.length);
+            // console.log(products[i].code.length);
             if (products[i].code.length >= 8) {
               pdf.setFontSize(27);
             } else {
