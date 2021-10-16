@@ -28,7 +28,7 @@
           </div>
           <div
             class="row items-center q-gutter-md"
-            v-if="neworder.type.value == 3 || neworder.type.value == 4"
+            v-if="neworder.type.value == 3"
           >
             <q-select
               class="col"
@@ -38,6 +38,19 @@
               v-model="neworder.origin"
               :options="combowkpsorigin"
             />
+            <q-input
+              class="col"
+              dark
+              type="text"
+              color="green-13"
+              label="Folio"
+              v-model="neworder.folio"
+            />
+          </div>
+          <div
+            class="row items-center q-gutter-md"
+            v-if="neworder.type.value == 4"
+          >
             <q-input
               class="col"
               dark
@@ -120,23 +133,11 @@ export default {
   },
   async beforeMount() {
     this.index = await this.loadIndex();
-    // console.log(this.index);
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
     this.$store.commit("Requisitions/setHeaderTitle", this.name);
-
-    // this.socket.emit("join", {
-    //   profile: this.profile,
-    //   workpoint: this.workin,
-    //   room: this.sktroom,
-    // });
-
-    // this.socket.on("order_created", (data) => this.skt_order_created(data));
-    // this.socket.on("order_changestate", (data) =>
-    //   this.skt_order_changestate(data)
-    // );
   },
   beforeDestroy() {
     this.socket.emit("unjoin", {
@@ -151,7 +152,7 @@ export default {
     skt_order_created(data) {
       let order = data.order;
       let by = data.user.me;
-      debugger
+      debugger;
 
       console.log(
         `%c${by.nick} esta creando la orden ${order.id}`,
@@ -206,11 +207,30 @@ export default {
           break;
 
         case 3:
-        case 4:
           data.folio = this.neworder.folio;
           data.store = this.neworder.origin.value;
 
           if (data.folio && data.store) {
+            cancreate = true;
+            this.$q.loading.show({
+              spinner: QSpinnerGrid,
+              spinnerColor: "green-13",
+              message: `Buscando folio <b class="text-green-13">${data.folio}</b> en <b class="text-green-13">${data.folio}</b>, porfavor espera`,
+              html: true,
+            });
+          } else {
+            cancreate = false;
+            this.$q.notify({
+              icon: "fas fa-exclamation-circle",
+              color: "red",
+              message: `Sucursal y folio son obligatorios`,
+            });
+          }
+        case 4:
+          data.folio = this.neworder.folio;
+          data.store = this.neworder.origin.value;
+
+          if (data.folio) {
             cancreate = true;
             this.$q.loading.show({
               spinner: QSpinnerGrid,

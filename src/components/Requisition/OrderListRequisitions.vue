@@ -40,6 +40,7 @@
             <div class="col column text--1 q-pa-sm">
               <div>Creacion: {{ props.row.created_at }}</div>
               <div>Agente: {{ props.row.created_by.nick }}</div>
+              <div class="text-amber-13">Nota: {{ props.row.notes != "" ? props.row.notes : "Sin Notas" }}</div>
               <div class="text--2 text-right text-grey-6">
                 {{ props.row.status.name }}
               </div>
@@ -147,6 +148,13 @@ export default {
             field: (row) => row.created_by.nick,
             sortable: true,
           },
+          {
+            name: "notes",
+            align: "center",
+            label: "Notas",
+            field: "notes",
+            sortable: true,
+          },
         ],
         filtrator: "",
       },
@@ -171,7 +179,7 @@ export default {
       let urol = this.profile.me._rol;
 
       if (urol == 1 || urol == 2 || urol == 3) {
-        return ["id", "client", "cstate", "timestart", "createdby"];
+        return ["id", "client", "cstate", "timestart", "createdby", "notes"];
       } else {
         return ["id", "client", "cstate", "timestart"];
       }
@@ -181,34 +189,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.cardDesign-1 {
-  border-left: 10px solid #3ae374 !important;
-}
-.cardDesign-2 {
-  border-left: 10px solid #b71540 !important;
-}
-.cardDesign-4 {
-  border-left: 10px solid #c56cf0 !important;
-}
-.cardDesign-4 {
-  border-left: 10px solid #fff200 !important;
-}
-.cardDesign-5 {
-  border-left: 10px solid #227093 !important;
-}
-.cardDesign-6 {
-  border-left: 10px solid #fdcb6e !important;
-}
-.cardDesign-7 {
-  border-left: 10px solid #20bf6b !important;
-}
-.cardDesign-8 {
-  border-left: 10px solid #0fb9b1 !important;
-}
-.cardDesign-9 {
-  border-left: 10px solid #20bf6b !important;
-}
-.cardDesign-10 {
-  border-left: 10px solid #cc8e35 !important;
-}
+
 </style>

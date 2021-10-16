@@ -1,6 +1,6 @@
 export default function() {
   return {
-    orders: [],
+    labels: [],
     printers: [],
     process: [],
     layout: {
