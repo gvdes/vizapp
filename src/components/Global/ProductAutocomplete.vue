@@ -1,53 +1,72 @@
 <template>
-    <div>
-        <q-select dark dense filled color="green-13" class="text-uppercase"
-            use-input
-            hide-dropdown-icon
-            option-value="id"
-            option-label="id"
-            hide-selected
-            behavior="menu"
-            v-model="target"
-            :value="target"
-            :input-debounce="200"
-            :autofocus="true"
-            :options="options"
-            :type="iptsearch.type"
-            @filter="autocomplete"
-            @input="selItem"
-            popup-content-class="bg-darkl1"
-        >
-            <template v-slot:no-option>
-                <q-item>
-                    <q-item-section avatar><q-img src="~/assets/chihuacry.png" width="50px"/></q-item-section>
-                    <q-item-section class="text-grey exo">Nada por aqui...</q-item-section>
-                </q-item>
-            </template>
+    <div class="row items-center">
+        <q-btn flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="switchMode()"/>
 
-            <template v-slot:prepend>
-                <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-            </template>
+        <template v-if="read_barcode">
+            <q-input 
+                ref="iptbarcode"
+                :loading="iptsearch.processing"
+                :disable="iptsearch.processing"
+                v-model="target" dense dark filled 
+                color="green-13" 
+                class="text-uppercase col" 
+                @keypress.enter="search"
+                autocomplete="off"
+                autofocus
+            />
+        </template>
 
-            <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
-                    <q-item-section avatar v-if="with_image">
-                        <q-img src="~/assets/_boxprod.png" width="35px" />
-                    </q-item-section>
-                    
-                    <q-item-section>
-                        <div class="row items-center justify-between no-wrap exo">
-                            <div class="col">
-                                <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
-                                <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
+        <template v-else>
+            <q-select dark dense filled color="green-13" class="text-uppercase col"
+                ref="iptatc"
+                use-input
+                hide-dropdown-icon
+                option-value="id"
+                option-label="id"
+                hide-selected
+                behavior="menu"
+                v-model="target"
+                :value="target"
+                :input-debounce="200"
+                :autofocus="true"
+                :options="options"
+                :type="iptsearch.type"
+                @filter="autocomplete"
+                @input="selItem"
+                popup-content-class="bg-darkl1"
+            >
+                <template v-slot:no-option>
+                    <q-item>
+                        <q-item-section avatar><q-img src="~/assets/chihuacry.png" width="50px"/></q-item-section>
+                        <q-item-section class="text-grey exo">Nada por aqui...</q-item-section>
+                    </q-item>
+                </template>
+
+                <template v-slot:prepend>
+                    <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
+                </template>
+
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
+                        <q-item-section avatar v-if="with_image">
+                            <q-img src="~/assets/_boxprod.png" width="35px" />
+                        </q-item-section>
+                        
+                        <q-item-section>
+                            <div class="row items-center justify-between no-wrap exo">
+                                <div class="col">
+                                    <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
+                                    <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
+                                </div>
+
+                                <q-icon name="fas fa-circle" :class="`bullet-${scope.opt.status.id} q-pl-md`" size="10px"/>
                             </div>
-
-                            <q-icon name="fas fa-circle" :class="`bullet-${scope.opt.status.id} q-pl-md`" size="10px"/>
-                        </div>
-                    </q-item-section>
-                </q-item>
-                <q-separator />
-            </template>
-        </q-select> 
+                        </q-item-section>
+                    </q-item>
+                    <q-separator />
+                </template>
+            </q-select> 
+        </template>
     </div>
 </template>
 <script>
@@ -69,10 +88,25 @@ export default {
         return {
             target:"",
             iptsearch:{ processing:false, type:"number", icon:'fas fa-font' },
-            options:undefined
+            options:undefined,
+            read_barcode:true
+        }
+    },
+    mounted(){
+        this.read_barcode = JSON.parse(localStorage.getItem('barcodereader'));
+        let keyboard = JSON.parse(localStorage.getItem('typeiptsearch'));
+        
+        if(keyboard){
+            this.iptsearch.type=keyboard.type;
+			this.iptsearch.icon=keyboard.icon;
         }
     },
     methods: {
+        switchMode(){
+            this.read_barcode=!this.read_barcode;
+            this.target='';
+            localStorage.setItem('barcodereader',this.read_barcode);
+        },
         autocomplete (val, update, abort) {
             if(val.trim().length>1){
                 this.target = val.toUpperCase().trim();
@@ -100,9 +134,67 @@ export default {
 					this.iptsearch.icon="fas fa-hashtag";
 				break;
 			}
+
+            localStorage.setItem('typeiptsearch',JSON.stringify(this.iptsearch));
         },
-        selItem(opt){ this.$emit('input',opt); },
-        clear(){ this.target = ""; }
+        selItem(opt){
+            this.target='';
+            this.$emit('input',opt);
+        },
+        similarCodes(opts){
+            this.target='';
+            this.$emit('similarcodes',opts);
+        },
+        search(){
+            this.target.trim().toUpperCase();
+
+            if(this.target.length){
+                this.iptsearch.processing = true;
+
+                dbproduct.autocomplete(this.attrs).then( done => {
+                    let resp = done.data;
+
+                    switch (resp.length) {
+                        case 0:
+                            let code = this.target;
+                            this.$q.notify({
+                                message:`Sin resultados para <b>${code}</b>`,
+                                color:'negative',
+                                icon:'fas fa-times',
+                                html:true,
+                                timeout:1000,
+                                position:'center'
+                            });
+                        break;
+
+                        case 1:
+                            console.log("Perfecto, aqui esta tu producto");
+                            this.selItem(resp[0]);
+                        break;
+                    
+                        default: 
+                            console.log(resp);
+                            this.similarCodes(resp);
+                        break;
+                    }
+                    this.target = "";
+                    this.iptsearch.processing = false;
+                }).catch( fail => { console.log(fail); });
+
+            }
+        },
+        clear(){ this.target = ""; },
+        putFocus(){
+            console.log("putFocus ejecutada!!");
+
+            // if(this.read_barcode){
+            //     console.log("focus en iptbarcode!!");
+            //     this.$refs.iptbardcode.focus()
+            // }else{
+            //     console.log("focus en iptatc!!");
+            //     this.$refs.iptatc.focus();
+            // }
+        }
     },
     computed:{
         attrs(){

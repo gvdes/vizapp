@@ -15,60 +15,48 @@ export default{
         return vizapi.get(`/order/${order.id}`).then(success => { return success.data; }).catch(fail=>{ console.log(fail); });
     },
     add(data){
-        return vizapi.post('/order/add',data).then(success=>{
-            return {resp:success.data,err:null};
-        }).catch(fail=>{
-            return {resp:fail,err:true}
-        });
+        return vizapi.post('/order/add',data).then( done => {
+            return done.data;
+        }).catch(fail=>{ return {resp:fail,err:true} });
     },
     nextStep(data){
         return vizapi.post('/order/next',data).then(success=>{
             return success.data;
-        }).catch(fail=>{
-            return { err:fail }
-        });
+        }).catch(fail=>{ return { err:fail } });
     },
     reprint(data){
         return vizapi.post('/order/reimpresion',data).then(success=>{
             return { resp:success.data };
-        }).catch(fail=>{
-            return { err:fail }
-        });
+        }).catch(fail=>{ return { err:fail } });
+    },
+    rePrint(data){
+        return vizapi.post('/order/printTicket',data).then(done=>{
+            return done.data;
+        }).catch(fail=>{ return { err:fail } });
     },
     removeProduct(data){
-        return vizapi.post('/order/remove',data).then(success=>{
-            return { resp:success.data }
-        }).catch(fail=>{
-            return { err:fail }
-        });
+        return vizapi.post('/order/remove',data).then(done=>{
+            return done.data;
+        }).catch(fail=>{ return { err:fail } });
     },
     archive(data){
-        return vizapi.post('order/cancell',data).then(success=>{
-            return { resp:success.data }
-        }).catch(fail=>{
-            return { err:fail }
-        });
+        return vizapi.post('order/cancell',data).then(done=>{
+            return done.data;
+        }).catch(fail=>{ return { err:fail } });
     },
     setModState(data){
         return vizapi.post('order/changeConfig',data).then( done => {
             return done.data;
-        }).catch( fail => {
-            console.log(fail);
-            return { err:fail }
-        });
+        }).catch( fail => { return { err:fail } });
     },
     setCashState(data){
         return vizapi.post('cash/changeStatus',data).then(done => {
             return done.data;
-        }).catch( fail => {
-            return { error:fail }
-        });
+        }).catch( fail => { return { error:fail } });
     },
     makeCheckout(data){
         return vizapi.post('order/toDelivered',data).then( done => {
             return done.data;
-        }).catch( fail => {
-            return { error: fail}
-        });
+        }).catch( fail => { return { error: fail} });
     }
 }

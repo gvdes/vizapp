@@ -6,6 +6,8 @@ import Warehouse from './Warehouse'
 import Layout from './Layout'
 import Preventa from './Preventa'
 import Multimediapp from './Multimediapp'
+import Labels from "./Labels"
+import Requisitions from './Requisitions'
 
 Vue.use(Vuex)
 
@@ -25,7 +27,9 @@ export default function (/* { ssrContext } */) {
       Warehouse,
       Layout,
       Preventa,
-      Multimediapp
+      Multimediapp,
+      Requisitions,
+      Labels
     },
 
     // enable strict mode (adds overhead!)

@@ -67,7 +67,6 @@ export default {
 			this.$q.loading.show({ message:"Cargando vista..." });
 			let vista = { "date_from":ranges.dbranges.from, "date_to":ranges.dbranges.to };
 			let index = await PreventaDB.index(vista);
-			console.log(index);
 			let agents = await AccountsDB.get({ '_rol':[4] });
 
 			this.$store.commit('Preventa/startState',{ index, agents });

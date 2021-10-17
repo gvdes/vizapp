@@ -1,7 +1,6 @@
 <template>
 	<q-page>
 		<div class="row q-pt-sm q-pb-xl">
-		<!-- <div>{{ myorders.length }} {{ orders.length }}</div> -->
 			<div class="col-md-6 col-xs-12 q-pa-sm">
 				<q-table flat dark
 					:data="orders"
@@ -16,7 +15,7 @@
 								<q-input autofocus borderless dark filled dense
 									fill-input color="green-13" debounce="0"
 									v-model="tableorders.filtrator" placeholder="Buscar..."
-									@keypress.enter="preCheckout()" type="number"
+									@keypress.enter="preCheckout()"
 									:disable="tableorders.blocksearch"
 								>
 									<template v-slot:prepend><q-icon name="search" /></template>
@@ -155,7 +154,7 @@ export default {
                 this.psocket.emit("order_update",{ newstate:newstate, order:this.ordersend, update:'state' });
                 this.appsounds.ok.play();
                 this.$router.push(`/preventa/checkout/${this.ordersend.id}`);
-                this.$q.notify({ message:`Checkout iniciado`, color:'positive', icon:'done' });
+                this.$q.notify({ message:`Checkout iniciado`, color:'positive', icon:'done', position:'top',timeout:1000 });
                 this.$q.loading.hide();
             }
 		},

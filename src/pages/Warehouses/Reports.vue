@@ -12,7 +12,8 @@
 					<q-card-section :class="report.clases">
 						<span>{{ report.value }}</span>
 					</q-card-section>
-					<div class="text--2 text-right q-pr-xs text-grey-7">{{ report.description }}</div>
+					<div class="text--1 text-right q-pa-xs text-white">{{ report.description }}</div>
+
 				</q-card>
 			</div>
 		</div>
@@ -47,12 +48,12 @@ export default {
     },
     components:{ ToolbarAccount:ToolbarAccount },
     async beforeMount(){
-		this.stats = await warehousesdb.index(); console.log(this.stats);
+		this.stats = await warehousesdb.index();
 	},
     methods: {
         genReport(report){
 			this.$vizapi.defaults.responseType = 'blob';//convertir el tipo de retorno a strweam para póderlo descargar
-			let namereport = report.description;
+			let namereport = `${report.description} - ${this.workin.workpoint.alias}`;
 			this.$q.loading.show({message:`Generando reporte (${namereport}), porfavor espera...`});
 			let data = {"_type":report._excel}
 			console.log(data);
@@ -69,8 +70,7 @@ export default {
 			}).catch(fail=>{
 				console.log(fail);
 				this.$q.notify({
-					icon:"fas fa-bug",
-					color:"negative",
+					icon:"fas fa-bug", color:"negative",
 					message:"Vaya, algo salio mal "
 				});
 			});
@@ -79,14 +79,15 @@ export default {
 	computed:{
 		reports(){
 			if(this.stats){
+				console.log(this.stats);
 				return this.stats.map(item=>{
 					item.clases = this.clases[item._excel];
 					return item;
 				});
-			}else{
-				return null 
-			}
-		}
+			}else{ return null; }
+		},
+		profile(){ return this.$store.getters['Account/profile'];},
+		workin(){ return this.$store.getters['Account/workin'];},
 	}
 }
 </script>
