@@ -385,7 +385,7 @@ export default {
                 
                 this.wndAdder.product = undefined;
 
-                if(this.wndAdder.stillAdding){
+                if(this.wndAdder.settings.stillAdding){
                     this.$refs.comp_proauto.putFocus();
                 }else{
                     this.wndAdder.state = false;

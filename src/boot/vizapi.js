@@ -5,12 +5,16 @@ import axios from 'axios'
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/files';
 
-const URLBackend = 'http://192.168.10.12/vizapi_master/public';
-const URLFiles = 'http://192.168.10.12/vizapi_master/files';
+// const URLBackend = 'http://192.168.10.12/vizapi_master/public';
+// const URLFiles = 'http://192.168.10.12/vizapi_master/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N OUT❱❱❱❱❱
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/files';
+
+const URLBackend = 'http://192.168.10.15/vizapi_master/public';
+const URLFiles = 'http://192.168.10.15/vizapi_master/files';
+
 
 const vizapi = axios.create({ baseURL: URLBackend });
 
