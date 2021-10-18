@@ -1446,9 +1446,9 @@ export default {
           section: this.products[i].section,
           family: this.products[i].family,
           category: this.products[i].category,
-          request: `${parseInt(this.products[i].ordered.units)}`,
+          request: parseInt(this.products[i].ordered.units),
           unity: this.products[i].metsupply.name,
-          stock: `${this.products[i].ordered.stock}`,
+          stock: parseInt(this.products[i].ordered.stock),
         });
       }
       // this.flagPrompt = !this.flagPrompt;
