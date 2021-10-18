@@ -12,8 +12,8 @@ const URLFiles = 'http://192.168.10.12/vizapi_master/files';
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/files';
 
-// const URLBackend = 'http://192.168.10.15:7007/vizapi_master/public';
-// const URLFiles = 'http://192.168.10.15:7007/vizapi_master/files';
+// const URLBackend = 'http://192.168.10.15/vizapi_master/public';
+// const URLFiles = 'http://192.168.10.15/vizapi_master/files';
 
 
 const vizapi = axios.create({ baseURL: URLBackend });
