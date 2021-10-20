@@ -16,25 +16,15 @@
       <template v-if="selectViews.selected.value == 'c'">
         <div class="row q-gutter-md q-pr-lg">
           <div class="text-right">
-            <div class="text--1 text-grey-3">
-              {{ this.ranges.date.display.from }}
-            </div>
+            <div class="text--1 text-grey-3">{{ this.ranges.date.display.from }}</div>
             <div class="text--2">{{ this.ranges.time.display.from }}</div>
           </div>
           <div class="text-right">
-            <div class="text--1 text-grey-3">
-              {{ this.ranges.date.display.to }}
-            </div>
+            <div class="text--1 text-grey-3">{{ this.ranges.date.display.to }}</div>
             <div class="text--2">{{ this.ranges.time.display.to }}</div>
           </div>
         </div>
-        <q-btn
-          rounded
-          color="primary"
-          padding
-          icon="fas fa-calendar-day"
-          no-caps
-        >
+        <q-btn rounded color="primary" padding icon="fas fa-calendar-day" no-caps>
           <q-popup-proxy>
             <q-card class="bg-darkl1 text-grey-5 exo">
               <q-card-section>Seleccione periodo</q-card-section>
@@ -60,23 +50,13 @@
                 />
               </q-tabs>
 
-              <q-tab-panels
-                v-model="tab"
-                animated
-                class="text-center bg-darkl1"
-              >
+              <q-tab-panels v-model="tab" animated class="text-center bg-darkl1">
                 <q-tab-panel name="f">
                   <q-date v-model="ranges.date.from" minimal flat dark />
                   <div class="text-left q-pt-md">
                     <div class="row items-center">
                       <span class="col-3">Hora:</span>
-                      <q-slider
-                        class="col"
-                        label
-                        v-model="times.from.h"
-                        :min="8"
-                        :max="23"
-                      />
+                      <q-slider class="col" label v-model="times.from.h" :min="8" :max="23" />
                       <span class="col-2 text-right">{{ times.from.h }}</span>
                     </div>
                     <div class="row items-center">
@@ -99,13 +79,7 @@
                   <div class="text-left q-pt-md">
                     <div class="row items-center">
                       <span class="col-3">Hora:</span>
-                      <q-slider
-                        class="col"
-                        label
-                        v-model="times.to.h"
-                        :min="9"
-                        :max="23"
-                      />
+                      <q-slider class="col" label v-model="times.to.h" :min="9" :max="23" />
                       <span class="col-2 text-right">{{ times.to.h }}</span>
                     </div>
                     <div class="row items-center">
@@ -125,13 +99,7 @@
               </q-tab-panels>
 
               <q-card-actions align="right">
-                <q-btn
-                  flat
-                  v-close-popup
-                  color="primary"
-                  label="OK"
-                  @click="setDates"
-                ></q-btn>
+                <q-btn flat round v-close-popup color="green-13" label="OK" @click="setDates"></q-btn>
               </q-card-actions>
             </q-card>
           </q-popup-proxy>
@@ -140,15 +108,11 @@
       <template v-else>
         <div class="row q-gutter-md">
           <div class="text-right">
-            <div class="text--1 text-grey-3">
-              {{ this.ranges.date.display.from }}
-            </div>
+            <div class="text--1 text-grey-3">{{ this.ranges.date.display.from }}</div>
             <div class="text--2">{{ this.ranges.time.display.from }}</div>
           </div>
           <div class="text-right">
-            <div class="text--1 text-grey-3">
-              {{ this.ranges.date.display.to }}
-            </div>
+            <div class="text--1 text-grey-3">{{ this.ranges.date.display.to }}</div>
             <div class="text--2">{{ this.ranges.time.display.to }}</div>
           </div>
         </div>
@@ -162,7 +126,7 @@ export default {
   name: "RangeDates",
   props: {
     label: { type: String, default: "Vista" },
-    useTime: { type: Boolean, default: false },
+    useTime: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -172,37 +136,52 @@ export default {
           { label: "Semanal", value: "w" },
           { label: "Mensual", value: "m" },
           { label: "Anual", value: "y" },
-          { label: "Personalizada", value: "c", disable: false },
+          { label: "Personalizada", value: "c", disable: false }
         ],
-        selected: { label: "Diaria", value: "t" },
+        selected: { label: "Diaria", value: "t" }
       },
       ranges: {
         date: {
           from: null,
           to: null,
-          display: { from: null, to: null },
+          display: { from: null, to: null }
         },
         time: {
           from: null,
           to: null,
-          display: { from: null, to: null },
-        },
+          display: { from: null, to: null }
+        }
       },
       tab: "f",
       times: {
         from: {
           h: this.$moment().hour(),
-          m: this.$moment().minute(),
+          m: this.$moment().minute()
         },
         to: {
           h: this.$moment().hour(),
-          m: this.$moment().minute(),
-        },
-      },
+          m: this.$moment().minute()
+        }
+      }
     };
   },
   beforeMount() {
-    this.setDates();
+    let getDBRanges = JSON.parse(localStorage.getItem("dbranges"));
+    if (getDBRanges) {
+      this.selectViews.selected = getDBRanges.option;
+      this.ranges.date.from = getDBRanges.ranges.date.from;
+      this.ranges.date.to = getDBRanges.ranges.date.to;
+      this.ranges.time.from = getDBRanges.ranges.time.from;
+      this.ranges.time.to = getDBRanges.ranges.time.to;
+
+      this.ranges.date.display.from = getDBRanges.ranges.date.display.from;
+      this.ranges.date.display.to = getDBRanges.ranges.date.display.to;
+      this.ranges.time.display.from = getDBRanges.ranges.time.display.from;
+      this.ranges.time.display.to = getDBRanges.ranges.time.display.to;
+      this.setDates();
+    } else {
+      this.setDates();
+    }
   },
   methods: {
     setDates() {
@@ -282,7 +261,9 @@ export default {
             .startOf("day")
             .add(8, "h")
             .format("HH:mm:ss");
-          this.ranges.time.to = this.$moment().endOf("day").format("HH:mm:ss");
+          this.ranges.time.to = this.$moment()
+            .endOf("day")
+            .format("HH:mm:ss");
 
           /** times for display */
           this.ranges.date.display.from = this.$moment().format("YYYY/MM/DD");
@@ -297,41 +278,49 @@ export default {
             .format("hh:mm a");
           break;
       }
-
+      localStorage.setItem(
+        "dbranges",
+        JSON.stringify({
+          ranges: this.ranges,
+          option: this.selectViews.selected,
+          dbranges: this.dbranges
+        })
+      );
+      // console.log(this.dbranges);
       send
         ? this.$emit("inputRanges", {
             ranges: this.ranges,
             option: this.selectViews.selected,
-            dbranges: this.dbranges,
+            dbranges: this.dbranges
           })
         : null;
     },
     meridian(key) {
       return key <= 9 ? "0" + key : key;
-    },
+    }
   },
   computed: {
     dbranges() {
       return {
         from: `${this.ranges.date.from} ${this.ranges.time.from}`,
-        to: `${this.ranges.date.to} ${this.ranges.time.to}`,
+        to: `${this.ranges.date.to} ${this.ranges.time.to}`
       };
     },
     getRanges() {
       return {
         From: {
           getDateFrom: this.ranges.date.from,
-          getTimeFrom: this.ranges.time.from,
+          getTimeFrom: this.ranges.time.from
         },
         To: {
           getDateTo: this.ranges.date.to,
-          getTimeTo: this.ranges.time.to,
-        },
+          getTimeTo: this.ranges.time.to
+        }
       };
     },
     meridianKey(key) {
       return key <= 9 ? "0" + key : key;
-    },
-  },
+    }
+  }
 };
 </script>

@@ -284,7 +284,7 @@
           <span class="text-green-13 text-weight-bold">{{
             wndImportJSON.wndGetRows
           }}</span>
-          modelos fueron encontrados y agregados a la lista pero;
+          modelos fueron encontrados y agregados a la lista{{`${wndImportJSON.wndNoDataFound.length != 0 ? ", sin embargo;": "."}`}}
         </q-card-section>
         <q-card-section v-if="wndImportJSON.wndNoDataFound.length">
           <div>
