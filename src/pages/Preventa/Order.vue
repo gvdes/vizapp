@@ -26,26 +26,21 @@
             </div>
 
             <div class="row items-center justify-between q-mt-sm">
-                <div class="row text-center">
+                <div class="row text-center items-end">
                     <div class="q-px-md">
                         <div class="text--2">Modelos</div>
-                        <span class="text-green-13 text-bold">{{basket.length}}</span>
+                        <span class="text-green-13 text-bold">{{dbproducts.length}}</span>
                     </div>
 
                     <div class="q-px-md">
                         <div class="text--2">Piezas</div>
-                        <span class="text-green-13 text-bold">{{pzsBasket}}</span>
+                        <span class="text-green-13 text-bold">{{totalPzsProds}}</span>
                     </div>
-
-                    <div class="q-px-md">
-                        <div class="text--2">Cajas</div>
-                        <span class="text-green-13 text-bold">{{bxsBasket}}</span>
-                    </div>                    
                 </div>
 
                 <div class="col text-right q-px-sm">
                     <div class="text--2">Total</div>
-                    <div class="text-green-13 text-h6 text-bold">$ {{totalBasket}}</div>
+                    <div class="text-green-13 text-h6 text-bold">$ {{totalCashProds}}</div>
                 </div>
             </div>
         </q-header>
@@ -63,7 +58,7 @@
                     <q-btn-group spread class="bg-darkl1">
                         <q-btn dark icon="print" @click="initPrinters('reprint');" v-if="currentStep&&currentStep.id>1" />
 
-                        <template v-if="basket.length">
+                        <template v-if="gBasket.length">
                             <q-btn dark icon="fas fa-file-excel"/>
                         </template>
 
@@ -145,8 +140,113 @@
         </div>
 
         <div class="q-mb-xl" v-if="!artduplicate.state">
+            <q-list dark>
+                <q-expansion-item
+                    expand-separator
+                    default-opened
+                    header-class="text-white"
+                    expand-icon-class="hidden"
+                    v-if="basketPzs.length"
+                >
+                    <template v-slot:header>
+                        <div class="row full-width items-center justify-between q-py-md hei">
+                            <div>Piezas: {{basketPzs.length}}</div>
+                            <div class="text-bold">$ {{totalCashPzs}}</div>
+                        </div>
+                    </template>
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <div v-for="prod in basketPzs" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
+                            <div class="row items-center">
+                                <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                                <div class="col q-pr-sm">
+                                    <div>
+                                        <span>{{ prod.code }}</span> --
+                                        <span>{{ prod.name }}</span>
+                                    </div>
+                                    <div class="text--2 text-grey-5">{{ prod.description }}</div>
+                                    <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
+                                    <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div>$ {{prod.total}}</div>
+                                    <div class="text--3 text-center">{{prod.usedprice.name}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </transition-group>
+                </q-expansion-item>
+
+                <q-expansion-item
+                    expand-separator
+                    default-opened
+                    header-class="text-white"
+                    expand-icon-class="hidden"
+                    v-if="basketBxs.length"
+                >
+                    <template v-slot:header>
+                        <div class="row full-width items-center justify-between q-py-md hei">
+                            <div>Cajas: {{basketBxs.length}}</div>
+                            <div class="text-bold">$ {{totalCashBxs}}</div>
+                        </div>
+                    </template>
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <div v-for="prod in basketBxs" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
+                            <div class="row items-center">
+                                <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                                <div class="col q-pr-sm">
+                                    <div>
+                                        <span>{{ prod.code }}</span> --
+                                        <span>{{ prod.name }}</span>
+                                    </div>
+                                    <div class="text--2 text-grey-5">{{ prod.description }}</div>
+                                    <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
+                                    <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                                </div>
+                                <div class="text-right">$ {{prod.total}}</div>
+                            </div>
+                        </div>
+                    </transition-group>
+                </q-expansion-item>
+
+                <q-expansion-item
+                    expand-separator
+                    switch-toggle-side
+                    default-opened
+                    header-class="text-white"
+                    expand-icon-class="hidden"
+                    v-if="basketDcs.length"
+                >
+                    <template v-slot:header>
+                        <div class="row full-width items-center justify-between q-py-md hei">
+                            <div>Docenas: {{basketDcs.length}}</div>
+                            <div class="text-bold">$ {{totalCashDcs}}</div>
+                        </div>
+                    </template>
+                    <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
+                        <div v-for="prod in basketDcs" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
+                            <div class="row items-center">
+                                <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                                <div class="col q-pr-sm">
+                                    <div>
+                                        <span>{{ prod.code }}</span> --
+                                        <span>{{ prod.name }}</span>
+                                    </div>
+                                    <div class="text--2 text-grey-5">{{ prod.description }}</div>
+                                    <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
+                                    <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                                </div>
+                                <div class="text-right">$ {{prod.total}}</div>
+                            </div>
+                        </div>
+                    </transition-group>
+                </q-expansion-item>
+            </q-list>
+        </div>
+
+        <!-- Esta va ser la funcion para temporada de mochila -->
+        <!-- <div class="q-mb-xl" v-if="!artduplicate.state">
             <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
-                <div v-for="prod in basket" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
+                <div v-for="prod in gBasket" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
                     <div class="row items-center">
                         <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
                         <div class="col q-pr-sm">
@@ -162,7 +262,7 @@
                     </div>
                 </div>
             </transition-group>
-        </div>
+        </div> -->
 
         <!-- VENTANA DE PRODUCTOS PARA AGREGAR -->
         <q-dialog v-model="wndAdder.state" position="bottom">
@@ -170,6 +270,7 @@
                 <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
                 <template class="ds" v-if="wndAdder.product">
                     <ProductAOE
+                        ref="paoe_adder"
                         showprices
                         :product="wndAdder.product"
                         :client="index.client"
@@ -187,7 +288,8 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
-                    <ProductAOE 
+                    <ProductAOE
+                        ref="paoe_editor" 
                         showprices
                         :product="wndEditor.product" 
                         :client="index.client" 
@@ -203,29 +305,27 @@
             <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/>
         </q-dialog>
 
-        <q-footer class="bg-darkl1 text-white">
+        <q-footer class="bg-darkl1 text-white">            
             <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
-                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" @similarcodes="similarCodes"/>
+                    <ProductAutocomplete with_image with_prices with_stock @input="setProduct" @similarcodes="similarCodes" ref="patc"/>
                 </div>
-                <div class="text-right"><q-btn v-if="basket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" /></div>
+                <div class="text-right"><q-btn v-if="gBasket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" /></div>
             </div>
 
-            <q-card v-if="wndAdder.similars.length" class="bg-darkl1">
-                <q-card-section>
-                    <div>Varios productos coinciden con tu lectura</div>
-                    <div class="row">
-                        <div class="col-6 q-pa-xs" v-for="art in wndAdder.similars" :key="art.id">
-                            <q-card class="q-pa-sm bg-darkl2" @click="setProduct(art)">
-                                <div>{{art.code}} -- {{art.name}}</div>
-                                <div class="text--3">{{art.description}}</div>
-                                <div class="text--3" :class="art.status.id == 1 ? 'text-green-13':'text-amber-13'">{{art.status.name}}</div>
-                            </q-card>
-                        </div>
+            <q-card v-if="wndAdder.similars.length" class="bg-darkl1 q-pa-sm">
+                <div>Varios productos coinciden con tu lectura</div>
+                <div class="row wrapper_similars q-pa-md">
+                    <div class="col-6 q-pa-xs" v-for="art in wndAdder.similars" :key="art.id">
+                        <q-card class="q-pa-sm bg-darkl2" @click="setProduct(art)">
+                            <div>{{art.code}} -- {{art.name}}</div>
+                            <div class="text--3">{{art.description}}</div>
+                            <div class="text--3" :class="art.status.id == 1 ? 'text-green-13':'text-amber-13'">{{art.status.name}}</div>
+                        </q-card>
                     </div>
-                </q-card-section>
+                </div>
                 <q-card-actions>
-                    <q-btn class="full-width" @click="wndAdder.similars = []" icon="close"/>
+                    <q-btn flat class="full-width" @click="wndAdder.similars = []; $refs.patc.putFocus()" icon="close"/>
                 </q-card-actions>
             </q-card>
         </q-footer>
@@ -245,6 +345,7 @@ export default {
     data(){
         return {
             psocket:this.$sktPreventa,
+            art_filtrator:'',
             index:undefined,
             moreopts:false,
             artduplicate:{
@@ -310,7 +411,7 @@ export default {
  
         this.index = await preventadb.order(this.ordercatch);
 
-        this.dbproducts = this.index.products.length ? this.index.products : [];
+        // this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
     },
     destroyed(){
@@ -381,6 +482,7 @@ export default {
                 this.wndAdder.product = undefined;
                 this.wndAdder.similars = [];
                 this.wndAdder.state = false;
+                this.$refs.patc.putFocus();
             }
             this.$q.loading.hide();
         },
@@ -415,7 +517,7 @@ export default {
                 this.$q.notify({
                     message:'Producto Actualizado!!',
                     position:'center', color:'positive',
-                    icon:'done'
+                    icon:'done',timeout:1200
                 });
 
                 this.wndEditor.state = false;
@@ -440,7 +542,7 @@ export default {
                 let idx = this.index.products.findIndex( prod => prod.id==params.product.id );
 
                 this.index.products.splice(idx,1);
-                this.$q.notify({message:`${params.product.code} eliminado!`,icon:'done',color:'positive'});
+                this.$q.notify({message:`${params.product.code} eliminado!`,icon:'done',color:'positive',timeout:1000,position:'center'});
                 
                 this.wndEditor.product = undefined;
                 this.wndEditor.state = false;
@@ -540,6 +642,7 @@ export default {
 
             this.wndEditor.product = undefined;
             this.wndEditor.state = false;
+            this.$refs.patc.putFocus();
         }
     },
     computed: {
@@ -552,7 +655,7 @@ export default {
                 return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name }; 
             }else{ return {type:'STD'}; }
         },
-        basket(){
+        dbproducts(){
             if (this.index) {
                 return this.index.products.map( p => {
                     p.ipack = p.pieces ? p.pieces : 1;
@@ -582,22 +685,37 @@ export default {
                                     return p.prices.find( pl => pl.id==1 );
                                 }else if(p.ordered.amount<3){//es menudeo ?
                                     return p.prices.find( pl => pl.id==1 );
-                                }else if(p.ordered.amount>=3){//es mayoreo ?
+                                }else if(p.ordered.amount>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
                                     return p.prices.find( pl => pl.id==2 );
+                                }else if (p.ordered.amount>=p.ipack) {
+                                    return p.prices.find( pl => pl.id==4 );
                                 }
                             break;
                         }
                     })(p);                    
                     p.total = p.units*p.usedprice.price;
-
-                    // console.log(p.usedprice);
+                    
                     return p;
                 });
             }else { return []; }
         },
-        totalBasket(){ return this.basket.length ? this.basket.reduce((am,p) => { return p.total+am },0) : 0; },
-        pzsBasket(){ return this.basket.length ? this.basket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
-        bxsBasket(){ return this.basket.length ? this.basket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; },
+        totalPzsProds(){ return this.dbproducts.reduce( (am,p) => parseInt(p.units)+am,0 ); },
+        totalCashProds(){ return this.dbproducts.reduce( (am,p) => { return p.total+am } ,0 ) },
+        gBasket(){
+            if(this.art_filtrator.length){
+                let _target = this.art_filtrator.toUpperCase().trim();
+                let similars = this.dbproducts.filter( p => ( p.barcode.match(_target) || p.code.match(_target) || p.name.match(_target) || p.description.match(_target) ) );
+                return similars.length ? similars : [];
+            }else{ return this.dbproducts; }
+        },
+        basketPzs(){ return this.gBasket.length ? this.gBasket.filter( p => p.metsupply.id==1) : []; },
+        totalCashPzs(){ return this.basketPzs.reduce( (am,p) => { return p.total+am } ,0 ) },
+        basketDcs(){ return this.gBasket.length ? this.gBasket.filter( p => p.metsupply.id==2) : []; },
+        totalCashDcs(){ return this.basketDcs.reduce( (am,p) => { return p.total+am } ,0 ) },
+        basketBxs(){ return this.gBasket.length ? this.gBasket.filter( p => p.metsupply.id==3) : []; },
+        totalCashBxs(){ return this.basketBxs.reduce( (am,p) => { return p.total+am } ,0 ) },
+        pzsBasket(){ return this.gBasket.length ? this.gBasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
+        bxsBasket(){ return this.gBasket.length ? this.gBasket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; },
         currentStep(){ return this.index ? this.index.status : null },
         appsounds(){ return this.$store.getters['Multimediapp/sounds']; },
         haveparent(){ return this.index ? this.index._order : false; },
@@ -626,4 +744,12 @@ export default {
 
     .ord_isanx{ color:#fff200; }
     .ord_haveanx{ color:#fff200; }
+
+    .wrapper_similars{
+        max-height: 300px;
+        overflow: scroll;
+    }
+    .hei{//header expantion item
+        border-bottom:2px solid grey;
+    }
 </style>

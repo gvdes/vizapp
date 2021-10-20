@@ -13,7 +13,7 @@
 					</transition>
 					
 					<transition appear enter-active-class="animated fadeInUp delay-1s">
-						<q-card class="bg-darkl1 text-white" key="title">
+						<q-card class="bg-darkl1 text-white exo" key="title">
 							<q-card-section class="row justify-between items-center">
 								<span class="text-h6">
 									<span class="text-pink-6"> Viz</span>

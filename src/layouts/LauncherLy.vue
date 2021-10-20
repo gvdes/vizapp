@@ -15,7 +15,7 @@
 						<q-img :src="picnick(session.me.pictures)" spinner-color="white" style="height: 140px; max-width: 140px"/>
 					</div>
 
-					<div class="text-center">
+					<div class="text-center exo">
 						<div class="text-h4 q-py-sm"> <span>Hola </span><span :class="vsocket.connected ? 'text-green-13':''">{{ session.me.nick }}</span></div>
 						<div class="q-mb-md">¿por donde iniciamos?</div>
 					</div>
@@ -188,6 +188,7 @@ export default {
 			this.$router.push('/acceso');
 		},
 		go(){
+			this.$q.loading.show({ message: 'Espera ...' });
 			let data = { "workpoint":this.workIn.workpoint.id };
 
 			apiwkp.join(data).then(success=>{
@@ -195,6 +196,7 @@ export default {
 				this.$store.commit('Account/join',resp);
 				this.$store.commit('Account/setworkpoint',this.workIn);
 				this.$router.push(`/${this.workIn.module.path}`);
+				this.$q.loading.hide();
 				// console.log(resp);
 			}).catch(fail=>{ console.log(fail); });
 
