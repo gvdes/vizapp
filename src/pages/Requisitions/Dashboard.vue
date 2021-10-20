@@ -751,6 +751,8 @@ export default {
         return this.ordersdb.filter(
           (order) =>
             order.id.toString().includes(this.searchID) &&
+            order.status.name == str ||
+            order.notes.toString().toLowerCase().includes(this.searchID) &&
             order.status.name == str
         );
       };

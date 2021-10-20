@@ -23,6 +23,8 @@ const routes = [
 			{ path:'',component: () => import('pages/Requisitions/Index.vue') },
 			{ path:'dashboard',component: () => import('pages/Requisitions/Dashboard.vue') },
 			{ path:':id',component: () => import('pages/Requisitions/Order.vue') },
+			{ path:'checkin/:id',component: () => import('pages/Requisitions/Checkin.vue') },
+			{ path:'checkout/:id',component: () => import('pages/Requisitions/Checkout.vue') },
 		]
 	},
 	{
