@@ -2,8 +2,8 @@ import { io } from "socket.io-client";
 
 // const URLSocket = 'http://192.168.10.210:7171';
 
-const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
-// const URLSocket = 'http://192.168.10.15:7171';
+// const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
+const URLSocket = 'http://192.168.10.15:7171';
 
 export default ({ Vue }) => {
 	
