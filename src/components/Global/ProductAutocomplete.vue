@@ -1,7 +1,5 @@
 <template>
     <div class="row items-center">
-        <q-btn flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="switchMode()"/>
-
         <template v-if="read_barcode">
             <q-input 
                 ref="iptbarcode"
@@ -13,7 +11,12 @@
                 @keypress.enter="search"
                 autocomplete="off"
                 autofocus
-            />
+            >
+                <template v-slot:prepend>
+                    <q-btn dense flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="switchMode()"/>
+                </template>
+            </q-input>
+
         </template>
 
         <template v-else>
@@ -28,7 +31,7 @@
                 v-model="target"
                 :value="target"
                 :input-debounce="200"
-                :autofocus="true"
+                autofocus
                 :options="options"
                 :type="iptsearch.type"
                 @filter="autocomplete"
@@ -43,6 +46,7 @@
                 </template>
 
                 <template v-slot:prepend>
+                    <q-btn dense flat :color="read_barcode ? 'light-blue-13':'green-13'" :icon="read_barcode ? 'far fa-keyboard':'fas fa-barcode'" @click="switchMode()"/>
                     <q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
                 </template>
 
@@ -165,6 +169,8 @@ export default {
                                 timeout:1000,
                                 position:'center'
                             });
+
+                            this.putFocus();
                         break;
 
                         case 1:
@@ -187,13 +193,13 @@ export default {
         putFocus(){
             console.log("putFocus ejecutada!!");
 
-            // if(this.read_barcode){
-            //     console.log("focus en iptbarcode!!");
-            //     this.$refs.iptbardcode.focus()
-            // }else{
-            //     console.log("focus en iptatc!!");
-            //     this.$refs.iptatc.focus();
-            // }
+            if(this.read_barcode){
+                console.log("focus en iptbarcode!!");
+                this.$refs.iptbarcode.focus()
+            }else{
+                console.log("focus en iptatc!!");
+                this.$refs.iptatc.focus();
+            }
         }
     },
     computed:{

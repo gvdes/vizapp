@@ -114,7 +114,8 @@ export default {
         client:{ type:Object, default:{} },
         showprices:{ type:Boolean, default:false },
         blockunitsupply:{ type:Boolean, default:false },
-        deftunitsupply:{ type:Number, default:null }
+        deftunitsupply:{ type:Number, default:null },
+        block_trash:{ type:Boolean, default:false }
     },
     data(){
         return {
@@ -209,8 +210,10 @@ export default {
                         return this.prices.find( pl => pl.id==1 );
                     }else if(this.amount<3){//es menudeo ?
                         return this.prices.find( pl => pl.id==1 );
-                    }else if(this.amount>=3){//es mayoreo ?
+                    }else if(this.amount>=3 && this.amount<this.ipack){//es mayoreo ?
                         return this.prices.find( pl => pl.id==2 );
+                    }else if (this.amount>=this.ipack) {// es precio caja?
+                        return this.prices.find( pl => pl.id==4 );
                     }
                 break;
             }

@@ -8,12 +8,18 @@ import axios from 'axios'
 const URLBackend = 'http://192.168.10.12/vizapi_master/public';
 const URLFiles = 'http://192.168.10.12/vizapi_master/files';
 
-// ❰❰❰❰❰ P R O D U C C I O N OUT❱❱❱❱❱
+// ❰❰❰❰❰ P R O D U C C I O N  OUT❱❱❱❱❱
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4547/vizapi_master/files';
 
+<<<<<<< HEAD
 // const URLBackend = 'http://192.168.10.15/vizapi_master/public';
 // const URLFiles = 'http://192.168.10.15/vizapi_master/files';
+=======
+// ❰❰❰❰❰ P R O D U C C I O N  IN❱❱❱❱❱
+const URLBackend = 'http://192.168.10.15/vizapi_master/public';
+const URLFiles = 'http://192.168.10.15/vizapi_master/files';
+>>>>>>> 71bdb9e0e17321b3ef796777c82a181c04cd54a7
 
 
 const vizapi = axios.create({ baseURL: URLBackend });

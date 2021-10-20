@@ -1,5 +1,15 @@
 // app global css in SCSS form// app global css in SCSS form
 @font-face {
+    font-family: "uber";
+    src: url("./fonts/uber.otf");
+}
+
+@font-face {
+    font-family: "QuickRegular";
+    src: url("./fonts/quicksand/QuickRgl.ttf");
+}
+
+@font-face {
     font-family: "exo";
     src: url("./fonts/exo/Exo-Regular.ttf");
 }
@@ -56,6 +66,9 @@
 .text-owngrey{ color: #8A8D93; }
 .text-darkl0{ color: #22252A; }
 
+.QuickRegular{ font-family: 'QuickRegular'; }
+
+.uber{ font-family: 'uber'; }
 .exo{ font-family: 'exo'; }
 .exo-thin{ font-family: 'exo-thin'; }
 .exo-med{ font-family: 'exo-medium'; }
