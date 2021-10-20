@@ -1,5 +1,4 @@
 <template>
-  <!-- // quasar dev -p24700 -->
   <q-layout view="lHh Lpr lFf">
     <q-page-container class="exo bg-darkl0 text-grey-5">
       <q-header class="bg-none" v-if="layout.header.state">

@@ -77,7 +77,7 @@
     <q-dialog v-model="wndImportJSON.state" persistent>
       <q-card class="bg-darkl0 text-grey-5 exo text-subtitle1">
         <q-card-section>
-          Se preocesarón
+          Se procesarón
           <span class="text-green-13 text-weight-bold">{{
             wndImportJSON.wndTotal
           }}</span>
@@ -1001,11 +1001,23 @@ export default {
         products.prices = products.map((item) => {
           return item.prices.sort((a, b) => b.id - a.id);
         });
+        // console.log(products.prices);
         let stdProduts = [];
         let offProducts = [];
 
         stdProduts = this.getSTD(products);
         offProducts = this.getOFF(products);
+        stdProduts = stdProduts.map((item) => {
+             if (item.pieces <= 1) {
+               item.prices = item.prices.filter(i => i.alias == "MAY" || i.alias == "MEN");
+               return item;
+             } else {
+               return item;
+             }
+          }
+        );
+        // console.log(prueba);
+        // console.log(stdProduts.map(item => item.prices.findIndex(i => i.alias == "DOC" || i.alias == "CAJ")));
 
         let newObject = [];
         if (stdProduts.length == 0 && offProducts.length != 0) {
@@ -4452,7 +4464,7 @@ export default {
       return (products) => {
         return products.filter(
           (item) => item.type == "std" || item.type == "may"
-        );
+        )
       };
     },
     getOFF() {
