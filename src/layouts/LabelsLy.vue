@@ -1264,11 +1264,13 @@ export default {
             } else {
               this.exportstate.data.push(aux);
             }
-            counter < pdf.internal.getNumberOfPages() ? pdf.addPage() : null;
+            console.log(pdf.internal.getNumberOfPages());
+            Math.round(counter / 2) < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
+          
           _delete =
-            counter < pdf.internal.getNumberOfPages()
+            Math.round(counter / 2) < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
               : 0;
           pdf.deletePage(_delete);

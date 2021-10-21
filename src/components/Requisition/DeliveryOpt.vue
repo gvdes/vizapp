@@ -230,7 +230,7 @@ export default {
     structuredDataDelivery() {
       return (order, optDelivery, state) => {
         let date = this.$moment();
-        console.log(optDelivery);
+        // console.log(optDelivery);
         let profile = localStorage.getItem("profile");
         profile = JSON.parse(profile);
         let newState = "";
