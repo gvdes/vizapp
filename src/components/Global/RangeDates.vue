@@ -178,7 +178,7 @@ export default {
       this.ranges.date.display.to = getDBRanges.ranges.date.display.to;
       this.ranges.time.display.from = getDBRanges.ranges.time.display.from;
       this.ranges.time.display.to = getDBRanges.ranges.time.display.to;
-      this.setDates();
+      this.$emit("inputRanges", { ranges: this.ranges, option: this.selectViews.selected, dbranges: this.dbranges });
     } else {
       this.setDates();
     }

@@ -21,8 +21,11 @@ export function updateState(state, { order, newState }) {
     let idx = state.orders.findIndex(ord => order.id == ord.id);
     console.log(idx);
     // debugger
-    state.orders[idx].status = newState.state;
-    state.orders[idx].log = newState.log;
+    if (idx != -1) {
+        state.orders[idx].status = newState.state;
+        state.orders[idx].log = newState.log;
+    }
+
     // state.orders[idx].log = newStateLog;
 }
 

@@ -212,7 +212,7 @@ export default {
     sktCreateOrd(data) {
       let order = data.order;
       let by = data.user.me;
-
+      this.appsounds.created.play();
       console.log(
         `%c${by.nick} esta creando la orden ${order.id}`,
         "background:#303952;color:#e66767;border-radius:10px;padding:8px;"
@@ -229,7 +229,7 @@ export default {
       let order = data.order;
       order.log = data.log;
       order.status = data.state;
-
+      data.state.id == 10 ? this.appsounds.ok.play() : this.appsounds.moved.play();
       console.log(
         `%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,
         "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
@@ -283,6 +283,9 @@ export default {
           return storage > 0 ? order.from.id == storage : order;
         });
       };
+    },
+    appsounds() {
+      return this.$store.getters["Multimediapp/sounds"];
     },
     workin() {
       return this.$store.getters["Account/workin"];

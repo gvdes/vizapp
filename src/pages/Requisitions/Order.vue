@@ -925,6 +925,8 @@ export default {
     this.$store.commit("Layout/hideToolbarModule");
     this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
+    // let idx = this._getorders.findIndex(i => i.id == this.order.id);
+    // this.wndLog.order = this._getorders[idx];
     this.flagArchive = this.order.status.id <= 2 ? true : false;
     this.stateOrder = this.order.status.id == 1 ? true : false;
     this.flagFilter = this.order.log.length >= 2 ? true : false;
@@ -998,7 +1000,7 @@ export default {
       }
     },
     changeState(_atstate = null) {
-      this.stateDone = !this.stateDone;
+      this.stateDone = this.order.status.id == 9 ? !this.stateDone : false;
       let atstate = _atstate ? _atstate : parseInt(this.order.status.id) + 1;
       let data = { id: this.params.id, _status: atstate };
       let message = "";
@@ -1346,7 +1348,6 @@ export default {
       this.$q.loading.show({
         message: "El documento se esta importando, favor de esperar...",
       });
-
       workbook.xlsx.load(inputFile).then(() => {
         let worksheet = workbook.worksheets[0];
         let typeA = worksheet.getColumn("A");
@@ -1413,10 +1414,16 @@ export default {
           })
           .catch((log) => {
             console.log(log);
+            this.$q.loading.hide();
           });
         document.getElementById("blobfile").value = "";
         // console.log(extractJSON.length);
         // console.log(this.setupToolbar.verify);
+      }).catch(e => {
+        console.log(e);
+        this.$q.loading.hide();
+        this.flagDuplicate = !this.flagDuplicate;
+        this.messageDuplicate = "El archivo que intentas subir no es compatible. Debes actualizar tu formato a nuevas versiones de Excel.(Extensión .xlsx)"
       });
     },
     exportExcel() {
@@ -1488,6 +1495,9 @@ export default {
     
   },
   computed: {
+    _getorders() {
+      return this.$store.getters["Requisitions/getOrders"];
+    },
     filterAvailable() {
       switch (this.selectAvailable.value) {
         case 2:
@@ -1723,7 +1733,7 @@ export default {
     },
     owner() {
       return this.order
-        ? this.order.created_by.id == this.profile.me.id
+        ? this.order.created_by._rol == this.profile.me._rol
         : false;
     },
     isduplicate() {

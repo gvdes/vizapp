@@ -185,6 +185,7 @@ export default {
       this.$router.push("/pedidos/" + id);
     },
     tryCreate() {
+      this.appsounds.created.play();
       console.log("Creando pedido!!");
       let data = new Object();
       data._workpoint_to = this.neworder.dest.value;
@@ -293,6 +294,9 @@ export default {
   computed: {
     orders() {
       return this.$store.state.Requisitions.orders;
+    },
+    appsounds() {
+      return this.$store.getters["Multimediapp/sounds"];
     },
     workpoints() {
       return this.$store.state.Requisitions.printers;

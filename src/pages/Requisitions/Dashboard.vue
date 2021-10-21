@@ -219,9 +219,7 @@
                 <div class="col row items-center">
                   <q-icon name="fas fa-hourglass-end" color="blue-grey-7" />
                   <span class="text-white q-px-sm">{{
-                    log.updated_at == log.created_at
-                      ? "--"
-                      : humantime(log.updated_at)
+                    humantime(log.updated_at)
                   }}</span>
                 </div>
                 <div class="col row items-center">
@@ -574,6 +572,7 @@ export default {
       });
       this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
       this.wndLog.order = this.ordersdb[idx];
+      console.log(this.wndLog.order);
       if (this.wndLog.order.log.length > 2) {
         try {
           let index = this.grocerAccnt.findIndex((item) => {
@@ -617,17 +616,18 @@ export default {
       this.wndStore.state = this.wndLog.order.id == 2 ? true : false;
 
       switch (atstate) {
-        case 3:
-          console.log("Moviendo a surtiendo...");
-          newstatus.name = "Surtiendo";
-          message = "Surtido iniciado";
+        case 8:
+          console.log("Completado...");
+          newstatus.name = "Completado";
+          message = "Completado";
+          this.sounds.ok.play();
           break;
 
-        case 5:
-          console.log("Moviendo a En camino...");
-          newstatus.name = "En camino";
-          message = "Envio iniciado";
-          break;
+        // case 5:
+        //   console.log("Moviendo a En camino...");
+        //   newstatus.name = "En camino";
+        //   message = "Envio iniciado";
+        //   break;
       }
 
       dbreqs
@@ -659,7 +659,7 @@ export default {
             position: "bottom-right",
           });
 
-          this.sounds.moved.play();
+          
           this.$sktRestock.emit("order_changestate", {
             state: newStateSend,
             profile: this.profile,
