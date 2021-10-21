@@ -6,13 +6,8 @@ node_modules
 .quasar
 #/dist
 
-<<<<<<< HEAD
 /src/boot/sockets.js
 /src/boot/vizapi.js
-=======
-/boot/vizapi.js
-/boot/sockets.js
->>>>>>> c5f5d2418ee60269c7a12964b0eafc0a84af3382
 
 # Cordova related directories and files
 /src-cordova/node_modules
