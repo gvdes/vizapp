@@ -47,6 +47,8 @@
 
         <q-drawer v-model="ldrawer.state" side="right" content-class="bg-darkl0" @hide="startremove.state=false">
             <div class="q-pa-md">
+                <!-- <div class="ds">{{pfams}}</div>
+                <div class="ds">{{upfams}}</div> -->
                 <template v-if="currentStep&&currentStep.id==1">
                     <div class="text-overline">Unidad de surtido</div>
                     <q-select borderless dense dark color="green-13" v-model="metdeftsupply" option-value="id" option-label="name" :options="metsupplies" />
@@ -163,13 +165,14 @@
                                         <span>{{ prod.code }}</span> --
                                         <span>{{ prod.name }}</span>
                                     </div>
+                                    <div class="text--3 text-uppercase text-italic">{{ prod.family }} (pxc {{prod.ipack}})</div>
                                     <div class="text--2 text-grey-5">{{ prod.description }}</div>
                                     <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
                                     <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                                 </div>
                                 <div class="text-right">
                                     <div>$ {{prod.total}}</div>
-                                    <div class="text--3 text-center">{{prod.usedprice.name}}</div>
+                                    <div class="text--3 text-center text-uppercase">{{prod.productType=='off' ? 'OFERTA':prod.usedprice.name}}</div>
                                 </div>
                             </div>
                         </div>
@@ -198,11 +201,15 @@
                                         <span>{{ prod.code }}</span> --
                                         <span>{{ prod.name }}</span>
                                     </div>
+                                    <div class="text--3 text-uppercase text-italic">{{ prod.family }} (pxc {{prod.ipack}})</div>
                                     <div class="text--2 text-grey-5">{{ prod.description }}</div>
                                     <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
                                     <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                                 </div>
-                                <div class="text-right">$ {{prod.total}}</div>
+                                <div class="text-right">
+                                    <div>$ {{prod.total}}</div>
+                                    <div class="text--3 text-uppercase">{{prod.productType=='off' ? 'OFERTA':prod.usedprice.name}}</div>
+                                </div>
                             </div>
                         </div>
                     </transition-group>
@@ -410,6 +417,13 @@ export default {
         this.$q.loading.show({ message:'...' });
  
         this.index = await preventadb.order(this.ordercatch);
+        console.log(this.index.products);
+
+        /**
+         * Seccion
+         * Familia => define si el producto ocupara el mayoreo para productos en piezas
+         * Categoria
+         */
 
         // this.dbproducts = this.index.products.length ? this.index.products : [];
         this.$q.loading.hide();
@@ -655,6 +669,8 @@ export default {
                 return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name }; 
             }else{ return {type:'STD'}; }
         },
+        pfams(){ return this.index ? this.index.products.map( p => p.family) : []; },
+        upfams(){ return [...new Set(this.pfams)]; },
         dbproducts(){
             if (this.index) {
                 return this.index.products.map( p => {
@@ -677,15 +693,36 @@ export default {
                     })(p);
                     p.boxes = ( p => (p.units/p.ipack).toFixed(1) )(p);
                     p.usedprice = ( p => {
+                        let siblings = this.index.products.filter( _p => (_p.family == p.family && _p.code!=p.code) );
+                        let units_fam = 0;
+
+                        if(siblings.length){
+                            units_fam = siblings.reduce( (amm,s) => {
+                                switch (s.ordered._supply_by) {
+                                    case 2: return (s.ordered.amount*12)+amm;//cantidad * 12 
+                                    case 3: return (s.ordered.amount*s.pieces)+amm;//cantidad por piezas por caja
+                                    default: return (s.ordered.amount)+amm;// retornar cantidad
+                                }
+                            },p.units);
+                        }else{ units_fam = p.units; }
+
                         switch (p.ordered._supply_by) {
                             case 2: return p.prices.find( pl => pl.id==3 ); // se utilizara el precio Docena
                             case 3: return p.prices.find( pl => pl.id==4 ); // se utilizara el precio Caja
                             default: 
-                                if(p.productType=='off'){//es oferta?
-                                    return p.prices.find( pl => pl.id==1 );
-                                }else if(p.ordered.amount<3){//es menudeo ?
-                                    return p.prices.find( pl => pl.id==1 );
-                                }else if(p.ordered.amount>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
+                                // if(p.productType=='off'){//es oferta?
+                                //     return p.prices.find( pl => pl.id==1 );//devuelve el primer precio
+                                // }else if(p.ordered.amount<3){//es menudeo ?
+                                //     return p.prices.find( pl => pl.id==1 );
+                                // }else if(p.ordered.amount>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
+                                //     return p.prices.find( pl => pl.id==2 );
+                                // }else if (p.ordered.amount>=p.ipack) {
+                                //     return p.prices.find( pl => pl.id==4 );
+                                // }
+
+                                if((p.productType=='off') || (units_fam<3)){//es oferta o menudeo
+                                    return p.prices.find( pl => pl.id==1 );//devuelve el primer precio
+                                }else if(units_fam>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
                                     return p.prices.find( pl => pl.id==2 );
                                 }else if (p.ordered.amount>=p.ipack) {
                                     return p.prices.find( pl => pl.id==4 );
