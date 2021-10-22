@@ -3,6 +3,7 @@ export default function() {
     orders: [],
     printers: [],
     process: [],
+    today: false,
     layout: {
       header: { state: true, title: "" },
       footer: { state: true }

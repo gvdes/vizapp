@@ -5,6 +5,17 @@ export function ordersRequisitions(state) {
     }
 }
 
+export function getIDX(state) {
+    return (order) => {
+        console.log(order);
+        console.log(`Buscando orden ${order.id} para devolverla...`);
+        // debugger
+        let idx = state.orders.findIndex(ord => order.id == ord.id);
+        console.log(idx);
+        return idx;
+    }
+}
+
 export function getOrders(state) {
     return state.orders;
 }

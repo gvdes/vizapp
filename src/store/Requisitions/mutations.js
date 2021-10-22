@@ -9,6 +9,10 @@ export function newOrder(state, order) {
     state.orders.push(order);
 }
 
+export function todayState(state, newState) {
+    state.today = newState;
+}
+
 export function printed(state, order) {
     let idx = state.orders.findIndex(ord => order.id == ord.id);
     state.orders[idx].printed += 1;

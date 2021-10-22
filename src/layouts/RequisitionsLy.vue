@@ -142,6 +142,8 @@ export default {
         date_from: ranges.dbranges.from,
         date_to: ranges.dbranges.to,
       };
+      this.$store.commit("Requisitions/todayState", this.timeToday(ranges.ranges.date.from));
+      // localStorage.setItem('today', this.timeToday(ranges.ranges.date.from));
 
       let data = { params: dbranges };
 
@@ -217,8 +219,10 @@ export default {
         `%c${by.nick} esta creando la orden ${order.id}`,
         "background:#303952;color:#e66767;border-radius:10px;padding:8px;"
       );
-      // console.log(data);
-      this.$store.commit("Requisitions/newOrder", order);
+      // console.log(data.order.from.id == this.workin.workpoint.id);
+      console.log(this.cedisValidate(this.workin).length);
+      data.order.from.id == this.workin.workpoint.id ? this.$store.commit("Requisitions/newOrder", order) : [];
+      this.cedisValidate(this.workin).length ? this.$store.commit("Requisitions/newOrder", order) : [];
     },
     sktChangeState(data) {
       console.log(data);
@@ -229,7 +233,21 @@ export default {
       let order = data.order;
       order.log = data.log;
       order.status = data.state;
-      data.state.id == 10 ? this.appsounds.ok.play() : this.appsounds.moved.play();
+      console.log(data.order.from.id);
+      console.log(data.from.workpoint.id);
+      // console.log(this.getValidateSounds(data.order));
+      console.log(data.state.id <= 9 && data.order.from.id == data.from.workpoint.id);
+      data.state.id == 10 && this.getValidateSounds(data.order) != -1 ? this.appsounds.ok.play() : "";
+      // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
+      if (data.state.id >= 3 && data.state.id <= 9 && this.getValidateSounds(data.order) != -1) {
+        this.appsounds.moved.play()
+        this.$q.notify({
+            message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
+            color: "positive",
+            icon: "done",
+            position: "top-right"
+          });
+      }
       console.log(
         `%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,
         "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
@@ -276,6 +294,9 @@ export default {
     this.rsocket.off();
   },
   computed: {
+    timeToday() {
+      return ranges => this.$moment().format("YYYY-MM-DD") === ranges;
+    },
     ordersRequisitions() {
       return (arr, by) => {
         let storage = by ? by.value : {};
@@ -283,6 +304,13 @@ export default {
           return storage > 0 ? order.from.id == storage : order;
         });
       };
+    },
+    cedisValidate() {
+      // return this.workin;
+      return (order) => [order].filter(item => item.workpoint.id == 1 || item.workpoint.id == 2 || item.workpoint.id == 16);
+    },
+    getValidateSounds() {
+      return (order) => this.$store.getters["Requisitions/getIDX"](order);
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
