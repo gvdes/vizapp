@@ -34,6 +34,7 @@
               class="col"
               dark
               color="green-13"
+              v-show="soldValidate.length"
               label="Origen"
               v-model="neworder.origin"
               :options="combowkpsorigin"
@@ -84,7 +85,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
     <q-page-sticky position="bottom-right" :offset="[10, 5]">
       <q-btn
         rounded
@@ -138,15 +138,16 @@ export default {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
     this.$store.commit("Requisitions/setHeaderTitle", this.name);
+    console.log(this.workin);
   },
   beforeDestroy() {
-    this.socket.emit("unjoin", {
-      profile: this.profile,
-      workpoint: this.workin,
-      room: this.sktroom,
-    });
-    // this.orders = [];
-    console.log("desconectado del socket");
+    // this.socket.emit("unjoin", {
+    //   profile: this.profile,
+    //   workpoint: this.workin,
+    //   room: this.sktroom,
+    // });
+    // // this.orders = [];
+    // console.log("desconectado del socket");
   },
   methods: {
     skt_order_created(data) {
@@ -209,9 +210,10 @@ export default {
 
         case 3:
           data.folio = this.neworder.folio;
-          data.store = this.neworder.origin.value;
+          data.store = this.soldValidate.length ? this.neworder.origin.value : this.workin.workpoint.id;
+          console.log(data);
 
-          if (data.folio && data.store) {
+          if (data.folio || data.store) {
             cancreate = true;
             this.$q.loading.show({
               spinner: QSpinnerGrid,
@@ -293,7 +295,11 @@ export default {
   },
   computed: {
     orders() {
-      return this.$store.state.Requisitions.orders;
+      return this.$store.state.Requisitions.orders.filter(i => i.from.id == this.workin.workpoint.id);
+    },
+    soldValidate() {
+      // return this.workin;
+      return [this.workin].filter(item => item.workpoint.id == 1 || item.workpoint.id == 2 || item.workpoint.id == 16);
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];

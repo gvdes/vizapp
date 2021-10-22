@@ -42,6 +42,28 @@
             </template>
           </q-select>
         </div>
+        <div class="col-md-3 col-3 q-pr-lg" v-if="timeElapsed.length && todayState">
+          <q-select
+            class="exo"
+            transition-show="jump-up"
+            transition-hide="jump-down"
+            dark
+            color="green-13"
+            v-model="timeSelected"
+            outlined
+            dense
+            options-dense
+            display-value="Tiempo de alerta"
+            :options="timestamp"
+            option-value="name"
+            @input="alertOrders"
+            style="min-width: 150px"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="far fa-clock" />
+            </template>
+          </q-select>
+        </div>
         <div class="col-md-3 col-3">
           <template>
             <q-input
@@ -52,33 +74,25 @@
               v-model="searchID"
               placeholder="Buscar Folio"
             >
-              <template v-slot:prepend><q-icon name="search" /></template>
+              <template v-slot:prepend>
+                <q-icon name="search" />
+              </template>
             </q-input>
           </template>
         </div>
       </div>
 
       <div class="row justify-between full-width q-ma-sm">
-        <div
-          class="col q-pa-xs"
-          v-for="(header, key) in visibleColumns"
-          :key="key"
-        >
+        <div class="col q-pa-xs" v-for="(header, key) in visibleColumns" :key="key">
           <q-card class="bg-none">
-            <q-toolbar
-              class="
-                q-mb-sm
-                text-green-13
-                bg-darkl1
-                text-uppercase text-thin
-                subtitle1
-              "
-            >
+            <q-toolbar class="q-mb-sm text-green-13 bg-darkl1 text-uppercase text-thin subtitle1">
               {{ header }}
               <q-space />
-              <span class="text-white items-end q-pr-sm text-weight-bold">{{
+              <span class="text-white items-end q-pr-sm text-weight-bold">
+                {{
                 orderManagement(header).length
-              }}</span>
+                }}
+              </span>
               <q-avatar class="q-pl-sm" size="sm" rounded>
                 <img :src="avatar(key, 'toolbar')" />
               </q-avatar>
@@ -98,7 +112,7 @@
               <q-card
                 v-for="order in orderManagement(header)"
                 :key="order.id"
-                class="column bg-darkl1 q-mb-sm"
+                :class="`${markedCard(order) && findCards ? 'alertOrders' : ''} thing column bg-darkl1 q-mb-sm`"
                 v-ripple
                 clickable
                 @click="showLog(order.id)"
@@ -114,24 +128,22 @@
                   >
                     <div class="col-3">
                       <div class="text-h5 text-white">{{ order.id }}</div>
-                      <div class="text-h6 text-light-blue">
-                        {{ order.from.alias }}
-                      </div>
+                      <div class="text-h6 text-light-blue">{{ order.from.alias }}</div>
                       <div class="text-amber-13">{{ order.notes }}</div>
                     </div>
                     <div class="text-center col-auto">
                       <div>
-                        <q-avatar class="q-ma-sm" size="5rem" square
-                          ><img
-                            transition="slide-up"
-                            :src="buildlog(order, 'avatar')"
-                        /></q-avatar>
+                        <q-avatar class="q-ma-sm" size="5rem" square>
+                          <img transition="slide-up" :src="buildlog(order, 'avatar')" />
+                        </q-avatar>
                       </div>
                       <div>{{ buildlog(order, "resp") }}</div>
                       <div>
-                        <span class="text-white text-bold">{{
+                        <span class="text-white text-bold">
+                          {{
                           buildlog(order, "time")
-                        }}</span>
+                          }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -144,16 +156,10 @@
     </div>
 
     <q-dialog v-model="wndLog.state">
-      <q-card
-        v-if="wndLog.order"
-        class="exo bg-darkl0 text-grey-5"
-        style="width: 500px"
-      >
+      <q-card v-if="wndLog.order" class="exo bg-darkl0 text-grey-5" style="width: 500px">
         <q-card-section>
           <div class="row text-white justify-between items-center">
-            <div class="text-h3">
-              {{ wndLog.order.from.alias }} {{ wndLog.order.id }}
-            </div>
+            <div class="text-h3">{{ wndLog.order.from.alias }} {{ wndLog.order.id }}</div>
             <div class="text-h6">
               <div>
                 {{ ordersize(wndLog.order.products)[0] }}m
@@ -195,32 +201,38 @@
                       name="fas fa-truck-loading"
                     />
                     {{
-                      log.id == 3 && log.details.actors
-                        ? log.details.actors.complete_name
-                        : ""
+                    log.id == 3 && log.details.actors
+                    ? log.details.actors.complete_name
+                    : ""
                     }}
                   </span>
                 </div>
                 <div class="col-auto text-right">
-                  <span class="text-white">{{
+                  <span class="text-white">
+                    {{
                     log.id == 3 && log.details.actors.managerState
-                      ? humantime(log.details.actors.managerState.updateChanges)
-                      : ""
-                  }}</span>
+                    ? humantime(log.details.actors.managerState.updateChanges)
+                    : ""
+                    }}
+                  </span>
                 </div>
               </div>
               <div class="row text-center">
                 <div class="col row items-center">
                   <q-icon name="fas fa-hourglass-start" color="blue-grey-7" />
-                  <span class="text-white q-px-sm">{{
+                  <span class="text-white q-px-sm">
+                    {{
                     humantime(log.created_at)
-                  }}</span>
+                    }}
+                  </span>
                 </div>
                 <div class="col row items-center">
                   <q-icon name="fas fa-hourglass-end" color="blue-grey-7" />
-                  <span class="text-white q-px-sm">{{
+                  <span class="text-white q-px-sm">
+                    {{
                     humantime(log.updated_at)
-                  }}</span>
+                    }}
+                  </span>
                 </div>
                 <div class="col row items-center">
                   <q-icon name="fas fa-stopwatch" color="blue-grey-7" />
@@ -279,12 +291,55 @@
           <div
             v-if="wndLog.order.status.id == 10"
             class="text-h6 text-light-blue-13 text-center text-"
-          >
-            Pedido completado en {{ totalduration(wndLog.order.log) }}
-          </div>
+          >Pedido completado en {{ totalduration(wndLog.order.log) }}</div>
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="dialogOrders">
+      <q-card dark class="exo bg-darkl0 text-grey-5" v-if="timeElapsed.length && todayState">
+        <q-card-section class="bg-darkl11 text-white">
+          <div class="text-h6">Seguimiento de Resurtido</div>
+        </q-card-section>
+        <q-separator color="green-13" />
+        <q-card-section>
+          <div class="row items-center justify-center">
+            <div class="col-md-7 col-xs-5 col-7">
+              <img width="100%" src="../../assets/jhony.gif" alt />
+            </div>
+            <div class="col-md-5 col-xs-5 col-5 text-center">
+              Las siguientes {{timeElapsed.length}} ordenes no se han surtido:
+              <q-scroll-area
+                :thumb-style="thumbStyle"
+                :bar-style="barStyle"
+                style="height: 40vh; max-width: 100%"
+              >
+                <div
+                  class="text-subtitle2 text-left text-green-13"
+                  v-for="(order, id) in timeElapsed"
+                  :key="id"
+                >
+                  <q-avatar size="md" class="text-green-13" icon="fas fa-circle" />
+                  <span class="text-bold">{{`${order.id}`}}</span>
+                  <q-space />
+                  <q-avatar size="md" class="text-amber-13" icon="fas fa-arrow-circle-right" />
+                  <span class="text-amber-13">{{`Destino: ${order.from.alias}`}}</span>
+                  <q-space />
+                  <q-avatar size="md" class="text-grey-7" icon="timer" />
+                  <span class="text-bold text-grey-7">{{`${humantime(order.updated_at)}`}}</span>
+                  <q-separator horizontal color="grey-9" />
+                </div>
+              </q-scroll-area>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" @click="setTime, findCards = true" color="green-13" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="wndStore.state">
       <DeliveryOpt
         v-show="wndStore.state && checkState(wndLog.order.status.id)"
@@ -309,6 +364,10 @@ export default {
   components: { ToolbarAccount, DeliveryOpt },
   data() {
     return {
+      findCards: false,
+      today: false,
+      timeSelected: "",
+      dialogOrders: false,
       tab: "mails",
       dataOrder: [],
       splitterModel: 20,
@@ -319,11 +378,11 @@ export default {
         borderRadius: "5px",
         backgroundColor: "#00e676",
         width: "5px",
-        opacity: 0.75,
+        opacity: 0.75
       },
       wndStore: {
         state: false,
-        order: undefined,
+        order: undefined
       },
       searchID: "",
       barStyle: {
@@ -331,7 +390,7 @@ export default {
         borderRadius: "9px",
         backgroundColor: "#00e676",
         width: "9px",
-        opacity: 0.2,
+        opacity: 0.2
       },
       visibleColumns: [],
       columns: [],
@@ -339,7 +398,7 @@ export default {
       dashboardPagination: {
         descending: false,
         page: 1,
-        rowsPerPage: 5,
+        rowsPerPage: 5
       },
       step: 1,
       selectDelivery: undefined,
@@ -352,7 +411,7 @@ export default {
           state: "Disponible",
           icon: "verified",
           color: "text-green-13",
-          disable: false,
+          disable: false
         },
         {
           id: 1,
@@ -360,7 +419,7 @@ export default {
           state: "Entregando",
           icon: "not_interested",
           color: "text-red-13",
-          disable: true,
+          disable: true
         },
         {
           id: 2,
@@ -368,7 +427,7 @@ export default {
           state: "Entregando",
           icon: "not_interested",
           color: "text-red-13",
-          disable: true,
+          disable: true
         },
         {
           id: 3,
@@ -376,7 +435,7 @@ export default {
           state: "Entregando",
           icon: "not_interested",
           color: "text-red-13",
-          disable: true,
+          disable: true
         },
         {
           id: 4,
@@ -384,8 +443,8 @@ export default {
           state: "Disponible",
           icon: "not_interested",
           color: "text-green-13",
-          disable: false,
-        },
+          disable: false
+        }
       ],
       optMovilDisplay: [
         {
@@ -394,7 +453,7 @@ export default {
           state: "Disponible",
           icon: "verified",
           color: "text-green-13",
-          disable: false,
+          disable: false
         },
         {
           id: 1,
@@ -402,7 +461,7 @@ export default {
           state: "Entregando",
           icon: "not_interested",
           color: "text-red-13",
-          disable: true,
+          disable: true
         },
         {
           id: 2,
@@ -410,7 +469,7 @@ export default {
           state: "Entregando",
           icon: "not_interested",
           color: "text-red-13",
-          disable: true,
+          disable: true
         },
         {
           id: 3,
@@ -418,7 +477,7 @@ export default {
           state: "Entregando",
           icon: "not_interested",
           color: "text-red-13",
-          disable: true,
+          disable: true
         },
         {
           id: 4,
@@ -426,14 +485,14 @@ export default {
           state: "Disponible",
           icon: "not_interested",
           color: "text-green-13",
-          disable: false,
-        },
+          disable: false
+        }
       ],
       title: "Resurtido | Dashboard",
       filtdash: {
         searcher: "",
         view: [],
-        crude: null,
+        crude: null
       },
       index: undefined,
       sounds: {
@@ -441,15 +500,22 @@ export default {
         created: new Audio("sounds/waiting.mp3"),
         moved: new Audio("sounds/moved.mp3"),
         removed: new Audio("sounds/removed.mp3"),
-        done: new Audio("sounds/done.mp3"),
+        done: new Audio("sounds/done.mp3")
       },
       wndLog: {
         state: false,
-        order: undefined,
+        order: undefined
       },
       store: "",
       moving: false,
       print: { state: false },
+      timestamp: [
+        { label: "10 Min", value: 10 },
+        { label: "15 Min", value: 15 },
+        { label: "20 Min", value: 20 },
+        { label: "25 Min", value: 25 },
+        { label: "30 Min", value: 30 }
+      ]
     };
   },
   async beforeMount() {
@@ -468,9 +534,9 @@ export default {
         name: this.getStatesLog[index].name,
         align: "left",
         label: this.getStatesLog[index].name,
-        field: (row) => this.buildlog(row, "resp"),
+        field: row => this.buildlog(row, "resp"),
         sortable: true,
-        disable: blocked.includes(index) ? true : false,
+        disable: blocked.includes(index) ? true : false
       });
     }
     this.visibleColumns = this.visibleColumns.filter((item, pos, self) => {
@@ -484,12 +550,14 @@ export default {
       this.visibleColumns = JSON.parse(localStorage.getItem("setup"));
       this.columns = JSON.parse(localStorage.getItem("setupTable"));
     }
+    console.log(this.timeSelected.value);
+    this.timeSelected.value ? this.timeSelected.value : this.alertOrders();
   },
   beforeDestroy() {
-    this.$sktRestock.emit("leave", {
-      room: this.socketroom,
-      user: this.profile,
-    });
+    // this.$sktRestock.emit("leave", {
+    //   room: this.socketroom,
+    //   user: this.profile
+    // });
   },
   methods: {
     /**
@@ -535,7 +603,7 @@ export default {
       let object = {
         store: this.selectWarehouse,
         delivery: this.selectDelivery,
-        movil: this.selectMovil,
+        movil: this.selectMovil
       };
       console.log(object);
       return object;
@@ -550,15 +618,15 @@ export default {
       this.print.state = true;
       dbreqs
         .reprint(data)
-        .then((success) => {
+        .then(success => {
           console.log(success);
           this.print.state = false;
-          let idx = this.ordersdb.findIndex((item) => {
+          let idx = this.ordersdb.findIndex(item => {
             return item.id == this.wndLog.order.id;
           });
-         this.$store.commit("Requisitions/printed", this.ordersdb[idx]);
+          this.$store.commit("Requisitions/printed", this.ordersdb[idx]);
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
@@ -567,7 +635,8 @@ export default {
      * @param { number } orderid ID de la orden
      */
     showLog(orderid) {
-      let idx = this.ordersdb.findIndex((item) => {
+      // console.log(this.timeElapsed);
+      let idx = this.ordersdb.findIndex(item => {
         return item.id == orderid;
       });
       this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
@@ -575,7 +644,7 @@ export default {
       console.log(this.wndLog.order);
       if (this.wndLog.order.log.length > 2) {
         try {
-          let index = this.grocerAccnt.findIndex((item) => {
+          let index = this.grocerAccnt.findIndex(item => {
             return item.id == this.wndLog.order.log[2].details.actors.id;
           });
           console.log(index);
@@ -607,7 +676,7 @@ export default {
       let data = {
         id: this.wndLog.order.id,
         _status: atstate,
-        _actors: this.dataOrder,
+        _actors: this.dataOrder
       };
       let message = "";
       let newstatus = { id: atstate, name: undefined };
@@ -632,12 +701,12 @@ export default {
 
       dbreqs
         .nextstep(data)
-        .then((success) => {
+        .then(success => {
           let resp = success.data.updates;
           this.wndLog.state = false;
           this.moving = false;
 
-          let idx = this.ordersdb.findIndex((item) => {
+          let idx = this.ordersdb.findIndex(item => {
             return item.id == this.wndLog.order.id;
           });
           // debugger
@@ -656,28 +725,64 @@ export default {
             message: message,
             color: "positive",
             icon: "done",
-            position: "bottom-right",
+            position: "bottom-right"
           });
-
-          
+          // atstate != 10 ? this.appsounds.moved.play() : "";
           this.$sktRestock.emit("order_changestate", {
             state: newStateSend,
             profile: this.profile,
             log: newStateLog,
             order: this.ordersdb[idx],
             from: this.workin,
-            room: this.socketroom,
+            room: this.socketroom
           });
           // this.$store.commit("Requisitions/updateState", { settingsOrder, newStateSend });
 
           // this.$sktRestock.emit('order_changestate',{ state:newstatus, profile:this.profile, order:this.ordersdb[idx] });
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
+    async alertOrders() {
+      return new Promise(resolve => {
+        setInterval(() => {
+          console.log(this.timeSelected.value);
+          this.dialogOrders = !this.dialogOrders;
+          resolve("");
+        }, (this.timeSelected.value ? this.timeSelected.value : 20) * 60000);
+      });
+    }
   },
   computed: {
+    todayState() {
+      return this.$store.state.Requisitions.today;
+    },
+    markedCard() {
+      return order => this.timeElapsed.find(item => item.id == order.id);
+    },
+    setTime() {
+      return setTimeout(() => {
+        this.findCards = false;
+      }, 10000);
+    },
+    timeElapsed() {
+      if (this.orders) {
+        return this.orders
+          .filter(i => i.status.id >= 2 && i.status.id <= 3 && this.todayState)
+          .map(item => {
+            let now = Date.now();
+            let timecalc = Date.parse(item.updated_at);
+            let diff = date.getDateDiff(now, timecalc, "days");
+            return diff == 0 ? item : item;
+          });
+      } else {
+        return [];
+      }
+    },
+    appsounds() {
+      return this.$store.getters["Multimediapp/sounds"];
+    },
     workin() {
       return this.$store.getters["Account/workin"];
     },
@@ -733,9 +838,9 @@ export default {
             complete_name: `${profile.me.names} ${profile.me.surname_mat} ${profile.me.surname_pat}`,
             workpoint: profile.workpoint.id,
             workpoint_alias: profile.workpoint.name,
-            updateChanges: date.format("YYYY-MM-DD HH:mm"),
+            updateChanges: date.format("YYYY-MM-DD HH:mm")
           },
-          to: order.to,
+          to: order.to
         };
         return data;
       };
@@ -747,24 +852,27 @@ export default {
       return this.$store.getters["Requisitions/getStates"];
     },
     orderManagement() {
-      return (str) => {
+      return str => {
         return this.ordersdb.filter(
-          (order) =>
-            order.id.toString().includes(this.searchID) &&
-            order.status.name == str ||
-            order.notes.toString().toLowerCase().includes(this.searchID) &&
-            order.status.name == str
+          order =>
+            (order.id.toString().includes(this.searchID) &&
+              order.status.name == str) ||
+            (order.notes
+              .toString()
+              .toLowerCase()
+              .includes(this.searchID) &&
+              order.status.name == str)
         );
       };
     },
     noprinteds() {
-      return this.orderForSupply.filter((order) => order.printed);
+      return this.orderForSupply.filter(order => order.printed);
     },
     ismobile() {
       return this.$q.platform.is.mobile;
     },
     avatar() {
-      return (order) => {
+      return order => {
         let validate = [4, 8];
         let quiz = [5, 9];
         let requisition = [1];
@@ -796,7 +904,7 @@ export default {
     },
     buildlog() {
       return (order, data) => {
-        let idx = order.log.findIndex((log) => {
+        let idx = order.log.findIndex(log => {
           return order.status.id == log.id ? log.id : 101;
         });
         let resp = undefined;
@@ -821,7 +929,7 @@ export default {
       };
     },
     humantime() {
-      return (time) => {
+      return time => {
         let now = Date.now();
         let timecalc = Date.parse(time);
         let diff = date.getDateDiff(now, timecalc, "days");
@@ -840,7 +948,7 @@ export default {
       };
     },
     duration() {
-      return (log) => {
+      return log => {
         let t_ini = Date.parse(log.created_at);
         let t_end = Date.parse(log.updated_at);
 
@@ -857,7 +965,7 @@ export default {
       };
     },
     ordersize() {
-      return (products) => {
+      return products => {
         // console.log(products);
         let sizeprod = this.checkPermissions ? products.length : 0;
         if (sizeprod) {
@@ -870,14 +978,14 @@ export default {
       };
     },
     totalduration() {
-      return (log) => {
+      return log => {
         let t_ini = Date.parse(
-          log.filter((_log) => {
+          log.filter(_log => {
             return _log.id == 1;
           })[0].created_at
         );
         let t_end = Date.parse(
-          log.filter((_log) => {
+          log.filter(_log => {
             return _log.id == 10;
           })[0].created_at
         );
@@ -922,7 +1030,7 @@ export default {
           // "Enviar a validación",
           // "Validar Embarque",
           // "Enviando Embarque",
-          "Entregar",
+          "Entregar"
           // "Entregar",
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
@@ -938,7 +1046,7 @@ export default {
      * @param { number }  Id
      */
     checkState() {
-      return (state) => {
+      return state => {
         let resp = state == 2 || state == 6;
         return resp;
       };
@@ -949,7 +1057,7 @@ export default {
      * @param {number} index
      */
     isCEDIS() {
-      return (index) => {
+      return index => {
         let settings =
           index == 1 || index == 2 || index == 6 || index == 9
             ? // index == 6
@@ -964,7 +1072,7 @@ export default {
      * @param {number} index
      */
     isMarket() {
-      return (index) => {
+      return index => {
         let settings =
           index == 0 || index == 1 || index == 7 || index == 8 || index == 9
             ? index
@@ -983,27 +1091,27 @@ export default {
         {
           name: "Navidad",
           img: "https://cdn-icons-png.flaticon.com/512/1674/1674274.png",
-          months: [1, 10, 11, 12],
+          months: [1, 10, 11, 12]
         },
         {
           name: "Mes Patrio",
           img: "https://cdn-icons-png.flaticon.com/512/1674/1674234.png",
-          months: [9],
+          months: [9]
         },
         {
           name: "Normal",
           img: "https://cdn-icons-png.flaticon.com/512/1674/1674229.png",
-          months: [2, 3, 4, 5, 6, 7, 8],
-        },
+          months: [2, 3, 4, 5, 6, 7, 8]
+        }
       ];
       let date = this.$moment();
 
-      let idx = season.find((item) => {
+      let idx = season.find(item => {
         return item.months.includes(date.month() + 1) ? item.img : "";
       });
       return idx.img;
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -1014,5 +1122,59 @@ export default {
 .my-card {
   width: 100%;
   max-width: 250px;
+}
+
+.alertOrders {
+  border: 1px dashed #ce6b02 !important;
+  animation: taadaa 5s;
+}
+
+@keyframes maskBorder {
+  0% {
+    clip: rect(0, 50px, 10px, 0);
+  }
+  20% {
+    clip: rect(0, 200px, 10px, 0);
+  }
+  35% {
+    clip: rect(0, 200px, 10px, 190px);
+  }
+  50% {
+    clip: rect(10px, 200px, 50px, 190px);
+  }
+  60% {
+    clip: rect(40px, 200px, 50px, 190px);
+  }
+  70% {
+    clip: rect(40px, 200px, 50px, 0px);
+  }
+  85% {
+    clip: rect(40px, 10px, 50px, 0px);
+  }
+  90% {
+    clip: rect(0, 10px, 50px, 0px);
+  }
+  100% {
+    clip: rect(0, 10px, 10px, 0px);
+  }
+}
+.thing {
+  box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11),
+    0 5px 15px 0 rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  border-left: 0 solid hsl(110, 100%, 50%);
+  transition: border-left 300ms ease-in-out, padding-left 300ms ease-in-out;
+}
+
+.thing:hover {
+  border-left: 0.5rem solid hsl(69, 100%, 50%);
+}
+
+.thing > :first-child {
+  margin-top: 0;
+}
+
+.thing > :last-child {
+  margin-bottom: 0;
 }
 </style>

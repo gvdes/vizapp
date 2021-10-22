@@ -7,9 +7,7 @@
         <div class="row items-center col bg-dark divlcient">
           <div class="q-pa-sm col text-center">
             <div class="text--2">Destino:</div>
-            <div class="text-uppercase">
-              {{ setupToolbar.destiny }}
-            </div>
+            <div class="text-uppercase">{{ setupToolbar.destiny }}</div>
           </div>
 
           <div class="q-pa-sm col text-center">
@@ -29,9 +27,11 @@
         <div class="row text-center">
           <div class="q-px-md">
             <div class="text--2">Modelos</div>
-            <span class="text-green-13 text-bold">{{
+            <span class="text-green-13 text-bold">
+              {{
               bucketToolbar.length
-            }}</span>
+              }}
+            </span>
           </div>
 
           <div class="q-px-md">
@@ -70,9 +70,7 @@
           <template v-slot:avatar>
             <q-icon name="pan_tool" color="dark" />
           </template>
-          <span class="text-subtitle1 text-dark text-weight-bold">
-            {{ messageDuplicate }}
-          </span>
+          <span class="text-subtitle1 text-dark text-weight-bold">{{ messageDuplicate }}</span>
           <template v-slot:action>
             <q-btn
               rounded
@@ -90,14 +88,14 @@
 
     <q-drawer
       v-model="ldrawer.state"
-      v-show="flagArchive"
+      v-if="flagArchive"
       side="right"
       content-class="text-grey-5 bg-darkl1"
       @hide="startremove.state = false"
     >
       <div class="q-pa-md">
         <q-btn
-          v-show="stateOrder"
+          v-if="this._getorders.status.id == 1"
           class="q-mb-md"
           label="Vaciar Orden"
           icon="remove_circle_outline"
@@ -117,13 +115,7 @@
         <div v-else>
           <div class="q-mb-md">Archivar pedido?</div>
           <span class="col row q-gutter-md">
-            <q-btn
-              no-caps
-              label="Si"
-              class="col"
-              color="negative"
-              @click="order_archive"
-            />
+            <q-btn no-caps label="Si" class="col" color="negative" @click="order_archive" />
             <q-btn
               no-caps
               label="No"
@@ -138,6 +130,22 @@
     </q-drawer>
 
     <div class="q-mb-xl q-mt-sm">
+      <div class="col-md-4 col-xs-8 q-mb-sm" style="max-width: 300px" v-if="__basket.length">
+        <template>
+          <q-input
+            dense
+            color="green-13"
+            dark
+            debounce="0"
+            v-model="filteringItems"
+            placeholder="Buscar Folio, Código o Descripción"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+      </div>
       <q-table
         grid
         flat
@@ -150,10 +158,7 @@
       >
         <template v-slot:item="products">
           <div class="q-pa-xs col-xs-12 text-grey-4 col-sm-6 col-md-4 col-lg-3">
-            <q-card
-              class="bg-darkl1 q-mb-sm q-mr-sm"
-              @click="selItem(products.row, 2)"
-            >
+            <q-card class="bg-darkl1 q-mb-sm q-mr-sm" @click="selItem(products.row, 2)">
               <div class="row items-center q-pt-md">
                 <div class="q-px-lg">
                   <q-img
@@ -165,9 +170,7 @@
                 <div class="text-white col">
                   <div class="text-bold">{{ products.row.code }}</div>
                   <div>{{ products.row.name }}</div>
-                  <div class="text--2 text-grey-5">
-                    {{ products.row.description }}
-                  </div>
+                  <div class="text--2 text-grey-5">{{ products.row.description }}</div>
                 </div>
               </div>
 
@@ -191,9 +194,7 @@
                               ? 'text-green-13'
                               : 'text-pink-13'
                           "
-                        >
-                          {{ products.row.ordered.stock }}
-                        </span>
+                        >{{ products.row.ordered.stock }}</span>
                       </td>
                     </tr>
                   </tbody>
@@ -209,11 +210,13 @@
               >
                 <span class="text--2">
                   Se surtira la cantidad de
-                  <span class="text-weight-bold"
-                    >{{ products.row._units }}pz</span
-                  >
+                  <span
+                    class="text-weight-bold"
+                  >{{ products.row._units }}pz</span>
                   correspondiente a la unidad de
-                  <span class="text-weight-bold">{{ products.row._name }}</span>
+                  <span
+                    class="text-weight-bold"
+                  >{{ products.row._name }}</span>
                   <q-separator dark />
                   Notas: {{ products.row.ordered.comments }}
                 </span>
@@ -245,9 +248,7 @@
                   @click="scope.prevPage"
                   class="q-px-sm"
                 />
-                <q-btn flat disable no-caps
-                  >{{ scope.pagination.page }} / {{ scope.pagesNumber }}</q-btn
-                >
+                <q-btn flat disable no-caps>{{ scope.pagination.page }} / {{ scope.pagesNumber }}</q-btn>
                 <q-btn
                   icon="chevron_right"
                   round
@@ -277,21 +278,27 @@
       <q-card class="bg-darkl0 text-grey-5 exo text-subtitle1">
         <q-card-section>
           Se preocesarón
-          <span class="text-green-13 text-weight-bold">{{
+          <span class="text-green-13 text-weight-bold">
+            {{
             wndImportJSON.wndTotal
-          }}</span>
+            }}
+          </span>
           filas,
-          <span class="text-green-13 text-weight-bold">{{
+          <span class="text-green-13 text-weight-bold">
+            {{
             wndImportJSON.wndGetRows
-          }}</span>
+            }}
+          </span>
           modelos fueron encontrados y agregados a la lista{{`${wndImportJSON.wndNoDataFound.length != 0 ? ", sin embargo;": "."}`}}
         </q-card-section>
         <q-card-section v-if="wndImportJSON.wndNoDataFound.length">
           <div>
             No encontramos estos
-            <span class="text-red-6 text-weight-bold">{{
+            <span class="text-red-6 text-weight-bold">
+              {{
               wndImportJSON.wndNoDataFound.length
-            }}</span>
+              }}
+            </span>
             modelos:
           </div>
           <div
@@ -299,19 +306,14 @@
             v-for="(code, idx) in wndImportJSON.wndNoDataFound"
             :key="idx"
           >
-            <q-avatar size="xs" class="text-red-6" icon="fas fa-circle" />{{
-              code
+            <q-avatar size="xs" class="text-red-6" icon="fas fa-circle" />
+            {{
+            code
             }}
           </div>
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn
-            class="full-width"
-            flat
-            label="Ok"
-            color="green-13"
-            v-close-popup
-          />
+          <q-btn class="full-width" flat label="Ok" color="green-13" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -320,26 +322,12 @@
       <q-card class="bg-darkl0 exo">
         <q-card-section class="row items-center">
           <q-avatar icon="notifications_active" color="orange-13" />
-          <span class="q-ml-sm text-white"
-            >¿Estas seguro de terminar esta orden?</span
-          >
+          <span class="q-ml-sm text-white">¿Estas seguro de terminar esta orden?</span>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn
-            flat
-            label="Cancelar"
-            icon="close"
-            color="red-5"
-            v-close-popup
-          />
-          <q-btn
-            flat
-            label="Terminar"
-            icon="done"
-            color="green-13"
-            @click="changeState()"
-          />
+          <q-btn flat label="Cancelar" icon="close" color="red-5" v-close-popup />
+          <q-btn flat label="Terminar" icon="done" color="green-13" @click="changeState()" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -363,23 +351,14 @@
     <q-dialog v-model="wndSelectSupply.wndDialogState" position="bottom">
       <q-card class="exo bg-darkl0 text-grey-4">
         <q-card-section>
-          <div class="row justify-between text-h6 text-center">
-            Selección de Surtido
-          </div>
+          <div class="row justify-between text-h6 text-center">Selección de Surtido</div>
           <q-separator color="green-13" dark />
         </q-card-section>
         <q-card-section class="q-pt-none row text-center col justify-around">
           <q-card
             v-for="(items, idx) in wndSelectSupply.options"
             :key="idx"
-            class="
-              col-4
-              card-action
-              cursor-pointer
-              bg-darkl1
-              text-white
-              no-border
-            "
+            class="col-4 card-action cursor-pointer bg-darkl1 text-white no-border"
             @click="setSupplyTarget(items.value)"
           >
             <q-card-section>
@@ -388,7 +367,7 @@
                   <img :src="items.icon" />
                 </q-avatar>
               </div>
-              <span class="">{{ items.label }}</span>
+              <span class>{{ items.label }}</span>
             </q-card-section>
           </q-card>
         </q-card-section>
@@ -422,16 +401,12 @@
                 />
               </div>
             </q-card-actions>
-          </template> -->
+          </template>-->
         </div>
       </q-card>
     </q-dialog>
 
-    <q-dialog
-      v-model="wndSetItem.state"
-      position="bottom"
-      @hide="wndSetItemReset"
-    >
+    <q-dialog v-model="wndSetItem.state" position="bottom" @hide="wndSetItemReset">
       <q-card v-if="wndSetItem.art" class="exo bg-darkl0 text-grey-5">
         <q-card-section>
           <div class="row text-white items-center justify-between">
@@ -469,20 +444,14 @@
                   />
                   <div class="q-pl-sm">
                     {{ wndSetItem.art.units.name }}s
-                    <span v-if="wndSetItem.art.units.id == 3">
-                      ({{ wndSetItem.art.pieces }} pzs / caj)</span
-                    >
+                    <span
+                      v-if="wndSetItem.art.units.id == 3"
+                    >({{ wndSetItem.art.pieces }} pzs / caj)</span>
                   </div>
                 </div>
               </template>
             </q-input>
-            <q-input
-              label="notas"
-              dark
-              color="green-13"
-              type="text"
-              v-model="wndSetItem.notes"
-            />
+            <q-input label="notas" dark color="green-13" type="text" v-model="wndSetItem.notes" />
           </q-card-section>
           <q-card-actions align="around">
             <template v-if="duplicate">
@@ -535,16 +504,10 @@
     </q-dialog>
 
     <q-dialog v-model="wndLog.state">
-      <q-card
-        v-if="wndLog.order"
-        class="exo bg-darkl0 text-grey-5"
-        style="width: 500px"
-      >
+      <q-card v-if="wndLog.order" class="exo bg-darkl0 text-grey-5" style="width: 500px">
         <q-card-section>
           <q-timeline dark color="green-13">
-            <q-timeline-entry heading>
-              {{ wndLog.order.from.alias }} {{ wndLog.order.id }}
-            </q-timeline-entry>
+            <q-timeline-entry heading>{{ wndLog.order.from.alias }} {{ wndLog.order.id }}</q-timeline-entry>
 
             <q-timeline-entry
               v-for="log in wndLog.order.log"
@@ -555,15 +518,19 @@
               <div class="row text-center">
                 <div class="col row items-center">
                   <q-icon name="fas fa-hourglass-start" color="blue-grey-7" />
-                  <span class="text-white q-px-sm">{{
+                  <span class="text-white q-px-sm">
+                    {{
                     humantime(log.created_at)
-                  }}</span>
+                    }}
+                  </span>
                 </div>
                 <div class="col row items-center">
                   <q-icon name="fas fa-hourglass-end" color="blue-grey-7" />
-                  <span class="text-white q-px-sm">{{
+                  <span class="text-white q-px-sm">
+                    {{
                     humantime(log.updated_at)
-                  }}</span>
+                    }}
+                  </span>
                 </div>
                 <div class="col row items-center">
                   <q-icon name="fas fa-stopwatch" color="blue-grey-7" />
@@ -616,7 +583,7 @@
             />
           </div>
         </template>
-        <template v-if="order.status.id == 1">
+        <template v-if="_getorders.status.id == 1">
           <div>
             <q-btn
               dense
@@ -656,14 +623,14 @@
               id="blobfile"
               @input="deliveryJSON"
               hidden
-              accept=".xlsx,.xls"
+              accept=".xlsx, .xls"
             />
           </div>
         </template>
-        <template v-else-if="order.status.id == 7"
-          ><!-- El pedido esta en camino -->
+        <template v-else-if="_getorders.status.id == 7">
+          <!-- El pedido esta en camino -->
           <template v-if="!tostock.state">
-            <span class="text-grey-4 q-pl-md">{{ order.status.name }}</span>
+            <span class="text-grey-4 q-pl-md">{{ _getorders.status.name }}</span>
             <span>
               <q-btn flat color="green-13" icon="history" @click="showLog" />
               <q-btn
@@ -678,9 +645,7 @@
             </span>
           </template>
           <template v-else>
-            <span></span>
             <span>
-              <!-- <q-btn flat color="green-13" label="validar"/> -->
               <q-btn
                 flat
                 dense
@@ -688,27 +653,21 @@
                 label="Confirmar entrega"
                 @click="changeState(10)"
               />
-              <q-btn
-                flat
-                dense
-                color="amber-13"
-                label="cancelar"
-                @click="tostock.state = false"
-              />
+              <q-btn flat dense color="amber-13" label="cancelar" @click="tostock.state = false" />
             </span>
           </template>
         </template>
-        <template v-else
-          ><!-- El pedido puede mostrar el log -->
-          <span class="text-grey-4 q-pl-md">{{ order.status.name }}</span>
+        <template v-else>
+          <!-- El pedido puede mostrar el log -->
+          <span class="text-grey-4 q-pl-md">{{ _getorders.status.name }}</span>
           <q-btn flat color="green-13" icon="history" @click="showLog" />
         </template>
         <q-btn
           icon="print"
           flat
           dense
+          v-if="_getorders.status.id >= 2"
           color="green-13"
-          v-if="order.printed"
           @click="reprint"
           :loading="print.state"
           :disable="print.state"
@@ -731,12 +690,13 @@ export default {
   components: { ProductAutocomplete, ProductAOE },
   data() {
     return {
+      orderMutate: [],
       flagArchive: false,
       selectAvailable: "Todos",
       available: [
         { label: "Todos", value: 1 },
         { label: "Disponible", value: 2 },
-        { label: "No Disponible", value: 3 },
+        { label: "No Disponible", value: 3 }
       ],
       stateDelete: true,
       stateOrder: true,
@@ -757,15 +717,15 @@ export default {
       configToolbar: [],
       setupToolbar: {
         destiny: "",
-        verify: "",
+        verify: ""
       },
       params: {
         id: "",
-        data: Array,
+        data: Array
       },
       seltypeunit: [
         { label: "cajas", value: 1 },
-        { label: "piezas", value: 2 },
+        { label: "piezas", value: 2 }
       ],
       products: [],
       order: undefined,
@@ -773,7 +733,7 @@ export default {
         value: "",
         processing: false,
         type: "text",
-        icon: "fas fa-hashtag",
+        icon: "fas fa-hashtag"
       },
       wndSetItem: {
         state: false,
@@ -783,11 +743,11 @@ export default {
         units: 1,
         notes: "",
         unittype: undefined,
-        metsupply: 1,
+        metsupply: 1
       },
       wndLog: {
         state: false,
-        order: undefined,
+        order: undefined
       },
       deleteitem: "ask",
       erasing: { state: false },
@@ -805,64 +765,64 @@ export default {
             align: "left",
             label: "ID",
             field: "id",
-            sortable: true,
+            sortable: true
           },
           {
             name: "code",
             align: "left",
             label: "Codigo",
             field: "code",
-            sortable: true,
+            sortable: true
           },
           {
             name: "name",
             align: "center",
             label: "Codigo Corto",
             field: "name",
-            sortable: false,
+            sortable: false
           },
           {
             name: "description",
             align: "center",
             label: "Description",
             field: "description",
-            sortable: false,
+            sortable: false
           },
           {
             name: "cant",
             align: "center",
             label: "Cantidad",
             field: "cant",
-            sortable: true,
+            sortable: true
           },
           {
             name: "pieces",
             align: "center",
             label: "PzsXCaj",
             field: "pieces",
-            sortable: true,
+            sortable: true
           },
           {
             name: "stock",
             align: "center",
             label: "Disponibles",
-            field: (row) => row.ordered.stock,
-            sortable: true,
+            field: row => row.ordered.stock,
+            sortable: true
           },
           {
             name: "boxes",
             align: "center",
             label: "Cajas",
             field: "boxes",
-            sortable: true,
-          },
+            sortable: true
+          }
         ],
         filtrator: "",
         pagination: {
           descending: false,
           page: 1,
-          rowsPerPage: 16,
-        },
+          rowsPerPage: 16
+        }
       },
       wndImportJSON: {
         state: false,
@@ -870,7 +830,7 @@ export default {
         wndNoDataFound: [],
         wndTotal: [],
         wndGetAdded: [],
-        _supply_by: 0,
+        _supply_by: 0
       },
       wndSelectSupply: {
         wndDialogState: false,
@@ -878,42 +838,42 @@ export default {
           {
             label: "Unidad",
             icon: "https://cdn-icons-png.flaticon.com/512/1524/1524855.png",
-            value: 1,
+            value: 1
           },
           {
             label: "Docena",
             icon: "https://cdn-icons-png.flaticon.com/512/541/541087.png",
-            value: 2,
+            value: 2
           },
           {
             label: "Caja",
             icon: "https://cdn-icons-png.flaticon.com/512/2979/2979677.png",
-            value: 3,
-          },
-        ],
+            value: 3
+          }
+        ]
       },
       rsocket: this.$sktRestock,
       pricelists: [
         { id: 1, alias: "MEN", name: "MENUDEO" },
         { id: 2, alias: "MAY", name: "MAYOREO" },
         { id: 3, alias: "DOC", name: "DOCENA" },
-        { id: 4, alias: "CAJ", name: "CAJA" },
+        { id: 4, alias: "CAJ", name: "CAJA" }
       ],
       metsupplies: [
         { name: "Piezas", id: 1, alias: "pzs" },
         { name: "Docenas", id: 2, alias: "dcs" },
-        { name: "Cajas", id: 3, alias: "cjs" },
-      ],
+        { name: "Cajas", id: 3, alias: "cjs" }
+      ]
     };
   },
   beforeDestroy() {
     this.$store.commit("Layout/showToolbarModule");
-    this.rsocket.emit("leave", {
-      room: this.socketroom,
-      user: this.profile,
-    });
-    this.rsocket.off();
-    console.log("desconectado del socket");
+    // this.rsocket.emit("leave", {
+    //   room: this.socketroom,
+    //   user: this.profile,
+    // });
+    // this.rsocket.off();
+    // console.log("desconectado del socket");
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", false);
@@ -925,15 +885,14 @@ export default {
     this.$store.commit("Layout/hideToolbarModule");
     this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
-    // let idx = this._getorders.findIndex(i => i.id == this.order.id);
-    // this.wndLog.order = this._getorders[idx];
+    this.products = this.order.products;
     this.flagArchive = this.order.status.id <= 2 ? true : false;
-    this.stateOrder = this.order.status.id == 1 ? true : false;
+    this.stateOrder = this._getorders.status.id == 1 ? true : false;
+    this.$q.loading.hide();
+    console.log(this._getorders);
+    
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
-    this.products = this.order.products;
-    this.$q.loading.hide();
-
     this.setupToolbar.destiny = this.order.to.alias;
     this.setupToolbar.verify = this.order.id;
     this.alias = this.workin.workpoint.alias;
@@ -953,11 +912,11 @@ export default {
       this.print.state = true;
       dbreqs
         .reprint(data)
-        .then((success) => {
+        .then(success => {
           console.log(success);
           this.print.state = false;
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
@@ -994,7 +953,7 @@ export default {
           color: _color,
           message: _msg,
           position: "bottom-right",
-          html: true,
+          html: true
         });
         this.sounds.moved.play();
       }
@@ -1022,7 +981,7 @@ export default {
 
       dbreqs
         .nextstep(data)
-        .then((success) => {
+        .then(success => {
           console.log(
             "%cEl pedido ha cambiado de status...",
             "font-size:1.5em;color:yellow;"
@@ -1040,18 +999,19 @@ export default {
           this.$q.notify({
             color: "positive",
             icon: "done",
-            position: "center",
+            position: "center"
           });
+          // atstate != 10 ? this.appsounds.moved.play() : "";
           this.rsocket.emit("order_changestate", {
             state: newStateSend,
             log: newState,
             user: this.profile,
             from: this.workin,
             order: this.order,
-            room: this.socketroom,
+            room: this.socketroom
           });
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.error(fail);
         });
     },
@@ -1069,7 +1029,7 @@ export default {
       this.$q.loading.show({ message: "Archivando pedido, espera..." });
       dbreqs
         .nextstep(data)
-        .then((success) => {
+        .then(success => {
           let resp = success.data;
           let newstatus = { id: 100, name: "Cancelado" };
           console.log(resp);
@@ -1079,7 +1039,7 @@ export default {
             message: "Pedido archivado",
             color: "positive",
             icon: "done",
-            position: "center",
+            position: "center"
           });
           // this.$sktRestock.emit('order_changestate',{state:newstatus,profile:this.profile,order:this.order});
           this.rsocket.emit("order_changestate", {
@@ -1087,11 +1047,11 @@ export default {
             user: this.profile,
             from: this.workin,
             order: this.order,
-            room: this.socketroom,
+            room: this.socketroom
           });
           this.$router.push("/pedidos");
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
@@ -1105,12 +1065,12 @@ export default {
       this.erasing.state = true;
       let data = {
         _product: _params,
-        _requisition: this.params.id,
+        _requisition: this.params.id
       };
 
       dbreqs
         .remove(data)
-        .then((success) => {
+        .then(success => {
           // let resp = success.data;
           this.products.splice(this.wndSetItem.idxlist, 1);
           this.erasing.state = false;
@@ -1123,7 +1083,7 @@ export default {
             color: "positive",
             type: "positive",
             position: "center",
-            timeout: 1500,
+            timeout: 1500
           });
 
           this.rsocket.emit("order_update", {
@@ -1131,10 +1091,10 @@ export default {
             from: this.workin,
             cmd: "remove",
             order: this.params.data,
-            product: _order,
+            product: _order
           });
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
@@ -1146,12 +1106,12 @@ export default {
       this.erasing.state = true;
       let data = {
         _product: _params,
-        _requisition: this.params.id,
+        _requisition: this.params.id
       };
 
       dbreqs
         .remove(data)
-        .then((success) => {
+        .then(success => {
           // let resp = success.data;
           this.products.splice(this.wndSetItem.idxlist, 1);
           this.erasing.state = false;
@@ -1161,7 +1121,7 @@ export default {
             color: "positive",
             type: "positive",
             position: "center",
-            timeout: 1500,
+            timeout: 1500
           });
 
           this.rsocket.emit("order_update", {
@@ -1169,12 +1129,12 @@ export default {
             from: this.workin,
             cmd: "remove",
             order: this.params.data,
-            product: _order,
+            product: _order
           });
           this.stateDelete = this.products.length == 0 ? true : false;
           this.$q.loading.hide();
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
@@ -1204,10 +1164,10 @@ export default {
 
       dbreqs
         .add(data)
-        .then((success) => {
+        .then(success => {
           let resp = success.data;
           console.log(resp);
-          let artidx = this.products.findIndex((item) => {
+          let artidx = this.products.findIndex(item => {
             return resp.id == item.id;
           });
           let sktproduct = null;
@@ -1219,8 +1179,9 @@ export default {
             console.log("Articulo editado");
             // let _product = this.products[artidx];
             sktproduct = this.products[artidx];
-            this.products[artidx].ordered._supply_by =
-              this.wndSetItem.metsupply.id;
+            this.products[
+              artidx
+            ].ordered._supply_by = this.wndSetItem.metsupply.id;
             this.products[artidx].ordered.amount = this.wndSetItem.amount;
             this.products[artidx].ordered.comments = this.wndSetItem.notes;
             cmd = "edit";
@@ -1252,17 +1213,17 @@ export default {
             from: this.workin,
             cmd: cmd,
             order: this.params.data,
-            product: sktproduct,
+            product: sktproduct
           });
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
     },
     async selItem(opt, id) {
       console.log(opt);
 
-      let idx = this.products.findIndex((item) => {
+      let idx = this.products.findIndex(item => {
         return opt.id == item.id;
       });
 
@@ -1328,13 +1289,13 @@ export default {
       let data = { params: { code: val } };
       await dbproduct
         .autocompleteGET(data)
-        .then((success) => {
+        .then(success => {
           let resp = success.data;
           _data = resp;
           // let idx = resp.findIndex((idx) => idx.code == val);
           // _data = resp[idx];
         })
-        .catch((fail) => {
+        .catch(fail => {
           console.log(fail);
         });
       return _data;
@@ -1346,85 +1307,89 @@ export default {
       let inputFile = document.getElementById("blobfile").files[0];
       let workbook = new ExcelJS.Workbook();
       this.$q.loading.show({
-        message: "El documento se esta importando, favor de esperar...",
+        message: "El documento se esta importando, favor de esperar..."
       });
-      workbook.xlsx.load(inputFile).then(() => {
-        let worksheet = workbook.worksheets[0];
-        let typeA = worksheet.getColumn("A");
-        let extractTypeA = [];
-        let extractTypeB = [];
-        let extractJSON = [];
-        typeA.eachCell({ includeEmpty: true }, function (cell, rowNumber) {
-          cell.value ? extractTypeA.push(cell.value) : null;
-        });
-        let typeB = worksheet.getColumn("B");
-        typeB.eachCell({ includeEmpty: true }, function (cell, rowNumber) {
-          cell.value ? extractTypeB.push(cell.value) : null;
-        });
-
-        let diference = extractTypeA.filter((item, pos, self) => {
-          return self.indexOf(item) == pos;
-        });
-
-        for (let i = 0; i < diference.length; i++) {
-          let order = {
-            code: diference[i],
-            amount: extractTypeA[i] == diference[i] ? extractTypeB[i] : 1,
-          };
-          extractJSON.push(order);
-        }
-
-        let convert = extractTypeA.length - diference.length;
-
-        if (diference.length != extractTypeA.length) {
-          // this.wndImportJSON.state = false;
-          this.flagDuplicate = !this.flagDuplicate;
-          this.messageDuplicate = `Durante el análisis nos percatamos de ${
-            convert == 1 ? `un folio` : convert + ` folios`
-          } duplicados. Los retiramos para el proceso de subida de información, sin embargo le recomendamos revisar sus archivos antes de subirlos.`;
-        }
-
-        let data = {
-          _requisition: this.setupToolbar.verify,
-          products: extractJSON,
-          _supply_by: this.wndImportJSON._supply_by,
-        };
-        console.log(data);
-
-        // HABILITAR BOTON DE LIMPIAR / REMOVER FOLIOS
-
-        dbreqs
-          .addMasive(data)
-          .then((success) => {
-            console.log(success.data);
-            let data = [];
-            data = success.data;
-            console.log(data);
-            for (let i = 0; i < data.notFound.length; i++) {
-              this.wndImportJSON.wndNoDataFound.push(data.notFound[i]);
-            }
-            this.wndImportJSON.wndTotal = extractJSON.length;
-            this.wndImportJSON.wndGetRows = data.added.length;
-            this.wndImportJSON.state = !this.wndImportJSON.state;
-            this.wndImportJSON.wndGetAdded = data.added;
-            this.wndImportJSON.wndGetAdded.map((item) => {
-              this.products.push(item);
-            });
-            this.$q.loading.hide();
-          })
-          .catch((log) => {
-            console.log(log);
-            this.$q.loading.hide();
+      workbook.xlsx
+        .load(inputFile)
+        .then(() => {
+          let worksheet = workbook.worksheets[0];
+          let typeA = worksheet.getColumn("A");
+          let extractTypeA = [];
+          let extractTypeB = [];
+          let extractJSON = [];
+          typeA.eachCell({ includeEmpty: true }, function(cell, rowNumber) {
+            cell.value ? extractTypeA.push(cell.value) : null;
           });
-        document.getElementById("blobfile").value = "";
-        // console.log(extractJSON.length);
-        // console.log(this.setupToolbar.verify);
-      }).catch(e => {
-        console.log(e);
-        this.$q.loading.hide();
-        this.flagDuplicate = !this.flagDuplicate;
-        this.messageDuplicate = "El archivo que intentas subir no es compatible. Debes actualizar tu formato a nuevas versiones de Excel.(Extensión .xlsx)"
-      });
+          let typeB = worksheet.getColumn("B");
+          typeB.eachCell({ includeEmpty: true }, function(cell, rowNumber) {
+            cell.value ? extractTypeB.push(cell.value) : null;
+          });
+
+          let diference = extractTypeA.filter((item, pos, self) => {
+            return self.indexOf(item) == pos;
+          });
+
+          for (let i = 0; i < diference.length; i++) {
+            let order = {
+              code: diference[i],
+              amount: extractTypeA[i] == diference[i] ? extractTypeB[i] : 1
+            };
+            extractJSON.push(order);
+          }
+
+          let convert = extractTypeA.length - diference.length;
+
+          if (diference.length != extractTypeA.length) {
+            // this.wndImportJSON.state = false;
+            this.flagDuplicate = !this.flagDuplicate;
+            this.messageDuplicate = `Durante el análisis nos percatamos de ${
+              convert == 1 ? `un folio` : convert + ` folios`
+            } duplicados. Los retiramos para el proceso de subida de información, sin embargo le recomendamos revisar sus archivos antes de subirlos.`;
+          }
+
+          let data = {
+            _requisition: this.setupToolbar.verify,
+            products: extractJSON,
+            _supply_by: this.wndImportJSON._supply_by
+          };
+          console.log(data);
+
+          // HABILITAR BOTON DE LIMPIAR / REMOVER FOLIOS
+
+          dbreqs
+            .addMasive(data)
+            .then(success => {
+              console.log(success.data);
+              let data = [];
+              data = success.data;
+              console.log(data);
+              for (let i = 0; i < data.notFound.length; i++) {
+                this.wndImportJSON.wndNoDataFound.push(data.notFound[i]);
+              }
+              this.wndImportJSON.wndTotal = extractJSON.length;
+              this.wndImportJSON.wndGetRows = data.added.length;
+              this.wndImportJSON.state = !this.wndImportJSON.state;
+              this.wndImportJSON.wndGetAdded = data.added;
+              this.wndImportJSON.wndGetAdded.map(item => {
+                this.products.push(item);
+              });
+              this.$q.loading.hide();
+            })
+            .catch(log => {
+              console.log(log);
+              this.$q.loading.hide();
+            });
+          document.getElementById("blobfile").value = "";
+          // console.log(extractJSON.length);
+          // console.log(this.setupToolbar.verify);
+        })
+        .catch(e => {
+          console.log(e);
+          this.$q.loading.hide();
+          this.flagDuplicate = !this.flagDuplicate;
+          this.messageDuplicate =
+            "El archivo que intentas subir no es compatible. Debes actualizar tu formato a nuevas versiones de Excel.(Extensión .xlsx)";
+        });
     },
     exportExcel() {
       let workbook = new ExcelJS.Workbook();
@@ -1440,7 +1405,7 @@ export default {
         { header: "Categoría", key: "category", width: 15 },
         { header: "Solicitud", key: "request", width: 10 },
         { header: "Unidad", key: "unity", width: 10 },
-        { header: "Disponible (pzs)", key: "stock", width: 15 },
+        { header: "Disponible (pzs)", key: "stock", width: 15 }
       ];
 
       console.log(this.products);
@@ -1455,7 +1420,7 @@ export default {
           category: this.products[i].category,
           request: parseInt(this.products[i].ordered.units),
           unity: this.products[i].metsupply.name,
-          stock: parseInt(this.products[i].ordered.stock),
+          stock: parseInt(this.products[i].ordered.stock)
         });
       }
       // this.flagPrompt = !this.flagPrompt;
@@ -1464,7 +1429,7 @@ export default {
       console.log(name);
       this.appsounds.download.play();
       // save under export.xlsx
-      workbook.xlsx.writeBuffer().then((buffer) => {
+      workbook.xlsx.writeBuffer().then(buffer => {
         saved(
           new Blob([buffer], { type: "application/octet-stream" }),
           `${name}.xlsx`
@@ -1475,8 +1440,8 @@ export default {
     setSupplyTarget(value) {
       console.log(value);
       this.wndImportJSON._supply_by = value;
-      this.wndSelectSupply.wndDialogState =
-        !this.wndSelectSupply.wndDialogState;
+      this.wndSelectSupply.wndDialogState = !this.wndSelectSupply
+        .wndDialogState;
       this.triggerInputFile();
     },
     emptyOrder() {
@@ -1491,25 +1456,30 @@ export default {
       } while (articles >= 0);
 
       // console.log(this.params.id);
-    },
-    
+    }
   },
   computed: {
     _getorders() {
-      return this.$store.getters["Requisitions/getOrders"];
+      return this.$store.state.Requisitions.orders.filter(
+        i => i.id == this.order.id
+      )[0]
+        ? this.$store.state.Requisitions.orders.filter(
+            i => i.id == this.order.id
+          )[0]
+        : this.order;
     },
     filterAvailable() {
       switch (this.selectAvailable.value) {
         case 2:
-          return this.__basket.filter((stock) => stock.ordered.stock != 0);
+          return this.__basket.filter(stock => stock.ordered.stock != 0);
         case 3:
-          return this.__basket.filter((stock) => stock.ordered.stock == 0);
+          return this.__basket.filter(stock => stock.ordered.stock == 0);
         default:
           return this.__basket;
       }
     },
     getState() {
-      return (articles) => (articles == -1 ? true : false);
+      return articles => (articles == -1 ? true : false);
     },
     __basket() {
       /**
@@ -1517,11 +1487,11 @@ export default {
        *
        */
       if (this.products) {
-        return this.products.map((p) => {
+        return this.products.map(p => {
           p.ipack = p.pieces ? p.pieces : 1;
           // p.pricelistDefault = { id:1, alias:'MEN', name:'MENUDEO' };
-          p.metsupply = ((p) =>
-            this.metsupplies.find((ms) => ms.id == p.ordered._supply_by))(p);
+          p.metsupply = (p =>
+            this.metsupplies.find(ms => ms.id == p.ordered._supply_by))(p);
           // p.productType = ((p) => {
           //   if (p.prices.length) {
           //     let basePrice = p.prices[0].price; // obtiene el primer precio para comparar
@@ -1535,7 +1505,7 @@ export default {
           //     return { error: true, msg: "Producto sin precios" };
           //   }
           // })(p);
-          p._units = ((p) => {
+          p._units = (p => {
             switch (p.ordered._supply_by) {
               case 2:
                 return p.ordered.amount * 12; //cantidad * 12
@@ -1545,7 +1515,7 @@ export default {
                 return p.ordered.amount; // retornar cantidad
             }
           })(p);
-          p._name = ((p) => {
+          p._name = (p => {
             switch (p.ordered._supply_by) {
               case 2:
                 return "Docenas"; //cantidad * 12
@@ -1555,7 +1525,7 @@ export default {
                 return "Piezas"; // retornar cantidad
             }
           })(p);
-          p.boxes = ((p) => (p._units / p.ipack).toFixed(1))(p);
+          p.boxes = (p => (p._units / p.ipack).toFixed(1))(p);
           // p.usedprice = ((p) => {
           //   switch (p.ordered._supply_by) {
           //     case 2:
@@ -1586,7 +1556,7 @@ export default {
       }
     },
     supply() {
-      return (params) => {
+      return params => {
         switch (params.ordered._supply_by) {
           case 1:
             return params.amount;
@@ -1603,7 +1573,7 @@ export default {
       };
     },
     _metsupply() {
-      return (data) => {
+      return data => {
         let newMetSupply = [];
         switch (data.ordered._supply_by) {
           case 1:
@@ -1611,9 +1581,9 @@ export default {
               {
                 metsupply: {
                   id: data.ordered._supply_by,
-                  name: "Piezas",
-                },
-              },
+                  name: "Piezas"
+                }
+              }
             ];
             break;
           case 2:
@@ -1621,9 +1591,9 @@ export default {
               {
                 metsupply: {
                   id: data.ordered._supply_by,
-                  name: "Docena",
-                },
-              },
+                  name: "Docena"
+                }
+              }
             ];
             break;
           case 3:
@@ -1631,9 +1601,9 @@ export default {
               {
                 metsupply: {
                   id: data.ordered._supply_by,
-                  name: "Cajas",
-                },
-              },
+                  name: "Cajas"
+                }
+              }
             ];
             break;
 
@@ -1657,7 +1627,7 @@ export default {
     },
     bucketToolbar() {
       // console.log(this.products);
-      return this.products.map((item) => {
+      return this.products.map(item => {
         item.pieces = item.pieces;
         item.boxes = item.ordered.amount;
         return item;
@@ -1694,7 +1664,7 @@ export default {
       }
     },
     humantime() {
-      return (time) => {
+      return time => {
         let now = Date.now();
         let timecalc = Date.parse(time);
         let diff = date.getDateDiff(now, timecalc, "days");
@@ -1715,7 +1685,7 @@ export default {
       };
     },
     duration() {
-      return (log) => {
+      return log => {
         let t_ini = Date.parse(log.created_at);
         let t_end = Date.parse(log.updated_at);
 
@@ -1737,15 +1707,15 @@ export default {
         : false;
     },
     isduplicate() {
-      return (code) => {
+      return code => {
         return (
-          this.products.findIndex((item) => {
+          this.products.findIndex(item => {
             return item.code == code;
           }) >= 0
         );
       };
-    },
-  },
+    }
+  }
 };
 </script>
 
