@@ -188,11 +188,13 @@ export default {
       return (account) => {
         let grocer = account;
         let aux = [];
+        let structured = 0;
         for (let i = 0; i < grocer.length; i++) {
-          let structured = this.ordersAll.findIndex((item, idx) => {
-            return item.log.length == 3 && item.log[2].details.actors.id == grocer[i].id ?  idx : "";
+          structured = this.ordersAll.findIndex((item, idx) => {
+            // console.log(idx);
+            return item.log.length == 3 && item.log[2].details.actors.id == grocer[i].id;
           });
-          // console.log(structured);
+          console.log(structured);
           if (structured > 0) {
             aux.push({
               id: grocer[i].id,
@@ -222,7 +224,7 @@ export default {
               disable: false,
             });
           }
-          structured--;
+          structured = 0;
         }
         return aux;
       };

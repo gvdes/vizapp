@@ -5,35 +5,7 @@
         <q-card class="bg-darkl1">
           <HeaderApp :title="layout.header.title" />
           <div class="bg-darkl1 q-pa-sm col row justify-between">
-            <div
-              v-show="checkPermissions"
-              class="col-md-4 col-xs-4 q-pr-sm items-start"
-              style="max-width: 15rem"
-            >
-              <q-select
-                transition-show="scale"
-                transition-hide="scale"
-                v-model="selectWorkpoint"
-                color="green-13"
-                :disable="flag"
-                label="Sucursal"
-                :options="workpoints"
-                dark
-                @input="searchMarket"
-                options-selected-class="text-green-13"
-              >
-                <template v-slot:prepend>
-                  <q-icon class="text-green-13" name="filter_alt" />
-                </template>
-              </q-select>
-            </div>
-            <div
-              :class="
-                checkPermissions
-                  ? 'col-md-9 col-auto items-end justify-end'
-                  : 'col-md-12 col-xs-12 items-end justify-end col'
-              "
-            >
+            <div class="col-md-12 col-xs-12 items-end justify-end col">
               <RangeDates @inputRanges="loadView" />
             </div>
           </div>
@@ -55,13 +27,11 @@
                   <img
                     width="100%"
                     src="https://www.huratips.com/wp-content/uploads/2019/04/empty-cart.png"
-                    alt=""
+                    alt
                   />
                 </div>
                 <div class="col-md-8 col-8 text-center">
-                  <div class="text-subtitle1">
-                    No se encontraron resultados.
-                  </div>
+                  <div class="text-subtitle1">No se encontraron resultados.</div>
                 </div>
               </div>
             </q-card-section>
@@ -96,42 +66,31 @@ export default {
       flag: true,
       dialog: false,
       date: undefined,
-      workpointsOpc: undefined,
-      workpoints: [],
-      selectWorkpoint: undefined,
       index: [],
-      rsocket: this.$sktRestock,
+      rsocket: this.$sktRestock
     };
-  },
-  async beforeMount() {
-    let getMarkets = await dbworpoints.index();
-    this.workpointsOpc = this.markets(getMarkets);
-    this.workpoints.push({ label: "Todos", value: -1 });
-    this.workpointsOpc.map((idx) => {
-      return this.workpoints.push({ label: idx.name, value: idx.id });
-    });
   },
   created() {
     this.rsocket.disconnect();
     this.rsocket.connect();
 
-    this.rsocket.on("joineddashreq", (data) => {
+    this.rsocket.on("joineddashreq", data => {
       this.sktJoinatRes(data);
     });
-    this.rsocket.on("creating", (data) => {
+    this.rsocket.on("creating", data => {
       this.sktCreateOrd(data);
     });
-    this.rsocket.on("order_update", (data) => {
+    this.rsocket.on("order_update", data => {
       this.sktUpdateOrd(data);
     });
-    this.rsocket.on("order_changestate", (data) => {
+    this.rsocket.on("order_changestate", data => {
       this.sktChangeState(data);
     });
 
     this.rsocket.emit("joinat", {
       profile: this.profile,
       workpoint: this.workin.workpoint,
-      room: this.socketroom,
+      room: this.socketroom
     });
   },
   methods: {
@@ -140,32 +99,29 @@ export default {
 
       let dbranges = {
         date_from: ranges.dbranges.from,
-        date_to: ranges.dbranges.to,
+        date_to: ranges.dbranges.to
       };
-      this.$store.commit("Requisitions/todayState", this.timeToday(ranges.ranges.date.from));
-      // localStorage.setItem('today', this.timeToday(ranges.ranges.date.from));
+      this.$store.commit(
+        "Requisitions/todayState",
+        this.timeToday(ranges.ranges.date.from)
+      );
 
       let data = { params: dbranges };
-
+      console.log(data);
       this.index = await RequisitionsDB.index(data);
-      // console.log(this.index);
-
+      let validateOrders = this.index.requisitions;
+      console.log(this.index);
       let arr = await RequisitionsDB.dashboard(data);
-      // console.log(arr.requisitions.length);
-      // console.log(arr.requisitions);
+
       if (arr.requisitions.length >= 0 && this.checkPermissions) {
         this.index.requisitions = [];
-        arr.requisitions.forEach((element) => {
+        arr.requisitions.forEach(element => {
           return this.index.requisitions.push(element);
         });
-        // console.log(this.index.requisitions);
-        localStorage.removeItem("dashboard");
-        //   console.log(filtering)
-        localStorage.setItem("dashboard", JSON.stringify(this.index));
 
-        this.flag = this.index.requisitions.length > 0 ? false : true;
+        this.flag = validateOrders.length > 0 ? false : true;
 
-        if (this.index.requisitions.length <= 0) {
+        if (validateOrders.length <= 0) {
           this.dialog = true;
           this.$store.commit("Requisitions/startState", this.index);
         } else {
@@ -173,17 +129,13 @@ export default {
           this.$store.commit("Requisitions/startState", this.index);
         }
       } else {
-        arr.requisitions.forEach((element) => {
+        arr.requisitions.forEach(element => {
           return this.index.requisitions.push(element);
         });
-        // console.log(this.index.requisitions);
-        localStorage.removeItem("dashboard");
-        //   console.log(filtering)
-        localStorage.setItem("dashboard", JSON.stringify(this.index));
 
-        this.flag = this.index.requisitions.length > 0 ? false : true;
+        this.flag = validateOrders.length > 0 ? false : true;
 
-        if (this.index.requisitions.length <= 0) {
+        if (validateOrders.length <= 0) {
           this.dialog = true;
           this.$store.commit("Requisitions/startState", this.index);
         } else {
@@ -192,17 +144,6 @@ export default {
         }
       }
 
-      this.$q.loading.hide();
-    },
-    async searchMarket() {
-      this.$q.loading.show({ message: "Cargando vista..." });
-      let data = JSON.parse(localStorage.getItem("dashboard"));
-      this.index.requisitions = [];
-      this.index.requisitions = this.ordersRequisitions(
-        data,
-        this.selectWorkpoint
-      );
-      this.$store.commit("Requisitions/startState", this.index);
       this.$q.loading.hide();
     },
     sktJoinatRes(data) {
@@ -214,21 +155,28 @@ export default {
     sktCreateOrd(data) {
       let order = data.order;
       let by = data.user.me;
-      this.appsounds.created.play();
+      // this.appsounds.created.play();
       console.log(
         `%c${by.nick} esta creando la orden ${order.id}`,
         "background:#303952;color:#e66767;border-radius:10px;padding:8px;"
       );
       // console.log(data.order.from.id == this.workin.workpoint.id);
       console.log(this.cedisValidate(this.workin).length);
-      data.order.from.id == this.workin.workpoint.id ? this.$store.commit("Requisitions/newOrder", order) : [];
-      this.cedisValidate(this.workin).length ? this.$store.commit("Requisitions/newOrder", order) : [];
+      data.order.status.id == 1 && this.getValidateSounds(data.order) != -1
+        ? this.appsounds.ok.play()
+        : "";
+      data.order.from.id == this.workin.workpoint.id
+        ? this.$store.commit("Requisitions/newOrder", order)
+        : [];
+      this.cedisValidate(this.workin).length
+        ? this.$store.commit("Requisitions/newOrder", order)
+        : [];
     },
     sktChangeState(data) {
       console.log(data);
       let newState = {
         state: data.state,
-        log: data.log,
+        log: data.log
       };
       let order = data.order;
       order.log = data.log;
@@ -236,17 +184,25 @@ export default {
       console.log(data.order.from.id);
       console.log(data.from.workpoint.id);
       // console.log(this.getValidateSounds(data.order));
-      console.log(data.state.id <= 9 && data.order.from.id == data.from.workpoint.id);
-      data.state.id == 10 && this.getValidateSounds(data.order) != -1 ? this.appsounds.ok.play() : "";
+      console.log(
+        data.state.id <= 9 && data.order.from.id == data.from.workpoint.id
+      );
+      data.state.id == 10 && this.getValidateSounds(data.order) != -1
+        ? this.appsounds.ok.play()
+        : "";
       // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
-      if (data.state.id >= 3 && data.state.id <= 9 && this.getValidateSounds(data.order) != -1) {
-        this.appsounds.moved.play()
+      if (
+        data.state.id >= 3 &&
+        data.state.id <= 9 &&
+        this.getValidateSounds(data.order) != -1
+      ) {
+        this.appsounds.moved.play();
         this.$q.notify({
-            message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
-            color: "positive",
-            icon: "done",
-            position: "top-right"
-          });
+          message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
+          color: "positive",
+          icon: "done",
+          position: "top-right"
+        });
       }
       console.log(
         `%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,
@@ -265,7 +221,7 @@ export default {
       } else {
         let order = data.order;
         let product = data.product;
-        let cmd = data.cmd == 'remove' ? "removio" : "añadio";
+        let cmd = data.cmd == "remove" ? "removio" : "añadio";
         console.log(
           `%cLa orden ${order.id} ${cmd} ${product.description}`,
           "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
@@ -273,13 +229,7 @@ export default {
       }
 
       // this.$store.commit("Requisitions/updateState", { order, newState });
-    },
-    markets(api) {
-      let apiRest = api.filter((idx) => {
-        return idx.type.id == 2;
-      });
-      return apiRest;
-    },
+    }
   },
   beforeDestroy() {
     console.log(
@@ -289,7 +239,7 @@ export default {
     this.rsocket.emit("unjoin", {
       profile: this.profile,
       workpoint: this.workin.workpoint,
-      room: "main",
+      room: "main"
     });
     this.rsocket.off();
   },
@@ -297,20 +247,18 @@ export default {
     timeToday() {
       return ranges => this.$moment().format("YYYY-MM-DD") === ranges;
     },
-    ordersRequisitions() {
-      return (arr, by) => {
-        let storage = by ? by.value : {};
-        return arr.requisitions.filter((order) => {
-          return storage > 0 ? order.from.id == storage : order;
-        });
-      };
-    },
     cedisValidate() {
       // return this.workin;
-      return (order) => [order].filter(item => item.workpoint.id == 1 || item.workpoint.id == 2 || item.workpoint.id == 16);
+      return order =>
+        [order].filter(
+          item =>
+            item.workpoint.id == 1 ||
+            item.workpoint.id == 2 ||
+            item.workpoint.id == 16
+        );
     },
     getValidateSounds() {
-      return (order) => this.$store.getters["Requisitions/getIDX"](order);
+      return order => this.$store.getters["Requisitions/getIDX"](order);
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
@@ -332,8 +280,8 @@ export default {
       let done = [1, 2, 16, 18];
       // console.log(workpoint.workpoint.id)
       return done.includes(workpoint.workpoint.id) ? true : false;
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -16,8 +16,7 @@
           </div>
         </div>
         <q-btn
-          v-show="flagArchive"
-          v-if="flag"
+          v-if="_getorders&&_getorders.status.id <= 2"
           flat
           icon="menu"
           @click="ldrawer.state = !ldrawer.state"
@@ -85,17 +84,17 @@
         </q-banner>
       </div>
     </q-slide-transition>
-
+    
     <q-drawer
       v-model="ldrawer.state"
-      v-if="flagArchive"
+      v-if="_getorders&&_getorders.status.id <= 2"
       side="right"
       content-class="text-grey-5 bg-darkl1"
       @hide="startremove.state = false"
     >
       <div class="q-pa-md">
         <q-btn
-          v-if="this._getorders.status.id == 1"
+          v-if="_getorders&&_getorders.status.id == 1"
           class="q-mb-md"
           label="Vaciar Orden"
           icon="remove_circle_outline"
@@ -583,7 +582,7 @@
             />
           </div>
         </template>
-        <template v-if="_getorders.status.id == 1">
+        <template v-if="_getorders&&_getorders.status.id == 1">
           <div>
             <q-btn
               dense
@@ -627,10 +626,10 @@
             />
           </div>
         </template>
-        <template v-else-if="_getorders.status.id == 7">
+        <template v-else-if="_getorders&&_getorders.status.id == 7">
           <!-- El pedido esta en camino -->
           <template v-if="!tostock.state">
-            <span class="text-grey-4 q-pl-md">{{ _getorders.status.name }}</span>
+            <span class="text-grey-4 q-pl-md">{{_getorders&&_getorders.status.name }}</span>
             <span>
               <q-btn flat color="green-13" icon="history" @click="showLog" />
               <q-btn
@@ -659,14 +658,14 @@
         </template>
         <template v-else>
           <!-- El pedido puede mostrar el log -->
-          <span class="text-grey-4 q-pl-md">{{ _getorders.status.name }}</span>
+          <span class="text-grey-4 q-pl-md">{{ _getorders&&_getorders.status.name }}</span>
           <q-btn flat color="green-13" icon="history" @click="showLog" />
         </template>
         <q-btn
           icon="print"
           flat
           dense
-          v-if="_getorders.status.id >= 2"
+          v-if="_getorders&&_getorders.status.id >= 2"
           color="green-13"
           @click="reprint"
           :loading="print.state"
@@ -685,6 +684,7 @@ import dbreqs from "../../API/requisitions";
 import ProductAutocomplete from "../../components/Global/ProductAutocomplete.vue";
 import saved from "file-saver";
 import ProductAOE from "../../components/Global/ProductAOE.vue";
+import _ from 'app/src-capacitor/www/js/7';
 
 export default {
   components: { ProductAutocomplete, ProductAOE },
@@ -887,9 +887,12 @@ export default {
     this.order = await dbreqs.find(this.params.id);
     this.products = this.order.products;
     this.flagArchive = this.order.status.id <= 2 ? true : false;
-    this.stateOrder = this._getorders.status.id == 1 ? true : false;
+    // this.stateOrder = this._getorders.status.id == 1 ? true : false;
+    // console.log(this._getorders);
     this.$q.loading.hide();
-    console.log(this._getorders);
+
+    // console.log(this._store);
+    
     
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
@@ -1460,13 +1463,7 @@ export default {
   },
   computed: {
     _getorders() {
-      return this.$store.state.Requisitions.orders.filter(
-        i => i.id == this.order.id
-      )[0]
-        ? this.$store.state.Requisitions.orders.filter(
-            i => i.id == this.order.id
-          )[0]
-        : this.order;
+      return this.$store.getters["Requisitions/getOrders"] ? this.$store.getters["Requisitions/getOrders"].find(idx => idx.id == this.params.id) : null
     },
     filterAvailable() {
       switch (this.selectAvailable.value) {
@@ -1720,50 +1717,3 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-._optact {
-  background: saddlebrown !important;
-  color: white;
-}
-.fieldcant {
-  width: 120px;
-  padding: none;
-  margin: none;
-  font-size: 1.8em;
-  background: none;
-  outline: greenyellow;
-  color: white;
-  margin: auto auto;
-  border: none;
-
-  &:focus {
-    background: rgba(#fff, 0.06);
-  }
-}
-
-.divimg {
-  width: 140px;
-  height: 140px;
-}
-
-.divlcient {
-  border-radius: 0px 0px 20px 20px;
-}
-
-.card-action {
-  border: 0 solid;
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0);
-  outline: 1px solid;
-  outline-color: rgba(0, 255, 157, 0.5);
-  outline-offset: 0px;
-  text-shadow: none;
-  transition: all 1250ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.card-action:hover {
-  border: 1px solid;
-  // box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
-  outline-color: rgba(255, 255, 255, 0);
-  outline-offset: 15px;
-  text-shadow: 1px 1px 2px #427388;
-}
-</style>
