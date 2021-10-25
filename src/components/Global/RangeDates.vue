@@ -135,7 +135,7 @@ export default {
           { label: "Diaria", value: "t" },
           { label: "Semanal", value: "w" },
           { label: "Mensual", value: "m" },
-          { label: "Anual", value: "y" },
+          { label: "Anual", value: "y", disable: true },
           { label: "Personalizada", value: "c", disable: false }
         ],
         selected: { label: "Diaria", value: "t" }
@@ -168,14 +168,21 @@ export default {
   beforeMount() {
     let getDBRanges = JSON.parse(localStorage.getItem("dbranges"));
     if (getDBRanges) {
+      // console.log(getDBRanges);
       this.selectViews.selected = getDBRanges.option;
-      this.ranges.date.from = getDBRanges.ranges.date.from;
-      this.ranges.date.to = getDBRanges.ranges.date.to;
+      this.ranges.date.from = getDBRanges.option.value == 't' && 
+      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.from ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.from;
+      this.ranges.date.to = getDBRanges.option.value == 't' && 
+      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.to ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.to;
+
       this.ranges.time.from = getDBRanges.ranges.time.from;
       this.ranges.time.to = getDBRanges.ranges.time.to;
 
-      this.ranges.date.display.from = getDBRanges.ranges.date.display.from;
-      this.ranges.date.display.to = getDBRanges.ranges.date.display.to;
+      this.ranges.date.display.from = getDBRanges.option.value == 't' && 
+      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.display.from ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.display.from;
+      this.ranges.date.display.to = getDBRanges.option.value == 't' && 
+      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.display.to ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.display.to;
+      
       this.ranges.time.display.from = getDBRanges.ranges.time.display.from;
       this.ranges.time.display.to = getDBRanges.ranges.time.display.to;
       this.$emit("inputRanges", { ranges: this.ranges, option: this.selectViews.selected, dbranges: this.dbranges });

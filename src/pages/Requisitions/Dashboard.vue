@@ -25,8 +25,30 @@
             transition-hide="jump-down"
             dark
             color="green-13"
+            v-model="selectWorkpoint"
+            outlined
+            @input="searchMarket"
+            dense
+            options-dense
+            display-value="Sucursal"
+            :options="workpoints"
+            style="min-width: 150px"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="filter_alt" />
+            </template>
+          </q-select>
+        </div>
+        <div class="col-md-3 col-3 q-pr-lg">
+          <q-select
+            class="exo"
+            transition-show="jump-up"
+            transition-hide="jump-down"
+            dark
+            color="green-13"
             v-model="visibleColumns"
             multiple
+            @click="orderColumns"
             outlined
             dense
             options-dense
@@ -335,7 +357,13 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="OK" @click="setTime, findCards = true" color="green-13" v-close-popup />
+          <q-btn
+            flat
+            label="OK"
+            @click="alertOrders, setTime, findCards = true"
+            color="green-13"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -359,14 +387,18 @@ import dbreqs from "../../API/requisitions";
 import ToolbarAccount from "../../components/Global/ToolbarAccount.vue";
 import dbAccount from "../../API/account";
 import DeliveryOpt from "../../components/Requisition/DeliveryOpt.vue";
+import dbworpoints from "../../API/workpoint";
 
 export default {
   components: { ToolbarAccount, DeliveryOpt },
   data() {
     return {
+      selectWorkpoint: undefined,
+      workpointsOpc: undefined,
+      workpoints: [],
       findCards: false,
       today: false,
-      timeSelected: "",
+      timeSelected: { label: "20 Min", value: 20 },
       dialogOrders: false,
       tab: "mails",
       dataOrder: [],
@@ -376,7 +408,7 @@ export default {
       thumbStyle: {
         right: "4px",
         borderRadius: "5px",
-        backgroundColor: "#00e676",
+        backgroundColor: "#525252",
         width: "5px",
         opacity: 0.75
       },
@@ -388,7 +420,7 @@ export default {
       barStyle: {
         right: "2px",
         borderRadius: "9px",
-        backgroundColor: "#00e676",
+        backgroundColor: "#525252",
         width: "9px",
         opacity: 0.2
       },
@@ -527,6 +559,16 @@ export default {
     let aux = 0;
     let blocked = [3, 4, 5, 7, 8, 10, 11];
 
+    let getMarkets = await dbworpoints.index();
+    this.workpoints.push({ label: "Todos", value: -1 });
+    getMarkets
+      .filter(idx => {
+        return idx.type.id == 2;
+      })
+      .map(idx => {
+        return this.workpoints.push({ label: idx.name, value: idx.id });
+      });
+
     for (let index = 0; index < this.getStatesLog.length; index++) {
       aux = this.checkPermissions ? this.isCEDIS(index) : this.isMarket(index);
       this.visibleColumns.push(this.getStatesLog[aux].name);
@@ -542,7 +584,7 @@ export default {
     this.visibleColumns = this.visibleColumns.filter((item, pos, self) => {
       return self.indexOf(item) == pos;
     });
-
+    // console.log(this.visibleColumns.length);
     if (this.visibleColumns.length > 0) {
       localStorage.setItem("setup", JSON.stringify(this.visibleColumns));
       localStorage.setItem("setupTable", JSON.stringify(this.columns));
@@ -550,8 +592,9 @@ export default {
       this.visibleColumns = JSON.parse(localStorage.getItem("setup"));
       this.columns = JSON.parse(localStorage.getItem("setupTable"));
     }
-    console.log(this.timeSelected.value);
-    this.timeSelected.value ? this.timeSelected.value : this.alertOrders();
+    console.log(this.timeElapsed.length);
+    this.dialogOrders = this.timeElapsed.length ? true : false;
+    this.visibleColumns.length ? this.alertOrders() : false;
   },
   beforeDestroy() {
     // this.$sktRestock.emit("leave", {
@@ -635,6 +678,7 @@ export default {
      * @param { number } orderid ID de la orden
      */
     showLog(orderid) {
+      // console.log(this.searchMarket);
       // console.log(this.timeElapsed);
       let idx = this.ordersdb.findIndex(item => {
         return item.id == orderid;
@@ -748,15 +792,40 @@ export default {
       return new Promise(resolve => {
         setInterval(() => {
           console.log(this.timeSelected.value);
-          this.dialogOrders = !this.dialogOrders;
+          this.dialogOrders = true;
           resolve("");
-        }, (this.timeSelected.value ? this.timeSelected.value : 20) * 60000);
+        }, this.timeSelected.value * 60000);
       });
+    },
+    searchMarket() {
+      this.searchID = this.searchID.length
+        ? this.searchID
+        : this.selectWorkpoint
+        ? this.selectWorkpoint.label
+        : this.searchID;
+      this.searchID =
+        this.selectWorkpoint.label == "Todos" ? "" : this.searchID;
     }
   },
   computed: {
+    orderColumns() {
+      let newColumns = [];
+      let arr1 = [];
+      newColumns.push(
+        this.visibleColumns.map(item =>
+          this.getStatesLog.findIndex(i => item == i.name)
+        )
+      );
+      let arr = newColumns[0].sort((a, b) => a - b);
+      this.getStatesLog.map(item =>
+        arr.map(i => (item.id - 1 == i ? arr1.push(item.name) : ""))
+      );
+      this.visibleColumns = arr1.length ? arr1 : this.visibleColumns;
+      return this.visibleColumns;
+    },
     todayState() {
-      return this.$store.state.Requisitions.today;
+      let from = JSON.parse(localStorage.getItem("dbranges"));
+      return this.$moment().format("YYYY-MM-DD") === from.ranges.date.from;
     },
     markedCard() {
       return order => this.timeElapsed.find(item => item.id == order.id);
@@ -764,10 +833,10 @@ export default {
     setTime() {
       return setTimeout(() => {
         this.findCards = false;
-      }, 10000);
+      }, 3000);
     },
     timeElapsed() {
-      if (this.orders) {
+      if (this.orders.length) {
         return this.orders
           .filter(i => i.status.id >= 2 && i.status.id <= 3 && this.todayState)
           .map(item => {
@@ -861,6 +930,8 @@ export default {
               .toString()
               .toLowerCase()
               .includes(this.searchID) &&
+              order.status.name == str) ||
+            (order.from.name.toString().includes(this.searchID) &&
               order.status.name == str)
         );
       };
@@ -1162,12 +1233,12 @@ export default {
   box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11),
     0 5px 15px 0 rgba(0, 0, 0, 0.08);
   border-radius: 0.5rem;
-  border-left: 0 solid hsl(110, 100%, 50%);
+  border-left: 0 solid hsl(69, 100%, 50%);
   transition: border-left 300ms ease-in-out, padding-left 300ms ease-in-out;
 }
 
 .thing:hover {
-  border-left: 0.5rem solid hsl(69, 100%, 50%);
+  border-left: 0.5rem solid hsl(110, 100%, 50%);
 }
 
 .thing > :first-child {
