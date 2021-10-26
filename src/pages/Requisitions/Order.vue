@@ -684,7 +684,6 @@ import dbreqs from "../../API/requisitions";
 import ProductAutocomplete from "../../components/Global/ProductAutocomplete.vue";
 import saved from "file-saver";
 import ProductAOE from "../../components/Global/ProductAOE.vue";
-import _ from 'app/src-capacitor/www/js/7';
 
 export default {
   components: { ProductAutocomplete, ProductAOE },

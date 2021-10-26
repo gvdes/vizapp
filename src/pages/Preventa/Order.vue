@@ -152,7 +152,7 @@
                 >
                     <template v-slot:header>
                         <div class="row full-width items-center justify-between q-py-md hei">
-                            <div>Piezas: {{basketPzs.length}}</div>
+                            <div>Piezas: {{basketPzs.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsPzsBasket}} pzs</div>
                             <div class="text-bold">$ {{totalCashPzs}}</div>
                         </div>
                     </template>
@@ -188,7 +188,7 @@
                 >
                     <template v-slot:header>
                         <div class="row full-width items-center justify-between q-py-md hei">
-                            <div>Cajas: {{basketBxs.length}}</div>
+                            <div>Cajas: {{basketBxs.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsBxsBasket}} pzs</div>
                             <div class="text-bold">$ {{totalCashBxs}}</div>
                         </div>
                     </template>
@@ -249,27 +249,6 @@
                 </q-expansion-item>
             </q-list>
         </div>
-
-        <!-- Esta va ser la funcion para temporada de mochila -->
-        <!-- <div class="q-mb-xl" v-if="!artduplicate.state">
-            <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
-                <div v-for="prod in gBasket" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
-                    <div class="row items-center">
-                        <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
-                        <div class="col q-pr-sm">
-                            <div>
-                                <span>{{ prod.code }}</span> --
-                                <span>{{ prod.name }}</span>
-                            </div>
-                            <div class="text--2 text-grey-5">{{ prod.description }}</div>
-                            <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
-                            <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
-                        </div>
-                        <div class="text-right text-green-13">$ {{prod.total}}</div>
-                    </div>
-                </div>
-            </transition-group>
-        </div> -->
 
         <!-- VENTANA DE PRODUCTOS PARA AGREGAR -->
         <q-dialog v-model="wndAdder.state" position="bottom">
@@ -418,14 +397,7 @@ export default {
  
         this.index = await preventadb.order(this.ordercatch);
         console.log(this.index.products);
-
-        /**
-         * Seccion
-         * Familia => define si el producto ocupara el mayoreo para productos en piezas
-         * Categoria
-         */
-
-        // this.dbproducts = this.index.products.length ? this.index.products : [];
+        
         this.$q.loading.hide();
     },
     destroyed(){
@@ -660,10 +632,10 @@ export default {
         }
     },
     computed: {
-        profile(){ return this.$store.getters['Account/profile'];},
-		workin(){ return this.$store.getters['Account/workin'];},
-        printers(){ return this.$store.getters['Preventa/printersSale'];},
-        ordercatch(){ return this.$route.params },
+        profile(){ return this.$store.getters['Account/profile'];},// perfil del usuario
+		workin(){ return this.$store.getters['Account/workin'];},// token de sucursal
+        printers(){ return this.$store.getters['Preventa/printersSale'];},// impresoras de la sucursal
+        ordercatch(){ return this.$route.params },// id de la orden 
         client(){ 
             if(this.index){
                 return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name }; 
@@ -697,7 +669,7 @@ export default {
                         let units_fam = 0;
 
                         if(siblings.length){
-                            units_fam = siblings.reduce( (amm,s) => {
+                            units_fam = siblings.reduce( (amm,s) => {//obtener las unidades totales de los productos integrantes de la familia de este producto
                                 switch (s.ordered._supply_by) {
                                     case 2: return (s.ordered.amount*12)+amm;//cantidad * 12 
                                     case 3: return (s.ordered.amount*s.pieces)+amm;//cantidad por piezas por caja
@@ -710,16 +682,6 @@ export default {
                             case 2: return p.prices.find( pl => pl.id==3 ); // se utilizara el precio Docena
                             case 3: return p.prices.find( pl => pl.id==4 ); // se utilizara el precio Caja
                             default: 
-                                // if(p.productType=='off'){//es oferta?
-                                //     return p.prices.find( pl => pl.id==1 );//devuelve el primer precio
-                                // }else if(p.ordered.amount<3){//es menudeo ?
-                                //     return p.prices.find( pl => pl.id==1 );
-                                // }else if(p.ordered.amount>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
-                                //     return p.prices.find( pl => pl.id==2 );
-                                // }else if (p.ordered.amount>=p.ipack) {
-                                //     return p.prices.find( pl => pl.id==4 );
-                                // }
-
                                 if((p.productType=='off') || (units_fam<3)){//es oferta o menudeo
                                     return p.prices.find( pl => pl.id==1 );//devuelve el primer precio
                                 }else if(units_fam>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
@@ -747,12 +709,12 @@ export default {
         },
         basketPzs(){ return this.gBasket.length ? this.gBasket.filter( p => p.metsupply.id==1) : []; },
         totalCashPzs(){ return this.basketPzs.reduce( (am,p) => { return p.total+am } ,0 ) },
+        pzsPzsBasket(){ return this.basketPzs.length ? this.basketPzs.reduce((am,p) => parseInt(p.units)+am,0) : 0; },
         basketDcs(){ return this.gBasket.length ? this.gBasket.filter( p => p.metsupply.id==2) : []; },
         totalCashDcs(){ return this.basketDcs.reduce( (am,p) => { return p.total+am } ,0 ) },
         basketBxs(){ return this.gBasket.length ? this.gBasket.filter( p => p.metsupply.id==3) : []; },
         totalCashBxs(){ return this.basketBxs.reduce( (am,p) => { return p.total+am } ,0 ) },
-        pzsBasket(){ return this.gBasket.length ? this.gBasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
-        bxsBasket(){ return this.gBasket.length ? this.gBasket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; },
+        pzsBxsBasket(){ return this.basketBxs.length ? this.basketBxs.reduce((am,p) => parseInt(p.units)+am,0) : 0; },
         currentStep(){ return this.index ? this.index.status : null },
         appsounds(){ return this.$store.getters['Multimediapp/sounds']; },
         haveparent(){ return this.index ? this.index._order : false; },

@@ -33,12 +33,7 @@
                     <div class="q-px-md">
                         <div class="text--2">Unidades</div>
                         <span class="text-green-13 text-bold">{{pzsBasket}}</span>
-                    </div>
-
-                    <div class="q-px-md">
-                        <div class="text--2">Cajas</div>
-                        <span class="text-green-13 text-bold">{{bxsBasket}}</span>
-                    </div>                    
+                    </div>               
                 </div>
 
                 <div class="col text-right q-px-sm">
@@ -84,7 +79,7 @@
             <!-- LISTA INICIAL DE PRODUCTOS -->
             <div>
                 <div class="q-pa-md bg-blue-grey-8 row items-center justify-between">
-                    <span>Por Contar: {{outbasket.length}}</span>
+                    <span>Por Contar: {{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</span>
                     <span>$ {{totalOutBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
@@ -109,7 +104,7 @@
             <!-- LISTA DE PRODUCTOS CONFIRMADOS -->
             <div>
                 <div class="q-pa-md bg-primary row items-center justify-between">
-                    <span>Contados: {{inbasket.length}}</span>
+                    <span>Contados: {{inbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsInBasket}} pzs</span>
                     <span>$ {{totalBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
@@ -205,7 +200,21 @@
             </q-card>
         </q-dialog>
 
-        <q-footer class="bg-darkl1 text-white">
+        <q-dialog v-model="wndFactusol.state" persistent no-esc-dismiss>
+            <template v-if="wndFactusol.folios.length">
+                <q-card class="bg-darkl1 exo text-white">
+                    <q-card-section class="bg-blue-grey-9 text-white text-overline">{{wndFactusol.folios.length==1 ? 'Folio creado':'Folios creados'}}</q-card-section>
+                    <q-card-section v-for="(folio,idx) in wndFactusol.folios" :key="idx" class="text-h5">
+                        {{folio.serie}} - {{folio.ticket}}
+                    </q-card-section>
+                    <q-card-actions align="right">
+                        <q-btn flat color="green-13" @click="$router.push('/preventa/checkout')" no-caps label="Ok" />
+                    </q-card-actions>
+                </q-card>
+            </template>
+        </q-dialog>
+
+        <q-footer class="bg-darkl1 text-white" v-if="currentStep&&currentStep.id==7">
             <div v-if="finish.state">
                 <q-btn-group spread>
                     <q-btn label="Enviar a Caja" icon="done" class="q-py-md" color="positive" @click="nextStep"/>
@@ -264,6 +273,10 @@ export default {
                     deftsupply:{name:'Piezas', id:1, alias:'pzs'}
                 }
             },
+            wndFactusol:{
+                state:false,
+                folios:[]
+            },
             definitor:'',
             pricelists:[
                 { id:1, alias:'MEN', name:'MENUDEO' },
@@ -277,7 +290,7 @@ export default {
                 {name:'Cajas', id:3, alias:'cjs'}
             ],
             finish:{ state:false },
-            wndSending:{ state:false, step:1, serie:undefined, folio:undefined, persistent:false },
+            wndSending:{ state:false, persistent:false },
             artduplicate:{
                 state:false,
                 product:undefined
@@ -296,7 +309,10 @@ export default {
         this.order = await PreventaDB.order(this.ordercatch);
         this.$q.loading.hide();
 
-        this.$refs.searcher.focus();
+        setTimeout(() => {
+            if(this.currentStep.id==7)
+                this.$refs.searcher.focus()
+        } ,500);
     },
     methods:{
         setSettings(){ localStorage.setItem('checkout_adder',JSON.stringify(this.wndAdder.settings) ) },
@@ -458,35 +474,49 @@ export default {
         },
         codeDefine(){
             if(this.definitor.trim().length){
+                let product = null;
                 switch (this.listProducts.length) {
-                    case 0: console.log("sin coincidencias, abrir el buscador"); break;
+                    case 0:
+                        this.$q.notify({
+                            message:`Vaya, este producto no esta en el pedido...`,
+                            icon:'far fa-grin-beam-sweat',
+                            color:'negative',
+                            position:'center',
+                            timeout:1700
+                        });
+                    break;
 
                     case 1:
                         console.log("Excelente, una coincidencia, validar en que lista esta...");
-                        let product = this.listProducts[0];
+                        product = this.listProducts[0];
                         product.ordered.toDelivered ? this.edit(product) : this.confirm(product);
                         break;
                 
                     default:
                         this.$q.notify({
-                            message:`Varias opciones disponibles, selecciona alguna ...`,
+                            message:`Seleccionamos el producto en el filtro, aseguarte de que sea el correcto ...`,
                             icon:'far fa-grin-beam-sweat',
                             color:'orange-14',
-                            position:'top',
-                            timeout:1700
+                            position:'bottom',
+                            timeout:1300
                         });
-                        console.log("Hay mas de una coincidencia, agregaras el primero");
+                        product = this.listProducts[0];
+                        product.ordered.toDelivered ? this.edit(product) : this.confirm(product);
                     break;
                 }
             }else{ console.log("Abrir buscador..."); this.definitor='';}
         },
         confirm(prod){
-            this.wndCounter.product = prod;
-            this.wndCounter.state = true;
+            if (this.currentStep.id==7) {
+                this.wndCounter.product = prod;
+                this.wndCounter.state = true;
+            }
         },
         edit(prod){
-            this.wndEditor.product = prod;
-            this.wndEditor.state = true;
+            if (this.currentStep.id==7) {
+                this.wndEditor.product = prod;
+                this.wndEditor.state = true;
+            }
         },
         setProduct(product){
             console.log(product);
@@ -513,13 +543,8 @@ export default {
 
             this.$q.loading.show({ message:'Creando folio...' });
 
-            let data = {
-                "_order": this.ordercatch.id,
-                // "_printer": this.wndPrinters.printer.id
-            }            
-
+            let data = { "_order": this.ordercatch.id }
             let resp = await PreventaDB.nextStep(data);
-            console.log(resp);
 
             if(resp.err){
                 this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
@@ -528,10 +553,14 @@ export default {
                 console.log(resp.status);
                 let newstate = resp.status[resp.status.length-1];
 
-                // this.psocket.emit("order_update",{ newstate:newstate, order:ordersend, update:'state' });
+                this.wndFactusol.folios = newstate.details[0];
+                this.wndFactusol.state = true;
+                this.wndSending.state = false
+
+                let ordersend = Object.assign({}, this.order);
+                this.$store.commit('Preventa/updateState', { order:ordersend, newstate });
+                this.psocket.emit("order_update",{ newstate:newstate, order:ordersend, update:'state' });
                 // this.appsounds.ok.play();
-                this.$router.push('/preventa/checkout');
-                this.$q.notify({ message:`OK!!!`, color:'positive', icon:'done' });
                 this.$q.loading.hide();
             }
         },
@@ -592,11 +621,14 @@ export default {
             }else{ return this.originProducts; }
         },
         outbasket(){ return this.listProducts.filter( prod => !prod.ordered.toDelivered ) },
+        pzsOutBasket(){ return this.outbasket.length ? this.outbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
         inbasket(){ return this.listProducts.filter( prod => prod.ordered.toDelivered ) },
+        pzsInBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
         totalBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => { return p.total+am },0) : 0; },
         totalOutBasket(){ return this.outbasket.length ? this.outbasket.reduce((am,p) => { return p.total+am },0) : 0; },
         pzsBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
-        bxsBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; }
+        bxsBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; },
+        currentStep(){ return this.order ? this.order.status : null },
     }
 }
 </script>
