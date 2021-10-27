@@ -38,20 +38,29 @@ export default {
 		}
 	},
 	created (){
+		/**
+		 * Desconecto el socket actual, para generar una nueva conexion
+		 */
 		this.psocket.disconnect();
 		this.psocket.connect();
 
-		this.psocket.on('socketid', data => this.sktId(data) );
-		this.psocket.on('joinedat', data => this.sktJoinedAt(data) );
-		this.psocket.on('newjoin', data => this.sktNewJoin(data) );
-		this.psocket.on('order_add', data => this.sktOrderAdd(data) );
-		this.psocket.on('order_update', data => this.sktOrderUpdate(data) );
-		this.psocket.on('order_aou', data => this.sktAOU(data) );
-		this.psocket.on('module_update', data => this.sktModuleUpdate(data) );
-		this.psocket.on('cash_update', data => this.sktCashUpdate(data) );
+		/**
+		 * Registro los "listeners" del socket
+		 */
+		this.psocket.on('socketid', data => this.sktId(data) );// retorna el ID de la conexion del socket
+		this.psocket.on('joinedat', data => this.sktJoinedAt(data) );// Notifica de union a un room
+		this.psocket.on('newjoin', data => this.sktNewJoin(data) );// notifica cuando otro se une al mismo room
+		this.psocket.on('order_add', data => this.sktOrderAdd(data) );// notifica cuando un pedido es creado
+		this.psocket.on('order_update', data => this.sktOrderUpdate(data) );// notifica cuando un pedido debe ser actualizado
+		this.psocket.on('order_aou', data => this.sktAOU(data) ); // notifica cuando pedido debe ser creado o actualizado
+		this.psocket.on('module_update', data => this.sktModuleUpdate(data) );// notifica cuando un modulo fue actualizado
+		this.psocket.on('cash_update', data => this.sktCashUpdate(data) );// notifica cuando una caja cambio su estado (on/off)
 
-		let room = null;
+		let room = null;// room inicial (ninguno)
 
+		/**
+		 * Definicion del o los rooms a los que este usuario se unira
+		 */
 		switch (this.profile.me._rol) {
 			case 1: case 2: case 3: room='admins'; break;
 			case 4: room='sales'; break;
@@ -59,6 +68,10 @@ export default {
 			case 9: room='checkout'; break;
 		}
 
+		/**
+		 * Se realiza la union a los rooms
+		 * obligatorioamente, todos se unen a cfg, canal de emision de configuraciones de la preventa
+		 */
 		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:room });
 		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'cfg' });		
 	},
