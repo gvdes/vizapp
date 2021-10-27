@@ -1210,7 +1210,7 @@ export default {
           this.flagProducts = !this.flagProducts;
           this.autocom.options = undefined;
           this.autocom.model = null;
-          this.$refs.comp_proauto.putFocus();
+          this.$refs.comp_autocomplete.putFocus();
           this.rsocket.emit("order_update", {
             user: this.profile,
             from: this.workin,
