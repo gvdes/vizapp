@@ -140,14 +140,17 @@
               </transition-group>
             </q-scroll-area>
           </div>
-          <div class="q-ma-md" v-else>
-            <span class="text-h6 text-grey-5 text-weight-bold">Folio Generado: <span class="text-green-13">{{ getTicket }}</span></span>
+          <div class="q-ma-xs" v-else>
+            <span class="text-h6 text-grey-5 text-weight-bold">
+              Folio Generado:
+              <span class="text-green-13">{{ getTicket }}</span>
+            </span>
             <q-scroll-area
               :thumb-style="thumbStyle.input"
               :bar-style="barStyle.input"
               style="height: 70vh; max-width: 100%"
             >
-              <div class="q-pa-md wrapper_prod">
+              <div class="q-pa-xs">
                 <q-markup-table class="bg-darkl0" dark flat bordered>
                   <thead class="bg-dark">
                     <tr>
@@ -158,10 +161,10 @@
                   </thead>
                   <tbody>
                     <tr v-for="prod in outBucket" :key="prod.id" @click="edit(prod)">
-                      <td style="max-width:15rem">
-                        <div class="row items-center">
+                      <td style="max-width:15%" class="q-pa-xs-xs no-margin">
+                        <div class="row items-center no-wrap">
                           <div class="q-pr-sm">
-                            <q-img src="~/assets/_defprod_.png" width="50px" />
+                            <q-img src="~/assets/_defprod_.png" width="3rem" />
                           </div>
                           <div class="col q-pr-sm">
                             <div>
@@ -176,10 +179,10 @@
                           </div>
                         </div>
                       </td>
-                      <td style="max-width:15rem">
-                        <div class="row items-center">
+                      <td style="max-width:15%" class="q-pa-xs-xs no-margin">
+                        <div class="row items-center no-wrap">
                           <div class="q-pr-sm">
-                            <q-img src="~/assets/_defprod_.png" width="50px" />
+                            <q-img src="~/assets/_defprod_.png" width="3rem" />
                           </div>
                           <div class="col q-pr-sm">
                             <div>
@@ -194,12 +197,17 @@
                           </div>
                         </div>
                       </td>
-                      <td style="max-width:5rem">
+                      <td style="max-width:8%" class="q-pa-xs-xs no-margin">
                         <div class="text-center items-center justify-center">
-                          <q-avatar :class="stateChangesDelivery(prod) == 0 ? 'text-red-13' : 'text-green-13'" :icon="stateChangesDelivery(prod) == 0 ? 'fas fa-exclamation-triangle' : 'far fa-check-circle'" />
+                          <q-avatar
+                            :class="stateChangesDelivery(prod) == 0 ? 'text-red-13' : 'text-green-13'"
+                            :icon="stateChangesDelivery(prod) == 0 ? 'fas fa-exclamation-triangle' : 'far fa-check-circle'"
+                          />
                           <q-separator horizontal color="grey-8" class="q-ma-xs self-center" />
                           <span>{{ stateChangesDelivery(prod) == 0 ? 'Cantidades Indistintas' : 'Cantidades Exactas' }}</span>
-                          <div class="text-amber-13">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}</div>
+                          <div
+                            class="text-amber-13"
+                          >{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}</div>
                         </div>
                       </td>
                     </tr>
@@ -274,7 +282,7 @@
         <q-card-actions align="right">
           <q-btn
             flat
-            @click="wndCounter.state = true, $router.push('/pedidos/dashboard')"
+            @click="wndCounter.state = true"
             label="OK"
             color="green-13"
             v-close-popup
@@ -445,14 +453,14 @@ export default {
   async beforeMount() {
     this.$store.commit("Requisitions/setHeaderState", false);
     this.$store.commit("Requisitions/setFooterState", false);
+    this.$store.commit("Layout/hideToolbarModule");
 
     this.params.id = this.$route.params.id;
-    this.$store.commit("Layout/hideToolbarModule");
     this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
     this.products = this.order.products;
     console.log(this.order);
-    // this.dialogState.state = this.order.log[this.order.log.length-1].id > 8 ? true : false;
+    this.dialogState.state = this.order.log[this.order.log.length-1].id <= 4 ? true : false;
     this.dialogState.message = `Esta orden no puede generar salidas. La orden se encuentra ${
       this.order.log[this.order.log.length - 1].name
     }.`;
@@ -467,6 +475,10 @@ export default {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
     this.$store.commit("Layout/showToolbarModule");
+  },
+  beforeUpdate() {
+    this.selectedInput = this.inBucket.length ? true : false;
+    this.selectedOutput = this.outBucket.length ? true : false;
   },
   methods: {
     codeDefine() {
@@ -579,8 +591,6 @@ export default {
             icon: "done",
             timeout: 1000
           });
-          this.selectedInput = this.inBucket.length ? true : false;
-          this.selectedOutput = this.outBucket.length ? true : false;
           this.wndCounter.state = false;
           this.wndCounter.product = undefined;
         }
@@ -631,8 +641,8 @@ export default {
           icon: "done",
           timeout: 1000
         });
-        this.selectedInput = this.inBucket.length ? true : false;
-        this.selectedOutput = this.outBucket.length ? true : false;
+        // this.selectedInput = this.inBucket.length > 0 ? true : false;
+        // this.selectedOutput = this.outBucket.length ? true : false;
         this.wndEditor.state = false;
         this.wndEditor.product = undefined;
       }
@@ -663,8 +673,8 @@ export default {
         product.ordered.toDelivered = null;
         this.wndEditor.product = undefined;
         this.wndEditor.state = false;
-        this.selectedInput = this.inBucket.length ? true : false;
-        this.selectedOutput = this.outBucket.length ? true : false;
+        // this.selectedInput = this.inBucket.length ? true : false;
+        // this.selectedOutput = this.outBucket.length ? true : false;
       }
 
       this.$q.loading.hide();
@@ -734,10 +744,10 @@ export default {
         })
         .catch(fail => {
           this.$q.notify({
-            message:"Algo salio mal",
-            icon:'fas fa-bug',
-            color:'negative',
-            position:'center'
+            message: "Algo salio mal",
+            icon: "fas fa-bug",
+            color: "negative",
+            position: "center"
           });
           console.log(fail);
         });
@@ -840,13 +850,17 @@ export default {
       );
     },
     currentStep() {
-      return this.order ? this.order.status : null;
+      let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
+      return this.ordersdb[idx] ?  this.ordersdb[idx].status : null;
     },
     stateChangesDelivery() {
-      return prod => prod.ordered.units === prod.ordered.amount ? 1 : 0
+      return prod => (prod.ordered.units === prod.ordered.amount ? 1 : 0);
     },
     getTicket() {
-      return this.currentStep && this.currentStep.id >= 4 ? `${this.order.log[4].details.order.serie} - ${this.order.log[4].details.order.ticket}` : ""
+      let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
+      return this.currentStep && this.currentStep.id >= 4
+        ? `${this.ordersdb[idx].log[4].details.order.serie} - ${this.ordersdb[idx].log[4].details.order.ticket}`
+        : "";
     }
   }
 };

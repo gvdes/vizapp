@@ -64,7 +64,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-md-3 col-3 q-pr-lg" v-if="timeElapsed.length && todayState">
+        <div class="col-md-3 col-3 q-pr-lg">
           <q-select
             class="exo"
             transition-show="jump-up"
@@ -222,7 +222,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-md-4 col-4 q-pr-xs" v-if="timeElapsed.length && todayState">
+        <div class="col-md-4 col-4 q-pr-xs">
           <q-select
             class="exo"
             transition-show="jump-up"
@@ -348,7 +348,9 @@
               "
               :title="log.name"
             >
-              <div :class="log.id == 3 && log.details.actors ? 'q-pb-sm col row text-weight-bold text-body1' : '' ">
+              <div
+                :class="log.id == 3 && log.details.actors ? 'q-pb-sm col row text-weight-bold text-body1' : '' "
+              >
                 <div class="col-auto q-pr-sm">
                   <span class="text-green-13">
                     <q-icon
@@ -374,7 +376,9 @@
                   </span>
                 </div>
               </div>
-              <div :class="log.id == 5 && currentStep(wndLog.order) ? 'q-pb-sm col row text-weight-bold text-body1' : '' ">
+              <div
+                :class="log.id == 5 && currentStep(wndLog.order) ? 'q-pb-sm col row text-weight-bold text-body1' : '' "
+              >
                 <div class="col-auto q-pr-sm">
                   <span class="text-green-13">
                     <q-icon
@@ -470,8 +474,8 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="dialogOrders">
-      <q-card dark class="exo bg-darkl0 text-grey-5" v-if="timeElapsed.length && todayState">
+    <q-dialog v-model="dialogOrders" v-if="timeElapsed.length">
+      <q-card dark class="exo bg-darkl0 text-grey-5">
         <q-card-section class="bg-darkl11 text-white">
           <div class="text-h6">Seguimiento de Resurtido</div>
         </q-card-section>
@@ -491,6 +495,56 @@
                 <div
                   class="text-subtitle2 text-left text-green-13"
                   v-for="(order, id) in timeElapsed"
+                  :key="id"
+                >
+                  <q-avatar size="md" class="text-green-13" icon="fas fa-circle" />
+                  <span class="text-bold">{{`${order.id}`}}</span>
+                  <q-space />
+                  <q-avatar size="md" class="text-amber-13" icon="fas fa-arrow-circle-right" />
+                  <span class="text-amber-13">{{`Destino: ${order.from.alias}`}}</span>
+                  <q-space />
+                  <q-avatar size="md" class="text-grey-7" icon="timer" />
+                  <span class="text-bold text-grey-7">{{`${humantime(order.updated_at)}`}}</span>
+                  <q-separator horizontal color="grey-9" />
+                </div>
+              </q-scroll-area>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="OK"
+            @click="alertOrders, setTime, findCards = true"
+            color="green-13"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogOrdersFirst">
+      <q-card dark class="exo bg-darkl0 text-grey-5" v-if="timeOrdersFirst.length">
+        <q-card-section class="bg-darkl11 text-white">
+          <div class="text-h6">Seguimiento de Resurtido</div>
+        </q-card-section>
+        <q-separator color="green-13" />
+        <q-card-section>
+          <div class="row items-center justify-center">
+            <div class="col-md-7 col-xs-5 col-7">
+              <img width="100%" src="../../assets/jhony.gif" alt />
+            </div>
+            <div class="col-md-5 col-xs-5 col-5 text-center">
+              Las siguientes {{timeOrdersFirst.length}} ordenes no se han surtido:
+              <q-scroll-area
+                :thumb-style="thumbStyle"
+                :bar-style="barStyle"
+                style="height: 40vh; max-width: 100%"
+              >
+                <div
+                  class="text-subtitle2 text-left text-green-13"
+                  v-for="(order, id) in timeOrdersFirst"
                   :key="id"
                 >
                   <q-avatar size="md" class="text-green-13" icon="fas fa-circle" />
@@ -544,6 +598,7 @@ export default {
   components: { DeliveryOpt },
   data() {
     return {
+      ordersFill: [],
       selectWorkpoint: undefined,
       workpointsOpc: undefined,
       workpoints: [],
@@ -551,6 +606,7 @@ export default {
       today: false,
       timeSelected: { label: "20 Min", value: 20 },
       dialogOrders: false,
+      dialogOrdersFirst: false,
       tab: "mails",
       dataOrder: [],
       splitterModel: 20,
@@ -697,10 +753,15 @@ export default {
         { label: "15 Min", value: 15 },
         { label: "20 Min", value: 20 },
         { label: "25 Min", value: 25 },
-        { label: "30 Min", value: 30 }
+        { label: "30 Min", value: 30 },
       ]
     };
   },
+  // beforeUpdate() {
+  //   console.log(this.timeElapsed.length);
+  //   this.dialogOrders = this.timeElapsed.length ? true : false;
+  //   // this.timeElapsed.length ? this.alertOrders() : false;
+  // },
   async beforeMount() {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
@@ -745,16 +806,17 @@ export default {
       this.visibleColumns = JSON.parse(localStorage.getItem("setup"));
       this.columns = JSON.parse(localStorage.getItem("setupTable"));
     }
-    console.log(this.timeElapsed.length);
-    this.dialogOrders = this.timeElapsed.length ? true : false;
-    this.timeElapsed.length ? this.alertOrders() : false;
+    // console.log(this.$store.state.Requisitions.orders);
+    // this.dialogOrders = this.timeElapsed.length || this.dialogOrders ? true : false;
+    // this.ordersFill = this.timeElapsed ? this.timeElapsed : [];
+    this.dialogOrders = this.timeElapsed ? true : false;
+    this.dialogOrders ? this.alertOrders() : null;
   },
-  beforeDestroy() {
-    // this.$sktRestock.emit("leave", {
-    //   room: this.socketroom,
-    //   user: this.profile
-    // });
-  },
+  // updated() {
+  //   console.log(this.dialogOrders && this.timeElapsed.length);
+  //   this.dialogOrders = this.timeElapsed.length && this.dialogOrders ? true : false;
+  //   // this.dialogOrders ? this.alertOrders() : false;
+  // },
   methods: {
     /**
      * @description Recibe la data del componente 'DeliveryOpt' y la transforma para gestionar los cambios estado.
@@ -930,16 +992,26 @@ export default {
     },
     async alertOrders() {
       return new Promise(resolve => {
-        setInterval(() => {
-          console.log(this.timeSelected.value);
-          this.dialogOrders = true;
-          resolve("");
-        }, this.timeSelected.value * 60000);
+        if (this.timeOrdersFirst.length) {
+          console.log(this.timeOrdersFirst);
+          console.log('tiempo real',this.todayState(this.timeOrdersFirst[0]));
+          console.log('tiempo restante',(this.timeSelected.value - this.todayState(this.timeOrdersFirst[0])));
+          console.log('entro');
+          setTimeout(() => {
+            this.dialogOrdersFirst = true;
+          }, (this.timeSelected.value - this.todayState(this.timeOrdersFirst[0])) * 60000);
+        } else {
+          setInterval(() => {
+            console.log(this.timeSelected.value);
+            this.dialogOrders = true;
+            resolve("");
+          }, this.timeSelected.value * 60000);
+        }
       });
     },
     searchMarket() {
       this.searchID = this.searchID.length
-        ? this.searchID
+        ? this.selectWorkpoint.label
         : this.selectWorkpoint
         ? this.selectWorkpoint.label
         : this.searchID;
@@ -963,31 +1035,13 @@ export default {
       this.visibleColumns = arr1.length ? arr1 : this.visibleColumns;
       return this.visibleColumns;
     },
-    todayState() {
-      let from = JSON.parse(localStorage.getItem("dbranges"));
-      return this.$moment().format("YYYY-MM-DD") === from.ranges.date.from;
-    },
     markedCard() {
-      return order => this.timeElapsed.find(item => item.id == order.id);
+      return order => !this.dialogOrdersFirst ? this.timeElapsed.find(item => item.id == order.id) : this.timeOrdersFirst.find(item => item.id == order.id);
     },
     setTime() {
       return setTimeout(() => {
         this.findCards = false;
       }, 3000);
-    },
-    timeElapsed() {
-      if (this.orders.length) {
-        return this.orders
-          .filter(i => i.status.id >= 2 && i.status.id <= 3 && this.todayState)
-          .map(item => {
-            let now = Date.now();
-            let timecalc = Date.parse(item.updated_at);
-            let diff = date.getDateDiff(now, timecalc, "days");
-            return diff == 0 ? item : item;
-          });
-      } else {
-        return [];
-      }
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
@@ -1056,6 +1110,38 @@ export default {
     },
     ordersdb() {
       return this.orders.length ? this.orders : [];
+    },
+    todayState() {
+      return order => {
+        let now = Date.now();
+        let timecalc = Date.parse(order.updated_at);
+        let diff = date.getDateDiff(now, timecalc, "minutes");
+        return diff;
+      };
+    },
+    todayStateDay() {
+      return order => {
+        let now = Date.now();
+        let timecalc = Date.parse(order.updated_at);
+        let diff = date.getDateDiff(now, timecalc, "days");
+        return diff;
+      };
+    },
+    timeElapsed() {
+      return this.ordersdb.filter(
+        i =>
+          i.status.id >= 2 &&
+          i.status.id <= 3 &&
+          this.todayState(i) >= this.timeSelected.value && this.todayStateDay(i) == 0
+      );
+    },
+    timeOrdersFirst() {
+      return this.ordersdb.filter(
+        i =>
+          i.status.id >= 2 &&
+          i.status.id <= 3 &&
+          this.todayState(i) <= this.timeSelected.value && this.todayStateDay(i) == 0
+      );
     },
     getStatesLog() {
       return this.$store.getters["Requisitions/getStates"];
@@ -1239,7 +1325,8 @@ export default {
         let msgDisplay = [
           "Iniciar surtido",
           // "Enviar a validación",
-          "Iniciar CheckOut",
+          // "Iniciar CheckOut",
+          "Entregar",
           "CheckOut"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
