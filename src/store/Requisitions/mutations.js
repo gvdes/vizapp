@@ -19,7 +19,7 @@ export function printed(state, order) {
 }
 
 export function updateState(state, { order, newState }) {
-    console.log(order);
+    console.log(newState);
     console.log(`Buscando orden ${order.id} para actualizarla...`);
     // debugger
     let idx = state.orders.findIndex(ord => order.id == ord.id);
@@ -44,7 +44,7 @@ export function getCleanDuplicates(state, order) {
 export function getAllCleanDuplicates(state, orders) {
     for (let i = 0; i < orders.length; i++) {
         let hash = [];
-        let duplicate = orders[i].log.map((idx, id) => { return idx.id == 2 ? hash.push(id) : "" });
+        // let duplicate = orders[i].log.map((idx, id) => { return idx.id == 2 ? hash.push(id) : "" });
         hash = hash.filter((item) => item != 1);
         state.orders[i].log = state.orders[i].log.filter((item, id) => !hash.includes(id));
     }

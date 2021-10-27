@@ -33,6 +33,11 @@ export default {
     console.log(data);
     return vizapi.post("/requisition/add", data);
   },
+  toDelivered(data){
+    return vizapi.post('/requisition/toDelivered',data).then( done => {
+        return done.data;
+    }).catch( fail => { return { error: fail} });
+  },
   remove(data) {
     console.log(data);
     return vizapi.post("/requisition/remove", data);

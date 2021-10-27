@@ -988,6 +988,7 @@ export default {
             "%cEl pedido ha cambiado de status...",
             "font-size:1.5em;color:yellow;"
           );
+          console.log(success);
           this.$q.loading.hide();
           let resp = success.data.updates;
           let newState = [];
@@ -1209,7 +1210,7 @@ export default {
           this.flagProducts = !this.flagProducts;
           this.autocom.options = undefined;
           this.autocom.model = null;
-
+          this.$refs.comp_proauto.putFocus();
           this.rsocket.emit("order_update", {
             user: this.profile,
             from: this.workin,

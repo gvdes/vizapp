@@ -14,7 +14,7 @@
 
       <router-view />
 
-      <div>
+      <!-- <div>
         <q-dialog v-model="dialog">
           <q-card dark class="exo bg-darkl0 text-grey-5">
             <q-card-section class="bg-darkl11 text-white">
@@ -41,7 +41,7 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
-      </div>
+      </div> -->
 
       <q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
         <ToolbarModule :with_home="true" />
@@ -54,7 +54,6 @@
 import ToolbarModule from "../components/Global/ToolbarModule.vue";
 import RangeDates from "../components/Global/RangeDates.vue";
 import HeaderApp from "../components/Global/HeaderApp.vue";
-import dbworpoints from "../API/workpoint";
 import RequisitionsDB from "../API/requisitions.js";
 
 export default {
@@ -160,15 +159,19 @@ export default {
         `%c${by.nick} esta creando la orden ${order.id}`,
         "background:#303952;color:#e66767;border-radius:10px;padding:8px;"
       );
+      let flag = false;
       // console.log(data.order.from.id == this.workin.workpoint.id);
       console.log(this.cedisValidate(this.workin).length);
       data.order.status.id == 1 && this.getValidateSounds(data.order) != -1
         ? this.appsounds.ok.play()
         : "";
-      data.order.from.id == this.workin.workpoint.id
-        ? this.$store.commit("Requisitions/newOrder", order)
-        : [];
-      this.cedisValidate(this.workin).length
+      if (data.order.from.id == this.workin.workpoint.id) {
+        this.$store.commit("Requisitions/newOrder", order);
+        flag = true;
+      } else {
+        []
+      }
+      this.cedisValidate(this.workin).length && !flag
         ? this.$store.commit("Requisitions/newOrder", order)
         : [];
     },

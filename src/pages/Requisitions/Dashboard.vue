@@ -16,7 +16,7 @@
     :class="ismobile ? '' : 'q-pb-md overflow-hidden'"
     :style="ismobile ? '' : 'max-width:100%;max-height:70vh;'"
   >
-    <div class="q-pa-md">
+    <div v-if="!ismobile" class="q-pa-md">
       <div class="col-md-12 col-xs-12 col-12 row self-center items-center">
         <div class="col-md-3 col-3 q-pr-lg">
           <q-select
@@ -177,6 +177,147 @@
       </div>
     </div>
 
+    <div v-else>
+      <div class="col-md-12 col-xs-12 col-12 row self-center items-center q-pa-md">
+        <div class="col-md-4 col-4 q-pr-xs">
+          <q-select
+            class="exo"
+            transition-show="jump-up"
+            transition-hide="jump-down"
+            dark
+            color="green-13"
+            v-model="selectWorkpoint"
+            outlined
+            @input="searchMarket"
+            dense
+            options-dense
+            :options="workpoints"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="filter_alt" />
+            </template>
+          </q-select>
+        </div>
+        <div class="col-md-4 col-4 q-pr-xs">
+          <q-select
+            class="exo"
+            transition-show="jump-up"
+            transition-hide="jump-down"
+            dark
+            color="green-13"
+            v-model="visibleColumns"
+            multiple
+            @click="orderColumns"
+            outlined
+            dense
+            options-dense
+            display-value
+            emit-value
+            map-options
+            :options="columns"
+            option-value="name"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="settings" />
+            </template>
+          </q-select>
+        </div>
+        <div class="col-md-4 col-4 q-pr-xs" v-if="timeElapsed.length && todayState">
+          <q-select
+            class="exo"
+            transition-show="jump-up"
+            transition-hide="jump-down"
+            dark
+            color="green-13"
+            v-model="timeSelected"
+            outlined
+            dense
+            options-dense
+            display-value
+            :options="timestamp"
+            option-value="name"
+            @input="alertOrders"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="far fa-clock" />
+            </template>
+          </q-select>
+        </div>
+        <div class="col-md-6 col-6 q-mt-xs">
+          <template>
+            <q-input
+              dense
+              color="green-13"
+              dark
+              debounce="0"
+              v-model="searchID"
+              placeholder="Buscar Folio"
+            >
+              <template v-slot:prepend>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </template>
+        </div>
+      </div>
+
+      <div class="q-pa-xs">
+        <q-list bordered class="rounded-borders">
+          <q-expansion-item
+            v-for="(header, key) in visibleColumns"
+            :key="key"
+            group="somegroup"
+            expand-separator
+            header-class="bg-green-13"
+            icon="fas fa-th"
+            :label="`${header}`"
+            :caption="`${orderManagement(header).length} en cola`"
+            expand-icon-class="text-black"
+            class="text-black text-weight-bolder q-ma-sm"
+          >
+            <q-scroll-area
+              :thumb-style="thumbStyle"
+              :bar-style="barStyle"
+              style="height: 30vh; max-width: 100%"
+            >
+              <transition-group
+                appear
+                enter-active-class="animated zoomIn"
+                leave-active-class="animated zoomOut"
+              >
+                <div
+                  v-for="order in orderManagement(header)"
+                  :key="order.id"
+                  @click="showLog(order.id)"
+                  class="q-py-md q-px-sm wrapper_prod"
+                >
+                  <div class="row items-center">
+                    <div class="q-pr-sm">
+                      <q-avatar class="q-ma-sm" size="3rem" square>
+                        <img transition="slide-up" :src="buildlog(order, 'avatar')" />
+                      </q-avatar>
+                    </div>
+                    <div class="col q-pr-sm text-grey-5">
+                      <div>
+                        <span class="text--2 text-weight-bold">Orden {{ order.id }}</span>
+                        <q-avatar class="text-green-13" icon="fas fa-arrow-circle-right" />
+                        <span
+                          class="text--2 text-light-blue-14 text-weight-bold"
+                        >{{ order.from.alias }}</span>
+                      </div>
+                      <div class="text--2 text-grey-5">{{ buildlog(order, "resp") }}</div>
+                      <div class="text--2 text-amber-13">{{ order.notes }}</div>
+                    </div>
+                    <div class="text-right text-green-13">{{ buildlog(order, "time") }}</div>
+                  </div>
+                </div>
+              </transition-group>
+            </q-scroll-area>
+          </q-expansion-item>
+        </q-list>
+      </div>
+    </div>
+
     <q-dialog v-model="wndLog.state">
       <q-card v-if="wndLog.order" class="exo bg-darkl0 text-grey-5" style="width: 500px">
         <q-card-section>
@@ -207,13 +348,7 @@
               "
               :title="log.name"
             >
-              <div
-                :class="
-                  log.id == 3 && log.details.actors
-                    ? 'q-pb-sm col row text-weight-bold text-body1'
-                    : ''
-                "
-              >
+              <div :class="log.id == 3 && log.details.actors ? 'q-pb-sm col row text-weight-bold text-body1' : '' ">
                 <div class="col-auto q-pr-sm">
                   <span class="text-green-13">
                     <q-icon
@@ -234,6 +369,28 @@
                     {{
                     log.id == 3 && log.details.actors.managerState
                     ? humantime(log.details.actors.managerState.updateChanges)
+                    : ""
+                    }}
+                  </span>
+                </div>
+              </div>
+              <div :class="log.id == 5 && currentStep(wndLog.order) ? 'q-pb-sm col row text-weight-bold text-body1' : '' ">
+                <div class="col-auto q-pr-sm">
+                  <span class="text-green-13">
+                    <q-icon
+                      class="q-pr-sm"
+                      v-if="currentStep(wndLog.order)&&log.id == 5"
+                      color="blue-grey-7"
+                      name="fas fa-ticket-alt"
+                    />
+                    {{ log.id == 5 && currentStep(wndLog.order) ? 'Folio: ' + getTicket(wndLog.order) : "" }}
+                  </span>
+                </div>
+                <div class="col-auto text-right">
+                  <span class="text-white">
+                    {{
+                    log.id == 5 && currentStep(wndLog.order)
+                    ? humantime(log.updated_at)
                     : ""
                     }}
                   </span>
@@ -270,25 +427,22 @@
                       wndLog.order.from.id
                     ) && wndLog.order.status.id == log.id
                   "
-                >
-                  <q-btn
-                    outline
-                    color="green-13"
-                    label="iniciar surtido"
-                    @click="wndStore.state = !wndStore.state"
-                    v-show="!wndStore.state"
-                    :disable="moving"
-                    :loading="moving"
-                  />
-                </div>
+                ></div>
                 <div
                   class="q-pt-md"
-                  v-if="
-                    validateCEDIS(wndLog.order.status.id, log.id) &&
-                    wndLog.order.status.id == log.id
+                  v-if="validateCEDIS(wndLog.order.status.id, log.id) && wndLog.order.status.id == log.id
                   "
                 >
                   <q-btn
+                    class="q-mr-sm"
+                    v-if="wndLog.order.status.id >= 6 && wndLog.order.status.id <= 10"
+                    outline
+                    color="teal-13"
+                    label="Ver CheckOut"
+                    @click="$router.push(`/pedidos/checkout/${wndLog.order.id}`)"
+                  />
+                  <q-btn
+                    v-if="wndLog.order.status.id <= 5"
                     outline
                     color="teal-13"
                     :label="msgCEDIS"
@@ -296,12 +450,10 @@
                       checkState(wndLog.order.status.id)
                         ? ((wndStore.state = !wndStore.state),
                           (wndLog.state = !wndLog.state))
-                        : changeState(
-                            wndLog.order.status.id == 3
-                              ? 7
-                              : wndLog.order.status.id + 1
-                          )
-                    "
+                        : wndLog.order.status.id == 3 ? changeState(5)
+                        : wndLog.order.status.id == 5 ? $router.push(`/pedidos/checkout/${wndLog.order.id}`)
+                        : changeState(wndLog.order.status.id + 1)
+                        "
                     :disable="moving"
                     :loading="moving"
                   />
@@ -384,13 +536,12 @@
 <script>
 import { date } from "quasar";
 import dbreqs from "../../API/requisitions";
-import ToolbarAccount from "../../components/Global/ToolbarAccount.vue";
 import dbAccount from "../../API/account";
 import DeliveryOpt from "../../components/Requisition/DeliveryOpt.vue";
 import dbworpoints from "../../API/workpoint";
 
 export default {
-  components: { ToolbarAccount, DeliveryOpt },
+  components: { DeliveryOpt },
   data() {
     return {
       selectWorkpoint: undefined,
@@ -551,13 +702,15 @@ export default {
     };
   },
   async beforeMount() {
+    this.$store.commit("Requisitions/setHeaderState", true);
+    this.$store.commit("Requisitions/setFooterState", true);
     let params = { _rol: [7] };
     this.grocerAccnt = await dbAccount.get(params);
     this.index = this.orders;
     this.$store.commit("Requisitions/getAllCleanDuplicates", this.orders);
     this.$store.commit("Requisitions/setHeaderTitle", this.title);
     let aux = 0;
-    let blocked = [3, 4, 5, 7, 8, 10, 11];
+    let blocked = [3, 5, 7, 8, 10, 11];
 
     let getMarkets = await dbworpoints.index();
     this.workpoints.push({ label: "Todos", value: -1 });
@@ -594,7 +747,7 @@ export default {
     }
     console.log(this.timeElapsed.length);
     this.dialogOrders = this.timeElapsed.length ? true : false;
-    this.visibleColumns.length ? this.alertOrders() : false;
+    this.timeElapsed.length ? this.alertOrders() : false;
   },
   beforeDestroy() {
     // this.$sktRestock.emit("leave", {
@@ -678,7 +831,7 @@ export default {
      * @param { number } orderid ID de la orden
      */
     showLog(orderid) {
-      // console.log(this.searchMarket);
+      // console.log(this.isCEDIS);
       // console.log(this.timeElapsed);
       let idx = this.ordersdb.findIndex(item => {
         return item.id == orderid;
@@ -728,21 +881,6 @@ export default {
 
       this.wndStore.state = this.wndLog.order.id == 2 ? true : false;
 
-      switch (atstate) {
-        case 8:
-          console.log("Completado...");
-          newstatus.name = "Completado";
-          message = "Completado";
-          this.sounds.ok.play();
-          break;
-
-        // case 5:
-        //   console.log("Moviendo a En camino...");
-        //   newstatus.name = "En camino";
-        //   message = "Envio iniciado";
-        //   break;
-      }
-
       dbreqs
         .nextstep(data)
         .then(success => {
@@ -771,7 +909,9 @@ export default {
             icon: "done",
             position: "bottom-right"
           });
-          // atstate != 10 ? this.appsounds.moved.play() : "";
+          atstate == 5
+            ? this.$router.push(`/pedidos/checkout/${this.wndLog.order.id}`)
+            : "";
           this.$sktRestock.emit("order_changestate", {
             state: newStateSend,
             profile: this.profile,
@@ -1095,14 +1235,12 @@ export default {
         //   "Enviar",
         //   "Entregar",
         // ];
-        let stateCEDIS = [2, 3, 9];
+        let stateCEDIS = [2, 3, 5, 7, 9];
         let msgDisplay = [
           "Iniciar surtido",
           // "Enviar a validación",
-          // "Validar Embarque",
-          // "Enviando Embarque",
-          "Entregar"
-          // "Entregar",
+          "Iniciar CheckOut",
+          "CheckOut"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
           ? msgDisplay[stateCEDIS.indexOf(status)]
@@ -1130,7 +1268,7 @@ export default {
     isCEDIS() {
       return index => {
         let settings =
-          index == 1 || index == 2 || index == 6 || index == 9
+          index == 1 || index == 2 || index == 4 || index == 6 || index == 9
             ? // index == 6
               index
             : 0;
@@ -1181,6 +1319,15 @@ export default {
         return item.months.includes(date.month() + 1) ? item.img : "";
       });
       return idx.img;
+    },
+    currentStep() {
+      return order => (order ? order.status : null);
+    },
+    getTicket() {
+      return order =>
+        this.currentStep(order) && this.currentStep(order).id >= 6
+          ? `${order.log[4].details.order.serie} - ${order.log[4].details.order.ticket}`
+          : "";
     }
   }
 };
