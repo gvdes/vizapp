@@ -22,8 +22,17 @@ export function startState (state,data) {
     }
 
     state.orders = data.index.orders;
+    let agents = [];
+    let listProfiles = state.orders.map( o => o.created_by );
+    let agentsInView = [...new Set( state.orders.map( o => o.created_by.id).map( id => listProfiles.find( p => p.id == id) ) )];
+    let agentsInBranch = data.agents.map( ag => {ag.activeInBranch = true; return ag;});
+
+    let fullListAgents = agentsInView.concat(agentsInBranch);
+
+    fullListAgents.map( ag => { agents.find( a => a.id==ag.id ) ? null : agents.push(ag); });
+
     state.printers = data.index.printers;
-    state.agents = data.agents.map( ag => { ag.rt={cnx:false,id:null}; return ag; });
+    state.agents = agents.map( ag => { ag.rt={cnx:false,id:null}; return ag; });
     state.process = data.index.status.map( state => {
         state.state = state.active ? true:false;
         state.descs = descriptions[state.id];

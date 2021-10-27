@@ -9,6 +9,7 @@ export default function () {
 			viewsection:true
 		},
 		agents:[],
+		agentsView:[],
 		cashdesks:[]
 	}
 }
