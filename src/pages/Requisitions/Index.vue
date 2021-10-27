@@ -26,10 +26,7 @@
               :options="combowkps"
             />
           </div>
-          <div
-            class="row items-center q-gutter-md"
-            v-if="neworder.type.value == 3"
-          >
+          <div class="row items-center q-gutter-md" v-if="neworder.type.value == 3">
             <q-select
               class="col"
               dark
@@ -48,10 +45,7 @@
               v-model="neworder.folio"
             />
           </div>
-          <div
-            class="row items-center q-gutter-md"
-            v-if="neworder.type.value == 4"
-          >
+          <div class="row items-center q-gutter-md" v-if="neworder.type.value == 4">
             <q-input
               class="col"
               dark
@@ -85,6 +79,32 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="dialog">
+      <q-card dark class="exo bg-darkl0 text-grey-5">
+        <q-card-section class="bg-darkl11 text-white">
+          <div class="text-h6">{{ this.layout.header.title }}</div>
+        </q-card-section>
+        <q-separator color="green-13" />
+        <q-card-section>
+          <div class="column items-center justify-center">
+            <div class="col-md-4 col-4 text-center">
+              <img
+                width="100%"
+                src="https://www.huratips.com/wp-content/uploads/2019/04/empty-cart.png"
+                alt
+              />
+            </div>
+            <div class="col-md-8 col-8 text-center">
+              <div class="text-subtitle1">No se encontraron resultados.</div>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="green-13" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-page-sticky position="bottom-right" :offset="[10, 5]">
       <q-btn
         rounded
@@ -108,12 +128,13 @@ export default {
   components: { OrderListRequisitions },
   data() {
     return {
+      dialog: false,
       name: "Resurtido / Inicio",
       initpagination: {
         sortBy: "id",
         descending: false,
         page: 1,
-        rowsPerPage: 20,
+        rowsPerPage: 20
       },
       status: [],
       index: undefined,
@@ -123,16 +144,17 @@ export default {
         type: { label: "Manual", value: 1 },
         dest: { label: "CEDISSAP", value: 1 },
         origin: { label: "---", value: null },
-        "folio:": undefined,
+        "folio:": undefined
       },
       sounds: {
-        moved: new Audio("sounds/moved.mp3"),
+        moved: new Audio("sounds/moved.mp3")
       },
-      socket: this.$sktRestock,
+      socket: this.$sktRestock
     };
   },
   async beforeMount() {
     this.index = await this.loadIndex();
+    this.dialog = this.index.requisitions.length <= 0 ? true : false;
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", true);
@@ -203,14 +225,16 @@ export default {
             spinner: QSpinnerGrid,
             spinnerColor: "green-13",
             message:
-              "Tu pedido se esta generando, por favor espera mientras consultamos existencias",
+              "Tu pedido se esta generando, por favor espera mientras consultamos existencias"
           });
           cancreate = true;
           break;
 
         case 3:
           data.folio = this.neworder.folio;
-          data.store = this.soldValidate.length ? this.neworder.origin.value : this.workin.workpoint.id;
+          data.store = this.soldValidate.length
+            ? this.neworder.origin.value
+            : this.workin.workpoint.id;
           console.log(data);
 
           if (data.folio || data.store) {
@@ -219,14 +243,14 @@ export default {
               spinner: QSpinnerGrid,
               spinnerColor: "green-13",
               message: `Buscando folio <b class="text-green-13">${data.folio}</b> en <b class="text-green-13">${data.folio}</b>, porfavor espera`,
-              html: true,
+              html: true
             });
           } else {
             cancreate = false;
             this.$q.notify({
               icon: "fas fa-exclamation-circle",
               color: "red",
-              message: `Sucursal y folio son obligatorios`,
+              message: `Sucursal y folio son obligatorios`
             });
           }
         case 4:
@@ -239,14 +263,14 @@ export default {
               spinner: QSpinnerGrid,
               spinnerColor: "green-13",
               message: `Buscando folio <b class="text-green-13">${data.folio}</b> en <b class="text-green-13">${data.folio}</b>, porfavor espera`,
-              html: true,
+              html: true
             });
           } else {
             cancreate = false;
             this.$q.notify({
               icon: "fas fa-exclamation-circle",
               color: "red",
-              message: `Sucursal y folio son obligatorios`,
+              message: `Sucursal y folio son obligatorios`
             });
           }
           break;
@@ -260,7 +284,7 @@ export default {
       if (cancreate) {
         dbreqs
           .create(data)
-          .then((success) => {
+          .then(success => {
             let resp = success.data;
             console.log(resp);
             this.$q.loading.hide();
@@ -271,35 +295,42 @@ export default {
               message: `Pedido ${resp.order.id} creado!`,
               color: "positive",
               position: "center",
-              timeout: 1500,
+              timeout: 1500
             });
 
             this.$sktRestock.emit("creating", {
               user: this.profile,
               from: this.workin,
               order: resp.order,
-              to: this.neworder.dest,
+              to: this.neworder.dest
             });
             this.$router.push("/pedidos/" + resp.order.id);
           })
-          .catch((fail) => {
+          .catch(fail => {
             console.log(fail);
             this.$q.notify({
               message: `Rayos!!, esto no ha funcionado!`,
               icon: "bug",
-              color: "negative",
+              color: "negative"
             });
           });
       }
-    },
+    }
   },
   computed: {
     orders() {
-      return this.$store.state.Requisitions.orders.filter(i => i.from.id == this.workin.workpoint.id);
+      return this.$store.state.Requisitions.orders.filter(
+        i => i.from.id == this.workin.workpoint.id
+      );
     },
     soldValidate() {
       // return this.workin;
-      return [this.workin].filter(item => item.workpoint.id == 1 || item.workpoint.id == 2 || item.workpoint.id == 16);
+      return [this.workin].filter(
+        item =>
+          item.workpoint.id == 1 ||
+          item.workpoint.id == 2 ||
+          item.workpoint.id == 16
+      );
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
@@ -318,10 +349,14 @@ export default {
     },
     combowkps() {
       if (this.index) {
-        return this.index.workpoints.map((item) => {
-          // console.log(item);
-          return { label: item.alias, value: item.id };
-        });
+        return this.index.workpoints
+          .map(item => {
+            // console.log(item);
+            return item.id == 1 || item.id == 2 || item.id == 16
+              ? { label: item.alias, value: item.id }
+              : null;
+          })
+          .filter(i => i != null);
       } else {
         return [];
       }
@@ -329,11 +364,11 @@ export default {
     combowkpsorigin() {
       if (this.workpoints) {
         return this.workpoints
-          .filter((item) => {
+          .filter(item => {
             // return item.type.id>1&&item.alias!="VIZ";
             return item.alias != "VIZ";
           })
-          .map((item) => {
+          .map(item => {
             return { label: item.alias, value: item.id };
           });
       } else {
@@ -342,7 +377,7 @@ export default {
     },
     comboreqstypes() {
       if (this.index) {
-        let options = this.index.types.map((item) => {
+        let options = this.index.types.map(item => {
           return { label: item.name, value: item.id };
         });
         return options;
@@ -351,20 +386,20 @@ export default {
       }
     },
     labelstate() {
-      return (row) => {
-        let idx = row.log.findIndex((item) => item.id == row.status.id);
+      return row => {
+        let idx = row.log.findIndex(item => item.id == row.status.id);
         return row.log[idx].name;
       };
     },
     timestate() {
-      return (row) => {
-        let idx = row.log.findIndex((item) => item.id == row.status.id);
+      return row => {
+        let idx = row.log.findIndex(item => item.id == row.status.id);
         let time = row.log[idx].created_at;
         return this.humantime(time);
       };
     },
     humantime() {
-      return (time) => {
+      return time => {
         let now = Date.now();
         let timecalc = Date.parse(time);
         let diff = date.getDateDiff(now, timecalc, "days");
@@ -385,7 +420,7 @@ export default {
       };
     },
     ordersize() {
-      return (products) => {
+      return products => {
         let sizeprod = products.length;
         if (sizeprod) {
           let labelpzs = products.reduce((ammount, item) => {
@@ -396,6 +431,9 @@ export default {
         return "--";
       };
     },
-  },
+    layout() {
+      return this.$store.state.Requisitions.layout;
+    },
+  }
 };
 </script>
