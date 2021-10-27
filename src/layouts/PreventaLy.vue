@@ -1,6 +1,6 @@
 <template>
 	<q-layout view="lHh Lpr lFf">
-		<q-page-container class="exo bg-darkl0 text-white">
+		<q-page-container class="exo bg-darkl0 text-white ">
 			<q-header class="bg-none" v-if="layout.header.state">
 				<q-card class="bg-darkl1">
 					<HeaderApp :title="layout.header.title"/>

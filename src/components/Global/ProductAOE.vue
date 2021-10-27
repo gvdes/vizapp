@@ -194,7 +194,7 @@ export default {
             switch (this.metsupply.model.id) {
                 case 2: return this.amount*12; //cantidad * 12 
                 case 3: return this.amount*this.ipack; //cantidad por piezas por caja
-                default: return this.amount;// retornar cantidad325
+                default: return this.amount;// retornar cantidad
             }
         },
         boxes(){// obtiene las cajas en base a la unidad de surtido
