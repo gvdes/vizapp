@@ -74,11 +74,14 @@
 									<q-img src="~/assets/_usdeft.png" width="40px" height="40px" :class="props.row.rt.cnx?'useron':'useroff'"/>
 									<div class="q-pl-md">
 										<div>{{props.row.nick}}</div>
-										<div class="text--1 text-grey-5">{{props.row.names}} {{props.row.surname_pat}}</div>
+										<div class="text--1" :class="props.row.activeInBranch ? 'text-green-13':'text-grey-5'">{{props.row.names}} {{props.row.surname_pat}}</div>
 									</div>
 								</div>
 							</q-td>
 							<q-td key="ordersize" align="center">{{props.row.ordersize}}</q-td>
+							<!-- <q-td key="chart" align="center">
+								<apexchart type="bar" height="350" :options="chartOptions" :series="series"></apexchart>
+							</q-td> -->
 						</q-tr>
 					</template>
 				</q-table>
@@ -88,8 +91,9 @@
 </template>
 
 <script>
-
+// import apexcharts from 'vue-apexcharts'
 export default {
+
 	data(){
 		return{
 			// socket:this.$sktPreventa,
@@ -104,6 +108,7 @@ export default {
 					{ name:'nick', field:'nick', sortable:true, label:'Agente', align:'center' },
 					// { name:'names', field:(row)=>`${row.names} ${row.surname_pat}`, sortable:true, label:'Nombre', align:'center' },
 					{ name:'ordersize', field:'ordersize', sortable:true, label:'Pedidos', align:'center' },
+					// { name:'chart', field:'', label:'pedidos', align:'center' }
 				],
 				pagination:{
 					sortBy:'ordersize',

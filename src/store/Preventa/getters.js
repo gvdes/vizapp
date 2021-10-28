@@ -10,7 +10,7 @@ export function OrdersCheckIn (state) {
 
 export function OrdersCheckout (state) {
     // devuelve las ordenes que estan en checkin
-    return state.orders.filter( order => (order.status.id==5 || order.status.id==6 || order.status.id==7) );
+    return state.orders.filter( order => (order.status.id>=5 && order.status.id<=8) );
 }
 
 export function process (state){

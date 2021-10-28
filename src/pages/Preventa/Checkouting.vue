@@ -78,9 +78,15 @@
         <div class="q-mb-xl" v-if="!artduplicate.state">
             <!-- LISTA INICIAL DE PRODUCTOS -->
             <div>
-                <div class="q-pa-md bg-blue-grey-8 row items-center justify-between">
-                    <span>Por Contar: {{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</span>
-                    <span>$ {{totalOutBasket}}</span>
+                <div class="q-py-sm q-px-md bg-blue-grey-8 row items-center justify-between">
+                    <div class="row">
+                        <div>
+                            <div class="text-bold">Por Confirmar</div>
+                            <div class="text--2">{{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</div>
+                        </div>
+                        <q-btn class="q-ml-sm" icon="print" color="grey-4" dense flat @click="printOutBasket"/>
+                    </div>
+                    <div>$ {{totalOutBasket}}</div>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
                     <div v-for="prod in outbasket" :key="prod.id" @click="confirm(prod)" class="q-py-md q-px-sm wrapper_prod">
@@ -91,7 +97,8 @@
                                     <span>{{ prod.code }}</span> --
                                     <span>{{ prod.name }}</span>
                                 </div>
-                                <div class="text--2 text-grey-5">{{ prod.description }}</div>
+                                <div class="text--3 text-uppercase text-italic">{{ prod.family }}</div>
+                                <div class="text--3 text-grey-5">{{ prod.description }}</div>
                                 <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                                 <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
                             </div>
@@ -103,8 +110,11 @@
 
             <!-- LISTA DE PRODUCTOS CONFIRMADOS -->
             <div>
-                <div class="q-pa-md bg-primary row items-center justify-between">
-                    <span>Contados: {{inbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsInBasket}} pzs</span>
+                <div class="q-py-sm q-px-md bg-primary row items-center justify-between">
+                    <div>
+                        <div class="text-bold">Confirmados</div>
+                        <div class="text--2">{{inbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsInBasket}} pzs</div>
+                    </div>
                     <span>$ {{totalBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
@@ -116,6 +126,7 @@
                                     <span>{{ prod.code }}</span> --
                                     <span>{{ prod.name }}</span>
                                 </div>
+                                <div class="text--3 text-uppercase text-italic">{{ prod.family }}</div>
                                 <div class="text--2 text-grey-5">{{ prod.description }}</div>
                                 <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                                 <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
@@ -192,11 +203,11 @@
         <!--  -->
         <q-dialog v-model="wndSending.state" :persistent="wndSending.persistent" position="bottom">
             <q-card class="bg-darkl1 text-white exo">
-                <q-card-section class="text-h6 bfv">Confirmar Pedido...</q-card-section>
-                <q-btn-group spread>
-                    <q-btn flat label="Confirmar" class="q-py-md" color="positive" @click="nextStep"/>
-                    <q-btn flat label="Cancelar" @click="wndSending.state=false" color="amber-14"/>
-                </q-btn-group>
+                <q-card-section class="bg-blue-grey-9 text-white text-overline">ENVIAR A CAJA</q-card-section>
+                <q-card-actions>
+                    <q-btn flat label="Enviar" class="q-py-md full-width" color="green-13" @click="nextStep" no-caps/>
+                    <!-- <q-btn flat icon="close" @click="wndSending.state=false" color="amber-14" no-caps/> -->
+                </q-card-actions>
             </q-card>
         </q-dialog>
 
@@ -564,6 +575,25 @@ export default {
                 this.$q.loading.hide();
             }
         },
+        async printOutBasket(){
+            let data = {
+                "_order": this.order.id,
+                "_printer": 5
+            }
+
+            let printed = await PreventaDB.printNotDelivered(data);
+
+            if(printed.success){
+
+            }else{
+                this.$q.notify({
+                    message:'Sin conexion a la impresora',
+                    color:'negative', icon:'fas fa-bug'
+                });
+            }
+
+            console.log(printed);
+        }
     },
     beforeDestroy(){
         this.$store.commit('Preventa/setHeaderState', true);
@@ -636,4 +666,6 @@ export default {
 <style lang="scss" scoped>
     .wrapper_prod{ border-bottom:1px solid #4b4b4b; }
     .divlcient{ border-radius:0px 0px 20px 20px; }
+    .hei1{ border-bottom:2px solid #0097A7; }
+    .hei2{ border-bottom:2px solid #2196F3; }
 </style>

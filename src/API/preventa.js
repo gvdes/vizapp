@@ -58,5 +58,10 @@ export default{
         return vizapi.post('order/toDelivered',data).then( done => {
             return done.data;
         }).catch( fail => { return { error: fail} });
+    },
+    printNotDelivered(data){
+        return vizapi.post('order/printNotDelivered',data).then( done => {
+            return done.data;
+        }).catch( fail => { return { error: fail} });
     }
 }

@@ -2,7 +2,7 @@
     <div class="row items-center">
         <template v-if="read_barcode">
             <q-input 
-                ref="iptbarcode"
+                ref="iptatc"
                 :loading="iptsearch.processing"
                 :disable="iptsearch.processing"
                 v-model="target" dense dark filled 
@@ -192,14 +192,17 @@ export default {
         clear(){ this.target = ""; },
         putFocus(){
             console.log("putFocus ejecutada!!");
+            this.$refs.iptatc.focus();
 
-            if(this.read_barcode){
-                console.log("focus en iptbarcode!!");
-                this.$refs.iptbarcode.focus()
-            }else{
-                console.log("focus en iptatc!!");
-                this.$refs.iptatc.focus();
-            }
+            // if(this.read_barcode){
+            //     console.log("focus en iptbarcode!!");
+            //     this.$refs.iptbarcode.focus()
+            //     let iptb = document.getElementById("iptbarcode");
+            //     iptb.focus();
+            // }else{
+            //     console.log("focus en iptatc!!");
+            //     this.$refs.iptatc.focus();
+            // }
         }
     },
     computed:{

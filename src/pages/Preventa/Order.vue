@@ -429,7 +429,7 @@ export default {
                 this.wndEditor.state = true;
             }
         },
-        cleanEditor(){ this.wndEditor.product = undefined; },
+        cleanEditor(){ this.wndEditor.product = undefined; this.$refs.patc.putFocus(); },
         async archive(){
             // this.$q.loading.show({message:'Archivando pedido...'});
             let data = { "_order": this.ordercatch.id }
@@ -508,6 +508,7 @@ export default {
 
                 this.wndEditor.state = false;
                 this.wndEditor.product = undefined;
+                this.$refs.patc.putFocus();
             }
 
             this.$q.loading.hide();
