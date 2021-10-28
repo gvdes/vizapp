@@ -1130,16 +1130,14 @@ export default {
     timeElapsed() {
       return this.ordersdb.filter(
         i =>
-          i.status.id >= 2 &&
-          i.status.id <= 3 &&
+          i.status.id == 2 &&
           this.todayState(i) >= this.timeSelected.value && this.todayStateDay(i) == 0
       );
     },
     timeOrdersFirst() {
       return this.ordersdb.filter(
         i =>
-          i.status.id >= 2 &&
-          i.status.id <= 3 &&
+          i.status.id == 2 &&
           this.todayState(i) <= this.timeSelected.value && this.todayStateDay(i) == 0
       );
     },
