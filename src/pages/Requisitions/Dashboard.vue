@@ -900,7 +900,7 @@ export default {
       });
       this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
       this.wndLog.order = this.ordersdb[idx];
-      console.log(this.wndLog.order);
+      // console.log(this.wndLog.order);
       if (this.wndLog.order.log.length > 2) {
         try {
           let index = this.grocerAccnt.findIndex(item => {
@@ -1261,8 +1261,8 @@ export default {
     },
     ordersize() {
       return products => {
-        // console.log(products);
-        let sizeprod = this.checkPermissions ? products.length : 0;
+        console.log(products);
+        let sizeprod = products.length;
         if (sizeprod) {
           let labelpzs = products.reduce((ammount, item) => {
             return parseInt(item.ordered.amount) + ammount;
