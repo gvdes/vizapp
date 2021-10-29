@@ -749,7 +749,7 @@ export default {
         max-height: 300px;
         overflow: scroll;
     }
-    .hei{//header expantion item
-        border-bottom:2px solid grey;
-    }
+    
+    //header expantion item
+    .hei{ border-bottom:2px solid grey; }
 </style>
