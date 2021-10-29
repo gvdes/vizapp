@@ -236,7 +236,7 @@ export default {
                 units:this.units,
                 usedprice:this.usedprice,
                 metsupply:this.metsupply.model,
-                innerpack:this.innerpack
+                innerpack:parseInt(this.innerpack)
             }
         },
         action (){
