@@ -46,10 +46,11 @@
           v-model="selectedInput"
           header-class="bg-indigo-5"
           icon="content_paste"
-          :label="`Productos Solicitados: ${inBucket.length}`"
+          :label="`Productos Solicitados: ${inBucket.length} con un total de ${pzsInBucket} pzs`"
           :caption="`Costo Total $ ${bucketCostInput}`"
           dark
         >
+        <!-- <div class="text--2">{{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</div> -->
           <!-- LISTA INICIAL DE PRODUCTOS -->
           <div>
             <q-scroll-area
@@ -94,7 +95,7 @@
           v-model="selectedOutput"
           header-class="bg-teal-10"
           icon="content_paste_go"
-          :label="`Contados: ${outBucket.length}`"
+          :label="`Contados: ${outBucket.length} con un total de ${pzsOutBucket} pzs`"
           :caption="`Costo Total $ ${bucketCostDelivered}`"
           dark
           expand-icon-class="text-white"
@@ -546,6 +547,7 @@ export default {
           titleMessage: "Seguimiento CheckOut",
           color: "negative",
           timeout: 1000,
+          icon: "report_problem",
           position: "center"
         });
         // this.wndCounter.state = false;
@@ -858,10 +860,12 @@ export default {
     },
     getTicket() {
       let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
-      return this.currentStep && this.currentStep.id >= 4
+      return this.currentStep && this.currentStep.id >= 4 && this.ordersdb[idx].log[4].details.order
         ? `${this.ordersdb[idx].log[4].details.order.serie} - ${this.ordersdb[idx].log[4].details.order.ticket}`
-        : "";
-    }
+        : "Sin Folio Generado";
+    },
+    pzsInBucket(){ return this.inBucket.length ? this.inBucket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
+    pzsOutBucket(){ return this.outBucket.length ? this.outBucket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
   }
 };
 </script>

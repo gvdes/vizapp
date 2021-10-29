@@ -110,9 +110,10 @@ export default {
       this.index = await RequisitionsDB.index(data);
       let validateOrders = this.index.requisitions;
       console.log(this.index);
-      let arr = await RequisitionsDB.dashboard(data);
+      
 
-      if (arr.requisitions.length >= 0 && this.checkPermissions) {
+      if (this.checkPermissions) {
+        let arr = await RequisitionsDB.dashboard(data);
         this.index.requisitions = [];
         arr.requisitions.forEach(element => {
           return this.index.requisitions.push(element);
@@ -128,9 +129,9 @@ export default {
           this.$store.commit("Requisitions/startState", this.index);
         }
       } else {
-        arr.requisitions.forEach(element => {
-          return this.index.requisitions.push(element);
-        });
+        // arr.requisitions.forEach(element => {
+        //   return this.index.requisitions.push(element);
+        // });
 
         this.flag = validateOrders.length > 0 ? false : true;
 

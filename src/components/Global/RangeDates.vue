@@ -122,6 +122,7 @@
 </template>
 
 <script>
+import { date } from "quasar";
 export default {
   name: "RangeDates",
   props: {
@@ -168,23 +169,44 @@ export default {
   beforeMount() {
     let getDBRanges = JSON.parse(localStorage.getItem("dbranges"));
     if (getDBRanges) {
-      // console.log(getDBRanges);
+      let dbStorageDate = this.$moment().format("YYYY/MM/DD");
+      let dbAllDateToday = getDBRanges.ranges.date.from;
+      console.log(this.todayState(dbStorageDate, dbAllDateToday));
       this.selectViews.selected = getDBRanges.option;
-      this.ranges.date.from = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.from ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.from;
-      this.ranges.date.to = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.to ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.to;
+      this.ranges.date.from =  
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.from;
+      this.ranges.date.to =  
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.to;
 
-      this.ranges.time.from = getDBRanges.ranges.time.from;
-      this.ranges.time.to = getDBRanges.ranges.time.to;
+      this.ranges.date.display.from =  
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY/MM/DD") : getDBRanges.ranges.date.display.from;
+      this.ranges.date.display.to = 
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY/MM/DD") : getDBRanges.ranges.date.display.to;
 
-      this.ranges.date.display.from = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.display.from ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.display.from;
-      this.ranges.date.display.to = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.display.to ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.display.to;
-      
-      this.ranges.time.display.from = getDBRanges.ranges.time.display.from;
-      this.ranges.time.display.to = getDBRanges.ranges.time.display.to;
+      this.ranges.time.from = this.$moment()
+        .startOf("day")
+        .add(8, "h")
+        .format("HH:mm:ss");
+      this.ranges.time.to = this.$moment()
+        .endOf("day")
+        .format("HH:mm:ss");
+
+      this.ranges.time.display.from = this.$moment()
+        .startOf("day")
+        .add(8, "h")
+        .format("hh:mm a");
+      this.ranges.time.display.to = this.$moment()
+        .endOf("day")
+        .format("hh:mm a");
+
+      localStorage.setItem(
+        "dbranges",
+        JSON.stringify({
+          ranges: this.ranges,
+          option: this.selectViews.selected,
+          dbranges: this.dbranges
+        })
+      );
       this.$emit("inputRanges", { ranges: this.ranges, option: this.selectViews.selected, dbranges: this.dbranges });
     } else {
       this.setDates();
@@ -307,6 +329,14 @@ export default {
     }
   },
   computed: {
+    todayState() {
+      return (storage, today) => {
+        let dbStorageDate = Date.parse(storage);
+        let dbAllDateToday = Date.parse(today);
+        let diff = date.getDateDiff(dbStorageDate, dbAllDateToday, "days");
+        return diff;
+      };
+    },
     dbranges() {
       return {
         from: `${this.ranges.date.from} ${this.ranges.time.from}`,

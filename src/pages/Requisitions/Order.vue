@@ -84,7 +84,7 @@
         </q-banner>
       </div>
     </q-slide-transition>
-    
+
     <q-drawer
       v-model="ldrawer.state"
       v-if="_getorders&&_getorders.status.id <= 2"
@@ -891,8 +891,7 @@ export default {
     this.$q.loading.hide();
 
     // console.log(this._store);
-    
-    
+
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
     this.setupToolbar.destiny = this.order.to.alias;
@@ -1143,85 +1142,91 @@ export default {
     },
     addProduct(params) {
       console.log(params);
-      this.wndSetItem.adding = true;
-      this.filteringItems = "";
+      if (params.product.status.id == 3) {
+        this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} se encuentra agotado.`;
+        this.flagDuplicate = !this.flagDuplicate;
+        this.flagProducts = !this.flagProducts;
+      } else {
+        this.wndSetItem.adding = true;
+        this.filteringItems = "";
 
-      let data = new Object();
-      this.wndSetItem.art = params.product;
-      this.wndSetItem.units = params.units;
-      this.wndSetItem.amount = params.amount;
-      this.wndSetItem.notes = params.comments;
-      this.wndSetItem.metsupply = params.metsupply;
+        let data = new Object();
+        this.wndSetItem.art = params.product;
+        this.wndSetItem.units = params.units;
+        this.wndSetItem.amount = params.amount;
+        this.wndSetItem.notes = params.comments;
+        this.wndSetItem.metsupply = params.metsupply;
 
-      let product = this.wndSetItem.art;
-      product.amount = this.wndSetItem.amount;
-      product.comments = this.wndSetItem.notes;
-      product.prices = this.wndSetItem.art.prices;
-      data._product = product.id;
-      data.amount = product.amount;
-      data.comments = product.comments;
-      data._requisition = this.params.id;
-      data._supply_by = params.metsupply.id;
+        let product = this.wndSetItem.art;
+        product.amount = this.wndSetItem.amount;
+        product.comments = this.wndSetItem.notes;
+        product.prices = this.wndSetItem.art.prices;
+        data._product = product.id;
+        data.amount = product.amount;
+        data.comments = product.comments;
+        data._requisition = this.params.id;
+        data._supply_by = params.metsupply.id;
 
-      this.$q.loading.show({ message: "Enviando archivo, espera..." });
+        this.$q.loading.show({ message: "Enviando archivo, espera..." });
 
-      dbreqs
-        .add(data)
-        .then(success => {
-          let resp = success.data;
-          console.log(resp);
-          let artidx = this.products.findIndex(item => {
-            return resp.id == item.id;
-          });
-          let sktproduct = null;
-          let cmd = null;
-          this.$q.loading.hide();
-          console.log(artidx);
-          if (artidx >= 0) {
-            // el articulo fue editado
-            console.log("Articulo editado");
-            // let _product = this.products[artidx];
-            sktproduct = this.products[artidx];
-            this.products[
-              artidx
-            ].ordered._supply_by = this.wndSetItem.metsupply.id;
-            this.products[artidx].ordered.amount = this.wndSetItem.amount;
-            this.products[artidx].ordered.comments = this.wndSetItem.notes;
-            cmd = "edit";
-            this.flagDuplicate = false;
-          } else {
-            console.log("Articulo agregado");
-            // console.log(product.prices);
-            let _prices = { prices: product.prices };
-            if (resp.success == false) {
-              this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
-              this.flagDuplicate = !this.flagDuplicate;
+        dbreqs
+          .add(data)
+          .then(success => {
+            let resp = success.data;
+            console.log(resp);
+            let artidx = this.products.findIndex(item => {
+              return resp.id == item.id;
+            });
+            let sktproduct = null;
+            let cmd = null;
+            this.$q.loading.hide();
+            console.log(artidx);
+            if (artidx >= 0) {
+              // el articulo fue editado
+              console.log("Articulo editado");
+              // let _product = this.products[artidx];
+              sktproduct = this.products[artidx];
+              this.products[
+                artidx
+              ].ordered._supply_by = this.wndSetItem.metsupply.id;
+              this.products[artidx].ordered.amount = this.wndSetItem.amount;
+              this.products[artidx].ordered.comments = this.wndSetItem.notes;
+              cmd = "edit";
+              this.flagDuplicate = false;
             } else {
-              resp = Object.assign(resp, this._metsupply(resp)[0]);
-              resp = Object.assign(resp, _prices);
-              console.log(resp);
-              // resp = resp.concat(params.metsupply);
-              this.products.unshift(resp);
-              cmd = "add";
-              sktproduct = resp;
-            }
-          } // el articulo fue agregado
+              console.log("Articulo agregado");
+              // console.log(product.prices);
+              let _prices = { prices: product.prices };
+              if (resp.success == false) {
+                this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
+                this.flagDuplicate = !this.flagDuplicate;
+              } else {
+                resp = Object.assign(resp, this._metsupply(resp)[0]);
+                resp = Object.assign(resp, _prices);
+                console.log(resp);
+                // resp = resp.concat(params.metsupply);
+                this.products.unshift(resp);
+                cmd = "add";
+                sktproduct = resp;
+              }
+            } // el articulo fue agregado
 
-          this.flagProducts = !this.flagProducts;
-          this.autocom.options = undefined;
-          this.autocom.model = null;
-          this.$refs.comp_autocomplete.putFocus();
-          this.rsocket.emit("order_update", {
-            user: this.profile,
-            from: this.workin,
-            cmd: cmd,
-            order: this.params.data,
-            product: sktproduct
+            this.flagProducts = !this.flagProducts;
+            this.autocom.options = undefined;
+            this.autocom.model = null;
+            this.$refs.comp_autocomplete.putFocus();
+            this.rsocket.emit("order_update", {
+              user: this.profile,
+              from: this.workin,
+              cmd: cmd,
+              order: this.params.data,
+              product: sktproduct
+            });
+          })
+          .catch(fail => {
+            console.log(fail);
           });
-        })
-        .catch(fail => {
-          console.log(fail);
-        });
+      }
     },
     async selItem(opt, id) {
       console.log(opt);
@@ -1463,7 +1468,11 @@ export default {
   },
   computed: {
     _getorders() {
-      return this.$store.getters["Requisitions/getOrders"] ? this.$store.getters["Requisitions/getOrders"].find(idx => idx.id == this.params.id) : null
+      return this.$store.getters["Requisitions/getOrders"]
+        ? this.$store.getters["Requisitions/getOrders"].find(
+            idx => idx.id == this.params.id
+          )
+        : null;
     },
     filterAvailable() {
       switch (this.selectAvailable.value) {
