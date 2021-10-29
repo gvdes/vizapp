@@ -332,7 +332,7 @@
                 icon="print"
                 flat
                 color="green-13"
-                v-if="wndLog.order && wndLog.order.status.id > 1"
+                v-if="wndLog.order && wndLog.order.status.id > 2"
                 @click="reprint"
                 :loading="print.state"
                 :disable="print.state"
@@ -1261,7 +1261,7 @@ export default {
     },
     ordersize() {
       return products => {
-        console.log(products);
+        // console.log(products);
         let sizeprod = products.length;
         if (sizeprod) {
           let labelpzs = products.reduce((ammount, item) => {
@@ -1412,7 +1412,7 @@ export default {
       return order =>
         this.currentStep(order) && this.currentStep(order).id >= 6 && order.log[4].details.order
           ? `${order.log[4].details.order.serie} - ${order.log[4].details.order.ticket}`
-          : "Folio No Generado";
+          : "Error al Generar Folio";
     }
   }
 };

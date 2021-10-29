@@ -233,6 +233,7 @@
             @cancel="cancelAOEs"
             @confirm="productConfirm"
             @remove="wndCounter.state = !wndCounter.state"
+            allow_innerpack
           />
         </q-card>
       </template>
@@ -257,6 +258,7 @@
             @confirm="productEdit"
             @cancel="cancelAOEs"
             @remove="productDelete"
+            allow_innerpack
           />
         </q-card>
       </template>
@@ -562,7 +564,8 @@ export default {
           _requisition: this.params.id,
           _supply_by: params.metsupply.id,
           amount: params.amount,
-          comments: params.comments
+          comments: params.comments,
+          piece: params.innerpack,
         };
 
         // console.log(JSON.stringify(data));
@@ -862,7 +865,7 @@ export default {
       let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
       return this.currentStep && this.currentStep.id >= 4 && this.ordersdb[idx].log[4].details.order
         ? `${this.ordersdb[idx].log[4].details.order.serie} - ${this.ordersdb[idx].log[4].details.order.ticket}`
-        : "Sin Folio Generado";
+        : "Error al Generar Folio";
     },
     pzsInBucket(){ return this.inBucket.length ? this.inBucket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
     pzsOutBucket(){ return this.outBucket.length ? this.outBucket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
