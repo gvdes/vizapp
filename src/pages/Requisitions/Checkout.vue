@@ -50,7 +50,7 @@
           :caption="`Costo Total $ ${bucketCostInput}`"
           dark
         >
-        <!-- <div class="text--2">{{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</div> -->
+          <!-- <div class="text--2">{{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</div> -->
           <!-- LISTA INICIAL DE PRODUCTOS -->
           <div>
             <q-scroll-area
@@ -123,7 +123,7 @@
                       <q-img src="~/assets/_defprod_.png" width="50px" />
                     </div>
                     <div class="col q-pr-sm">
-                      <div>
+                      <div class="text-weight-bold">
                         <span>{{ prod.code }}</span> --
                         <span>{{ prod.name }}</span>
                       </div>
@@ -283,13 +283,7 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn
-            flat
-            @click="wndCounter.state = true"
-            label="OK"
-            color="green-13"
-            v-close-popup
-          />
+          <q-btn flat @click="wndCounter.state = true" label="OK" color="green-13" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -463,7 +457,8 @@ export default {
     this.order = await dbreqs.find(this.params.id);
     this.products = this.order.products;
     console.log(this.order);
-    this.dialogState.state = this.order.log[this.order.log.length-1].id <= 4 ? true : false;
+    this.dialogState.state =
+      this.order.log[this.order.log.length - 1].id <= 4 ? true : false;
     this.dialogState.message = `Esta orden no puede generar salidas. La orden se encuentra ${
       this.order.log[this.order.log.length - 1].name
     }.`;
@@ -565,7 +560,7 @@ export default {
           _supply_by: params.metsupply.id,
           amount: params.amount,
           comments: params.comments,
-          pieces: params.innerpack,
+          pieces: params.innerpack
         };
 
         // console.log(JSON.stringify(data));
@@ -617,7 +612,7 @@ export default {
         _supply_by: params.metsupply.id,
         amount: params.amount,
         comments: params.comments,
-        pieces: params.innerpack,
+        pieces: params.innerpack
       };
       // console.log(data);
 
@@ -705,7 +700,7 @@ export default {
 
       let data = {
         id: this.params.id,
-        _status: 7
+        _status: 6
       };
 
       dbreqs
@@ -721,33 +716,43 @@ export default {
             });
             this.$q.loading.hide();
           } else {
-            let folio = `Folio ${resp.log[0].details.order.serie}-${resp.log[0].details.order.ticket}`;
-            this.alert.state = true;
-            this.alert.titleMessage = "Folio Generado";
-            this.alert.messageAlert = folio;
-            this.wndSending.state = false;
-            let idx = this.ordersdb.findIndex(item => {
-              return item.id == this.params.id;
-            });
-            let newStateLog = [];
-            let newStateSend = undefined;
-            newStateSend = resp.status;
-            newStateLog = this.ordersdb[idx].log.concat(resp.log);
-            // console.log(newStateLog);
-            this.$sktRestock.emit("order_changestate", {
-              state: newStateSend,
-              profile: this.profile,
-              log: newStateLog,
-              order: this.ordersdb[idx],
-              from: this.workin,
-              room: this.socketroom
-            });
-            this.$q.notify({
-              message: `OK!!!`,
-              color: "positive",
-              icon: "done"
-            });
-            this.$q.loading.hide();
+            if (resp.log[0].details.order) {
+              let folio = `Folio ${resp.log[0].details.order.serie}-${resp.log[0].details.order.ticket}`;
+              this.alert.state = true;
+              this.alert.titleMessage = "Folio Generado";
+              this.alert.messageAlert = folio;
+              this.wndSending.state = false;
+              let idx = this.ordersdb.findIndex(item => {
+                return item.id == this.params.id;
+              });
+              let newStateLog = [];
+              let newStateSend = undefined;
+              newStateSend = resp.status;
+              newStateLog = this.ordersdb[idx].log.concat(resp.log);
+              // console.log(newStateLog);
+              this.$sktRestock.emit("order_changestate", {
+                state: newStateSend,
+                profile: this.profile,
+                log: newStateLog,
+                order: this.ordersdb[idx],
+                from: this.workin,
+                room: this.socketroom
+              });
+              this.$q.notify({
+                message: `OK!!!`,
+                color: "positive",
+                icon: "done"
+              });
+              this.$q.loading.hide();
+            } else {
+              this.$q.notify({
+                message: `No se ha podido generar el folio!!!`,
+                color: "negative",
+                icon: "report_problem"
+              });
+              this.wndSending.state = false;
+              this.$q.loading.hide();
+            }
           }
           // this.$store.commit("Requisitions/updateState", { settingsOrder, newStateSend });
 
@@ -774,7 +779,7 @@ export default {
     originProducts() {
       if (this.order) {
         return this.order.products.map(p => {
-          p.ipack =  p.pieces ? p.pieces : 1;
+          p.ipack = p.pieces ? p.pieces : 1;
           p.ordered.amount = p.ordered.toDelivered ? p.ordered.amount : 0;
           // p.pieces = p.ordered.toDelivered ? p.ordered.toDelivered : p.pieces;
           p.metsupply = (p =>
@@ -863,19 +868,29 @@ export default {
     },
     currentStep() {
       let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
-      return this.ordersdb[idx] ?  this.ordersdb[idx].status : null;
+      return this.ordersdb[idx] ? this.ordersdb[idx].status : null;
     },
     stateChangesDelivery() {
       return prod => (prod.ordered.units === prod.ordered.amount ? 1 : 0);
     },
     getTicket() {
       let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
-      return this.currentStep && this.currentStep.id >= 4 && this.ordersdb[idx].log[4].details.order
+      return this.currentStep &&
+        this.currentStep.id >= 4 &&
+        this.ordersdb[idx].log[4].details.order
         ? `${this.ordersdb[idx].log[4].details.order.serie} - ${this.ordersdb[idx].log[4].details.order.ticket}`
         : "Error al Generar Folio";
     },
-    pzsInBucket(){ return this.inBucket.length ? this.inBucket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
-    pzsOutBucket(){ return this.outBucket.length ? this.outBucket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
+    pzsInBucket() {
+      return this.inBucket.length
+        ? this.inBucket.reduce((am, p) => parseInt(p.units) + am, 0)
+        : 0;
+    },
+    pzsOutBucket() {
+      return this.outBucket.length
+        ? this.outBucket.reduce((am, p) => parseInt(p.units) + am, 0)
+        : 0;
+    }
   }
 };
 </script>
