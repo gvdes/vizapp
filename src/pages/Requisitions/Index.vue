@@ -208,7 +208,7 @@ export default {
       this.$router.push("/pedidos/" + id);
     },
     tryCreate() {
-      this.appsounds.created.play();
+      this.appsounds.creating.play();
       console.log("Creando pedido!!");
       let data = new Object();
       data._workpoint_to = this.neworder.dest.value;

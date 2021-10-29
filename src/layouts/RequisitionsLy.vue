@@ -41,7 +41,7 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
-      </div> -->
+      </div>-->
 
       <q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
         <ToolbarModule :with_home="true" />
@@ -169,7 +169,7 @@ export default {
         this.$store.commit("Requisitions/newOrder", order);
         flag = true;
       } else {
-        []
+        [];
       }
       this.cedisValidate(this.workin).length && !flag
         ? this.$store.commit("Requisitions/newOrder", order)
@@ -193,13 +193,16 @@ export default {
       data.state.id == 10 && this.getValidateSounds(data.order) != -1
         ? this.appsounds.ok.play()
         : "";
+      data.state.id == 2 && this.getValidateSounds(data.order) != -1
+        ? this.appsounds.created.play()
+        : "";
       // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
       if (
         data.state.id >= 3 &&
         data.state.id <= 9 &&
         this.getValidateSounds(data.order) != -1
       ) {
-        this.appsounds.moved.play();
+        this.appsounds.added.play()
         this.$q.notify({
           message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
           color: "positive",

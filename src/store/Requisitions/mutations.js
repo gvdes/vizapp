@@ -24,6 +24,7 @@ export function updateState(state, { order, newState }) {
     // debugger
     let idx = state.orders.findIndex(ord => order.id == ord.id);
     console.log(idx);
+    state.orders[idx].products = order.products;
     // debugger
     if (idx != -1) {
         state.orders[idx].status = newState.state;
