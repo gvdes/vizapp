@@ -565,7 +565,7 @@ export default {
           _supply_by: params.metsupply.id,
           amount: params.amount,
           comments: params.comments,
-          piece: params.innerpack,
+          pieces: params.innerpack,
         };
 
         // console.log(JSON.stringify(data));
@@ -586,8 +586,9 @@ export default {
           product.ordered.amount = params.amount;
           product.ordered.toDelivered = params.amount;
           product.ordered.comments = params.comments;
-          product.ordered.toDelivered = params.amount;
+          product.pieces = params.innerpack;
           product.ordered._supply_by = params.metsupply.id;
+          console.log(product);
           this.appsounds.ok.play();
           this.$q.notify({
             message: "Producto Confirmado!!",
@@ -615,13 +616,14 @@ export default {
         _requisition: this.params.id,
         _supply_by: params.metsupply.id,
         amount: params.amount,
-        comments: params.comments
+        comments: params.comments,
+        pieces: params.innerpack,
       };
       // console.log(data);
 
       let result = await dbreqs.toDelivered(data);
 
-      console.log(result);
+      console.log(result.data);
 
       if (result.success == false) {
         console.log(result.success);
@@ -634,10 +636,11 @@ export default {
       } else {
         // let idx = this.toDelivered.findIndex(item => item.id == result.data.id);
         // this.toDelivered[idx] = result.data;
-        product.ordered.amount = params.amount;
+        product.ordered.amount = parseInt(params.amount);
         product.ordered.comments = params.comments;
-        product.ordered.toDelivered = params.amount;
+        product.ordered.toDelivered = parseInt(params.amount);
         product.ordered._supply_by = params.metsupply.id;
+        product.pieces = params.innerpack;
         this.appsounds.ok.play();
         this.$q.notify({
           message: "Producto Actualizado!!",
@@ -654,6 +657,7 @@ export default {
       this.$q.loading.hide();
     },
     async productDelete(params) {
+      console.log(params);
       this.$q.loading.show({
         message: `Devolviendo ${params.product.code}...`
       });
@@ -675,7 +679,9 @@ export default {
       if (result.success == false) {
         console.log("No se pudo devolver el producto");
       } else {
+        console.log(result.data);
         product.ordered.toDelivered = null;
+        product.pieces = result.data.pieces;
         this.wndEditor.product = undefined;
         this.wndEditor.state = false;
         // this.selectedInput = this.inBucket.length ? true : false;
@@ -768,8 +774,9 @@ export default {
     originProducts() {
       if (this.order) {
         return this.order.products.map(p => {
-          p.ipack = p.pieces ? p.pieces : 1;
-          p.ordered.amount = p.ordered.toDelivered ? p.ordered.toDelivered : 0;
+          p.ipack =  p.pieces ? p.pieces : 1;
+          p.ordered.amount = p.ordered.toDelivered ? p.ordered.amount : 0;
+          // p.pieces = p.ordered.toDelivered ? p.ordered.toDelivered : p.pieces;
           p.metsupply = (p =>
             this.metsupplies.find(ms => ms.id == p.ordered._supply_by))(p);
           p.units = (p => {
