@@ -74,7 +74,13 @@
                                             <q-input borderless dense dark flat label="Notas" color="green-13" v-model="comments"/>
                                         </td>
                                     </tr>
-                                    <tr><td>Piezas X Caja</td><td align="right">{{ipack}}</td></tr>
+                                    <tr>
+                                        <td>Piezas X Caja</td>
+                                        <td v-if="allow_innerpack" align="right">
+                                            <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none" style="width:40px;"/>
+                                        </td>
+                                        <td v-else align="right">{{ipack}}</td>
+                                    </tr>
                                     <tr><td>Cajas</td><td align="right">{{boxes}}</td></tr>
                                     <tr><td>Unidades</td><td align="right">{{units}}</td></tr>
                                     <template v-if="showprices">
@@ -115,12 +121,14 @@ export default {
         showprices:{ type:Boolean, default:false },
         blockunitsupply:{ type:Boolean, default:false },
         deftunitsupply:{ type:Number, default:null },
-        block_trash:{ type:Boolean, default:false }
+        block_trash:{ type:Boolean, default:false },
+        allow_innerpack:{ type:Boolean, default:false }
     },
     data(){
         return {
             amount:1,
             comments:"",
+            innerpack:undefined,
             metsupply:{
                 model:{alias:'PZS', name:'Piezas', id: 1},
                 opts:[
@@ -156,6 +164,8 @@ export default {
             this.comments = this.product.ordered.comments;
             this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
         }
+
+        this.innerpack = this.product.pieces ? this.product.pieces : 1 ;
     },
     methods:{
         ctrlPzsUp(){ this.amount++; },
@@ -188,7 +198,7 @@ export default {
                 return isOffer ? 'off':'std'
             }else{ return { error:true, msg:"Producto sin precios" } }
         },
-        ipack(){ return this.product.pieces ? this.product.pieces : 1; },
+        ipack(){ return this.innerpack },
         units(){ //obtiene las unidades en base al metodo de surtido
             // console.log(this.metsupply.model);
             switch (this.metsupply.model.id) {
@@ -225,7 +235,8 @@ export default {
                 amount:this.amount,
                 units:this.units,
                 usedprice:this.usedprice,
-                metsupply:this.metsupply.model
+                metsupply:this.metsupply.model,
+                innerpack:this.innerpack
             }
         },
         action (){
