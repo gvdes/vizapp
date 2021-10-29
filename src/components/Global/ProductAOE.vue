@@ -77,7 +77,7 @@
                                     <tr>
                                         <td>Piezas X Caja</td>
                                         <td v-if="allow_innerpack" align="right">
-                                            <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none" style="width:40px;"/>
+                                            <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none"/>
                                         </td>
                                         <td v-else align="right">{{ipack}}</td>
                                     </tr>
