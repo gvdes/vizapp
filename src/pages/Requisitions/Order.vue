@@ -1166,6 +1166,7 @@ export default {
         data.comments = product.comments;
         data._requisition = this.params.id;
         data._supply_by = params.metsupply.id;
+        // product.status = params.product.status;
 
         this.$q.loading.show({ message: "Enviando archivo, espera..." });
 
@@ -1495,7 +1496,7 @@ export default {
       if (this.products) {
         return this.products.map(p => {
           p.ipack = p.pieces ? p.pieces : 1;
-          // p.pricelistDefault = { id:1, alias:'MEN', name:'MENUDEO' };
+          p.status = p.ordered.stock > 0 ? { id: 1, status: "Disponible" } : { id: 1, status: "No Disponible" };
           p.metsupply = (p =>
             this.metsupplies.find(ms => ms.id == p.ordered._supply_by))(p);
           // p.productType = ((p) => {

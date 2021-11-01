@@ -1309,7 +1309,7 @@ export default {
         //   "Enviar",
         //   "Entregar",
         // ];
-        let stateCEDIS = [2, 3, 5, 6, 7, 9];
+        let stateCEDIS = [2, 3, 5, 6, 7, 9, 10];
         let msgDisplay = [
           "Iniciar surtido",
           // "Enviar a validación",
