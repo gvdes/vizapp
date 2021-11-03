@@ -376,7 +376,7 @@
                   </span>
                 </div>
               </div>
-              <div
+              <!-- <div
                 :class="log.id == 5 && currentStep(wndLog.order) ? 'q-pb-sm col row text-weight-bold text-body1' : '' "
               >
                 <div class="col-auto q-pr-sm">
@@ -399,7 +399,7 @@
                     }}
                   </span>
                 </div>
-              </div>
+              </div> -->
               <div class="row text-center">
                 <div class="col row items-center">
                   <q-icon name="fas fa-hourglass-start" color="blue-grey-7" />
@@ -437,14 +437,14 @@
                   v-if="validateCEDIS(wndLog.order.status.id, log.id) && wndLog.order.status.id == log.id
                   "
                 >
-                  <q-btn
+                  <!-- <q-btn
                     class="q-mr-sm"
                     v-if="wndLog.order.status.id >= 6 && wndLog.order.status.id <= 10"
                     outline
                     color="teal-13"
                     label="Ver CheckOut"
                     @click="$router.push(`/pedidos/checkout/${wndLog.order.id}`)"
-                  />
+                  /> -->
                   <q-btn
                     v-if="wndLog.order.status.id <= 6"
                     outline
@@ -454,7 +454,7 @@
                       checkState(wndLog.order.status.id)
                         ? ((wndStore.state = !wndStore.state),
                           (wndLog.state = !wndLog.state))
-                        : wndLog.order.status.id == 3 ? changeState(5)
+                        : wndLog.order.status.id == 3 ? changeState(7)
                         : wndLog.order.status.id == 5 ? $router.push(`/pedidos/checkout/${wndLog.order.id}`)
                         : changeState(wndLog.order.status.id + 1)
                         "
@@ -1313,9 +1313,9 @@ export default {
         let msgDisplay = [
           "Iniciar surtido",
           // "Enviar a validación",
-          "Iniciar CheckOut",
-          "CheckOut",
-          "Iniciar Envio"
+          "Iniciar Entrega",
+          // "CheckOut",
+          // "Iniciar Envio"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
           ? msgDisplay[stateCEDIS.indexOf(status)]

@@ -994,10 +994,9 @@ export default {
           // debugger
           let newStateSend = undefined;
           newStateSend = resp.status;
-          newState = this.order.log.concat(resp.log[0]);
-          this.order.log = newState;
-          this.order.status = newStateSend;
-          // this.products = resp.order.products;
+          console.log(this._getorders.log);
+          newState = this._getorders.log.concat(resp.log);
+          
           this.$q.notify({
             color: "positive",
             icon: "done",
@@ -1334,17 +1333,17 @@ export default {
             cell.value ? extractTypeB.push(cell.value) : null;
           });
 
-          let diference = extractTypeA.filter((item, pos, self) => {
-            return self.indexOf(item) == pos;
-          });
-
-          for (let i = 0; i < diference.length; i++) {
+          for (let i = 0; i < extractTypeA.length; i++) {
             let order = {
-              code: diference[i],
-              amount: extractTypeA[i] == diference[i] ? extractTypeB[i] : 1
+              code: extractTypeA[i],
+              amount: extractTypeB[i]
             };
             extractJSON.push(order);
           }
+
+          let diference = extractJSON.filter((v,i,a)=>a.findIndex(t=>(t.code === v.code))===i);
+
+          // console.log(diference);
 
           let convert = extractTypeA.length - diference.length;
 
@@ -1358,7 +1357,7 @@ export default {
 
           let data = {
             _requisition: this.setupToolbar.verify,
-            products: extractJSON,
+            products: diference,
             _supply_by: this.wndImportJSON._supply_by
           };
           console.log(data);
@@ -1404,6 +1403,39 @@ export default {
       let workbook = new ExcelJS.Workbook();
       let worksheet = workbook.addWorksheet("My Sheet");
 
+      worksheet.mergeCells('A1:A2');
+      worksheet.mergeCells('B1:B2');
+      worksheet.mergeCells('C1:C2');
+      worksheet.mergeCells('D1:D2');
+      worksheet.mergeCells('E1:E2');
+      worksheet.mergeCells('F1:F2');
+      worksheet.mergeCells('G1:I1');
+      worksheet.getCell('A1:A2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('B1:B2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('C1:C2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('D1:D2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('E1:E2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('F1:F2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('G1:I1').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('G1:I1').value = "Solicitado";
+      worksheet.getCell('G1:I1').alignment = { horizontal:'center', vertical: 'middle'};
+      worksheet.mergeCells('J1:J2');
+      worksheet.mergeCells('K1:L1');
+      worksheet.getCell('K1:L1').value = "Existencia";
+      worksheet.getCell('K1:L1').alignment = { horizontal:'center', vertical: 'middle'};
+      worksheet.getCell('G2').value = "Cantidad";
+      worksheet.getCell('H2').value = "Unidad";
+      worksheet.getCell('I2').value = "Piezas";
+      worksheet.getCell('K2').value = "Piezas";
+      worksheet.getCell('L2').value = "Cajas";
+      worksheet.getCell('J1:J2').value = "Piezas x Caja";
+      worksheet.getCell('J1:J2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('G2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('H2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('I2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('K2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('L2').alignment = { horizontal: 'center', vertical: 'middle' };
+
       worksheet.columns = [
         // { header: "Comanda", key: "comanda", width: 15 },
         { header: "Código", key: "code", width: 15 },
@@ -1412,9 +1444,13 @@ export default {
         { header: "Sección", key: "section", width: 15 },
         { header: "Familia", key: "family", width: 15 },
         { header: "Categoría", key: "category", width: 15 },
-        { header: "Solicitud", key: "request", width: 10 },
-        { header: "Unidad", key: "unity", width: 10 },
-        { header: "Disponible (pzs)", key: "stock", width: 15 }
+        { header: "Solicitado", key: "amount", width: 15 },
+        { header: "Solicitado", key: "unity", width: 15 },
+        { header: "Solicitado", key: "pieces", width: 15 },
+        { header: "Piezas x Caja", key: "pieces_box", width: 15 },
+        { header: "Existencia", key: "boxes", width: 10 },
+        { header: "Existencia", key: "_unity", width: 10 },
+        // { header: "Disponible (pzs)", key: "stock", width: 15 }
       ];
 
       console.log(this.products);
@@ -1427,10 +1463,13 @@ export default {
           section: this.products[i].section,
           family: this.products[i].family,
           category: this.products[i].category,
-          request: parseInt(this.products[i].ordered.units),
+          amount: parseInt(this.products[i].ordered.amount),
           unity: this.products[i].metsupply.name,
-          stock: parseInt(this.products[i].ordered.stock)
-        });
+          pieces: parseInt(this.products[i].ordered.units),
+          pieces_box: parseInt(this.products[i].ipack),
+          boxes: parseInt(this.products[i].stocks[0].stock * this.products[i].ipack),
+          _unity: parseInt(this.products[i].stocks[0].stock),
+        }).alignment =  { horizontal:'center'};
       }
       // this.flagPrompt = !this.flagPrompt;
       // console.log(this.saveNameExport)
