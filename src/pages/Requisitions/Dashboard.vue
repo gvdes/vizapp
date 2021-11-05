@@ -1313,9 +1313,9 @@ export default {
         let msgDisplay = [
           "Iniciar surtido",
           // "Enviar a validación",
-          "Iniciar Entrega",
+          // "Iniciar CheckOut",
           // "CheckOut",
-          // "Iniciar Envio"
+          "Iniciar Envio"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
           ? msgDisplay[stateCEDIS.indexOf(status)]

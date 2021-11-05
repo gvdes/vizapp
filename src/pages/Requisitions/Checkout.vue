@@ -37,6 +37,23 @@
             <span class="text-green-13 text-bold">{{ boxesBucket }}</span>
           </div>
         </div>
+        <div class="col-md-6 col-xs-4 q-ma-xs" style="max-width: 20rem">
+          <q-select
+            transition-show="scale"
+            transition-hide="scale"
+            v-model="selectAvailable"
+            color="green-13"
+            label="Validación"
+            :options="available"
+            @click="filterAvailable"
+            dark
+            options-selected-class="text-green-13"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="filter_alt" />
+            </template>
+          </q-select>
+        </div>
       </div>
     </q-header>
     <div class="q-mb-xl">
@@ -180,7 +197,7 @@
                     </tr>
                     <tr>
                       <td class="q-pa-xs-xs no-margin" colspan="1">
-                        <div class="column items-center text-center justify-center">
+                        <div class="column items-left text-left justify-left">
                           <div class>
                             <div
                               class="text-subtitle2 text-weight-bold"
@@ -192,7 +209,7 @@
                         </div>
                       </td>
                       <td class="q-pa-xs-xs no-margin" colspan="1">
-                        <div class="column items-center text-center justify-center no-wrap">
+                        <div class="column items-left text-left justify-left no-wrap">
                           <div class>
                             <div
                               class="text-subtitle2 text-weight-bold"
@@ -238,7 +255,7 @@
                   <tbody>
                     <tr v-for="prod in outBucket" :key="prod.id" @click="edit(prod)">
                       <td style="max-width:15%" class="q-pa-xs-xs no-margin">
-                        <div class="row items-center no-wrap justify-center">
+                        <div class="row items-left no-wrap justify-left">
                           <div class="q-pr-sm">
                             <q-img src="~/assets/_defprod_.png" width="3rem" />
                           </div>
@@ -253,10 +270,13 @@
                               class="text-subtitle2 text-weight-medium"
                             >{{prod.metsupply.name}} {{Math.round(prod.ordered.units / prod.ipack)}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
                           </div>
+                          <div>
+                            <span>Stock: {{prod.ordered.stock}}</span>
+                          </div>
                         </div>
                       </td>
                       <td style="max-width:15%" class="q-pa-xs-xs no-margin">
-                        <div class="row items-center no-wrap justify-center">
+                        <div class="row items-left no-wrap justify-left">
                           <div class="q-pr-sm">
                             <q-img src="~/assets/_defprod_.png" width="3rem" />
                           </div>
@@ -274,7 +294,7 @@
                         </div>
                       </td>
                       <td style="max-width:8%" class="q-pa-xs-xs no-margin">
-                        <div class="row text-center items-center justify-center">
+                        <div class="row text-left items-left justify-left">
                           <div class="self-center">
                             <q-avatar
                               :class="stateChangesDelivery(prod) == 0 ? 'text-red-13' : 'text-green-13'"
@@ -453,6 +473,14 @@ export default {
   components: { ProductAOE },
   data() {
     return {
+      available: [
+        { label: "Todos", value: 1 },
+        { label: "Sin Contabilizar", value: 2 },
+        { label: "Sin Stock", value: 3 },
+        { label: "Con Stock", value: 4 },
+        { label: "Contabilizado Indistinto", value: 5 },
+      ],
+      selectAvailable: "Todos",
       alert: {
         messageAlert: "",
         titleMessage: "",
@@ -533,9 +561,12 @@ export default {
 
     this.params.id = this.$route.params.id;
     this.$q.loading.show({ message: "..." });
+    let data = {id: this.params.id};
+    this.products = await dbreqs.updateStocks(data);
     this.order = await dbreqs.find(this.params.id);
-    this.products = this.order.products;
-    console.log(this.order);
+    if (this.products) {
+      this.order.products = this.products.products;
+    }
     this.dialogState.state =
       this.order.log[this.order.log.length - 1].id <= 4 ? true : false;
     this.dialogState.message = `Esta orden no puede generar salidas. La orden se encuentra ${
@@ -844,6 +875,7 @@ export default {
             color: "negative",
             position: "center"
           });
+          this.$q.loading.hide();
           console.log(fail);
         });
     }
@@ -898,11 +930,25 @@ export default {
         return this.originProducts;
       }
     },
+    filterAvailable() {
+      switch (this.selectAvailable.value) {
+        case 2:
+          return this.listProducts.filter(stock => !stock.ordered.toDelivered);
+        case 3:
+          return this.listProducts.filter(stock => stock.stocks[0].stock <= 0);
+        case 4:
+          return this.listProducts.filter(stock => stock.stocks[0].stock > 0);
+        case 5:
+          return this.listProducts.filter(stock => (stock.stocks[0].stock <= stock.ordered.amount) && (stock.stocks[0].stock > 0));  
+        default:
+          return this.listProducts;
+      }
+    },
     inBucket() {
-      return this.listProducts.filter(prod => !prod.ordered.toDelivered);
+      return this.filterAvailable.filter(prod => !prod.ordered.toDelivered);
     },
     outBucket() {
-      return this.listProducts.filter(prod => prod.ordered.toDelivered);
+      return this.filterAvailable.filter(prod => prod.ordered.toDelivered);
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];

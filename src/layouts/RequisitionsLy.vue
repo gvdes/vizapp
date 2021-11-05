@@ -108,9 +108,11 @@ export default {
       let data = { params: dbranges };
       console.log(data);
       this.index = await RequisitionsDB.index(data);
+      // setInterval(() => {
+      //   this.index = RequisitionsDB.index(data);
+      // }, 60000 * 3);
       let validateOrders = this.index.requisitions;
       console.log(this.index);
-      
 
       if (this.checkPermissions) {
         let arr = await RequisitionsDB.dashboard(data);
@@ -203,7 +205,7 @@ export default {
         data.state.id <= 9 &&
         this.getValidateSounds(data.order) != -1
       ) {
-        this.appsounds.added.play()
+        this.appsounds.added.play();
         this.$q.notify({
           message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
           color: "positive",
