@@ -1,8 +1,22 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Genera ordenes de Resurtido y abre camino al seguimiento 
+     *  y flujo de transicion entre CEDIS y Sucursal. Tambien aqui se visualizan las ordenes que se han levantado
+     *  El Levantamiento de Orden se divide en 4 opciones:
+     *  - Manual 
+     *  - Automatica
+     *  - Preventa
+     *  - Venta
+     */
+-->
+
 <template>
   <q-page padding>
     <OrderListRequisitions :orders="orders" @clicked="orderclicked" />
-    <!-- @clicked="orderclicked" -->
-
     <q-dialog v-model="wndSetOrder.state" position="bottom">
       <q-card class="bg-darkl0 text-grey-6 exo">
         <q-toolbar class="text-white">Nuevo Pedido</q-toolbar>
@@ -161,15 +175,6 @@ export default {
     this.$store.commit("Requisitions/setFooterState", true);
     this.$store.commit("Requisitions/setHeaderTitle", this.name);
     console.log(this.workin);
-  },
-  beforeDestroy() {
-    // this.socket.emit("unjoin", {
-    //   profile: this.profile,
-    //   workpoint: this.workin,
-    //   room: this.sktroom,
-    // });
-    // // this.orders = [];
-    // console.log("desconectado del socket");
   },
   methods: {
     skt_order_created(data) {

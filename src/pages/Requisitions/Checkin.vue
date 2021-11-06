@@ -1,3 +1,15 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     * Recibe la orden para generar una entrada de productos en Sucursal, asi mismo se evalua la cantidad enviada
+     * contra la que se contabiliza. Este proceso nos genera una Factura a Proveedor que recibimos de manera  
+     * de folio. Y lo presentamos en pantalla, siempre y cuando viaje del servicio Back-end que conecta a FactuSOL.
+     */
+-->
+
 <template>
   <q-page>
     <q-header unelevated class="bg-darkl1">

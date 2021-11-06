@@ -1,3 +1,19 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Recibe la orden para generar una Salida de productos, asi mismo se evalua la cantidad solicitada
+     *  contra la que se contabiliza. Este proceso nos genera una Factura a cliente que recibimos de manera  
+     *  de folio. Y lo presentamos en pantalla, siempre y cuando viaje del servicio Back-end que conecta a FactuSOL.
+     *  Para poder obtener el pedido a cliente desde FactuSOL debemos hacer lo siguiente:
+     *  - Ir a la opcion de COMERCIAL => FACTURAS => Nueva Factura
+     *  - Despues en la opcion de CLIENTE => REFERENCIA  y Validamos por ultimo
+     *  - Culminamos con buscar el folio de Pedido a Cliente.
+     */
+-->
+
 <template>
   <q-page>
     <q-header unelevated class="bg-darkl1">
@@ -968,9 +984,6 @@ export default {
         item.boxes = item.ordered.amount;
         return item;
       });
-    },
-    b_counter() {
-      return this.b_delivered.map(aux => this.b_delivered++);
     },
     unityBucket() {
       return this.bucketToolbar.reduce((amm, item) => {

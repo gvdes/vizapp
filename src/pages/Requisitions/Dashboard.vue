@@ -11,6 +11,7 @@
      *  surtido, hasta el transporte que lo enviara.
      */
 -->
+
 <template>
   <q-page
     :class="ismobile ? '' : 'q-pb-md overflow-hidden'"

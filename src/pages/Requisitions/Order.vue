@@ -1,3 +1,18 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Integra y añade productos a las ordenes de Resurtido para enviar a CEDIS, 
+     *  da pauta a que gestione de manera bilateral, mediante el manejo de estados del componente
+     *  y este de seguimiento desde cuando envia solicitud, hasta cuando culmina el surtido en Sucursal.
+     *  
+     *  
+     *  
+     */
+-->
+
 <template>
   <q-page padding>
     <q-header elevated class="bg-darkl0">
@@ -867,12 +882,6 @@ export default {
   },
   beforeDestroy() {
     this.$store.commit("Layout/showToolbarModule");
-    // this.rsocket.emit("leave", {
-    //   room: this.socketroom,
-    //   user: this.profile,
-    // });
-    // this.rsocket.off();
-    // console.log("desconectado del socket");
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", false);

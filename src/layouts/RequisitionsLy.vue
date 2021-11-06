@@ -1,3 +1,17 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Esqueleto y composición general del modulo de Resurtido
+     *  Este Layout se compone de 3 principales componentes:
+     *  - Nav Header => Cabecera dinamica que se activa o desactiva mediante states de VUEX
+     *  - Vue-Router => Pages que juegan un rol cada que son invocadas mediante la nevagación dentro del modulo
+     *  - Bar Footer => Al igual que el Header, se invoca con el VUEx y se puede ocultar.
+     */
+-->
+
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-page-container class="exo bg-darkl0 text-grey-5">
@@ -13,36 +27,7 @@
       </q-header>
 
       <router-view />
-
-      <!-- <div>
-        <q-dialog v-model="dialog">
-          <q-card dark class="exo bg-darkl0 text-grey-5">
-            <q-card-section class="bg-darkl11 text-white">
-              <div class="text-h6">{{ this.layout.header.title }}</div>
-            </q-card-section>
-            <q-separator color="green-13" />
-            <q-card-section>
-              <div class="column items-center justify-center">
-                <div class="col-md-4 col-4 text-center">
-                  <img
-                    width="100%"
-                    src="https://www.huratips.com/wp-content/uploads/2019/04/empty-cart.png"
-                    alt
-                  />
-                </div>
-                <div class="col-md-8 col-8 text-center">
-                  <div class="text-subtitle1">No se encontraron resultados.</div>
-                </div>
-              </div>
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="OK" color="green-13" v-close-popup />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-      </div>-->
-
+      
       <q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
         <ToolbarModule :with_home="true" />
       </q-footer>
