@@ -1,3 +1,19 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Recibe la orden para generar una Salida de productos, asi mismo se evalua la cantidad solicitada
+     *  contra la que se contabiliza. Este proceso nos genera una Factura a cliente que recibimos de manera  
+     *  de folio. Y lo presentamos en pantalla, siempre y cuando viaje del servicio Back-end que conecta a FactuSOL.
+     *  Para poder obtener el pedido a cliente desde FactuSOL debemos hacer lo siguiente:
+     *  - Ir a la opcion de COMERCIAL => FACTURAS => Nueva Factura
+     *  - Despues en la opcion de CLIENTE => REFERENCIA  y Validamos por ultimo
+     *  - Culminamos con buscar el folio de Pedido a Cliente.
+     */
+-->
+
 <template>
   <q-page>
     <q-header unelevated class="bg-darkl1">
@@ -36,6 +52,23 @@
             <div class="text--2">Cajas</div>
             <span class="text-green-13 text-bold">{{ boxesBucket }}</span>
           </div>
+        </div>
+        <div class="col-md-6 col-xs-4 q-ma-xs" style="max-width: 20rem">
+          <q-select
+            transition-show="scale"
+            transition-hide="scale"
+            v-model="selectAvailable"
+            color="green-13"
+            label="Validación"
+            :options="available"
+            @click="filterAvailable"
+            dark
+            options-selected-class="text-green-13"
+          >
+            <template v-slot:prepend>
+              <q-icon class="text-green-13" name="filter_alt" />
+            </template>
+          </q-select>
         </div>
       </div>
     </q-header>
@@ -141,9 +174,9 @@
               </transition-group>
             </q-scroll-area>
           </div>
-          <div class="q-ma-xs" v-else>
+          <div class="q-ma-xs col col-12 col-md-6 col-xs-4" v-else>
             <span class="text-h6 text-grey-5 text-weight-bold">
-              Folio Generado:
+              Folio:
               <span class="text-green-13">{{ getTicket }}</span>
             </span>
             <q-scroll-area
@@ -151,7 +184,82 @@
               :bar-style="barStyle.input"
               style="height: 70vh; max-width: 100%"
             >
-              <div class="q-pa-xs">
+              <div v-if="ismobile">
+                <q-markup-table class="bg-darkl0" separator="vertical" dark flat bordered>
+                  <thead class="bg-dark">
+                    <tr>
+                      <th class="text-center">Solicitado</th>
+                      <th class="text-center">Contado</th>
+                      <th class="text-center">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody v-for="prod in outBucket" :key="prod.id" @click="edit(prod)">
+                    <tr>
+                      <td class="q-pa-xs-xs no-margin" colspan="3">
+                        <div class="row items-center text-left justify-center">
+                          <div class="q-pr-sm">
+                            <q-img src="~/assets/_defprod_.png" width="2rem" />
+                          </div>
+                          <div class="q-pr-sm">
+                            <div>
+                              <span>{{ prod.code }}</span> --
+                              <span>{{ prod.name }}</span>
+                            </div>
+                            <div class="text--2 text-grey-5">{{ prod.description }}</div>
+                            <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="q-pa-xs-xs no-margin" colspan="1">
+                        <div class="column items-left text-left justify-left">
+                          <div class>
+                            <div
+                              class="text-subtitle2 text-weight-bold"
+                            >{{prod.metsupply.name}} {{Math.round(prod.ordered.units / prod.ipack)}}</div>
+                            <div
+                              class="text--2 text-weight-bold"
+                            >{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="q-pa-xs-xs no-margin" colspan="1">
+                        <div class="column items-left text-left justify-left no-wrap">
+                          <div class>
+                            <div
+                              class="text-subtitle2 text-weight-bold"
+                            >{{prod.metsupply.name}} {{prod.ordered.amount}}</div>
+                            <div
+                              class="text--2 text-weight-bold"
+                            >{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="q-pa-xs-xs no-margin" colspan="1">
+                        <div class="row text-left items-left justify-left">
+                          <div class>
+                            <q-avatar
+                              size="md"
+                              :class="stateChangesDelivery(prod) == 0 ? 'text-red-13' : 'text-green-13'"
+                              :icon="stateChangesDelivery(prod) == 0 ? 'fas fa-exclamation-triangle' : 'far fa-check-circle'"
+                            />
+                          </div>
+                          <div>
+                            <span
+                              class="text--3"
+                            >{{ stateChangesDelivery(prod) == 0 ? 'Cantidades Diferentes' : 'Cantidades Exactas' }}</span>
+                            <div
+                              class="text--2 text-amber-13 text-weight-bolder"
+                            >{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}</div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </q-markup-table>
+              </div>
+              <div v-else>
                 <q-markup-table class="bg-darkl0" dark flat bordered>
                   <thead class="bg-dark">
                     <tr>
@@ -163,11 +271,11 @@
                   <tbody>
                     <tr v-for="prod in outBucket" :key="prod.id" @click="edit(prod)">
                       <td style="max-width:15%" class="q-pa-xs-xs no-margin">
-                        <div class="row items-center no-wrap">
+                        <div class="row items-left no-wrap justify-left">
                           <div class="q-pr-sm">
                             <q-img src="~/assets/_defprod_.png" width="3rem" />
                           </div>
-                          <div class="col q-pr-sm">
+                          <div class="q-pr-sm">
                             <div>
                               <span>{{ prod.code }}</span> --
                               <span>{{ prod.name }}</span>
@@ -175,17 +283,20 @@
                             <div class="text--2 text-grey-5">{{ prod.description }}</div>
                             <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                             <div
-                              class="col text--2"
-                            >{{prod.metsupply.name}} {{prod.ordered.units}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
+                              class="text-subtitle2 text-weight-medium"
+                            >{{prod.metsupply.name}} {{Math.round(prod.ordered.units / prod.ipack)}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
+                          </div>
+                          <div>
+                            <span>Stock: {{prod.ordered.stock}}</span>
                           </div>
                         </div>
                       </td>
                       <td style="max-width:15%" class="q-pa-xs-xs no-margin">
-                        <div class="row items-center no-wrap">
+                        <div class="row items-left no-wrap justify-left">
                           <div class="q-pr-sm">
                             <q-img src="~/assets/_defprod_.png" width="3rem" />
                           </div>
-                          <div class="col q-pr-sm">
+                          <div class="q-pr-sm">
                             <div>
                               <span>{{ prod.code }}</span> --
                               <span>{{ prod.name }}</span>
@@ -193,22 +304,26 @@
                             <div class="text--2 text-grey-5">{{ prod.description }}</div>
                             <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
                             <div
-                              class="col text--2"
-                            >{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
+                              class="text-subtitle2 text-weight-medium"
+                            >{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.cost}}</div>
                           </div>
                         </div>
                       </td>
                       <td style="max-width:8%" class="q-pa-xs-xs no-margin">
-                        <div class="text-center items-center justify-center">
-                          <q-avatar
-                            :class="stateChangesDelivery(prod) == 0 ? 'text-red-13' : 'text-green-13'"
-                            :icon="stateChangesDelivery(prod) == 0 ? 'fas fa-exclamation-triangle' : 'far fa-check-circle'"
-                          />
-                          <q-separator horizontal color="grey-8" class="q-ma-xs self-center" />
-                          <span>{{ stateChangesDelivery(prod) == 0 ? 'Cantidades Indistintas' : 'Cantidades Exactas' }}</span>
-                          <div
-                            class="text-amber-13"
-                          >{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.ordered.units} pzs)`:``}}</div>
+                        <div class="row text-left items-left justify-left">
+                          <div class="self-center">
+                            <q-avatar
+                              :class="stateChangesDelivery(prod) == 0 ? 'text-red-13' : 'text-green-13'"
+                              :icon="stateChangesDelivery(prod) == 0 ? 'fas fa-exclamation-triangle' : 'far fa-check-circle'"
+                            />
+                          </div>
+                          <div class="text-left self-center">
+                            <q-separator vertical color="grey-8" class="q-ma-xs" />
+                            <span>{{ stateChangesDelivery(prod) == 0 ? 'Cantidades Diferentes' : 'Cantidades Exactas' }}</span>
+                            <div
+                              class="text-amber-13 text-weight-bold"
+                            >{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}</div>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -374,6 +489,14 @@ export default {
   components: { ProductAOE },
   data() {
     return {
+      available: [
+        { label: "Todos", value: 1 },
+        { label: "Sin Contabilizar", value: 2 },
+        { label: "Sin Stock", value: 3 },
+        { label: "Con Stock", value: 4 },
+        { label: "Contabilizado Indistinto", value: 5 },
+      ],
+      selectAvailable: "Todos",
       alert: {
         messageAlert: "",
         titleMessage: "",
@@ -454,9 +577,12 @@ export default {
 
     this.params.id = this.$route.params.id;
     this.$q.loading.show({ message: "..." });
+    let data = {id: this.params.id};
+    this.products = await dbreqs.updateStocks(data);
     this.order = await dbreqs.find(this.params.id);
-    this.products = this.order.products;
-    console.log(this.order);
+    if (this.products) {
+      this.order.products = this.products.products;
+    }
     this.dialogState.state =
       this.order.log[this.order.log.length - 1].id <= 4 ? true : false;
     this.dialogState.message = `Esta orden no puede generar salidas. La orden se encuentra ${
@@ -765,11 +891,15 @@ export default {
             color: "negative",
             position: "center"
           });
+          this.$q.loading.hide();
           console.log(fail);
         });
     }
   },
   computed: {
+    ismobile() {
+      return this.$q.platform.is.mobile;
+    },
     orders() {
       return this.$store.getters["Requisitions/getOrders"];
     },
@@ -816,11 +946,25 @@ export default {
         return this.originProducts;
       }
     },
+    filterAvailable() {
+      switch (this.selectAvailable.value) {
+        case 2:
+          return this.listProducts.filter(stock => !stock.ordered.toDelivered);
+        case 3:
+          return this.listProducts.filter(stock => stock.stocks[0].stock <= 0);
+        case 4:
+          return this.listProducts.filter(stock => stock.stocks[0].stock > 0);
+        case 5:
+          return this.listProducts.filter(stock => (stock.stocks[0].stock <= stock.ordered.amount) && (stock.stocks[0].stock > 0));  
+        default:
+          return this.listProducts;
+      }
+    },
     inBucket() {
-      return this.listProducts.filter(prod => !prod.ordered.toDelivered);
+      return this.filterAvailable.filter(prod => !prod.ordered.toDelivered);
     },
     outBucket() {
-      return this.listProducts.filter(prod => prod.ordered.toDelivered);
+      return this.filterAvailable.filter(prod => prod.ordered.toDelivered);
     },
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
@@ -840,9 +984,6 @@ export default {
         item.boxes = item.ordered.amount;
         return item;
       });
-    },
-    b_counter() {
-      return this.b_delivered.map(aux => this.b_delivered++);
     },
     unityBucket() {
       return this.bucketToolbar.reduce((amm, item) => {
@@ -871,7 +1012,7 @@ export default {
       return this.ordersdb[idx] ? this.ordersdb[idx].status : null;
     },
     stateChangesDelivery() {
-      return prod => (prod.ordered.units === prod.ordered.amount ? 1 : 0);
+      return prod => ((prod.ordered.units / prod.ipack) === prod.ordered.amount ? 1 : 0);
     },
     getTicket() {
       let idx = this.ordersdb.findIndex(item => item.id == this.params.id);
