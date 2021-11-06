@@ -169,4 +169,12 @@ export default {
 	.custom-toggle{border: 2px solid #027be3}
 
 	.ord_anx{ border-bottom: 3px dashed #fff200 ; }
+
+	table thead{
+		color:#ced6e0;
+		text-transform: uppercase;
+		font-family: 'QuickRegular';
+	}
+	table tbody tr:nth-child(odd){ background-color:rgba(#000,.07); padding:10px 0px 10px 0px;}
+
 </style>

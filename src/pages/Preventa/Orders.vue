@@ -3,12 +3,13 @@
 		<div class="row q-pt-sm q-pb-xl">
 		<!-- <div>{{ myorders.length }} {{ orders.length }}</div> -->
 			<div class="col-md-6 col-xs-12 q-pa-sm">
-				<q-table flat dark
+				<q-table dark flat
 					:data="orders"
 					:columns="tableorders.columns"
 					:filter="tableorders.filtrator"
 					:pagination="tableorders.pagination"
 					card-class="bg-darkl1"
+					separator="none"
 				>
 					<template v-slot:top>
 						<div class="full-width row items-center">
@@ -55,13 +56,12 @@
 					</template>
 				</q-table>
 			</div>
-
 		</div>
 
 		<q-dialog v-model="windCreate.state" position="bottom" :persistent="windCreate.blocked">
 			<q-card class="bg-darkl0 exo text-white">
 				<q-form>
-					<q-toolbar>Nuevo Pedido</q-toolbar>
+					<q-toolbar class="bg-darkl2">Nuevo Pedido</q-toolbar>
 					<q-card-section>
 						<div class="row items-end q-gutter-sm">
 							<q-btn icon="fas fa-address-book" flat dense :color="isclient?'green-13':'grey-8'" class="text-black" @click="isclient=!isclient"/>
@@ -74,7 +74,7 @@
 		</q-dialog>	
 
 		<q-page-sticky position="bottom-right" :offset="[10, 3]">
-			<q-btn color="teal" rounded icon="add" @click="windCreate.state=true"/>
+			<q-btn color="primary" rounded icon="add" @click="windCreate.state=true"/>
         </q-page-sticky>
 	</q-page>
 </template>

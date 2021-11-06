@@ -93,7 +93,11 @@
 		</div>
 
         <q-dialog v-model="wndPrinters.state" position="bottom">
-			<PrinterSelect :options="printers" @clicked="reprint"/>
+			<!-- <PrinterSelect :options="printers" @clicked="reprint"/> -->
+			<q-card flat class="bg-darkl1 text-white exo">
+                <q-card-section class="text-overline bg-blue-grey-9 ">Seleccione Impresora</q-card-section>
+                <PrinterSelect @input="reprint"/>
+            </q-card>
         </q-dialog>
     </q-page>
 </template>
@@ -102,7 +106,8 @@
 import preventa from '../../API/preventa.js'
 import { date } from 'quasar'
 import OrdersList from '../../components/Preventa/OrdersList.vue'
-import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
+// import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
+import PrinterSelect from '../../components/Global/PrinterSelect.vue'
 
 export default {
 	name: 'PreventaWarehouse',

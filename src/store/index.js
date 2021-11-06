@@ -8,6 +8,7 @@ import Preventa from './Preventa'
 import Multimediapp from './Multimediapp'
 import Labels from "./Labels"
 import Requisitions from './Requisitions'
+import Printers from './Printers'
 
 Vue.use(Vuex)
 
@@ -29,7 +30,8 @@ export default function (/* { ssrContext } */) {
       Preventa,
       Multimediapp,
       Requisitions,
-      Labels
+      Labels,
+      Printers
     },
 
     // enable strict mode (adds overhead!)

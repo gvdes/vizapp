@@ -84,7 +84,14 @@
                             <div class="text-bold">Por Confirmar</div>
                             <div class="text--2">{{outbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsOutBasket}} pzs</div>
                         </div>
-                        <q-btn class="q-ml-sm" icon="print" color="grey-4" dense flat @click="printOutBasket"/>
+                        <q-btn class="q-ml-sm exo" icon="print" color="grey-4" dense flat>
+                            <q-menu content-class="bg-darkl1 exo">
+                                <q-card flat class="bg-blue-grey-9 text-overline text-white">
+                                    <q-card-section>Seleccione Impresora</q-card-section>
+                                </q-card>
+                                <PrinterSelect @input="printNotCounted"/>
+                            </q-menu>
+                        </q-btn>
                     </div>
                     <div>$ {{totalOutBasket}}</div>
                 </div>
@@ -258,10 +265,11 @@
 <script>
 import PreventaDB from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
+import PrinterSelect from '../../components/Global/PrinterSelect.vue'
 import ProductAOE from '../../components/Global/ProductAOE.vue'
 
 export default {
-    components:{ ProductAutocomplete, ProductAOE },
+    components:{ ProductAutocomplete, ProductAOE, PrinterSelect },
     data(){
         return {
             psocket:this.$sktPreventa,
@@ -575,16 +583,22 @@ export default {
                 this.$q.loading.hide();
             }
         },
-        async printOutBasket(){
+        async printNotCounted(printer){
+            
             let data = {
                 "_order": this.order.id,
-                "_printer": 5
+                "_printer": printer.id
             }
 
             let printed = await PreventaDB.printNotDelivered(data);
 
             if(printed.success){
-
+                this.$q.notify({
+                    message:'Listo!!',
+                    icon:'done',
+                    color:'positive',
+                    position:'center'
+                });                
             }else{
                 this.$q.notify({
                     message:'Sin conexion a la impresora',

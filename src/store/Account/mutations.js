@@ -20,6 +20,7 @@ export function unsetsession(state){
     localStorage.removeItem('token');
     localStorage.removeItem('profile');
     localStorage.removeItem('workpoints');
+    localStorage.removeItem('printers_native');
 
     state.profile.me = undefined;
     state.profile.rol = undefined;

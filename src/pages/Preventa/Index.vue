@@ -2,14 +2,17 @@
 	<q-page>
 		<div class="row">
 			<div class="col-md-6 col-xs-12 q-pa-sm">
-				<q-table flat dark
+				<q-table dark
 					:data="orders"
 					:columns="tableorders.columns"
 					:filter="tableorders.filtrator"
 					:pagination="tableorders.pagination"
 					card-class="bg-darkl1"
+					separator="none"
 				>
-					<template v-slot:top-left>Pedidos</template>
+					<template v-slot:top-left>
+						<span class="text-overline QuickRegular">PEDIDOS</span>
+					</template>
 
 					<template v-slot:top-right>
 						<q-input borderless dark filled dense fill-input color="green-13" debounce="0" v-model="tableorders.filtrator" placeholder="Buscar...">
@@ -25,7 +28,7 @@
 					</template>
 
 					<template v-slot:body="props">
-						<q-tr>
+						<q-tr style="border-color:1px solid green;">
 							<q-td key="id">
 								<div>{{props.row.id}}</div>
 								<div class="text--1 text-grey-5">{{filltkt(props.row.num_ticket)}}</div>
@@ -44,14 +47,17 @@
 			</div>
 
 			<div class="col-md-6 col-xs-12 q-pa-sm">
-				<q-table flat dark
+				<q-table dark
 					:data="agents_orders"
 					:columns="tableagents.columns"
 					:filter="tableagents.filtrator"
 					:pagination="tableagents.pagination"
 					card-class="bg-darkl1"
+					separator="none"
 				>
-					<template v-slot:top-left>Agentes</template>
+					<template v-slot:top-left>
+						<span class="text-overline QuickRegular">AGENTES</span>
+					</template>
 
 					<template v-slot:top-right>
 						<q-input borderless dark filled dense fill-input color="green-13" debounce="0" v-model="tableagents.filtrator" placeholder="Buscar...">

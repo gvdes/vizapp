@@ -45,7 +45,7 @@ export default{
         },
     },
     computed:{
-        printers(){ return this.options.length ? this.options.map( printer => { printer.selected = false; return printer;}) : [] }
+        printers(){ return this.options.length ? this.options.map( printer => { printer.selected = false; return printer;}) : [] },
     }
 
 }

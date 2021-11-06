@@ -20,14 +20,12 @@
 						<div class="q-mb-md">¿por donde iniciamos?</div>
 					</div>
 					
-					
 					<q-card flat :class="{'bg-darkl1':true, 'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
 						<q-card-section>
 							<div>Punto de Trabajo:</div>
 							<div class="text-grey-4">{{ workIn.workpoint.name }}</div>
 						</q-card-section>
 					</q-card>
-
 
 					<q-card flat class="bg-darkl1 q-mt-md cursor-pointer" @click="openSetModule">
 						<q-card-section>
@@ -125,12 +123,14 @@ export default {
 			modules:undefined,
 			wndSetWorkpoint:{state:false},
 			wndSetModule:{state:false},
+			printers:undefined
 		}
 	},
-	beforeMount(){
+	async beforeMount(){
 		localStorage.removeItem("dbranges");
 		this.vsocket = this.$vSocket;
 		console.log(this.$vizapi.defaults.headers.common['Authorization']);
+		
 
 		// por default selecciona el workpoint base
 		this.workIn.workpoint = this.session.workpoint;
@@ -188,19 +188,21 @@ export default {
 			this.$store.commit('Account/unsetsession');
 			this.$router.push('/acceso');
 		},
-		go(){
-			this.$q.loading.show({ message: 'Espera ...' });
+		async go(){
+			this.$q.loading.show({ message: 'Validando ...' });
 			let data = { "workpoint":this.workIn.workpoint.id };
 
-			apiwkp.join(data).then(success=>{
-				let resp = success.data;
-				this.$store.commit('Account/join',resp);
+			let token = await apiwkp.join(data);
+
+			if(!token.error){
+
+				this.$store.commit('Account/join',token);
 				this.$store.commit('Account/setworkpoint',this.workIn);
+
 				this.$router.push(`/${this.workIn.module.path}`);
 				this.$q.loading.hide();
-				// console.log(resp);
-			}).catch(fail=>{ console.log(fail); });
 
+			}else{ alert(token.error); }
 		}
 	},
 	computed:{
