@@ -1,6 +1,7 @@
 <template>
 	<q-page>
 		<div class="row">
+			<router-view />
 			<div class="col-md-6 col-xs-12 q-pa-sm">
 				<q-table dark
 					:data="orders"
@@ -54,6 +55,7 @@
 					:pagination="tableagents.pagination"
 					card-class="bg-darkl1"
 					separator="none"
+					:visible-columns="tableagents.colsview"
 				>
 					<template v-slot:top-left>
 						<span class="text-overline QuickRegular">AGENTES</span>
@@ -74,20 +76,21 @@
 
 					<template v-slot:body="props">
 						<q-tr>
-							<q-td key="id">{{props.row.id}}</q-td>
 							<q-td key="nick">
-								<div class="row items-center">
-									<q-img src="~/assets/_usdeft.png" width="40px" height="40px" :class="props.row.rt.cnx?'useron':'useroff'"/>
+								<div class="row items-center overflow-hidden">
+									<q-img src="~/assets/_usdeft.png" width="40px" height="40px" :class="props.row.socket?'useron':'useroff'"/>
 									<div class="q-pl-md">
-										<div>{{props.row.nick}}</div>
-										<div class="text--1" :class="props.row.activeInBranch ? 'text-green-13':'text-grey-5'">{{props.row.names}} {{props.row.surname_pat}}</div>
+										<div>{{props.row.profile.nick}}</div>
+										<div class="text--2 row items-center" :class="props.row.salesib ? 'text-light-blue-3':'text-grey-6'">
+											{{props.row.profile.id}} <q-icon name="fas fa-angle-right" color="white"/> {{props.row.profile.names}} {{props.row.profile.surname_pat}}
+										</div>
 									</div>
 								</div>
 							</q-td>
-							<q-td key="ordersize" align="center">{{props.row.ordersize}}</q-td>
-							<!-- <q-td key="chart" align="center">
-								<apexchart type="bar" height="350" :options="chartOptions" :series="series"></apexchart>
-							</q-td> -->
+							<q-td key="ordersize" align="center">
+								{{props.row.ordersize}}
+								<BarOrdersAgent :orders="props.row.orders" />
+							</q-td>
 						</q-tr>
 					</template>
 				</q-table>
@@ -97,9 +100,9 @@
 </template>
 
 <script>
-// import apexcharts from 'vue-apexcharts'
+import BarOrdersAgent from '../../components/Preventa/BarOrdersAgent.vue'
 export default {
-
+	components:{ BarOrdersAgent },
 	data(){
 		return{
 			// socket:this.$sktPreventa,
@@ -116,6 +119,7 @@ export default {
 					{ name:'ordersize', field:'ordersize', sortable:true, label:'Pedidos', align:'center' },
 					// { name:'chart', field:'', label:'pedidos', align:'center' }
 				],
+				colsview:['nick','ordersize'],
 				pagination:{
 					sortBy:'ordersize',
 					descending:true,
@@ -140,6 +144,7 @@ export default {
 		}
 	},
 	created(){
+		console.log(this.agents_orders);
 		switch (this.profile.me._rol) {
 			case 1: case 2: case 3: console.log("Te quedaste en el INDEX"); this.$store.commit('Preventa/setHeaderTitle',"Preventa"); break;
 			case 4: console.log("Direccionando a PEDIDOS!!"); this.$router.push('/preventa/pedidos/'); break;

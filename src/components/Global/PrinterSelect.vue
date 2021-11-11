@@ -66,11 +66,7 @@ export default {
             }
         }
     },
-    async beforeMount(){
-        // this.$q.loading.show({ message: 'Cargando Impresoras ...' });
-        console.log("Creando componente de Impresoras");
-        this.loadPrinters();
-    },
+    async beforeMount(){ this.loadPrinters(); },
     beforeDestroy(){ console.log("Destruyendo componente de impresoras"); },
     destroyed(){ console.log("Componente impresoras destruido"); },
     methods:{
@@ -89,8 +85,6 @@ export default {
         },
         buildView(data){
             this.branches.options = data.map( b => {
-                console.log(`${b.name} (${b.id})`);
-                console.log(b.printers);
                 return {
                     id:b.id,
                     name:b.name,

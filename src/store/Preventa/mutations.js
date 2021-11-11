@@ -21,26 +21,63 @@ export function startState (state,data) {
         9:{ on:'',off:''},
     }
 
-    state.orders = data.index.orders;
-    let agents = [];
-    let listProfiles = state.orders.map( o => o.created_by );
-    let agentsInView = [...new Set( state.orders.map( o => o.created_by.id).map( id => listProfiles.find( p => p.id == id) ) )];
-    let agentsInBranch = data.agents.map( ag => {ag.activeInBranch = true; return ag;});
+    state.orders = data.index.orders; //almacena las ordenes que viene de la BDD
+    // state.agents = data.agents;// almacena los perfiles de los vendedores
+    
+     // Obtengo todos los perfiles de los pedidos obtenidos (incluyen los repetidos)
+    let listProfilesInit = state.orders.map( o => o.created_by );
+    // obtengo los ids unicos de la lista de perfiles
+    // let idsinorders = listProfilesInit.map( p => p.id);
 
-    let fullListAgents = agentsInView.concat(agentsInBranch);
+    // console.log("Ids de todos los perfiles en los pedidos");
+    // console.log(idsinorders);
 
-    fullListAgents.map( ag => { agents.find( a => a.id==ag.id ) ? null : agents.push(ag); });
+    // Distingo los perfiles unicos obtenidos de los pedidos mediante el id del perfil
+    // console.log("ids unicos de Perfiles de los pedidos ");
+    let idProfiles = [...new Set( listProfilesInit.map(p => p.id) )];
+    // console.log(idProfiles);
 
-    state.printers = data.index.printers;
-    state.agents = agents.map( ag => { ag.rt={cnx:false,id:null}; return ag; });
+    // Obtengo los ids de los agentes que la sucursal tiene asignada
+    // console.log("ids de Perfiles asignados en la sucursal");
+    let agInBr = data.agents.map( a => a.id );
+    // console.log(agInBr);
+
+    // Junto ambos ids de perfiles para obtener un solo conjunto
+    // console.log("union de los perfiles via ID en sucursal+pedidos para obtener los que estan en tienda y los que no");
+    let allids = agInBr.concat(idProfiles);
+    // console.log(allids);
+
+    // Obtengo los ids unicos de la lista de perfiles completa (elimino ids repetidos)
+    // console.log("Perfiles unicos de la union de ids en sucursal+pedidos");
+    let allunicids = [...new Set(allids)];
+    // console.log(allunicids);
+
+    // Construir perfiles+pedidos para crear lista de usuarios en sucursal
+    state.agents = allunicids.map( pid => {
+        
+        let agent = new Object();
+        agent.socket = null;
+
+        let profinbranch = data.agents.find( a => a.id == pid );
+        
+        if(profinbranch){// seteamos cuando el usuairo pertenece a la sucursal
+            agent.profile = profinbranch;
+            agent.salesib = true;
+        }else{// seteamos cuando el usuario no pertenece a la sucursal
+            agent.profile = listProfilesInit.find( p => p.id == pid);
+            agent.salesib = false;
+        }
+
+        return agent;
+    });
+
     state.process = data.index.status.map( state => {
         state.state = state.active ? true:false;
         state.descs = descriptions[state.id];
         return state;
     });
+
     state.cashdesks = data.index.cash_register;
-    
-    localStorage.setItem("printers",JSON.stringify(data));
 }
 
 export function setState(state, newstate){

@@ -1096,9 +1096,9 @@ export default {
     methodStructuredOFFSTD(pdf, count, products, docname, nick, type) {
       this.exportstate.data = []
       let _delete = undefined;
-      let zip = 0;
+      let zip = 0; // paginador
       let counter = 0;
-      let aux = 0;
+      let aux = 0; // valor auxiliar para añadir o eiminar hojas
       switch (type) {
         case 1:
           zip = 0;

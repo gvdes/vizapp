@@ -1427,7 +1427,7 @@ export default {
       worksheet.getCell('F1:F2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('G1:I1').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('G1:I1').value = "Solicitado";
-      worksheet.getCell('G1:I1').alignment = { horizontal:'center', vertical: 'middle'};
+      worksheet.getCell('G1:I1').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.mergeCells('J1:J2');
       worksheet.mergeCells('K1:L1');
       worksheet.getCell('K1:L1').value = "Existencia";

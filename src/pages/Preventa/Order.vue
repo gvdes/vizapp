@@ -64,7 +64,7 @@
                         </q-btn>
 
                         <template v-if="gBasket.length">
-                            <q-btn dark icon="fas fa-file-excel"/>
+                            <q-btn dark icon="fas fa-file-excel" @click="orderExport"/>
                         </template>
 
                         <template v-if="currentStep&&currentStep.id==1">
@@ -287,11 +287,18 @@
             </template>
         </q-dialog>
 
+        <!-- VENTANA PARA SELECCIONAR IMPRESORA -->
         <q-dialog v-model="wndPrinters.state" position="bottom">
-            <!-- <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/> -->
             <q-card flat class="bg-darkl1 text-white exo">
                 <q-card-section class="text-overline bg-blue-grey-9 ">Seleccione Impresora</q-card-section>
                 <PrinterSelect @input="nextStep"/>
+            </q-card>
+        </q-dialog>
+
+        <!-- VENTANA PARA EXPORTAR EXCEL -->
+        <q-dialog v-model="wndExport.state" position="bottom">
+            <q-card class="exo bg-darkl0 text-white">
+                <q-card-section class="bg-darkl2 text-white text-overline">EXPORTAR PEDIDO</q-card-section>
             </q-card>
         </q-dialog>
 
@@ -329,7 +336,8 @@ import { date } from 'quasar'
 import preventadb from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
 import ProductAOE from '../../components/Global/ProductAOE.vue'
-// import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
+import ExcelJS from 'exceljs'
+import saveAs from 'file-saver'
 import PrinterSelect from '../../components/Global/PrinterSelect.vue'
 
 export default {
@@ -394,6 +402,9 @@ export default {
                 {name:'Docenas', id:2, alias:'DOC'},
                 {name:'Cajas', id:3, alias:'CJS'}
             ],
+            wndExport:{
+                state:false
+            }
         }
     },
     async mounted() {
@@ -401,10 +412,7 @@ export default {
         this.$store.commit('Preventa/setFooterState', false);
 
         this.$q.loading.show({ message:'...' });
- 
         this.index = await preventadb.order(this.ordercatch);
-        console.log(this.index.products);
-        
         this.$q.loading.hide();
     },
     destroyed(){
@@ -412,10 +420,6 @@ export default {
 		this.$store.commit('Preventa/setFooterState',true);
     },
     methods:{
-        sktorder_changestate(data){
-            console.log('Una orden ha cambiado...');
-            console.log(data);
-        },
         similarCodes(products){ this.wndAdder.similars = products; },
         setProduct(product){
             if(this.currentStep.id==1){
@@ -429,6 +433,62 @@ export default {
                     this.wndAdder.state = true;
                 }
             }
+        },
+        orderExport(){
+            this.$q.loading.show({message:'Generando...'});
+            console.log("Exportando pedido!!");
+            let filename = `Peventa_${this.workin.workpoint.alias}_${this.index.id}.xlsx`
+
+            const workbook = new ExcelJS.Workbook();
+            let sheet1 = workbook.addWorksheet('Sheet One');
+            
+            sheet1.columns = [
+                { header:'id', key:'id', width:10 },
+                { header:'Codigo', key:'code', width:15 },
+                { header:'Codigo corto', key:'scode', width:20 },
+                { header:'Descripcion', key:'dsc', width:40 },
+                { header:'Seccion',key: 'sec', width:20 },
+                { header:'Familia',key: 'fam', width:20 },
+                { header:'Categoria',key: 'cat', width:20 },
+                { header:'Cantidad', key:'amount', width:10 },
+                { header:'Unidad de surtido', key:'usup', width:20 },
+                { header:'Piezas', key:'pzs', width:10 },
+                { header:'Lista de Precio', key:'plist', width:15 },
+                { header:'Precio / Unidad', key:'price', width:15 },
+                { header:'Total', key:'total', width:15 }
+            ];
+
+            console.log(this.gBasket);
+
+            this.gBasket.forEach( p => {
+                sheet1.addRow({ 
+                    id:p.id,
+                    code:p.code,
+                    scode:p.name,
+                    dsc:p.description,
+                    sec:p.section,
+                    fam:p.family,
+                    cat:p.category,
+                    ipack:p.pieces,
+                    amount:p.ordered.amount,
+                    usup:p.metsupply.name,
+                    pzs:p.units,
+                    plist:p.usedprice.name,
+                    price:p.usedprice.price,
+                    total:p.total
+                });
+            });
+
+            workbook.xlsx.writeBuffer('exported.xlsx').then( data => {
+                const blob = new Blob( [data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' } );
+                saveAs(blob, filename);
+                this.$q.notify({
+                    icon:'done',
+                    color:'positive',
+                    message:'Documento guardado en Descargas'
+                });
+            });
+            this.$q.loading.hide();
         },
         edit(prod){
             if(this.currentStep.id==1){

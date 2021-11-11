@@ -2,12 +2,13 @@
 	<q-page>
 		<div class="row">
 			<div class="col-md-6 col-xs-12 q-pa-md">
-				<q-table flat dark
+				<q-table dark
 					:data="forsupply"
 					:columns="tableforsupply.columns"
 					:filter="tableforsupply.filtrator"
 					:pagination="tableforsupply.pagination"
 					card-class="bg-darkl1"
+					separator="none"
 				>
 					<template v-slot:top-left>
 						<div>
@@ -49,12 +50,13 @@
 			</div>
 
 			<div class="col-md-6 col-xs-12 q-pa-md">
-				<q-table flat dark
+				<q-table dark
 					:data="onsupply"
 					:columns="tablesupply.columns"
 					:filter="tablesupply.filtrator"
 					:pagination="tablesupply.pagination"
 					card-class="bg-darkl1"
+					separator="none"
 				>
 					<template v-slot:top-left>Surtiendo [ {{onsupply.length}} ]</template>
 

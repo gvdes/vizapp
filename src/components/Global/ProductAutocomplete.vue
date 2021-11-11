@@ -51,7 +51,7 @@
                 </template>
 
                 <template v-slot:option="scope">
-                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
+                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id>=3" >
                         <q-item-section avatar v-if="with_image">
                             <q-img src="~/assets/_boxprod.png" width="35px" />
                         </q-item-section>
