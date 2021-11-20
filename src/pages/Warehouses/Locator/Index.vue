@@ -4,7 +4,7 @@
 			<q-card class="bg-darkl1">
 				<toolbar-account title="Ubicador"/>
 				<q-card-section>
-					<ProductAutocomplete :checkState="false" @input="selectedProd" />
+					<ProductAutocomplete @input="selectedProd" />
 				</q-card-section>
 				<q-separator/>
 				<q-toolbar v-if="product" class="row justify-between">

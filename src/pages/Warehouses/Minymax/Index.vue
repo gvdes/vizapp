@@ -1,267 +1,153 @@
 <template>
-    <q-page padding>
-       <q-header class="bg-darkl0 text-grey-5 q-pa-sm">
+    <q-page>
+       	<q-header class="bg-darkl0 QuickRegular">
 			<q-card class="bg-darkl1">
-				<toolbar-account title="Min/Max"/>
-			</q-card>				
+				<!-- <toolbar-account title="Ajuste"/> -->
+				<HeaderApp title="Ajuste"/>
+				<q-card-section>
+					<ProductAutocomplete @input="selectedProd" :check-state="false" :workpoint-status="[1,2]" :val-state-cedis="1" />
+				</q-card-section>
+			</q-card>		
 		</q-header>
 
-		<q-card flat class="bg-darkl1">
-			<q-toolbar>Ajuste</q-toolbar>
-			<q-separator/>
-			<q-card-section>
-				<q-select dark dense filled fill-input color="green-13" behavior="menu"
-					use-input hide-selected class="text-uppercase" hide-dropdown-icon
-					input-debounce="0" option-value="id" option-label="code"
-					:value="autocom.model"
-					:options="autocom.options" 
-					@filter="autocomplete"
-					@input="get" ref="iptsearch"
-					:type="iptsearch.type">
-					<template v-slot:no-option>
-						<q-item><q-item-section class="text-grey">Sin coincidencias</q-item-section></q-item>
-					</template>
-
-					<template v-slot:prepend>
-						<q-btn type="button" dense size="sm" flat @click="toogleIptSearch" :icon="iptsearch.icon" color="grey-6"/>
-					</template>
-
-					<template v-slot:option="scope">
-						<q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
-							<q-item-section avatar>
-								<!-- <q-img :src="'http://192.168.1.86:6011/products/'+scope.opt.code+'.jpg'" @error="noload" style="border-radius:30%;width:50px;height:50px;"/> -->
-							</q-item-section>
-							<q-item-section>
-								<q-item-label><span class="text-bold">{{ scope.opt.code }}</span> - {{scope.opt.name}}</q-item-label>
-								<q-item-label caption class="text--2">{{ scope.opt.description }}</q-item-label>
-							</q-item-section>
-						</q-item>
-					</template>
-				</q-select>
-			</q-card-section>
-
-			<q-card-section v-if="setproduct.state">
-				<div class=" row no-wrap q-gutter-sm">
-					<div class="">
-						<q-img :src="`http://192.168.1.86:6011/products/${setproduct.code}.jpg`" style="overflow:hidden;width:120px;height:120px;border-radius:10px;">
-						</q-img>
-					</div>
-					<div class="">
-						<div class="text-h6">{{ setproduct.code }}</div>
-						<div>{{ setproduct.description }}</div>
-						<div>
-							<q-select dense dark color="green-13"
-								v-model="prodstate.val"
-								@input="updateState"
-								:disable="prodstate.block"
-								:loading="prodstate.block"
-								:options="labelstates"
-								label="Estatus"
-								v-if="canBlock"
-							/>
-						</div>
-					</div>
+		<div class="QuickRegular text-white q-pt-sm" v-if="product">
+			<q-card class="bg-darkl1 bg-none" flat>
+				<div class="q-pa-md text-center">
+					<div class="text-h5">{{product.code}}</div>
+					<div class="text--2">{{product.description}}</div>
 				</div>
-				<div v-if="getting" class="q-pt-md text-center text-green-13">
-					<q-spinner/> Cargando datos...</div>
-				<q-form v-else class="q-pt-md">
-					<div class="row q-gutter-lg">
-						<div class="col text-center">
-							<div class="text--1">Piezas x Caja</div>
-							<div class="text-light-blue-13 text-h5">{{setproduct.ipack}}</div>
-						</div>
+				<q-card-section>
+					<!-- <div class="col q-py-md" v-if="wkpData">{{wkpData.name}}</div> -->
+					<q-card class="bg-none row items-center">
+						<q-select dark color="green-13"
+							filled
+							:options="optionStates"
+							v-model="state"
+							option-value="id"
+							option-label="name"
+							@input="freshState"
+							label="Estatus"
+							class="col"
+						/>
 
-						<div class="col text-center">
-							<div class="text--1">Stock</div>
-							<div class="text-h5" :class="setproduct.stock>=1?'text-green-13':'text-negative'">{{setproduct.stock}}</div>
+						<template v-if="wkpData">
+							<q-input filled type="number" dark label="Minimo" class="col" color="green-13" v-model="wkpData.min" @change="setChanges" min="0"/>
+							<q-input filled type="number" dark label="Maximo" class="col" color="green-13" v-model="wkpData.max" @change="setChanges" min="0"/>
+						</template>
+					</q-card>
+					<q-btn v-if="showSave" color="primary" class="full-width q-py-md" label="Aplicar Cambios" no-caps icon="done" @click="saveChanges"/>
+					<div class="q-mt-md row justify-around" v-if="wkpData">
+						<div class="text-center q-px-md">
+							<div class="text-h5">{{product.pieces}}</div>
+							<div class="text--2">PxC</div>
 						</div>
-
-						<div class="col text-center" v-for="(stockstore,idx) in setproduct.stock_stores" :key="idx">
-							<div class="text--1">{{stockstore.alias}}</div>
-							<div class="text-h5" :class="stockstore.stocks>=1?'text-green-13':'text-negative'">{{stockstore.stocks}}</div>
+						<div class="text-center q-px-md">
+							<div class="text-h5">{{wkpData.stock}}</div>
+							<div class="text--2">Stock</div>
 						</div>
 					</div>
-					<q-separator />
-					<div class="row q-gutter-lg">
-						<q-input dark color="green-13" type="number" label="Minimo" v-model="setproduct.min" min="0" class="col" autofocus/>
-						<q-input dark color="green-13" type="number" label="Maximo" v-model="setproduct.max" min="0" class="col"/>
-						<q-btn v-if="canset" rounded flat class="bg-darkl1 shadow-1" color="green-13" icon="done" :loading="setproduct.setting" @click="set"/>
+
+					<div v-else class="text-amber-13 q-mt-md">Producto sin Stocks</div>
+				</q-card-section>
+
+				<template v-if="stocksWkps&&stocksWkps.length">
+					<div class="row justify-around">
+						<q-card class="q-pa-md bg-darkl2" v-for="wkp in stocksWkps" :key="wkp._workpoint">
+							<div class="text-overline">{{wkp.name}}</div>
+							<div>Stock: {{wkp.stock}}</div>
+							<div>Estatus: {{wkp.status.name}}</div>
+						</q-card>
 					</div>
-				</q-form>
-			</q-card-section>
-		</q-card>
+				</template>
+			</q-card>
+		</div>
     </q-page>
 </template>
 
 <script>
-import vizapi from '../../../API/warehouses'
-import dbproduct from '../../../API/Product'
-import ToolbarAccount from '../../../components/Global/ToolbarAccount.vue'
+import WarehouseDB from '../../../API/warehouses'
+import ProductDB from '../../../API/Product'
+import HeaderApp from '../../../components/Global/HeaderApp.vue'
+import ProductAutocomplete from '../../../components/Global/ProductAutocomplete.vue'
+
 export default{
-	components:{
-		ToolbarAccount:ToolbarAccount
-	},
+	components:{ ProductAutocomplete, HeaderApp },
     data(){
         return {
-            iptsearch:{
-				value:'',
-				processing:false,
-				type:"text",
-				icon:'fas fa-hashtag'
-			},
-			autocom:{model:null,options:undefined},
-			setproduct:{
-				id:null,
-				state:false,setting:false,code:undefined,
-				min:0,max:0,currmin:0,currmax:0,
-				ipack:undefined,stock:undefined,description:undefined,
-				stock_stores:undefined
-			},
-			getting:false,
-			dbLabelStates:null,
-			prodstate:{val:null,state:false,block:false}
+			listStates:null,
+			product:undefined,
+			state:undefined,
+			cmin:undefined,
+			cmax:undefined,
+			showSave:false
         }
 	},
-	async beforeMount() {
+	async mounted() {
 		console.log("%cMontando minimos y maximos","font-size:1.5em; color:gold;");
-		this.dbLabelStates = await dbproduct.labelStates();
-		console.log(this.dbLabelStates);
-	},
-	mounted(){
-		console.log(this.profile);
+		this.listStates = await ProductDB.listStates();
 	},
     methods:{
-		noload(){
-			console.log("imagen no cargo");
-		},
-		autocomplete (val, update, abort) {
-            let data={params:{ "code": val.trim() }};
-            dbproduct.autocompleteGET(data).then(success=>{
-                let resp = success.data;
-                update(() => { this.autocom.options=resp; });
-            }).catch(fail=>{ console.log(fail); });
-        },
-        toogleIptSearch(){
-			switch (this.iptsearch.type) {
-				case "text": 
-					this.iptsearch.type="number";
-					this.iptsearch.icon="fas fa-font";
-				break;
-				case "number": 
-					this.iptsearch.type ="text";
-					this.iptsearch.icon="fas fa-hashtag";
-				break;
+		async saveChanges(){
+			let data ={
+				id:this.product.id,
+				min:this.wkpData.min,
+				max:this.wkpData.max
 			}
 
-			this.$refs.iptsearch.focus();
+			let resp = await WarehouseDB.setminmax(data);
+			console.log(resp);
+
+			if(resp.error){
+				this.$q.notify({ message:resp.error, icon:'fas fa-bug', timeout:3000, color:'negative', position:'center' });
+			}else{
+				this.$q.notify({ message:'Actualizado!', icon:'done', timeout:1500, color:'positive' , position:'center' });
+				this.cmin = this.wkpData.min;
+				this.cmax = this.wkpData.max;
+
+				console.log(this.cmin==this.wkpData.min);
+				console.log(this.cmax==this.wkpData.max);
+				this.showSave = false;
+			}
 		},
-		updateState(){
-			this.prodstate.block=true;
+		setChanges(){ this.showSave = ((this.cmin!=this.wkpData.min) || (this.cmax!=this.wkpData.max)); },
+		selectedProd(product){
+			console.log("Producto Seleccionado");
+			console.log(product);
+			this.product = undefined;
+			this.product = product;
+			this.state = product.status;
 
-			let data = {"_product":this.setproduct.id,"_status":this.prodstate.val.value}
+			if(this.wkpData){
+				this.cmin = this.wkpData.min;
+				this.cmax = this.wkpData.max;
+			}
+		},
+		async freshState(){
+			let data = {"_product":this.product.id,"_status":this.state.id}
 
-			dbproduct.updateState(data).then(success=>{
-				let resp = success.data;
-				console.log(resp);
-				this.prodstate.block=false;
+			let resp = await ProductDB.freshState(data);
 
+			if(resp.error){
 				this.$q.notify({
-					message:`<b>${this.setproduct.code}</b> actualizado a <b>${this.prodstate.val.label}</b>`,
-					timeout:2000, color:'positive', position:'center',
-					icon:"done",
-					html:true
+					message:'El status no pudo actualizarse :(',
+					color:'negative', icon:'fas fa-bug', timeout:1500
 				});
-			}).catch(fail=>{
-				console.log(fail);
-			});
-
-		},
-        get(opt){
-			this.setproduct = {
-				id:null,
-				state:false,setting:false,code:undefined,
-				min:0,max:0,currmin:0,currmax:0,
-				ipack:undefined,stock:undefined,description:undefined,
-				stock_stores:undefined
-			};
-			this.getting=true;
-			console.log(opt);
-            this.setproduct.state = false;
-			this.iptsearch.processing=true;
-			let idart = opt.id;
-			let data = { "params":{ "id":idart,"stocks": true } }
-
-			this.setproduct.code = opt.code;
-			this.setproduct.description = opt.description;
-			this.setproduct.state = true;
-
-			vizapi.product(data).then(success=>{
-				console.log(success);
-				let resp = success.data;
-
-				this.getting=false;
-				this.prodstate.val = {value:resp.status.id,label:resp.status.name};
-				this.setproduct.id = resp.id;
-				this.setproduct.stock_stores = resp.stocks_stores;
-				this.setproduct.stock = resp.stock;
-				this.setproduct.ipack = resp.pieces;
-				this.setproduct.min = resp.min;
-				this.setproduct.max = resp.max;
-				this.setproduct.currmin = resp.min;
-				this.setproduct.currmax = resp.max;
-				this.iptsearch.processing=false;
-
-			}).catch(fail=>{
-                this.$q.notify({
-					message:"Raios!!, esto no ha funcionado!!",
-					timeout:3000, color:'deep-orange-14', position:'center',
-					icon:"fas fa-exclamation-triangle"
+			}else{
+				this.$q.notify({
+					message:`Producto actualizado!`,
+					timeout:1500, color:'positive', position:'center',
+					icon:"done", html:true
 				});
-			});
-		},
-		set(){
-			let data = {
-				"code":this.setproduct.code,
-				"min":parseInt(this.setproduct.min),
-				"max":parseInt(this.setproduct.max)
 			}
-
-			vizapi.setminmax(data).then(success=>{
-				let resp = success.data.success;
-				if(resp){ 
-					this.setproduct.currmin = this.setproduct.min;
-					this.setproduct.currmax = this.setproduct.max;
-					this.$q.notify({ timeout:1500, color:'positive', position:'center', icon:"done" });
-					this.$refs.iptsearch.focus();
-				}else{
-					this.$q.notify({ timeout:1500, color:'negative', position:'center', icon:"fas fa-heart-broken" });
-				}
-			}).catch(fail=>{ console.log(fail); });
-		}
+		},
     },
     computed:{
-		cansearch(){ return this.iptsearch.value.length>2 ? false : true; },
-		canset(){
-			return ((this.setproduct.min!=this.setproduct.currmin)||(this.setproduct.max!=this.setproduct.currmax)) ? true:false;
-		},
 		ismobile(){ return this.$q.platform.is.mobile; },
-		imgcover(){ return route =>{
-			let _route = route ? '':'';
-			return 'http://192.168.1.86:6011/products/'+setproduct.code+'.jpg'
-		}},
-		labelstates(){
-			return this.dbLabelStates ? 
-				this.dbLabelStates.map(item=>{
-					return {value:item.id,label:item.name}
-				}) : [];
-		},
-		profile:{
-			get(){ return this.$store.getters['Account/profile']; }
-		},
-		canBlock(){
-			let branch = this.profile.workpoint.id;
-			return (branch==1||branch==2||branch==13) ? true : false;
-		}
+		profile(){ return this.$store.getters['Account/profile']; },
+		workin(){ return this.$store.getters['Account/workin']; },
+		wkpData(){ return this.product ? this.product.stocks.find( b => this.workin.workpoint.id == b._workpoint) : undefined; },
+		stocksWkps(){ return this.product ? this.product.stocks.filter( b => this.workin.workpoint.id != b._workpoint) : undefined; },
+		optionStates(){ return this.listStates ? this.listStates.filter( s => s.id<=3||s.id==6) : []; }
     }
 }
 </script>

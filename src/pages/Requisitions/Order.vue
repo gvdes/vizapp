@@ -618,6 +618,9 @@
               with_stock
               @input="selItem"
               ref="comp_autocomplete"
+              :workpoint-status="[1,2]"
+              :val-state-cedis="1"
+              :block-states="[3,4,5,6]"
             />
           </div>
           <div class="text-right">
