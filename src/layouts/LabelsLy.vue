@@ -1,6 +1,21 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Este modulo genera las etiquetas de los productos que se añaden para su posterior impresión
+     *  existen diferentes modelos de etiquetas, todo de acuerdo a lo que la sucursal
+     *  requiera. El almacenamiento de las etiquetas ya no tiene relacion con el Back-End, si no con 
+     *  el Storage del navegador, todas las etiquetas se generan en el Front-End
+     *  
+     *  
+     */
+-->
+
 <template>
   <q-layout class="exo" view="hHh Lpr fFf">
-    <!-- Be sure to play with the Layout demo on docs -->
+
     <q-header class="bg-none" v-if="layout.header.state">
       <q-card class="bg-darkl1 no-border-radius">
         <HeaderApp :title="layout.header.title" />
@@ -201,7 +216,6 @@
       side="left"
       content-class="bg-darkl0 text-grey-6"
     >
-      <!-- QScrollArea is optional -->
       <q-scroll-area class="fit">
         <div class="column q-gutter-md q-pt-md">
           <div class="q-px-md">
@@ -609,12 +623,10 @@ export default {
     };
   },
   async beforeMount() {
-    // this.$store.commit("Layout/hideToolbarModule");
     this.$store.commit("Labels/setHeaderState", true);
     this.$store.commit("Labels/setFooterState", false);
     this.$store.commit("Labels/setHeaderTitle", this.name);
     this.index = await dblabels.index();
-    // this.wndGenPdf.formatts = this.index.types;
 
     let applabels = JSON.parse(localStorage.getItem("applabels"));
     console.log(applabels);
@@ -634,8 +646,11 @@ export default {
     }
   },
   methods: {
+    /**
+     * @param { Object[] } opt Objeto del producto seleccionado.
+     * @description Añade el producto al bucket de las etiquetas.
+     */
     add(opt) {
-      // JL96151
       let newLabel = JSON.parse(JSON.stringify(opt));
       console.log(newLabel);
       let flag =
@@ -709,14 +724,20 @@ export default {
         }
       }
     },
+    /**
+     * @param { number } code ID del producto.
+     * @description Elimina el producto del bucket de las etiqeutas.
+     */
     remove(code) {
       let idx = this.labelsPage.findIndex((item) => {
         return item.code == code;
       });
-      console.log(idx);
       this.labelsPage.splice(idx, 1);
       this.updateCacheLabels();
     },
+    /**
+     * @description Dialogo para remover todas las etiquetas.
+     */
     confirmDrop() {
       this.$q
         .dialog({
@@ -737,8 +758,10 @@ export default {
           this.leftDrawer = false;
         });
     },
+    /**
+     * @description Actualiza el cache de las etiquetas.
+     */
     updateCacheLabels() {
-      
       let applabels = {
         settings: {
           usingPrices: this.usingPrices,
@@ -746,16 +769,17 @@ export default {
         },
         labels: this.labelsPage,
       };
-      // console.log(applabels);
-
       localStorage.setItem("applabels", JSON.stringify(applabels));
     },
+    /**
+     * @param { number } code ID del producto.
+     * @param { string } opt Opción para añadir o decrementar copias. 
+     * @description Actualiza las copias del producto.
+     */
     updateCopies(code, opt) {
-      // console.log(code);
       let idx = this.labelsPage.findIndex((item) => {
         return item.code == code;
       });
-      // console.log(idx);
       switch (opt) {
         case "d":
           this.labels[idx].copies > 1
@@ -768,48 +792,13 @@ export default {
       }
       this.updateCacheLabels();
     },
-    genPdf(type) {
-      console.log("Generando PDF en formato: " + type);
-
-      this.$q.loading.show({ message: "Generando documento, espera.." });
-      let products = this.labelsPage.map((item) => {
-        console.log(item);
-        return {
-          id: item.id,
-          code: item.code,
-          name: item.name,
-          description: item.description,
-          type: item.type,
-          copies: item.copies,
-          prices: item.usedPrices,
-          pieces: item.pieces,
-        };
-      });
-
-      let data = {
-        _pdf: type,
-        isInnerPack: this.useIpack,
-        products: products,
-      };
-
-      dblabels
-        .generate(data)
-        .then((success) => {
-          let resp = success.data;
-          console.log(resp);
-          this.$q.loading.hide();
-          window.open(`${this.$routefiles}/${resp.file}`);
-          this.$q.notify({
-            message: "Documento generado",
-            icon: "done",
-            color: "positive",
-          });
-          this.wndGenPdf.state = false;
-        })
-        .catch((fail) => {
-          console.log(fail);
-        });
-    },
+    /**
+     * @param { Object[] } _prices Precios del producto.
+     * @param { Object[] } ipack Piezas del producto.
+     * @description Realiza el procedimiento.
+     * @returns { Object[] } Tipo de precios que se le asigna al producto (STD/OFF).
+     * 
+     */
     labelType(_prices, ipack) {
       let natprices = [..._prices];
       let prices = [..._prices];
@@ -874,9 +863,15 @@ export default {
         };
       }
     },
+    /**
+     * @description Dispara la funcion para obtener archivo Excel.
+     */
     triggerInputFile() {
       this.$refs.blobfile.click();
     },
+    /**
+     * @description Obtiene toda la información de los productos y los añade al bucket de etiquetas.
+     */
     async readFile() {
       let inputFile = document.getElementById("blobfile").files[0];
       let workbook = new ExcelJS.Workbook();
@@ -894,10 +889,8 @@ export default {
         diference = codesToSend.filter((item, pos, self) => {
           return self.indexOf(item) == pos;
         });
-        // console.log(diference);
 
         if (codesToSend.length) {
-          // console.log(codesToSend);
           let data = { codes: codesToSend };
           this.wndImportJSON.wndTotal  = codesToSend.length;
           this.$q.loading.show({ message: "Procesando archivo, espera.." });
@@ -907,8 +900,6 @@ export default {
               let resp = success.data;
               let addeds = 0;
               let _data = this.checkPrices(resp);
-              console.log(_data);
-              // this.wndImportJSON.wndTotal = resp.products.length;
               this.wndImportJSON.wndGetRows = _data.add.length;
               this.wndImportJSON.state = !this.wndImportJSON.state;
               this.wndImportJSON.wndGetAdded = data.add;
@@ -928,8 +919,6 @@ export default {
                 this.wndImport.goals.unshift(item);
                 addeds++;
               });
-              //   this.updateCacheLabels();
-              //   console.log(this.labelsPage);
               this.$q.loading.hide();
 
               //al menos una etiqueta fue agregada, y no hay errores
@@ -965,6 +954,10 @@ export default {
         document.getElementById("blobfile").value = "";
       });
     },
+    /**
+     * @param { number } type Valor de etiqueta seleccionada.
+     * @description Contryue el PDF para imprimir etiquetas.
+     */
     buildPDF(type) {
       let labels = JSON.parse(localStorage.getItem("applabels"));
       let settingsRND = [15];
@@ -1001,7 +994,6 @@ export default {
         products.prices = products.map((item) => {
           return item.prices.sort((a, b) => b.id - a.id);
         });
-        // console.log(products.prices);
         let stdProduts = [];
         let offProducts = [];
 
@@ -1016,8 +1008,6 @@ export default {
              }
           }
         );
-        // console.log(prueba);
-        // console.log(stdProduts.map(item => item.prices.findIndex(i => i.alias == "DOC" || i.alias == "CAJ")));
 
         let newObject = [];
         if (stdProduts.length == 0 && offProducts.length != 0) {
@@ -1049,8 +1039,7 @@ export default {
         let folio = Math.floor(Math.random() * 1000000);
         let getDate = new Date();
         let docname = `${this.$moment(getDate).format("YYMMDD")}_${folio}.pdf`;
-        // console.log(docname);
-        // 210929_142735.pdf
+
         const pdf = new jsPDF({ unit: "pt", format: "letter" });
         let count = 1;
         // /*----------  FUENTES AÑADIDAS AL STORE DEL REPORTE  -----------*/
@@ -1095,13 +1084,21 @@ export default {
         this.leftDrawer = !this.leftDrawer;
       }
     },
-    // ---------- ///////// TERMINAR SELECCION DE BODEGUERO, DISPONIBILIDAD Y PISTOLEO DE PRODUCTOS
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } docname Nombre de PDF.
+     * @param { string } nick Autor.
+     * @param { number } type Tipo de Etiquetas.
+     * @description Metodo contructor del PDF de las etiquetas.
+     */
     methodStructuredOFFSTD(pdf, count, products, docname, nick, type) {
       this.exportstate.data = []
       let _delete = undefined;
-      let zip = 0;
+      let zip = 0; // paginador
       let counter = 0;
-      let aux = 0;
+      let aux = 0; // valor auxiliar para añadir o eiminar hojas
       switch (type) {
         case 1:
           zip = 0;
@@ -1383,6 +1380,14 @@ export default {
       // this.exportstate.data = [];
       pdf.save(docname);
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas de Estrella Gigante (2x1).
+     */
     methodGiantStarPrint(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2;
       let height = pdf.internal.pageSize.getHeight() / 2.2;
@@ -1886,38 +1891,52 @@ export default {
       }
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas rectangulares de Navidad Pequeña (3x5).
+     */
     methodSquareToysLabel3x5(pdf, count, products, nick, zip) {
+      // DECLARACION DE VARIABLES SIGUIENDO EL CONTEXTO DE SCOPE
       let width = pdf.internal.pageSize.getWidth() / 3.2;
       let height = pdf.internal.pageSize.getHeight() / 5.3;
       let countY = 1;
       let counterCodeShort = 0;
       let forCounterX = 5;
       let forCounterY = 3;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
       let x = 0;
       let y = 0;
+      // ITERAMOS LAS COPIAS Y AGREGAMOS EL MISMO PRODUCTO DE ACUERDO AL TOTAL DE COPIAS
       products.map((item) => {
         for (let i = 0; i < item.copies; i++) {
           newProducts.push(item);
         }
         return newProducts;
       });
+      // PASAMOS EL NUEVO ARREGLO AL QUE TENEMOS POR PARAMETRO DE LA FUNCION
       products = newProducts;
-      // console.log(products.length);
-      // let productsMat = new Array(products.length);
-
+      // ITERAMOS EN LA MATRIZ, LA ESTRUCTURA DE LAS ETIQUETAS SEPARADAS POR OFERTA (OFF) Y ESTANDAR (STD)
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
+          // BREAKPOINT (_y) => EL NUMERO DE ITERACIONES IGUAL A LA LONGITUD DEL ARREGLO Y SALE DEL BUCLE
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
+            // ASIGNAMOS EL TAMAÑO DEL TEXTO
             pdf.setFontSize(10);
+            // ASIGNAMOS LA FUENTE DEL PDF
             pdf.setFont("Montserrat-Semi");
+            // DIBUJAMOS UN RECTANGULO CON 20 DE MARGEN
             pdf.rect(20, 20, width * (y + 1), height * countY);
+            // TEXTO DE LA EMPRESA ESTABLECIDO EN LA PARTE TOP DEL RECTANGULO
             pdf.text(
               "Grupo Vizcarra",
               width * (y == 0 ? 0 : y) + 120,
@@ -1925,9 +1944,10 @@ export default {
               null,
               null,
               "center"
-            ); //18.3 12.5 6.75
+            );
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(25);
+            // SI EL CHECK DE BARCODE ESTA SELECCIONADO POSICIONARA EL CODIGO CORTO, SI NO, LO CENTRARA
             this.useIpack
               ? pdf.text(
                   products[i].name,
@@ -1947,7 +1967,9 @@ export default {
                 );
             pdf.setFontSize(9);
             pdf.setFont("Montserrat");
+            // ESTA VARIABLE ALMACENA EL TEXTO SPLITEADO, LA CANTIDAD ES EL TAMAÑO MAXIMO DE LONGITUD
             let splitter = pdf.splitTextToSize(products[i].label, 180);
+            // POSICIONAMOS EL TEXTO SPLITEADO
             pdf.text(
               splitter,
               width * (y == 0 ? 0 : y) + 25,
@@ -1956,9 +1978,8 @@ export default {
               null,
               "left"
             );
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
             let aux = 0;
-            // console.log(products[i].type)
+            // LA CONDICION SEPARA LAS OFERTAS Y LOS PRODUCTOS ESTANDAR
             if (products[i].type == "off") {
               pdf.setFont("Montserrat-Semi");
               pdf.setFontSize(9);
@@ -1970,6 +1991,7 @@ export default {
                 140,
                 95
               ); //210,140
+              // REALIZAMOS LA CONVERSION A PORCENTAJE Y LE AUMENTAMOS AL PRECIO AGREGADO 
               let convert =
                 products[i].prices[0].price +
                 (products[i].prices[0].price * products[i].discount) / 100;
@@ -1977,6 +1999,7 @@ export default {
                 Math.floor(convert) == products[i].prices[0].price
                   ? convert + 1
                   : convert;
+              // CREAMOS UNA OFERTA CON DESCUENTO DEL PRECIO AGREGADO
               pdf.text(
                 `De $${Math.floor(convert) + 1} a`,
                 width * (y == 0 ? 0 : y) + 90,
@@ -2018,13 +2041,15 @@ export default {
                 null,
                 "left"
               );
-              // pdf.text(products[i].prices[0].alias, width / 3.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
               pdf.setFontSize(30);
               pdf.setFont("Montserrat-Semi");
-              // pdf.text(`$${parseFloat(products[i].prices[0].price).toFixed(2)}`, width / 1.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
               aux += aux + 30;
             } else {
+              // ESTA CONDICION AHORA EVALUA EL TIPO DE PRECIO QUE SE IMPRIMIRA EN LAS ETIQUETAS,
+              // LA CANTIDAD QUE SE LE PASA AL SWITCH ES LA LONGITUD DE LOS PRECIOS
               switch (products[i].prices.length) {
+                // PUEDE SER CUALQUIER TIPO DE PRECIO (MEN, MAY, DOC, CAJ) LO CENTRA Y AUMENTA EL TEXTO A 20
+                // EL MARGEN ES VARIABLE ENTRE EL ALIAS DEL PRECIO Y LA CANTIDAD
                 case 1:
                   pdf.setFont("Montserrat");
                   pdf.setFontSize(20);
@@ -2100,7 +2125,6 @@ export default {
                   break;
                 case 4:
                   for (let z = 0; z < products[i].prices.length; z++) {
-                    // console.log(prices.reverse());
                     if (z == 1) {
                       aux = 0;
                     }
@@ -2152,7 +2176,6 @@ export default {
                   break;
               }
             }
-            // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
             pdf.setFont("Montserrat");
             pdf.setFontSize(10);
             pdf.text(
@@ -2192,14 +2215,11 @@ export default {
                   20
                 )
               : "";
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON SELECCIONADOS TODOS  -----------*/
-
-            if ((i + 1) % 15 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
-              products.length > 15 ? pdf.addPage() : "";
-              // pdf.addPage();
+              products.length > productXY ? pdf.addPage() : "";
               count++;
               counterCodeShort = 0;
               countY = 1;
@@ -2208,26 +2228,32 @@ export default {
             }
             _y++;
           }
-          i % 15 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
         counterCodeShort += 149;
         countY++;
-        // (countY == 5 ? zip++ : 1);
       }
-      // console.log(pdf.internal.getNumberOfPages());
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas rectangulares * To => SPC (3x6).
+     */
     methodSquareToysLabel3x6(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 3.2;
-      let height = pdf.internal.pageSize.getHeight() / 6.3;
       let countY = 1;
       let counterCodeShort = 0;
       let counterCodeShortX = 0;
       let forCounterX = 6;
       let forCounterY = 3;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
@@ -2248,9 +2274,6 @@ export default {
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
-
             if (products[i].type == "off") {
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(37);
@@ -2423,12 +2446,11 @@ export default {
               );
             }
 
-            if ((i + 1) % 18 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
-              products.length > 18 ? pdf.addPage() : "";
-              // pdf.addPage();
+              products.length > productXY ? pdf.addPage() : "";
               count++;
               counterCodeShort = 0;
               countY = 1;
@@ -2437,26 +2459,32 @@ export default {
             }
             _y++;
           }
-          i % 18 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
         x <= 2 ? (counterCodeShortX += 125) : (counterCodeShortX += 130);
-        // console.log(i)
         x < 4 ? (counterCodeShort += 125) : (counterCodeShort += 126);
-        // counterCodeShort += 130;
         countY++;
       }
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas de Estrella Pequeña (4x6).
+     */
     methodStarToysLabel4x6(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 4.2;
-      let height = pdf.internal.pageSize.getHeight() / 6.3;
       let countY = 1;
       let counterCodeShort = 0;
       let forCounterX = 6;
       let forCounterY = 4;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
@@ -2475,7 +2503,6 @@ export default {
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
             pdf.setFontSize(8);
             pdf.setFont("Montserrat-Semi");
             pdf.addImage(
@@ -2504,7 +2531,7 @@ export default {
               null,
               "center"
             );
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
+
             let aux = 0;
             if (products[i].type == "off") {
               pdf.setTextColor(0);
@@ -2664,7 +2691,7 @@ export default {
                   break;
               }
             }
-            // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
+
             pdf.setFont("Montserrat");
             pdf.setFontSize(9);
             pdf.text(
@@ -2704,14 +2731,11 @@ export default {
                   15
                 )
               : "";
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON SELECCIONADOS TODOS  -----------*/
-
-            if ((i + 1) % 24 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
-              products.length > 24 ? pdf.addPage() : "";
-              // pdf.addPage();
+              products.length > productXY ? pdf.addPage() : "";
               count++;
               counterCodeShort = 0;
               countY = 1;
@@ -2720,7 +2744,7 @@ export default {
             }
             _y++;
           }
-          i % 24 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
@@ -2730,13 +2754,21 @@ export default {
       }
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas de Estrella Mediana (3x4).
+     */
     methodStarToysLabel3x4(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 3.2;
-      let height = pdf.internal.pageSize.getHeight() / 4.3;
       let countY = 1;
       let counterCodeShort = 0;
       let forCounterX = 4;
       let forCounterY = 3;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
@@ -2755,7 +2787,6 @@ export default {
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
             pdf.setFontSize(12);
             pdf.setFont("Montserrat-Semi");
             pdf.addImage(
@@ -2795,7 +2826,7 @@ export default {
               null,
               "left"
             );
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
+
             let aux = 0;
             if (products[i].type == "off") {
               pdf.setTextColor(0);
@@ -2955,7 +2986,7 @@ export default {
                   break;
               }
             }
-            // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
+
             pdf.setFont("Montserrat");
             pdf.setFontSize(11);
             pdf.text(
@@ -2995,14 +3026,11 @@ export default {
                   20
                 )
               : "";
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON SELECCIONADOS TODOS  -----------*/
-
-            if ((i + 1) % 12 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
               products.length > 24 ? pdf.addPage() : "";
-              // pdf.addPage();
               count++;
               counterCodeShort = 0;
               countY = 1;
@@ -3011,7 +3039,7 @@ export default {
             }
             _y++;
           }
-          i % 12 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
@@ -3021,6 +3049,14 @@ export default {
       }
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas rectangulares de Navidad Grande (2x3).
+     */
     methodSquareToysLabel2x3(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2.1;
       let height = pdf.internal.pageSize.getHeight() / 3.2;
@@ -3028,6 +3064,7 @@ export default {
       let counterCodeShort = 0;
       let forCounterX = 3;
       let forCounterY = 2;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
@@ -3040,14 +3077,12 @@ export default {
         return newProducts;
       });
       products = newProducts;
-      console.log(products.length);
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
             pdf.setFontSize(10);
             pdf.setFont("Montserrat-Semi");
             pdf.rect(20, 20, width * (y + 1), height * countY);
@@ -3089,9 +3124,7 @@ export default {
               null,
               "left"
             );
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
             let aux = 0;
-            // console.log(products[i].type)
             if (products[i].type == "off") {
               pdf.setFont("Montserrat-Semi");
               pdf.setFontSize(16);
@@ -3280,7 +3313,6 @@ export default {
                   break;
               }
             }
-            // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
             pdf.setFont("Montserrat");
             pdf.setFontSize(14);
             pdf.text(
@@ -3320,13 +3352,11 @@ export default {
                   25
                 )
               : "";
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON SELECCIONADOS TODOS  -----------*/
-
-            if ((i + 1) % 6 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
-              products.length > 6 ? pdf.addPage() : "";
+              products.length > productXY ? pdf.addPage() : "";
               count++;
               counterCodeShort = 0;
               countY = 1;
@@ -3335,17 +3365,24 @@ export default {
             }
             _y++;
           }
-          i % 6 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
-        // console.log(i)
         counterCodeShort += 247;
         countY++;
       }
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas rectangulares de Navidad Vertical (4x3).
+     */
     methodSquareToysLabel4x3(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 4.2;
       let height = pdf.internal.pageSize.getHeight() / 3.2;
@@ -3353,6 +3390,7 @@ export default {
       let counterCodeShort = 0;
       let forCounterX = 3;
       let forCounterY = 4;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
@@ -3365,14 +3403,12 @@ export default {
         return newProducts;
       });
       products = newProducts;
-      console.log(products.length);
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
             pdf.setFontSize(10);
             pdf.setFont("Montserrat-Semi");
             pdf.rect(20, 20, width * (y + 1), height * countY);
@@ -3414,9 +3450,7 @@ export default {
               null,
               "left"
             );
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
             let aux = 0;
-            // console.log(products[i].type)
             if (products[i].type == "off") {
               pdf.setFont("Montserrat-Semi");
               pdf.setFontSize(14);
@@ -3460,7 +3494,6 @@ export default {
                 "left"
               );
               pdf.setFontSize(22);
-              // pdf.text(`-${products[i].discount}%`, width * (y == 0 ? 0 : y) + 47, 174 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
               aux += aux + 30;
             } else {
               switch (products[i].prices.length) {
@@ -3564,7 +3597,6 @@ export default {
                   break;
               }
             }
-            // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
             pdf.rect(
               20,
               205 + (countY == 1 ? 0 : counterCodeShort),
@@ -3572,7 +3604,6 @@ export default {
               25
             );
             pdf.setFont("Montserrat");
-
             if (products[i].pieces >= 100) {
               pdf.setFontSize(10);
             } else if (products[i].pieces >= 1000) {
@@ -3599,7 +3630,6 @@ export default {
               "left"
             );
             pdf.setFont("Montserrat-Semi");
-
             if (products[i].code.length > 10) {
               pdf.setFontSize(9);
             } else {
@@ -3623,9 +3653,7 @@ export default {
                   25
                 )
               : "";
-            // /*----------  SEGMENTO DE PRECIOS SOLO SI SON SELECCIONADOS TODOS  -----------*/
-
-            if ((i + 1) % 12 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
@@ -3638,18 +3666,24 @@ export default {
             }
             _y++;
           }
-          i % 12 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
-        // console.log(i)
         counterCodeShort += 247;
         countY++;
       }
-      // pdf.save(docname);
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas rectangulares de Bodega (9x2).
+     */
     methodSquareToysLabel9x2(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2.1;
       let height = pdf.internal.pageSize.getHeight() / 9.4;
@@ -3657,6 +3691,7 @@ export default {
       let counterCodeShort = 0;
       let forCounterX = 9;
       let forCounterY = 2;
+      let productXY = forCounterY * forCounterX;
       let _y = 0;
       let newProducts = [];
       let i = 0;
@@ -3669,18 +3704,14 @@ export default {
         return newProducts;
       });
       products = newProducts;
-      // console.log(products.length);
       for (x = 0; x < forCounterX; x++) {
         for (y = 0; y < forCounterY; y++) {
           i = _y;
           if (_y - 1 === products.length - 1) {
             break;
           } else {
-            // /*----------  PRIMERA ETIQUETA  -----------*/
             pdf.rect(20, 20, width * (y + 1), height * countY);
-            // pdf.text("Grupo Vizcarra", width * (y == 0 ? 0 : y) + 170, 32 + (countY == 1 ? 0 : counterCodeShort), null, null, 'center'); //18.3 12.5 6.75
             pdf.setFont("Montserrat-Bold");
-            // console.log(products[i].code.length);
             if (products[i].code.length >= 8) {
               pdf.setFontSize(27);
             } else {
@@ -3742,12 +3773,11 @@ export default {
               );
               sum += 12;
             }
-
-            if ((i + 1) % 18 == 0) {
+            if ((i + 1) % productXY == 0) {
               pdf.setFont("Montserrat");
               pdf.setFontSize(12);
               pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
-              products.length > 18 ? pdf.addPage() : "";
+              products.length > productXY ? pdf.addPage() : "";
               count++;
               counterCodeShort = 0;
               countY = 1;
@@ -3756,17 +3786,24 @@ export default {
             }
             _y++;
           }
-          i % 18 == 0 ? zip++ : 1;
+          i % productXY == 0 ? zip++ : 1;
         }
         if (_y - 1 === products.length - 1) {
           break;
         }
-        // console.log(i)
         counterCodeShort += 84;
         countY++;
       }
       return zip;
     },
+    /**
+     * @param { any } pdf Instancia de PDF.
+     * @param { number } count Contador de hojas.
+     * @param { Object[] } products Productos.
+     * @param { string } nick Autor.
+     * @param { number } zip Paginador.
+     * @description Metodo que construye las etiquetas rectangulares de Navidad Mediana (2x4).
+     */
     methodSquareToysLabel2x4(pdf, count, products, nick, zip) {
       let width = pdf.internal.pageSize.getWidth() / 2.15;
       let height = pdf.internal.pageSize.getHeight() / 4.3;
@@ -3774,6 +3811,7 @@ export default {
       let countY = 1;
       let counterCodeShort = 0;
       let counterCodeShortX = 0;
+      let productXY = 8;
       let newProducts = [];
       products.map((item) => {
         for (let i = 0; i < item.copies; i++) {
@@ -3784,7 +3822,6 @@ export default {
       products = newProducts;
       for (let i = 0; i < products.length; i++) {
         if (i % 2 == 0) {
-          // /*----------  PRIMERA ETIQUETA  -----------*/
           pdf.setFontSize(12);
           pdf.setFont("Montserrat-Semi");
           pdf.rect(20, 20, width, height * countY);
@@ -3826,14 +3863,10 @@ export default {
             null,
             "left"
           );
-          // pdf.text(products[i].description, width / 10, 88 + (countY == 1 ? 0 : counterCodeShort), null, null, 'left');
-          // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
           let aux = 0;
-          // console.log(products[i].type)
           if (products[i].type == "off") {
             pdf.setFont("Montserrat-Semi");
             pdf.setFontSize(12);
-            // pdf.setTextColor(255);
             pdf.addImage(
               "pdf/img/banner.png",
               "PNG",
@@ -3857,7 +3890,6 @@ export default {
               null,
               "left"
             );
-            // pdf.setTextColor(0);
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(12);
             pdf.text(
@@ -3890,10 +3922,8 @@ export default {
               null,
               "left"
             );
-            // pdf.text(products[i].prices[0].alias, width / 3.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
             pdf.setFontSize(30);
             pdf.setFont("Montserrat-Semi");
-            // pdf.text(`$${parseFloat(products[i].prices[0].price).toFixed(2)}`, width / 1.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
             aux += aux + 30;
           } else {
             switch (products[i].prices.length) {
@@ -4023,7 +4053,6 @@ export default {
                 break;
             }
           }
-          // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
           pdf.setFont("Montserrat");
           pdf.setFontSize(16);
           pdf.text(
@@ -4067,7 +4096,6 @@ export default {
           countY++;
           counterCodeShort += 182 + (i < 3 ? 4 : 2);
         } else {
-          // /*----------  SEGUNDA ETIQUETA  -----------*/
           pdf.setFont("Montserrat-Semi");
           pdf.setFontSize(12);
           pdf.rect(width + 20, 20, width, height * countX);
@@ -4109,8 +4137,6 @@ export default {
             null,
             "left"
           );
-          // pdf.text(splitter, (width * 1.1), 88 + (countX == 1 ? 0 : counterCodeShortX), null, null, 'left');
-          // /*----------  SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
           let aux = 0;
           if (products[i].type == "off") {
             pdf.setFont("Montserrat-Semi");
@@ -4305,7 +4331,6 @@ export default {
                 break;
             }
           }
-          // /*----------  FIN DE SEGMENTO DE PRECIOS SOLO SI SON MENUDEO Y MAYOREO  -----------*/
           pdf.setFont("Montserrat");
           pdf.setFontSize(16);
           pdf.text(
@@ -4345,11 +4370,11 @@ export default {
                 25
               )
             : "";
-          if ((i + 1) % 8 == 0) {
+          if ((i + 1) % productXY == 0) {
             pdf.setFont("Montserrat");
             pdf.setFontSize(12);
             pdf.text(3, 10, `Se generó ${count} plantilla, creador: ${nick}`);
-            products.length > 8 ? pdf.addPage() : "";
+            products.length > productXY ? pdf.addPage() : "";
             count++;
             counterCodeShort = 0;
             counterCodeShortX = 0;
@@ -4360,24 +4385,14 @@ export default {
             counterCodeShortX += 182 + (i < 3 ? 4 : 2);
           }
         }
-        i % 8 == 0 ? zip++ : 1;
+        i % productXY == 0 ? zip++ : 1;
       }
       return zip;
     },
-
-    async generateAndDownloadBarcodeInPDF(orderNo) {
-      let makeBase64Image = convertTextToBase64Barcode(orderNo);
-
-      const realImage = await convertBase64ToPNGImage(makeBase64Image);
-      return realImage;
-    },
-    convertBase64ToPNGImage(url) {
-      return new Promise((resolve) => {
-        let img = new Image();
-        img.onload = () => resolve(img);
-        img.src = url;
-      });
-    },
+    /**
+     * @param { string } text Código de Barras.
+     * @description Genera el código de barras y lo exporta de manera de imagen.
+     */
     convertTextToBase64Barcode(text) {
       let canvas = document.createElement("canvas");
       JsBarcode(canvas, text, {
@@ -4391,6 +4406,11 @@ export default {
     },
   },
   computed: {
+    /**
+     * @param { Object[] } data Productos.
+     * @returns { Object[] } Devuelve el arreglo con los productos con precios y sin precios.
+     * @description Metodo que retorna un arreglo sobre los productos con precios y sin precios.
+     */
     checkPrices() {
       return (data) => {
         let notFound = [];
@@ -4404,6 +4424,12 @@ export default {
         return resp;
       };
     },
+    /**
+     * @param { Array } prices Precio del producto.
+     * @returns { Array } Devuelve true o false dependiendo si cuenta con precio.
+     * @description Metodo que retorna un valor condicional que evalua el precio del producto.
+     * 
+     */
     getPrices() {
       return (prices) => {
         let flag = true;
@@ -4413,17 +4439,33 @@ export default {
         return flag;
       };
     },
+    /**
+     * @returns { Boolean } Estado del Layout.
+     * @description Retorna el estado del layout.
+     */
     layout() {
       return this.$store.state.Labels.layout;
     },
+    /**
+     * @returns { Object[] } Objeto de etiquetas.
+     * @description Valida si el bucket cuenta con etiquetas.
+     */
     labels() {
       return this.labelsPage.length ? this.labelsPage : [];
     },
+    /**
+     * @returns { number } Cantidad de Etiquetas.
+     * @description Retorna la cantidad de Etiquetas dentro del bucket.
+     */
     labels_size() {
       return this.labels.reduce((ammount, item) => {
         return item.copies + ammount;
       }, 0);
     },
+    /**
+     * @returns { number } Cantidad de Etiquetas STD.
+     * @description Retorna la cantidad de etiquetas STD dentro del bucket.
+     */
     labels_standar() {
       return this.labels
         .filter((item) => item.type == "std" || item.type == "may")
@@ -4431,6 +4473,10 @@ export default {
           return item.copies + ammount;
         }, 0);
     },
+    /**
+     * @returns { number } Cantidad de Etiquetas OFF.
+     * @description Retorna la cantidad de etiquetas OFF dentro del bucket.
+     */
     labels_offers() {
       return this.labels
         .filter((item) => item.type == "off")
@@ -4438,6 +4484,10 @@ export default {
           return item.copies + ammount;
         }, 0);
     },
+    /**
+     * @returns { string } Color de Etiquetas
+     * @description Retorna el color de acuerdo al tipo de Etiqueta (STD/OFF).
+     */
     colorLabel() {
       return (type) => {
         switch (type) {
@@ -4453,6 +4503,11 @@ export default {
         }
       };
     },
+    /**
+     * @param { string } barcode Código de barras.
+     * @returns { Boolean | string } Código de barras.
+     * @description Evalua si contiene el producto código de barras.
+     */
     execptionBarcode() {
       return (barcode) => {
         if (barcode == null || barcode == "") {
@@ -4462,6 +4517,11 @@ export default {
         }
       };
     },
+    /**
+     * @param { Array } products Producto.
+     * @returns { Array } Producto STD.
+     * @description Devuelve los productos estandar (STD).
+     */
     getSTD() {
       return (products) => {
         return products.filter(
@@ -4469,11 +4529,20 @@ export default {
         )
       };
     },
+    /**
+     * @param { Array } products Producto.
+     * @returns { Array } Producto OFF.
+     * @description Devuelve los productos oferta (OFF).
+     */
     getOFF() {
       return (products) => {
         return products.filter((item) => item.type == "off");
       };
     },
+    /**
+     * @returns { any } Sonido.
+     * @description Devuele el store de sonidos personalizados.
+     */
     appsounds() {
       return this.$store.getters["Multimediapp/sounds"];
     },

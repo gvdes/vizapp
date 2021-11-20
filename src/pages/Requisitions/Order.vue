@@ -1,3 +1,18 @@
+<!--
+    /**
+     * @App VizApp <org.grupovizcarra.vizapp>
+     * @copyright Grupo Vizacarra - 2020-2021
+     * @version v.1.0.0
+     * @Description 
+     *  Integra y añade productos a las ordenes de Resurtido para enviar a CEDIS, 
+     *  da pauta a que gestione de manera bilateral, mediante el manejo de estados del componente
+     *  y este de seguimiento desde cuando envia solicitud, hasta cuando culmina el surtido en Sucursal.
+     *  
+     *  
+     *  
+     */
+-->
+
 <template>
   <q-page padding>
     <q-header elevated class="bg-darkl0">
@@ -84,7 +99,7 @@
         </q-banner>
       </div>
     </q-slide-transition>
-    
+
     <q-drawer
       v-model="ldrawer.state"
       v-if="_getorders&&_getorders.status.id <= 2"
@@ -603,6 +618,9 @@
               with_stock
               @input="selItem"
               ref="comp_autocomplete"
+              :workpoint-status="[1,2]"
+              :wkp-to-val="1"
+              :block-states="[3,4,5,6]"
             />
           </div>
           <div class="text-right">
@@ -661,7 +679,7 @@
           <span class="text-grey-4 q-pl-md">{{ _getorders&&_getorders.status.name }}</span>
           <q-btn flat color="green-13" icon="history" @click="showLog" />
         </template>
-        <q-btn
+        <!-- <q-btn
           icon="print"
           flat
           dense
@@ -670,7 +688,7 @@
           @click="reprint"
           :loading="print.state"
           :disable="print.state"
-        />
+        /> -->
       </div>
     </q-footer>
   </q-page>
@@ -867,12 +885,6 @@ export default {
   },
   beforeDestroy() {
     this.$store.commit("Layout/showToolbarModule");
-    // this.rsocket.emit("leave", {
-    //   room: this.socketroom,
-    //   user: this.profile,
-    // });
-    // this.rsocket.off();
-    // console.log("desconectado del socket");
   },
   async mounted() {
     this.$store.commit("Requisitions/setHeaderState", false);
@@ -891,8 +903,7 @@ export default {
     this.$q.loading.hide();
 
     // console.log(this._store);
-    
-    
+
     this.flagFilter = this.order.log.length >= 2 ? true : false;
     this.flag = this.order.status.id == 10 ? false : true;
     this.setupToolbar.destiny = this.order.to.alias;
@@ -995,10 +1006,9 @@ export default {
           // debugger
           let newStateSend = undefined;
           newStateSend = resp.status;
-          newState = this.order.log.concat(resp.log[0]);
-          this.order.log = newState;
-          this.order.status = newStateSend;
-          // this.products = resp.order.products;
+          console.log(this._getorders.log);
+          newState = this._getorders.log.concat(resp.log);
+          
           this.$q.notify({
             color: "positive",
             icon: "done",
@@ -1143,85 +1153,92 @@ export default {
     },
     addProduct(params) {
       console.log(params);
-      this.wndSetItem.adding = true;
-      this.filteringItems = "";
+    //   if (params.product.status.id == 3) {
+    //     this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} se encuentra agotado.`;
+    //     this.flagDuplicate = !this.flagDuplicate;
+    //     this.flagProducts = !this.flagProducts;
+    //   } else {
+        this.wndSetItem.adding = true;
+        this.filteringItems = "";
 
-      let data = new Object();
-      this.wndSetItem.art = params.product;
-      this.wndSetItem.units = params.units;
-      this.wndSetItem.amount = params.amount;
-      this.wndSetItem.notes = params.comments;
-      this.wndSetItem.metsupply = params.metsupply;
+        let data = new Object();
+        this.wndSetItem.art = params.product;
+        this.wndSetItem.units = params.units;
+        this.wndSetItem.amount = params.amount;
+        this.wndSetItem.notes = params.comments;
+        this.wndSetItem.metsupply = params.metsupply;
 
-      let product = this.wndSetItem.art;
-      product.amount = this.wndSetItem.amount;
-      product.comments = this.wndSetItem.notes;
-      product.prices = this.wndSetItem.art.prices;
-      data._product = product.id;
-      data.amount = product.amount;
-      data.comments = product.comments;
-      data._requisition = this.params.id;
-      data._supply_by = params.metsupply.id;
+        let product = this.wndSetItem.art;
+        product.amount = this.wndSetItem.amount;
+        product.comments = this.wndSetItem.notes;
+        product.prices = this.wndSetItem.art.prices;
+        data._product = product.id;
+        data.amount = product.amount;
+        data.comments = product.comments;
+        data._requisition = this.params.id;
+        data._supply_by = params.metsupply.id;
+        // product.status = params.product.status;
 
-      this.$q.loading.show({ message: "Enviando archivo, espera..." });
+        this.$q.loading.show({ message: "Enviando archivo, espera..." });
 
-      dbreqs
-        .add(data)
-        .then(success => {
-          let resp = success.data;
-          console.log(resp);
-          let artidx = this.products.findIndex(item => {
-            return resp.id == item.id;
-          });
-          let sktproduct = null;
-          let cmd = null;
-          this.$q.loading.hide();
-          console.log(artidx);
-          if (artidx >= 0) {
-            // el articulo fue editado
-            console.log("Articulo editado");
-            // let _product = this.products[artidx];
-            sktproduct = this.products[artidx];
-            this.products[
-              artidx
-            ].ordered._supply_by = this.wndSetItem.metsupply.id;
-            this.products[artidx].ordered.amount = this.wndSetItem.amount;
-            this.products[artidx].ordered.comments = this.wndSetItem.notes;
-            cmd = "edit";
-            this.flagDuplicate = false;
-          } else {
-            console.log("Articulo agregado");
-            // console.log(product.prices);
-            let _prices = { prices: product.prices };
-            if (resp.success == false) {
-              this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
-              this.flagDuplicate = !this.flagDuplicate;
+        dbreqs
+          .add(data)
+          .then(success => {
+            let resp = success.data;
+            console.log(resp);
+            let artidx = this.products.findIndex(item => {
+              return resp.id == item.id;
+            });
+            let sktproduct = null;
+            let cmd = null;
+            this.$q.loading.hide();
+            console.log(artidx);
+            if (artidx >= 0) {
+              // el articulo fue editado
+              console.log("Articulo editado");
+              // let _product = this.products[artidx];
+              sktproduct = this.products[artidx];
+              this.products[
+                artidx
+              ].ordered._supply_by = this.wndSetItem.metsupply.id;
+              this.products[artidx].ordered.amount = this.wndSetItem.amount;
+              this.products[artidx].ordered.comments = this.wndSetItem.notes;
+              cmd = "edit";
+              this.flagDuplicate = false;
             } else {
-              resp = Object.assign(resp, this._metsupply(resp)[0]);
-              resp = Object.assign(resp, _prices);
-              console.log(resp);
-              // resp = resp.concat(params.metsupply);
-              this.products.unshift(resp);
-              cmd = "add";
-              sktproduct = resp;
-            }
-          } // el articulo fue agregado
+              console.log("Articulo agregado");
+              // console.log(product.prices);
+              let _prices = { prices: product.prices };
+              if (resp.success == false) {
+                this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
+                this.flagDuplicate = !this.flagDuplicate;
+              } else {
+                resp = Object.assign(resp, this._metsupply(resp)[0]);
+                resp = Object.assign(resp, _prices);
+                console.log(resp);
+                // resp = resp.concat(params.metsupply);
+                this.products.unshift(resp);
+                cmd = "add";
+                sktproduct = resp;
+              }
+            } // el articulo fue agregado
 
-          this.flagProducts = !this.flagProducts;
-          this.autocom.options = undefined;
-          this.autocom.model = null;
-          this.$refs.comp_autocomplete.putFocus();
-          this.rsocket.emit("order_update", {
-            user: this.profile,
-            from: this.workin,
-            cmd: cmd,
-            order: this.params.data,
-            product: sktproduct
+            this.flagProducts = !this.flagProducts;
+            this.autocom.options = undefined;
+            this.autocom.model = null;
+            this.$refs.comp_autocomplete.putFocus();
+            this.rsocket.emit("order_update", {
+              user: this.profile,
+              from: this.workin,
+              cmd: cmd,
+              order: this.params.data,
+              product: sktproduct
+            });
+          })
+          .catch(fail => {
+            console.log(fail);
           });
-        })
-        .catch(fail => {
-          console.log(fail);
-        });
+    //   }
     },
     async selItem(opt, id) {
       console.log(opt);
@@ -1328,17 +1345,17 @@ export default {
             cell.value ? extractTypeB.push(cell.value) : null;
           });
 
-          let diference = extractTypeA.filter((item, pos, self) => {
-            return self.indexOf(item) == pos;
-          });
-
-          for (let i = 0; i < diference.length; i++) {
+          for (let i = 0; i < extractTypeA.length; i++) {
             let order = {
-              code: diference[i],
-              amount: extractTypeA[i] == diference[i] ? extractTypeB[i] : 1
+              code: extractTypeA[i],
+              amount: extractTypeB[i]
             };
             extractJSON.push(order);
           }
+
+          let diference = extractJSON.filter((v,i,a)=>a.findIndex(t=>(t.code === v.code))===i);
+
+          // console.log(diference);
 
           let convert = extractTypeA.length - diference.length;
 
@@ -1352,7 +1369,7 @@ export default {
 
           let data = {
             _requisition: this.setupToolbar.verify,
-            products: extractJSON,
+            products: diference,
             _supply_by: this.wndImportJSON._supply_by
           };
           console.log(data);
@@ -1398,6 +1415,39 @@ export default {
       let workbook = new ExcelJS.Workbook();
       let worksheet = workbook.addWorksheet("My Sheet");
 
+      worksheet.mergeCells('A1:A2');
+      worksheet.mergeCells('B1:B2');
+      worksheet.mergeCells('C1:C2');
+      worksheet.mergeCells('D1:D2');
+      worksheet.mergeCells('E1:E2');
+      worksheet.mergeCells('F1:F2');
+      worksheet.mergeCells('G1:I1');
+      worksheet.getCell('A1:A2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('B1:B2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('C1:C2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('D1:D2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('E1:E2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('F1:F2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('G1:I1').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('G1:I1').value = "Solicitado";
+      worksheet.getCell('G1:I1').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.mergeCells('J1:J2');
+      worksheet.mergeCells('K1:L1');
+      worksheet.getCell('K1:L1').value = "Existencia";
+      worksheet.getCell('K1:L1').alignment = { horizontal:'center', vertical: 'middle'};
+      worksheet.getCell('G2').value = "Cantidad";
+      worksheet.getCell('H2').value = "Unidad";
+      worksheet.getCell('I2').value = "Piezas";
+      worksheet.getCell('K2').value = "Piezas";
+      worksheet.getCell('L2').value = "Cajas";
+      worksheet.getCell('J1:J2').value = "Piezas x Caja";
+      worksheet.getCell('J1:J2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('G2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('H2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('I2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('K2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('L2').alignment = { horizontal: 'center', vertical: 'middle' };
+
       worksheet.columns = [
         // { header: "Comanda", key: "comanda", width: 15 },
         { header: "Código", key: "code", width: 15 },
@@ -1406,9 +1456,13 @@ export default {
         { header: "Sección", key: "section", width: 15 },
         { header: "Familia", key: "family", width: 15 },
         { header: "Categoría", key: "category", width: 15 },
-        { header: "Solicitud", key: "request", width: 10 },
-        { header: "Unidad", key: "unity", width: 10 },
-        { header: "Disponible (pzs)", key: "stock", width: 15 }
+        { header: "Solicitado", key: "amount", width: 15 },
+        { header: "Solicitado", key: "unity", width: 15 },
+        { header: "Solicitado", key: "pieces", width: 15 },
+        { header: "Piezas x Caja", key: "pieces_box", width: 15 },
+        { header: "Existencia", key: "boxes", width: 10 },
+        { header: "Existencia", key: "_unity", width: 10 },
+        // { header: "Disponible (pzs)", key: "stock", width: 15 }
       ];
 
       console.log(this.products);
@@ -1421,10 +1475,13 @@ export default {
           section: this.products[i].section,
           family: this.products[i].family,
           category: this.products[i].category,
-          request: parseInt(this.products[i].ordered.units),
+          amount: parseInt(this.products[i].ordered.amount),
           unity: this.products[i].metsupply.name,
-          stock: parseInt(this.products[i].ordered.stock)
-        });
+          pieces: parseInt(this.products[i].ordered.units),
+          pieces_box: parseInt(this.products[i].ipack),
+          boxes: parseInt(this.products[i].stocks[0].stock * this.products[i].ipack),
+          _unity: parseInt(this.products[i].stocks[0].stock),
+        }).alignment =  { horizontal:'center'};
       }
       // this.flagPrompt = !this.flagPrompt;
       // console.log(this.saveNameExport)
@@ -1463,7 +1520,11 @@ export default {
   },
   computed: {
     _getorders() {
-      return this.$store.getters["Requisitions/getOrders"] ? this.$store.getters["Requisitions/getOrders"].find(idx => idx.id == this.params.id) : null
+      return this.$store.getters["Requisitions/getOrders"]
+        ? this.$store.getters["Requisitions/getOrders"].find(
+            idx => idx.id == this.params.id
+          )
+        : null;
     },
     filterAvailable() {
       switch (this.selectAvailable.value) {
@@ -1486,7 +1547,7 @@ export default {
       if (this.products) {
         return this.products.map(p => {
           p.ipack = p.pieces ? p.pieces : 1;
-          // p.pricelistDefault = { id:1, alias:'MEN', name:'MENUDEO' };
+          p.status = p.ordered.stock > 0 ? { id: 1, status: "Disponible" } : { id: 1, status: "No Disponible" };
           p.metsupply = (p =>
             this.metsupplies.find(ms => ms.id == p.ordered._supply_by))(p);
           // p.productType = ((p) => {

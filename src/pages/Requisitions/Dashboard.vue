@@ -11,6 +11,7 @@
      *  surtido, hasta el transporte que lo enviara.
      */
 -->
+
 <template>
   <q-page
     :class="ismobile ? '' : 'q-pb-md overflow-hidden'"
@@ -332,7 +333,7 @@
                 icon="print"
                 flat
                 color="green-13"
-                v-if="wndLog.order && wndLog.order.status.id > 1"
+                v-if="wndLog.order && wndLog.order.status.id > 2"
                 @click="reprint"
                 :loading="print.state"
                 :disable="print.state"
@@ -446,7 +447,7 @@
                     @click="$router.push(`/pedidos/checkout/${wndLog.order.id}`)"
                   /> -->
                   <q-btn
-                    v-if="wndLog.order.status.id <= 5"
+                    v-if="wndLog.order.status.id <= 6"
                     outline
                     color="teal-13"
                     :label="msgCEDIS"
@@ -757,11 +758,6 @@ export default {
       ]
     };
   },
-  // beforeUpdate() {
-  //   console.log(this.timeElapsed.length);
-  //   this.dialogOrders = this.timeElapsed.length ? true : false;
-  //   // this.timeElapsed.length ? this.alertOrders() : false;
-  // },
   async beforeMount() {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
@@ -771,7 +767,7 @@ export default {
     this.$store.commit("Requisitions/getAllCleanDuplicates", this.orders);
     this.$store.commit("Requisitions/setHeaderTitle", this.title);
     let aux = 0;
-    let blocked = [3, 5, 7, 8, 10, 11];
+    let blocked = [3, 7, 8, 10, 11];
 
     let getMarkets = await dbworpoints.index();
     this.workpoints.push({ label: "Todos", value: -1 });
@@ -812,11 +808,6 @@ export default {
     this.dialogOrders = this.timeElapsed ? true : false;
     this.dialogOrders ? this.alertOrders() : null;
   },
-  // updated() {
-  //   console.log(this.dialogOrders && this.timeElapsed.length);
-  //   this.dialogOrders = this.timeElapsed.length && this.dialogOrders ? true : false;
-  //   // this.dialogOrders ? this.alertOrders() : false;
-  // },
   methods: {
     /**
      * @description Recibe la data del componente 'DeliveryOpt' y la transforma para gestionar los cambios estado.
@@ -1261,7 +1252,7 @@ export default {
     },
     ordersize() {
       return products => {
-        console.log(products);
+        // console.log(products);
         let sizeprod = products.length;
         if (sizeprod) {
           let labelpzs = products.reduce((ammount, item) => {
@@ -1319,13 +1310,13 @@ export default {
         //   "Enviar",
         //   "Entregar",
         // ];
-        let stateCEDIS = [2, 3, 5, 7, 9];
+        let stateCEDIS = [2, 3, 5, 6, 7, 9, 10];
         let msgDisplay = [
           "Iniciar surtido",
           // "Enviar a validación",
           // "Iniciar CheckOut",
-          "Entregar",
-          "CheckOut"
+          // "CheckOut",
+          "Iniciar Envio"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
           ? msgDisplay[stateCEDIS.indexOf(status)]
@@ -1341,7 +1332,8 @@ export default {
      */
     checkState() {
       return state => {
-        let resp = state == 2 || state == 6;
+        // let resp = state == 2 || state == 6;
+        let resp = state == 2;
         return resp;
       };
     },
@@ -1353,7 +1345,7 @@ export default {
     isCEDIS() {
       return index => {
         let settings =
-          index == 1 || index == 2 || index == 4 || index == 6 || index == 9
+          index == 1 || index == 2 || index == 4 || index == 5 || index == 6 || index == 9
             ? // index == 6
               index
             : 0;
@@ -1410,9 +1402,9 @@ export default {
     },
     getTicket() {
       return order =>
-        this.currentStep(order) && this.currentStep(order).id >= 6
+        this.currentStep(order) && this.currentStep(order).id >= 6 && order.log[4].details.order
           ? `${order.log[4].details.order.serie} - ${order.log[4].details.order.ticket}`
-          : "";
+          : "Error al Generar Folio";
     }
   }
 };

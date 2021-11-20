@@ -29,6 +29,11 @@ export default {
         console.log(fail);
       });
   },
+  updateStocks(data){
+    return vizapi.post('/requisition/updateStocks',data).then( done => {
+        return done.data;
+    }).catch( fail => { return { error: fail} });
+  },
   add(data) {
     console.log(data);
     return vizapi.post("/requisition/add", data);

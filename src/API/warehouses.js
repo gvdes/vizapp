@@ -46,8 +46,7 @@ export default{
     },
     addSections(data){ return vizapi.post('/location/section',data); },
     setminmax(data){
-        console.log(data);
-        return vizapi.post('/location/maximos',data);
+        return vizapi.post('/location/maximos',data).then( done => done.data ).catch( fail => { return {error:fail} });
     },
     existencesIndex(data){
         return vizapi.post('/product/catalog',data).then(success=>{

@@ -154,19 +154,16 @@ export default {
 }
 </script>
 <style lang="scss">
-	.st-1{ color:#18dcff!important; }// levantando pedido LP
-	.st-2{ color:#b71540!important; }// asignando caja AC
-	.st-3{ color:#cd6133!important; }// En Recepcion ER
-	.st-4{ color:#fff200!important; }// Por surtir PS
-	.st-5{ color:#20bf6b!important; }// Surtiendo SR
-	.st-6{ color:#fdcb6e!important; }// Por validar PV
-	.st-7{ color:#cc8e35!important; }// Validando Mercancia VM
-	.st-8{ color:#0fb9b1!important; }// En Caja EC
-	.st-9{ color:#20bf6b!important; }// Cobrando CO
-	.st-10{ color:#cc8e35!important; }// Finalizado FZ
-	.st-100{ color:#a5b1c2!important; }// Cancelado CN
 
 	.custom-toggle{border: 2px solid #027be3}
 
 	.ord_anx{ border-bottom: 3px dashed #fff200 ; }
+
+	table thead{
+		color:#ced6e0;
+		text-transform: uppercase;
+		font-family: 'QuickRegular';
+	}
+	table tbody tr:nth-child(odd){ background-color:rgba(#000,.07); padding:10px 0px 10px 0px;}
+
 </style>

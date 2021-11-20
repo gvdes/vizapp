@@ -37,17 +37,12 @@
 .bg-ubuntu{ background:linear-gradient(45deg, #dd4814, #77216f, #5e2750, #2c001e, #333333); }
 
 
-.bg-darkgradient{
-    background: -moz-linear-gradient(top, #2d3035 0%, #22252a 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, #2d3035 0%,#22252a 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, #2d3035 0%,#22252a 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3035', endColorstr='#22252a',GradientType=0 );
+.bg-darktheme{
+    background:linear-gradient(180deg, #2E323F 0%, #0A061A 100%);
 }
 
-.bg-redgradient{
-    background: #e52d27;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #b31217, #e52d27);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #b31217, #e52d27); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+.bg-whitetrans{
+    background: rgba(#FFF, 0.05) !important;
 }
 
 .bg-none{ background:none!important;}
@@ -81,9 +76,9 @@
 .otherdark{background-color: #171717;}
 .otherdark2{background-color: #0a0a0a;}
 
-// VARIABLES PARA ESTANDARIZACION DE COLORES
+// VARIABLES PARA ESTANDARIZACION DE status
 
-$st-1 : #18dcff!important;// levantando pedido LP
+$st-1 : #a4b0be!important;// levantando pedido LP
 $st-2 : #b71540!important;// asignando caja AC
 $st-3 : #cd6133!important;// En Recepcion ER
 $st-4 : #fff200!important;// Por surtir PS
@@ -93,7 +88,19 @@ $st-7 : #cc8e35!important;// Validando Mercancia VM
 $st-8 : #0fb9b1!important;// En Caja EC
 $st-9 : #20bf6b!important;// Cobrando CO
 $st-10 :#cc8e35!important;// Finalizado FZ
-$st-100 : #a5b1c2!important;// Cancelado CN
+$st-100 : #57606f!important;// Cancelado CN
+
+.st-1{ color:#a4b0be!important; }// levantando pedido LP
+.st-2{ color:#b71540!important; }// asignando caja AC
+.st-3{ color:#cd6133!important; }// En Recepcion ER
+.st-4{ color:#fff200!important; }// Por surtir PS
+.st-5{ color:#20bf6b!important; }// Surtiendo SR
+.st-6{ color:#fdcb6e!important; }// Por validar PV
+.st-7{ color:#cc8e35!important; }// Validando Mercancia VM
+.st-8{ color:#0fb9b1!important; }// En Caja EC
+.st-9{ color:#20bf6b!important; }// Cobrando CO
+.st-10{ color:#cc8e35!important; }// Finalizado FZ
+.st-100{ color:#57606f!important; }// Cancelado CN
 
 // ESTILOS PARA PREVENTA
 
@@ -109,8 +116,19 @@ $st-100 : #a5b1c2!important;// Cancelado CN
 .st-10{ color: $st-10; }// Finalizado FZ
 .st-100{ color: $st-100; }// Cancelado CN
 
-// ESTILOS PARA RESURTIDOS
+.sbg-1{ background-color: $st-1; }// levantando pedido LP
+.sbg-2{ background-color: $st-2; }// asignando caja AC
+.sbg-3{ background-color: $st-3; }// En Recepcion ER
+.sbg-4{ background-color: $st-4; }// Por surtir PS
+.sbg-5{ background-color: $st-5; }// Surtiendo SR
+.sbg-6{ background-color: $st-6; }// Por validar PV
+.sbg-7{ background-color: $st-7; }// Validando Mercancia VM
+.sbg-8{ background-color: $st-8; }// En Caja EC
+.sbg-9{ background-color: $st-9; }// Cobrando CO
+.sbg-10{ background-color: $st-10; }// Finalizado FZ
+.sbg-100{ background-color: $st-100; }// Cancelado CN
 
+// ESTILOS PARA RESURTIDOS
 .cardDesign-1 { border-left: 10px solid $st-1; }
 .cardDesign-2 { border-left: 10px solid $st-2; }
 .cardDesign-3 { border-left: 10px solid $st-3; }

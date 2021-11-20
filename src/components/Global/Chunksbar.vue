@@ -1,5 +1,5 @@
 <template>
-    <div class="overflow-hidden row justify-start items-center wrapperchunks">
+    <div class="ds overflow-hidden row justify-start items-center wrapperchunks">
         <template v-for="(chunk,idx) in chunks">
             <div v-if="chunk.size"
                 :key="idx"
@@ -22,7 +22,11 @@
 <script>
 export default {
     props:{
-        chunks:{type:Array}
+        chunks:{type:Array,default:[]}
+    },
+    mounted(){
+        console.log("componente chunksbar cargado..");
+        console.log(this.chunks);
     },
     computed:{
         formatcant(){ return cant => { return new Intl.NumberFormat("es-MX").format(cant); } },

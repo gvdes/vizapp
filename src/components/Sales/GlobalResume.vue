@@ -29,7 +29,7 @@
 
             <q-card class="bg-darkl1 text-grey-6">
                 <q-card-section>
-                    <div class="text-caption">Fromas de Pago</div>
+                    <div class="text-caption">Formas de Pago</div>
                 </q-card-section>
                 <q-separator />
                 <div class="q-py-md">

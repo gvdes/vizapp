@@ -3,12 +3,14 @@
 		<div class="row q-pt-sm q-pb-xl">
 		<!-- <div>{{ myorders.length }} {{ orders.length }}</div> -->
 			<div class="col-md-6 col-xs-12 q-pa-sm">
-				<q-table flat dark
+				<q-table dark flat
 					:data="orders"
 					:columns="tableorders.columns"
 					:filter="tableorders.filtrator"
 					:pagination="tableorders.pagination"
 					card-class="bg-darkl1"
+					separator="none"
+					:visible-columns="columns_view"
 				>
 					<template v-slot:top>
 						<div class="full-width row items-center">
@@ -46,22 +48,24 @@
 								<div> <span :class="props.row._order ? 'ord_anx':''">{{props.row.id}}</span></div>
 								<div class="text--1 text-grey-5">{{filltkt(props.row.num_ticket)}}</div>
 							</q-td>
-							<q-td key="client">{{props.row.name}}</q-td>
+							<q-td key="client" align="center">{{props.row.name}}</q-td>
 							<q-td key="cstate" align="center" :class="`st-${props.row.status.id}`">
 								<div class="text--1">{{props.row.status.name}}</div>
 								<div class="text--2 text-grey-5">{{humantime(props.row.updated_at)}}</div>
+							</q-td>
+							<q-td key="createdby" align="center" v-if="!tableorders.view">
+								{{props.row.created_by.nick}}
 							</q-td>
 						</q-tr>
 					</template>
 				</q-table>
 			</div>
-
 		</div>
 
 		<q-dialog v-model="windCreate.state" position="bottom" :persistent="windCreate.blocked">
 			<q-card class="bg-darkl0 exo text-white">
 				<q-form>
-					<q-toolbar>Nuevo Pedido</q-toolbar>
+					<q-toolbar class="bg-darkl2">Nuevo Pedido</q-toolbar>
 					<q-card-section>
 						<div class="row items-end q-gutter-sm">
 							<q-btn icon="fas fa-address-book" flat dense :color="isclient?'green-13':'grey-8'" class="text-black" @click="isclient=!isclient"/>
@@ -74,7 +78,7 @@
 		</q-dialog>	
 
 		<q-page-sticky position="bottom-right" :offset="[10, 3]">
-			<q-btn color="teal" rounded icon="add" @click="windCreate.state=true"/>
+			<q-btn color="primary" rounded icon="add" @click="windCreate.state=true"/>
         </q-page-sticky>
 	</q-page>
 </template>
@@ -112,10 +116,8 @@ export default {
 				columns:[
 					{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
 					{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
-					// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
 					{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
-					// { name:'type', field:(row)=>{ return row.parent.length }, sortable:true, label:'Tipo', align:'center' }
-					// { name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
+					{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
 				],
 				pagination:{
 					sortBy:'id',
@@ -225,6 +227,9 @@ export default {
 				}
 			}
         },
+		columns_view(){
+			return this.tableorders.view ? ['id','client','cstate']:['id','client','cstate','createdby'];
+		}
 	},
 }
 </script>

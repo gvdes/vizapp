@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 
-// const URLSocket = 'http://192.168.10.33:7171';
+// const URLSocket = 'http://192.168.12.38:7173';
+// const URLSocket = 'http://192.168.90.253:7171'; // PUEBLA 
 
 // const URLSocket = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4548';
 
@@ -27,5 +28,4 @@ export default ({ Vue }) => {
 			// });
 		}
 	}else{console.log("%cNo hay sesion activa, union a socket cancelada","background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"); }
-
 }

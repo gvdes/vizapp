@@ -33,9 +33,8 @@ export function printersWarehouse(state){
 
 export function agents_orders(state){
     return state.agents.map(agent => {
-        agent.orders = state.orders.filter( ord => agent.id == ord.created_by.id );
+        agent.orders = state.orders.filter( ord => agent.profile.id == ord.created_by.id );
         agent.ordersize = agent.orders.length;
-
         return agent;
     });
 }

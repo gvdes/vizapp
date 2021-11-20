@@ -1,5 +1,5 @@
 <template>
-    <div class="row items-center">
+    <div class="QuickRegular row items-center">
         <template v-if="read_barcode">
             <q-input 
                 ref="iptatc"
@@ -30,7 +30,7 @@
                 behavior="menu"
                 v-model="target"
                 :value="target"
-                :input-debounce="200"
+                :input-debounce="3"
                 autofocus
                 :options="options"
                 :type="iptsearch.type"
@@ -41,7 +41,7 @@
                 <template v-slot:no-option>
                     <q-item>
                         <q-item-section avatar><q-img src="~/assets/chihuacry.png" width="50px"/></q-item-section>
-                        <q-item-section class="text-grey exo">Nada por aqui...</q-item-section>
+                        <q-item-section class="text-grey QuickRegular">Nada por aqui...</q-item-section>
                     </q-item>
                 </template>
 
@@ -51,23 +51,27 @@
                 </template>
 
                 <template v-slot:option="scope">
-                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="scope.opt.status.id==4||scope.opt.status.id==5" >
+                    <!-- <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" > -->
+                    <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" :disable="block(scope.opt.stateToVal)" >
                         <q-item-section avatar v-if="with_image">
                             <q-img src="~/assets/_boxprod.png" width="35px" />
                         </q-item-section>
                         
                         <q-item-section>
-                            <div class="row items-center justify-between no-wrap exo">
+                            <div class="row items-center justify-between no-wrap QuickRegular">
                                 <div class="col">
                                     <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
                                     <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
+                                    <div class="text--3">{{scope.opt.stateToVal.state.name}}</div>
+                                    <!-- <div class="text--3">State branch: {{scope.opt.status}}</div>
+                                    <div class="text--3">StateToVal: {{scope.opt.stateToVal}}</div>
+                                    <div>{{block(scope.opt.stateToVal)}}</div> -->
                                 </div>
 
-                                <q-icon name="fas fa-circle" :class="`bullet-${scope.opt.status.id} q-pl-md`" size="10px"/>
+                                <q-icon name="fas fa-circle" class="q-pl-md" :class="`bullet-${scope.opt.stateToVal.state.id}`" size="10px"/>
                             </div>
                         </q-item-section>
                     </q-item>
-                    <q-separator />
                 </template>
             </q-select> 
         </template>
@@ -87,6 +91,10 @@ export default {
         "with_image":{ default:null, type:Boolean },
         "with_prices":{ default:null, type:Boolean },
         "with_stock":{ default:null, type:Boolean },
+        "checkState":{ default:true, type:Boolean },
+        "workpointStatus":{ default:null, type:Array },
+        "wkpToVal":{ default:null, type:Number },
+        "blockStates":{ type:Array, default:()=>[4,5,6] }
     },
     data() {
         return {
@@ -115,10 +123,19 @@ export default {
             if(val.trim().length>1){
                 this.target = val.toUpperCase().trim();
 
-                dbproduct.autocomplete(this.attrs).then(success=>{
-                    let resp = success.data;
+                dbproduct.autocomplete(this.attrs).then( done =>{
+                    let options = done.data.map( p => {
+                        if(this.checkState){
+                            if(this.wkpToVal){
+                                let wkp = p.stocks.find( s => s._workpoint == this.wkpToVal);
+                                p.stateToVal = wkp ? { own:wkp,state:wkp.status } : null;
+                            }else{ p.stateToVal = { own:true,state:p.status }; }
+                        }else{ p.stateToVal = { own:true,state:p.status }; }
+
+                        return p;
+                    });
                     update(
-                        () => { this.options=resp; },
+                        () => { this.options=options; },
                         ref => {
                             ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
                             ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
@@ -193,16 +210,6 @@ export default {
         putFocus(){
             console.log("putFocus ejecutada!!");
             this.$refs.iptatc.focus();
-
-            // if(this.read_barcode){
-            //     console.log("focus en iptbarcode!!");
-            //     this.$refs.iptbarcode.focus()
-            //     let iptb = document.getElementById("iptbarcode");
-            //     iptb.focus();
-            // }else{
-            //     console.log("focus en iptatc!!");
-            //     this.$refs.iptatc.focus();
-            // }
         }
     },
     computed:{
@@ -217,9 +224,11 @@ export default {
                 "check_stock":this.check_stock,
                 "with_prices":this.with_prices,
                 "_celler":this._celler,
-                "limit":this.limit
+                "limit":this.limit,
+                "_workpoint_status":this.workpointStatus
             }
-        }
+        },
+        block(){ return st => this.checkState ? this.blockStates.some( e => e==st.state.id) : false; }
     }
 }
 </script>

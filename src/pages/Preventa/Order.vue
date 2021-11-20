@@ -1,23 +1,26 @@
 <template>
 	<q-page>
 		<q-header elevated class="bg-darkl1">
-            <div class="row items-stretch justify-between">
-                <q-btn @click="$router.push('/preventa/pedidos')" flat icon="close"/>
+            <div class="row items-start justify-between">
+                <q-btn @click="$router.push('/preventa/pedidos')" icon="close" flat/>
 
-                <div class="row items-center col bg-dark divclient _client">
-                    <div class="q-pa-sm col text-center">
-                        <div class="text--2">Cliente:</div>
-                        <div class="text-uppercase">
-                            <q-icon v-if="client.type!='STD'" name="fas fa-medal" class="q-mr-sm"/> {{ client.type == 'STD'? client.name : `${client.name} (${client.id})` }}
+                <div class="col">
+                    <div class="text--3 bg-dark q-pt-sm text-grey-5 text-center">PREVENTA / {{workin.workpoint.alias}}</div>
+                    <div class="row items-center bg-dark divclient _client">
+                        <div class="q-pa-xs col text-center">
+                            <div class="text--3">Cliente:</div>
+                            <div class="text-uppercase text--1">
+                                <q-icon v-if="client.type!='STD'" name="fas fa-medal" class="q-mr-sm"/> {{ client.type == 'STD'? client.name : `${client.name} (${client.id})` }}
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="q-pa-sm col text-center">
-                        <div class="text--2">Folio:</div>
-                        <div class="text-bold">{{ordercatch.id}}</div>
-                        <div class="text--3 text-amber-13" v-if="haveparent">{{haveparent}}</div>
-                        <div class="text--3 text-orange-13" v-if="havechildren.length">
-                            <span v-for="(ord,idx) in havechildren" :key="idx">{{ord.id}} </span>
+                        <div class="q-pa-xs col text-center">
+                            <div class="text--3">Folio:</div>
+                            <div class="text-bold text---1">{{ordercatch.id}}</div>
+                            <div class="text--3 text-amber-13" v-if="haveparent">{{haveparent}}</div>
+                            <div class="text--3 text-orange-13" v-if="havechildren.length">
+                                <span v-for="(ord,idx) in havechildren" :key="idx">{{ord.id}} </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -47,8 +50,6 @@
 
         <q-drawer v-model="ldrawer.state" side="right" content-class="bg-darkl0" @hide="startremove.state=false">
             <div class="q-pa-md">
-                <!-- <div class="ds">{{pfams}}</div>
-                <div class="ds">{{upfams}}</div> -->
                 <template v-if="currentStep&&currentStep.id==1">
                     <div class="text-overline">Unidad de surtido</div>
                     <q-select borderless dense dark color="green-13" v-model="metdeftsupply" option-value="id" option-label="name" :options="metsupplies" />
@@ -58,10 +59,12 @@
                 <div class="text-overline">Opciones</div>
                 <div>
                     <q-btn-group spread class="bg-darkl1">
-                        <q-btn dark icon="print" @click="initPrinters('reprint');" v-if="currentStep&&currentStep.id>1" />
+                        <q-btn dark icon="print" v-if="currentStep&&currentStep.id>1">
+                            <q-menu content-class="bg-darkl1"><PrinterSelect @input="reprint" label-title="Reimprimir"/></q-menu>
+                        </q-btn>
 
                         <template v-if="gBasket.length">
-                            <q-btn dark icon="fas fa-file-excel"/>
+                            <q-btn dark icon="fas fa-file-excel" @click="orderExport"/>
                         </template>
 
                         <template v-if="currentStep&&currentStep.id==1">
@@ -93,14 +96,11 @@
                         </template>
                     </q-btn-group>
                 </div>
-                <!-- <input type="file" ref="blobfile" id="blobfile" @input="readFile" hidden accept=".xlsx,.xls"/> -->
             </div>
 
             <div class="q-pt-md q-pl-md">
                 <q-timeline color="green-13" dark>
-                    <q-timeline-entry v-for="log in orderlog" :key="log.id"
-                        side="right"
-                    >
+                    <q-timeline-entry v-for="log in orderlog" :key="log.id" side="right">
                         <template v-slot:subtitle>{{log.name}}</template>
                         <div class="text--2">{{humantime(log.created_at)}}</div>
                         <div>{{log.responsable.nick ? log.responsable.nick:'VizApp'}}</div>
@@ -118,7 +118,7 @@
                 Esto ya esta en la lista
 
                 <template v-slot:action inline-actions>
-                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="artduplicate.state=false; artduplicate.state=undefined;"/>
+                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="artduplicate.state=false; artduplicate.state=undefined; $refs.patc.putFocus();"/>
                 </template>
             </q-banner>
 
@@ -253,7 +253,7 @@
         <!-- VENTANA DE PRODUCTOS PARA AGREGAR -->
         <q-dialog v-model="wndAdder.state" position="bottom">
             <q-card class="text-white bg-darkl1 exo">
-                <q-card-section class="bg-blue-grey-9 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
+                <q-card-section class="bg-darkl2 text-white text-overline">AGREGAR PRODUCTO</q-card-section>
                 <template class="ds" v-if="wndAdder.product">
                     <ProductAOE
                         ref="paoe_adder"
@@ -272,7 +272,7 @@
         <q-dialog v-model="wndEditor.state" position="bottom" @hide="cleanEditor" class="exo">
             <template v-if="wndEditor.product">
                 <q-card class="bg-darkl1 text-white exo">
-                    <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
+                    <q-card-section class="bg-darkl2 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
                     <ProductAOE
                         ref="paoe_editor" 
@@ -287,8 +287,19 @@
             </template>
         </q-dialog>
 
+        <!-- VENTANA PARA SELECCIONAR IMPRESORA -->
         <q-dialog v-model="wndPrinters.state" position="bottom">
-            <PrinterSelect :options="printers" @clicked="print" title="Continuar" ref="PrinterSelect"/>
+            <q-card flat class="bg-darkl1 text-white exo">
+                <q-card-section class="text-overline bg-blue-grey-9 ">Seleccione Impresora</q-card-section>
+                <PrinterSelect @input="nextStep"/>
+            </q-card>
+        </q-dialog>
+
+        <!-- VENTANA PARA EXPORTAR EXCEL -->
+        <q-dialog v-model="wndExport.state" position="bottom">
+            <q-card class="exo bg-darkl0 text-white">
+                <q-card-section class="bg-darkl2 text-white text-overline">EXPORTAR PEDIDO</q-card-section>
+            </q-card>
         </q-dialog>
 
         <q-footer class="bg-darkl1 text-white">            
@@ -296,7 +307,9 @@
                 <div class="col text-center">
                     <ProductAutocomplete with_image with_prices with_stock @input="setProduct" @similarcodes="similarCodes" ref="patc"/>
                 </div>
-                <div class="text-right"><q-btn v-if="gBasket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" /></div>
+                <div class="text-right">
+                    <q-btn v-if="gBasket.length" icon="fas fa-arrow-right" color="green-13" flat @click="initPrinters('print')" />
+                </div>
             </div>
 
             <q-card v-if="wndAdder.similars.length" class="bg-darkl1 q-pa-sm">
@@ -323,7 +336,9 @@ import { date } from 'quasar'
 import preventadb from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
 import ProductAOE from '../../components/Global/ProductAOE.vue'
-import PrinterSelect from '../../components/Preventa/PinterSelect.vue'
+import ExcelJS from 'exceljs'
+import saveAs from 'file-saver'
+import PrinterSelect from '../../components/Global/PrinterSelect.vue'
 
 export default {
     // name: 'PageName',
@@ -387,6 +402,9 @@ export default {
                 {name:'Docenas', id:2, alias:'DOC'},
                 {name:'Cajas', id:3, alias:'CJS'}
             ],
+            wndExport:{
+                state:false
+            }
         }
     },
     async mounted() {
@@ -394,10 +412,7 @@ export default {
         this.$store.commit('Preventa/setFooterState', false);
 
         this.$q.loading.show({ message:'...' });
- 
         this.index = await preventadb.order(this.ordercatch);
-        console.log(this.index.products);
-        
         this.$q.loading.hide();
     },
     destroyed(){
@@ -405,10 +420,6 @@ export default {
 		this.$store.commit('Preventa/setFooterState',true);
     },
     methods:{
-        sktorder_changestate(data){
-            console.log('Una orden ha cambiado...');
-            console.log(data);
-        },
         similarCodes(products){ this.wndAdder.similars = products; },
         setProduct(product){
             if(this.currentStep.id==1){
@@ -422,6 +433,62 @@ export default {
                     this.wndAdder.state = true;
                 }
             }
+        },
+        orderExport(){
+            this.$q.loading.show({message:'Generando...'});
+            console.log("Exportando pedido!!");
+            let filename = `Peventa_${this.workin.workpoint.alias}_${this.index.id}.xlsx`
+
+            const workbook = new ExcelJS.Workbook();
+            let sheet1 = workbook.addWorksheet('Sheet One');
+            
+            sheet1.columns = [
+                { header:'id', key:'id', width:10 },
+                { header:'Codigo', key:'code', width:15 },
+                { header:'Codigo corto', key:'scode', width:20 },
+                { header:'Descripcion', key:'dsc', width:40 },
+                { header:'Seccion',key: 'sec', width:20 },
+                { header:'Familia',key: 'fam', width:20 },
+                { header:'Categoria',key: 'cat', width:20 },
+                { header:'Cantidad', key:'amount', width:10 },
+                { header:'Unidad de surtido', key:'usup', width:20 },
+                { header:'Piezas', key:'pzs', width:10 },
+                { header:'Lista de Precio', key:'plist', width:15 },
+                { header:'Precio / Unidad', key:'price', width:15 },
+                { header:'Total', key:'total', width:15 }
+            ];
+
+            console.log(this.gBasket);
+
+            this.gBasket.forEach( p => {
+                sheet1.addRow({ 
+                    id:p.id,
+                    code:p.code,
+                    scode:p.name,
+                    dsc:p.description,
+                    sec:p.section,
+                    fam:p.family,
+                    cat:p.category,
+                    ipack:p.pieces,
+                    amount:p.ordered.amount,
+                    usup:p.metsupply.name,
+                    pzs:p.units,
+                    plist:p.usedprice.name,
+                    price:p.usedprice.price,
+                    total:p.total
+                });
+            });
+
+            workbook.xlsx.writeBuffer('exported.xlsx').then( data => {
+                const blob = new Blob( [data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' } );
+                saveAs(blob, filename);
+                this.$q.notify({
+                    icon:'done',
+                    color:'positive',
+                    message:'Documento guardado en Descargas'
+                });
+            });
+            this.$q.loading.hide();
         },
         edit(prod){
             if(this.currentStep.id==1){
@@ -536,20 +603,17 @@ export default {
             }
             this.$q.loading.hide();
         },
-        initPrinters(job){
-            this.wndPrinters.job = job;
-            this.wndPrinters.state = true;
-        },
+        initPrinters(){ this.wndPrinters.state = true; },
         print(printer){
             this.wndPrinters.printer = printer;
             this.wndPrinters.job=='print' ? this.nextStep() : this.reprint();
         },
-        async reprint(){
+        async reprint(printer){
             this.$q.loading.show({ message:'Reimprimiendo...' });
 
             let data = {
                 "_order": this.ordercatch.id,
-                "_printer": this.wndPrinters.printer.id
+                "_printer": printer.id
             }
 
             let resp = await preventadb.rePrint(data);
@@ -566,21 +630,19 @@ export default {
                 this.$q.notify({ message:'Reimpresion correcta', color:'positive', icon:'done' });
             }
             
-            this.wndPrinters.job = 'print';
-            this.wndPrinters.state = false;
+            // this.wndPrinters.job = 'print';
+            // this.wndPrinters.state = false;
             this.$q.loading.hide();
         },
-        async nextStep(step=null){
-
+        async nextStep(printer){
             this.$q.loading.show({ message:'Enviando...' });
 
             let data = {
                 "_order": this.ordercatch.id,
-                "_printer": this.wndPrinters.printer.id
-            }            
+                "_printer": printer.id
+            }
 
             let resp = await preventadb.nextStep(data);
-            console.log(resp);
 
             if(resp.err){
                 this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
@@ -749,7 +811,7 @@ export default {
         max-height: 300px;
         overflow: scroll;
     }
-    .hei{//header expantion item
-        border-bottom:2px solid grey;
-    }
+    
+    //header expantion item
+    .hei{ border-bottom:2px solid grey; }
 </style>

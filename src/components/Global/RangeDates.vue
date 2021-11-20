@@ -38,63 +38,16 @@
                   name="f"
                   :label="`${this.ranges.date.from} ${meridian(
                     this.times.from.h
-                  )}:${meridian(this.times.from.m)}:00`"
-                  no-caps
-                />
-                <q-tab
-                  name="t"
-                  :label="`${this.ranges.date.to} ${meridian(
+                  )}:${meridian(this.times.from.m)}:00 - ${this.ranges.date.to} ${meridian(
                     this.times.to.h
-                  )}:${meridian(this.times.to.m)}:59`"
+                  )}:${meridian(this.times.to.m)}:00`"
                   no-caps
                 />
               </q-tabs>
 
               <q-tab-panels v-model="tab" animated class="text-center bg-darkl1">
                 <q-tab-panel name="f">
-                  <q-date v-model="ranges.date.from" minimal flat dark />
-                  <div class="text-left q-pt-md">
-                    <div class="row items-center">
-                      <span class="col-3">Hora:</span>
-                      <q-slider class="col" label v-model="times.from.h" :min="8" :max="23" />
-                      <span class="col-2 text-right">{{ times.from.h }}</span>
-                    </div>
-                    <div class="row items-center">
-                      <span class="col-3">Minuto:</span>
-                      <q-slider
-                        class="col"
-                        label
-                        v-model="times.from.m"
-                        :min="0"
-                        :max="59"
-                        :step="10"
-                      />
-                      <span class="col-2 text-right">{{ times.from.m }}</span>
-                    </div>
-                  </div>
-                </q-tab-panel>
-
-                <q-tab-panel name="t">
-                  <q-date v-model="ranges.date.to" minimal flat dark />
-                  <div class="text-left q-pt-md">
-                    <div class="row items-center">
-                      <span class="col-3">Hora:</span>
-                      <q-slider class="col" label v-model="times.to.h" :min="9" :max="23" />
-                      <span class="col-2 text-right">{{ times.to.h }}</span>
-                    </div>
-                    <div class="row items-center">
-                      <span class="col-3">Minuto:</span>
-                      <q-slider
-                        class="col"
-                        label
-                        v-model="times.to.m"
-                        :min="0"
-                        :max="59"
-                        :step="10"
-                      />
-                      <span class="col-2 text-right">{{ times.to.m }}</span>
-                    </div>
-                  </div>
+                  <q-date v-model="rangePicker" range minimal flat dark />
                 </q-tab-panel>
               </q-tab-panels>
 
@@ -122,6 +75,7 @@
 </template>
 
 <script>
+import { date } from "quasar";
 export default {
   name: "RangeDates",
   props: {
@@ -152,6 +106,7 @@ export default {
           display: { from: null, to: null }
         }
       },
+      rangePicker: undefined,
       tab: "f",
       times: {
         from: {
@@ -168,23 +123,44 @@ export default {
   beforeMount() {
     let getDBRanges = JSON.parse(localStorage.getItem("dbranges"));
     if (getDBRanges) {
-      // console.log(getDBRanges);
+      let dbStorageDate = this.$moment().format("YYYY/MM/DD");
+      let dbAllDateToday = getDBRanges.ranges.date.from;
+      console.log(this.todayState(dbStorageDate, dbAllDateToday));
       this.selectViews.selected = getDBRanges.option;
-      this.ranges.date.from = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.from ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.from;
-      this.ranges.date.to = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.to ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.to;
+      this.ranges.date.from =  
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.from;
+      this.ranges.date.to =  
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.to;
 
-      this.ranges.time.from = getDBRanges.ranges.time.from;
-      this.ranges.time.to = getDBRanges.ranges.time.to;
+      this.ranges.date.display.from =  
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY/MM/DD") : getDBRanges.ranges.date.display.from;
+      this.ranges.date.display.to = 
+      this.todayState(dbStorageDate, dbAllDateToday) > 0 ? this.$moment().format("YYYY/MM/DD") : getDBRanges.ranges.date.display.to;
 
-      this.ranges.date.display.from = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.display.from ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.display.from;
-      this.ranges.date.display.to = getDBRanges.option.value == 't' && 
-      this.$moment().format("YYYY-MM-DD") != getDBRanges.ranges.date.display.to ? this.$moment().format("YYYY-MM-DD") : getDBRanges.ranges.date.display.to;
-      
-      this.ranges.time.display.from = getDBRanges.ranges.time.display.from;
-      this.ranges.time.display.to = getDBRanges.ranges.time.display.to;
+      this.ranges.time.from = this.$moment()
+        .startOf("day")
+        .add(8, "h")
+        .format("HH:mm:ss");
+      this.ranges.time.to = this.$moment()
+        .endOf("day")
+        .format("HH:mm:ss");
+
+      this.ranges.time.display.from = this.$moment()
+        .startOf("day")
+        .add(8, "h")
+        .format("hh:mm a");
+      this.ranges.time.display.to = this.$moment()
+        .endOf("day")
+        .format("hh:mm a");
+
+      localStorage.setItem(
+        "dbranges",
+        JSON.stringify({
+          ranges: this.ranges,
+          option: this.selectViews.selected,
+          dbranges: this.dbranges
+        })
+      );
       this.$emit("inputRanges", { ranges: this.ranges, option: this.selectViews.selected, dbranges: this.dbranges });
     } else {
       this.setDates();
@@ -198,6 +174,7 @@ export default {
 
       switch (opt.value) {
         case "w":
+          // this.ranges.date.from = this.rangePicker&&this.rangePicker.from ? this.rangePicker.from : this.ranges.date.from;
           this.ranges.date.from = dstart.startOf("week").format("YYYY-MM-DD");
           this.ranges.date.display.from = dstart
             .startOf("week")
@@ -206,6 +183,7 @@ export default {
           break;
 
         case "m":
+          // this.ranges.date.from = this.rangePicker&&this.rangePicker.from ? this.rangePicker.from : this.ranges.date.from;
           this.ranges.date.from = dstart.startOf("month").format("YYYY-MM-DD");
           this.ranges.date.display.from = dstart
             .startOf("month")
@@ -213,6 +191,7 @@ export default {
           break;
 
         case "y":
+          // this.ranges.date.from = this.rangePicker&&this.rangePicker.from ? this.rangePicker.from : this.ranges.date.from;
           this.ranges.date.from = dstart.startOf("year").format("YYYY-MM-DD");
           this.ranges.date.display.from = dstart
             .startOf("year")
@@ -221,6 +200,11 @@ export default {
 
         case "c":
           console.log("Esperando rango de fechas...");
+          this.ranges.date.from = this.rangePicker&&this.rangePicker.from ? this.rangePicker.from : this.ranges.date.from;
+          this.ranges.date.to = this.rangePicker&&this.rangePicker.to ? this.rangePicker.to : this.ranges.date.to;
+          this.ranges.date.display.from = this.rangePicker&&this.rangePicker.from ? this.rangePicker.from : this.ranges.date.display.from;
+          this.ranges.date.display.to = this.rangePicker&&this.rangePicker.to ? this.rangePicker.to : this.ranges.date.display.to;
+
           this.ranges.date.display.from = this.$moment(
             this.getRanges.From.getDateFrom,
             "YYYY-MM-DD"
@@ -230,20 +214,15 @@ export default {
             "YYYY-MM-DD"
           ).format("YYYY/MM/DD");
 
-          let formatFromH = this.meridian(this.times.from.h);
-          let formatFromM = this.meridian(this.times.from.m);
-          let formatToH = this.meridian(this.times.to.h);
-          let formatToM = this.meridian(this.times.to.m);
-
           this.ranges.time.from = dstart
-            .set("hour", formatFromH)
-            .set("minute", formatFromM)
+            .set("hour", 8)
+            .set("minute", 0)
             .set("second", "00")
             .format("HH:mm:ss");
 
           this.ranges.time.to = dstart
-            .set("hour", formatToH)
-            .set("minute", formatToM)
+            .set("hour", 23)
+            .set("minute", 59)
             .set("second", "59")
             .format("HH:mm:ss");
 
@@ -307,10 +286,18 @@ export default {
     }
   },
   computed: {
+    todayState() {
+      return (storage, today) => {
+        let dbStorageDate = Date.parse(storage);
+        let dbAllDateToday = Date.parse(today);
+        let diff = date.getDateDiff(dbStorageDate, dbAllDateToday, "days");
+        return diff;
+      };
+    },
     dbranges() {
       return {
         from: `${this.ranges.date.from} ${this.ranges.time.from}`,
-        to: `${this.ranges.date.to} ${this.ranges.time.to}`
+        to: `${this.ranges.date.to} ${this.ranges.time.from}`
       };
     },
     getRanges() {

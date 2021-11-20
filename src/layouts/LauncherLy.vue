@@ -1,5 +1,5 @@
 <template>
-	<q-layout view="hHh Lpr fFf" class="exo bg-darkl0 text-grey-6"> <!-- Be sure to play with the Layout demo on docs -->
+	<q-layout view="hHh Lpr fFf" class="QuickRegular bg-darkl0 text-white"> <!-- Be sure to play with the Layout demo on docs -->
 
 		<!-- (Optional) The Footer -->
 		<q-footer class="bg-none">
@@ -10,36 +10,34 @@
 			<!-- This is where pages get injected -->
 			<q-page class="row items-center justify-center">
 
-				<div style="min-width:250px;" v-if="workIn.workpoint">
+				<q-card flat class="bg-none q-pa-md" style="min-width:300px;" v-if="workIn.workpoint">
 					<div class="row items-center justify-center">
 						<q-img :src="picnick(session.me.pictures)" spinner-color="white" style="height: 140px; max-width: 140px"/>
 					</div>
 
-					<div class="text-center exo">
+					<div class="text-center">
 						<div class="text-h4 q-py-sm"> <span>Hola </span><span :class="vsocket.connected ? 'text-green-13':''">{{ session.me.nick }}</span></div>
 						<div class="q-mb-md">¿por donde iniciamos?</div>
 					</div>
 					
-					
-					<q-card flat :class="{'bg-darkl1':true, 'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
+					<q-card class="bg-whitetrans" :class="{'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
 						<q-card-section>
-							<div>Punto de Trabajo:</div>
-							<div class="text-grey-4">{{ workIn.workpoint.name }}</div>
+							<div class="text-grey-6">Punto de Trabajo:</div>
+							<div>{{ workIn.workpoint.name }}</div>
 						</q-card-section>
 					</q-card>
 
-
-					<q-card flat class="bg-darkl1 q-mt-md cursor-pointer" @click="openSetModule">
+					<q-card class="bg-whitetrans q-mt-md cursor-pointer" @click="openSetModule">
 						<q-card-section>
-							<div>Modulo:</div>
-							<div class="text-grey-4">{{ workIn.module ? workIn.module.name:' --- ' }}</div>
+							<div class="text-grey-6">Modulo:</div>
+							<div>{{ workIn.module ? workIn.module.name:' --- ' }}</div>
 						</q-card-section>
 					</q-card>
 
 					<div class="text-center q-py-md" v-if="workIn.module">
 						<q-btn label="entrar" flat rounded color="green-13" @click="go"/>
 					</div>
-				</div>
+				</q-card>
 			</q-page>
 
 			<q-dialog
@@ -125,12 +123,14 @@ export default {
 			modules:undefined,
 			wndSetWorkpoint:{state:false},
 			wndSetModule:{state:false},
+			printers:undefined
 		}
 	},
-	beforeMount(){
+	async beforeMount(){
 		localStorage.removeItem("dbranges");
 		this.vsocket = this.$vSocket;
 		console.log(this.$vizapi.defaults.headers.common['Authorization']);
+		
 
 		// por default selecciona el workpoint base
 		this.workIn.workpoint = this.session.workpoint;
@@ -188,19 +188,21 @@ export default {
 			this.$store.commit('Account/unsetsession');
 			this.$router.push('/acceso');
 		},
-		go(){
-			this.$q.loading.show({ message: 'Espera ...' });
+		async go(){
+			this.$q.loading.show({ message: 'Validando ...' });
 			let data = { "workpoint":this.workIn.workpoint.id };
 
-			apiwkp.join(data).then(success=>{
-				let resp = success.data;
-				this.$store.commit('Account/join',resp);
+			let token = await apiwkp.join(data);
+
+			if(!token.error){
+
+				this.$store.commit('Account/join',token);
 				this.$store.commit('Account/setworkpoint',this.workIn);
+
 				this.$router.push(`/${this.workIn.module.path}`);
 				this.$q.loading.hide();
-				// console.log(resp);
-			}).catch(fail=>{ console.log(fail); });
 
+			}else{ alert(token.error); }
 		}
 	},
 	computed:{

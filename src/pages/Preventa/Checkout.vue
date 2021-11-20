@@ -8,6 +8,7 @@
 					:filter="tableorders.filtrator"
 					:pagination="tableorders.pagination"
 					card-class="bg-darkl1"
+					separator="none"
 				>
 					<template v-slot:top>
 						<div class="full-width row items-center">
