@@ -63,9 +63,9 @@
                                     <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
                                     <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
                                     <div class="text--3">{{scope.opt.stateToVal.state.name}}</div>
-                                    <!-- <div class="text--3">State branch: {{scope.opt.status}}</div>
+                                    <div class="text--3">State branch: {{scope.opt.status}}</div>
                                     <div class="text--3">StateToVal: {{scope.opt.stateToVal}}</div>
-                                    <div>{{block(scope.opt.stateToVal)}}</div> -->
+                                    <div>{{block(scope.opt.stateToVal)}}</div>
                                 </div>
 
                                 <q-icon name="fas fa-circle" class="q-pl-md" :class="`bullet-${scope.opt.stateToVal.state.id}`" size="10px"/>
