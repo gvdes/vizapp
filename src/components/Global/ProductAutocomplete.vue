@@ -63,9 +63,9 @@
                                     <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
                                     <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
                                     <div class="text--3">{{scope.opt.stateToVal.state.name}}</div>
-                                    <div class="text--3">State branch: {{scope.opt.status}}</div>
+                                    <!-- <div class="text--3">State branch: {{scope.opt.status}}</div>
                                     <div class="text--3">StateToVal: {{scope.opt.stateToVal}}</div>
-                                    <div>{{block(scope.opt.stateToVal)}}</div>
+                                    <div>{{block(scope.opt.stateToVal)}}</div> -->
                                 </div>
 
                                 <q-icon name="fas fa-circle" class="q-pl-md" :class="`bullet-${scope.opt.stateToVal.state.id}`" size="10px"/>
@@ -93,7 +93,7 @@ export default {
         "with_stock":{ default:null, type:Boolean },
         "checkState":{ default:true, type:Boolean },
         "workpointStatus":{ default:null, type:Array },
-        "valStateWkp":{ default:null, type:Number },
+        "wkpToVal":{ default:null, type:Number },
         "blockStates":{ type:Array, default:()=>[4,5,6] }
     },
     data() {
@@ -123,15 +123,15 @@ export default {
             if(val.trim().length>1){
                 this.target = val.toUpperCase().trim();
 
-                dbproduct.autocomplete(this.attrs).then(success=>{
-                    let options = success.data.map( p => {
+                dbproduct.autocomplete(this.attrs).then( done =>{
+                    let options = done.data.map( p => {
                         if(this.checkState){
-                            if(this.valStateWkp){
-                                let wkp = p.stocks.find( s => s._workpoint == this.valStateWkp);
-                                p.stateToVal = wkp ? { own:false,state:wkp.status } : null;
+                            if(this.wkpToVal){
+                                let wkp = p.stocks.find( s => s._workpoint == this.wkpToVal);
+                                p.stateToVal = wkp ? { own:wkp,state:wkp.status } : null;
                             }else{ p.stateToVal = { own:true,state:p.status }; }
                         }else{ p.stateToVal = { own:true,state:p.status }; }
-                        
+
                         return p;
                     });
                     update(
