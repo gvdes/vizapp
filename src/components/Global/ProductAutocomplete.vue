@@ -63,6 +63,7 @@
                                     <div>{{scope.opt.code}} <span class="text-grey-4 q-pl-md"> {{scope.opt.name}}</span></div>
                                     <div class="text--2 text-grey-5">{{scope.opt.description}}</div>
                                     <div class="text--3">{{scope.opt.stateToVal.state.name}}</div>
+                                    <div class="text--3 text-amber-13" v-if="!scope.opt.stateToVal.own">Producto en conflicto con status</div>
                                     <!-- <div class="text--3">State branch: {{scope.opt.status}}</div>
                                     <div class="text--3">StateToVal: {{scope.opt.stateToVal}}</div>
                                     <div>{{block(scope.opt.stateToVal)}}</div> -->
@@ -128,7 +129,7 @@ export default {
                         if(this.checkState){
                             if(this.wkpToVal){
                                 let wkp = p.stocks.find( s => s._workpoint == this.wkpToVal);
-                                p.stateToVal = wkp ? { own:wkp,state:wkp.status } : null;
+                                p.stateToVal = wkp ? { own:wkp,state:wkp.status } : { own:null,state:p.status };
                             }else{ p.stateToVal = { own:true,state:p.status }; }
                         }else{ p.stateToVal = { own:true,state:p.status }; }
 
