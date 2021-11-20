@@ -1153,11 +1153,11 @@ export default {
     },
     addProduct(params) {
       console.log(params);
-      if (params.product.status.id == 3) {
-        this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} se encuentra agotado.`;
-        this.flagDuplicate = !this.flagDuplicate;
-        this.flagProducts = !this.flagProducts;
-      } else {
+    //   if (params.product.status.id == 3) {
+    //     this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} se encuentra agotado.`;
+    //     this.flagDuplicate = !this.flagDuplicate;
+    //     this.flagProducts = !this.flagProducts;
+    //   } else {
         this.wndSetItem.adding = true;
         this.filteringItems = "";
 
@@ -1238,7 +1238,7 @@ export default {
           .catch(fail => {
             console.log(fail);
           });
-      }
+    //   }
     },
     async selItem(opt, id) {
       console.log(opt);
