@@ -679,7 +679,7 @@
           <span class="text-grey-4 q-pl-md">{{ _getorders&&_getorders.status.name }}</span>
           <q-btn flat color="green-13" icon="history" @click="showLog" />
         </template>
-        <!-- <q-btn
+        <q-btn
           icon="print"
           flat
           dense
@@ -688,7 +688,7 @@
           @click="reprint"
           :loading="print.state"
           :disable="print.state"
-        /> -->
+        />
       </div>
     </q-footer>
   </q-page>
