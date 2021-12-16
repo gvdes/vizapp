@@ -357,7 +357,7 @@ export default {
         return this.index.workpoints
           .map(item => {
             // console.log(item);
-            return item.id == 1 || item.id == 2 || item.id == 16
+            return item.id == 1 || item.id == 2 || item.id == 16 || item.id==13
               ? { label: item.alias, value: item.id }
               : null;
           })
