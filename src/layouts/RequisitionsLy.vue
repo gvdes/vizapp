@@ -271,7 +271,7 @@ export default {
     },
     checkPermissions() {
       let workpoint = JSON.parse(localStorage.getItem("workin"));
-      let done = [1, 2, 16, 18];
+      let done = [1, 2, 16, 18, 13];
       // console.log(workpoint.workpoint.id)
       return done.includes(workpoint.workpoint.id) ? true : false;
     }
