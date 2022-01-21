@@ -144,8 +144,8 @@
     </q-drawer>
 
     <div class="q-mb-xl q-mt-sm">
+      <!-- {{_getorders.status}} -->
       <div class="col-md-4 col-xs-8 q-mb-sm" style="max-width: 300px" v-if="__basket.length">
-        <template>
           <q-input
             dense
             color="green-13"
@@ -158,7 +158,6 @@
               <q-icon name="search" />
             </template>
           </q-input>
-        </template>
       </div>
       <q-table
         grid
