@@ -3,8 +3,14 @@ import { io } from "socket.io-client";
 // const URLSocket = 'http://192.168.12.38:7173';
 // const URLSocket = 'http://192.168.90.253:7171'; // PUEBLA 
 
-const URLSocket = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com.com:4548';
+// const URLSocket = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com.com:4548';
+const URLSocket = 'http://192.168.10.15:7171';
 // const URLSocket = 'http://192.168.12.234:7171';
+
+/**
+ * remotive.io
+ * 
+ */
 
 export default ({ Vue }) => {
 	
