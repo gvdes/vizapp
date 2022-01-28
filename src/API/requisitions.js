@@ -2,10 +2,12 @@ import { vizapi } from "boot/vizapi";
 
 export default {
   index(data) {
+    console.log("Making request");
     return vizapi
       .get("/requisition", data)
-      .then(succcess => {
-        return succcess.data;
+      .then(success => {
+        console.log(success.data);
+        return success.data;
       })
       .catch(fail => {
         console.error("error en solicitud");

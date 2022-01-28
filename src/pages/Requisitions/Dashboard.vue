@@ -17,6 +17,7 @@
     :class="ismobile ? '' : 'q-pb-md overflow-hidden'"
     :style="ismobile ? '' : 'max-width:100%;max-height:70vh;'"
   >
+    <!-- <h1>{{ordersdb.length}}</h1> -->
     <div v-if="!ismobile" class="q-pa-md">
       <div class="col-md-12 col-xs-12 col-12 row self-center items-center">
         <div class="col-md-3 col-3 q-pr-lg">
@@ -178,7 +179,7 @@
       </div>
     </div>
 
-    <div v-else>
+    <div v-else> 
       <div class="col-md-12 col-xs-12 col-12 row self-center items-center q-pa-md">
         <div class="col-md-4 col-4 q-pr-xs">
           <q-select
@@ -763,8 +764,8 @@ export default {
     this.$store.commit("Requisitions/setFooterState", true);
     let params = { _rol: [7] };
     this.grocerAccnt = await dbAccount.get(params);
-    this.index = this.orders;
-    this.$store.commit("Requisitions/getAllCleanDuplicates", this.orders);
+    // this.index = this.orders;
+    // this.$store.commit("Requisitions/getAllCleanDuplicates", this.orders);
     this.$store.commit("Requisitions/setHeaderTitle", this.title);
     let aux = 0;
     let blocked = [3, 7, 8, 10, 11];
@@ -884,15 +885,16 @@ export default {
      * @param { number } orderid ID de la orden
      */
     showLog(orderid) {
+      console.log(`==============================================`);
+      console.log(`===============>> ${orderid} <<===============`);
+      console.log(`==============================================`);
       // console.log(this.isCEDIS);
       // console.log(this.timeElapsed);
-      let idx = this.ordersdb.findIndex(item => {
-        return item.id == orderid;
-      });
-      this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
+      let idx = this.ordersdb.findIndex(item => { return item.id == orderid; });
+      // this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
       this.wndLog.order = this.ordersdb[idx];
-      // console.log(this.wndLog.order);
-      if (this.wndLog.order.log.length > 2) {
+      // // console.log(this.wndLog.order);
+      // if (this.wndLog.order.log.length > 2) {
         try {
           let index = this.grocerAccnt.findIndex(item => {
             return item.id == this.wndLog.order.log[2].details.actors.id;
@@ -905,15 +907,16 @@ export default {
           );
           this.dataOrder = ord;
         } catch (error) {
-          this.$q.notify({
-            message: "La orden contiene estados duplicados.",
-            color: "negative",
-            type: "negative",
-            position: "center",
-            timeout: 1000
-          });
+          console.log(error);
+          // this.$q.notify({
+          //   message: "La orden contiene estados duplicados.",
+          //   color: "negative",
+          //   type: "negative",
+          //   position: "center",
+          //   timeout: 1000
+          // });
         }
-      }
+      // }
       // console.log(this.wndLog.order);
       this.wndLog.state = true;
     },
@@ -1041,7 +1044,7 @@ export default {
       return this.$store.getters["Account/workin"];
     },
     orders() {
-      return this.$store.getters["Requisitions/getOrders"];
+      return this.$store.getters["Requisitions/ordersDash"];
     },
     profile() {
       return this.$store.getters["Account/profile"];

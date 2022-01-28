@@ -168,6 +168,7 @@ export default {
   },
   methods: {
     clicked(order) {
+      console.log(order);
       this.$emit("clicked", order);
     },
   },

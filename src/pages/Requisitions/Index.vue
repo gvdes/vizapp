@@ -93,7 +93,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="dialog">
+    <!-- <q-dialog v-model="dialog">
       <q-card dark class="exo bg-darkl0 text-grey-5">
         <q-card-section class="bg-darkl11 text-white">
           <div class="text-h6">{{ this.layout.header.title }}</div>
@@ -118,7 +118,7 @@
           <q-btn flat label="OK" color="green-13" v-close-popup />
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog> -->
     <q-page-sticky position="bottom-right" :offset="[10, 5]">
       <q-btn
         rounded
@@ -167,20 +167,20 @@ export default {
     };
   },
   async beforeMount() {
-    this.index = await this.loadIndex();
-    this.dialog = this.index.requisitions.length <= 0 ? true : false;
+    // this.index = await this.loadIndex();
+    // console.log(this.index);
+    // this.dialog = this.index.requisitions.length <= 0 ? true : false;
   },
-  async mounted() {
+  mounted() {
     this.$store.commit("Requisitions/setHeaderState", true);
     this.$store.commit("Requisitions/setFooterState", true);
     this.$store.commit("Requisitions/setHeaderTitle", this.name);
-    console.log(this.workin);
   },
   methods: {
     skt_order_created(data) {
       let order = data.order;
       let by = data.user.me;
-      debugger;
+      // debugger;
 
       console.log(
         `%c${by.nick} esta creando la orden ${order.id}`,
@@ -324,9 +324,7 @@ export default {
   },
   computed: {
     orders() {
-      return this.$store.state.Requisitions.orders.filter(
-        i => i.from.id == this.workin.workpoint.id
-      );
+      return this.$store.state.Requisitions.orders.filter( i => i.from.id == this.workin.workpoint.id );
     },
     soldValidate() {
       // return this.workin;
