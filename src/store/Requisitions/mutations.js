@@ -4,6 +4,8 @@ export function startState(state, data) {
     state.process = data.status;
 }
 
+export function setOrdersIn(state,data){ state.orders_in = data; }
+
 export function newOrder(state, order) {
     console.log(`%cOrden ${order.id} creada!`, "background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
     state.orders.push(order);

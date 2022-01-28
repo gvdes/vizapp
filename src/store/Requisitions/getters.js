@@ -1,3 +1,5 @@
+import { startState } from "../Preventa/mutations";
+
 export function ordersRequisitions(state) {
     return (by) => {
         let storage = by ? by.value : {};
@@ -18,6 +20,10 @@ export function getIDX(state) {
 
 export function getOrders(state) {
     return state.orders;
+}
+
+export function ordersDash(state){
+    return state.orders_in;
 }
 
 export function getStates(state) {

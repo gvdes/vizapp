@@ -58,18 +58,10 @@ export default {
     this.rsocket.disconnect();
     this.rsocket.connect();
 
-    this.rsocket.on("joineddashreq", data => {
-      this.sktJoinatRes(data);
-    });
-    this.rsocket.on("creating", data => {
-      this.sktCreateOrd(data);
-    });
-    this.rsocket.on("order_update", data => {
-      this.sktUpdateOrd(data);
-    });
-    this.rsocket.on("order_changestate", data => {
-      this.sktChangeState(data);
-    });
+    this.rsocket.on("joineddashreq", data => { this.sktJoinatRes(data); });
+    this.rsocket.on("creating", data => { this.sktCreateOrd(data); });
+    this.rsocket.on("order_update", data => { this.sktUpdateOrd(data); });
+    this.rsocket.on("order_changestate", data => { this.sktChangeState(data); });
 
     this.rsocket.emit("joinat", {
       profile: this.profile,
@@ -85,51 +77,54 @@ export default {
         date_from: ranges.dbranges.from,
         date_to: ranges.dbranges.to
       };
+
       this.$store.commit(
         "Requisitions/todayState",
         this.timeToday(ranges.ranges.date.from)
       );
 
       let data = { params: dbranges };
-      console.log(data);
-      this.index = await RequisitionsDB.index(data);
-      // setInterval(() => {
-      //   this.index = RequisitionsDB.index(data);
-      // }, 60000 * 3);
-      let validateOrders = this.index.requisitions;
-      console.log(this.index);
+      this.index = await RequisitionsDB.index();  
+      this.$store.commit("Requisitions/startState", this.index);
 
-      if (this.checkPermissions) {
-        let arr = await RequisitionsDB.dashboard(data);
-        this.index.requisitions = [];
-        arr.requisitions.forEach(element => {
-          return this.index.requisitions.push(element);
-        });
-
-        this.flag = validateOrders.length > 0 ? false : true;
-
-        if (validateOrders.length <= 0) {
-          this.dialog = true;
-          this.$store.commit("Requisitions/startState", this.index);
-        } else {
-          this.dialog = false;
-          this.$store.commit("Requisitions/startState", this.index);
-        }
-      } else {
-        // arr.requisitions.forEach(element => {
-        //   return this.index.requisitions.push(element);
-        // });
-
-        this.flag = validateOrders.length > 0 ? false : true;
-
-        if (validateOrders.length <= 0) {
-          this.dialog = true;
-          this.$store.commit("Requisitions/startState", this.index);
-        } else {
-          this.dialog = false;
-          this.$store.commit("Requisitions/startState", this.index);
-        }
+      if(this.dashAccess){
+        console.log("USUARIO CON ACCESO AL DASHBOARD, OBTENIENDO PEDIDOS");
+        let ordersreq = await RequisitionsDB.dashboard(data);
+        // console.log(ordersreq.requisitions);
+        this.$store.commit("Requisitions/setOrdersIn",ordersreq.requisitions);
       }
+
+      // if (this.checkPermissions) {
+      //   let arr = await RequisitionsDB.dashboard(data);
+      //   this.index.requisitions = [];
+      //   arr.requisitions.forEach(element => {
+      //     return this.index.requisitions.push(element);
+      //   });
+
+      //   this.flag = validateOrders.length > 0 ? false : true;
+
+      //   if (validateOrders.length <= 0) {
+      //     this.dialog = true;
+      //     this.$store.commit("Requisitions/startState", this.index);
+      //   } else {
+      //     this.dialog = false;
+      //     this.$store.commit("Requisitions/startState", this.index);
+      //   }
+      // } else {
+      //   // arr.requisitions.forEach(element => {
+      //   //   return this.index.requisitions.push(element);
+      //   // });
+
+      //   this.flag = validateOrders.length > 0 ? false : true;
+
+      //   if (validateOrders.length <= 0) {
+      //     this.dialog = true;
+      //     this.$store.commit("Requisitions/startState", this.index);
+      //   } else {
+      //     this.dialog = false;
+      //     this.$store.commit("Requisitions/startState", this.index);
+      //   }
+      // }
 
       this.$q.loading.hide();
     },
@@ -268,6 +263,11 @@ export default {
     },
     layout() {
       return this.$store.state.Requisitions.layout;
+    },
+    dashAccess(){
+      let workpoint = JSON.parse(localStorage.getItem("workin"));
+      console.log(workpoint);
+      return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
     },
     checkPermissions() {
       let workpoint = JSON.parse(localStorage.getItem("workin"));

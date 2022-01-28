@@ -1,7 +1,8 @@
 export default function() {
   return {
     orders: [],
-    printers: [],
+    orders_in:[],
+    printers:[],
     process: [],
     today: false,
     layout: {
