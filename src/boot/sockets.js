@@ -32,5 +32,5 @@ export default ({ Vue }) => {
 			// 	Vue.prototype.$vSocket.emit('session_start',{profile,socketid:data.socketid,from:workin});
 			// });
 		}
-	}else{console.log("%cNo hay sesion activa, union a socket cancelada","background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"); }
+	}else{ console.log("%cNo hay sesion activa, union a socket cancelada","background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"); }
 }
