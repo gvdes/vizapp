@@ -167,7 +167,7 @@ export default {
     };
   },
   async beforeMount() {
-    // this.index = await this.loadIndex();
+    this.index = await this.loadIndex();
     // console.log(this.index);
     // this.dialog = this.index.requisitions.length <= 0 ? true : false;
   },
