@@ -9,12 +9,12 @@ import axios from 'axios'
 // const URLFiles = 'http://192.168.10.12/vizapi_master/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
-const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi_master/public';
-const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi_master/files';
+// const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi_master/public';
+// const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi_master/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N   I N ❱❱❱❱❱
-// const URLBackend = 'http://192.168.10.15/vizapi_master/public';
-// const URLFiles = 'http://192.168.10.15/vizapi_master/files';
+const URLBackend = 'http://192.168.10.15/vizapi_master/public';
+const URLFiles = 'http://192.168.10.15/vizapi_master/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N  I N  P U E B L A❱❱❱❱❱
 // const URLBackend = 'http://192.168.90.253:1619/vizapi/public/';
