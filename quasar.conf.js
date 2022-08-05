@@ -21,7 +21,6 @@ module.exports = function (/* ctx */) {
       'ezcudo',
       'axios',
       'vizapi',
-      'vsocket',
       'vmoment',
       'sockets'
     ],

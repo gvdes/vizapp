@@ -12,7 +12,7 @@
 
 				<q-card flat class="bg-none q-pa-md" style="min-width:300px;" v-if="workIn.workpoint">
 					<div class="row items-center justify-center">
-						<q-img :src="picnick(session.me.pictures)" spinner-color="white" style="height: 140px; max-width: 140px"/>
+						<q-img src="~/src/assets/867875.png" spinner-color="white" style="height: 140px; max-width: 140px"/>
 					</div>
 
 					<div class="text-center">

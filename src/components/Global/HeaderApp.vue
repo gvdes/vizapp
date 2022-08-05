@@ -12,7 +12,7 @@
 		
 		<div class="col text-right">
 			<q-btn rounded dense :color="vsocket.connected?'green-13':''">
-                <q-img :src="picnick" spinner-color="white" style="height: 30px; width: 30px"/>
+                <q-img src="~/src/assets/1049387.png" spinner-color="white" style="height: 30px; width: 30px"/>
                 <q-menu dark
                     transition-show="flip-right"
                     transition-hide="flip-left"
