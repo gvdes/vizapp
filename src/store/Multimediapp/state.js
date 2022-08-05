@@ -12,6 +12,7 @@ export default function () {
 			alert1:new Audio('sounds/orderwait_new.mp3'),
 			download: new Audio("sounds/download.mp3"),
 			download_label: new Audio("sounds/download_label.mp3"),
+			supply: new Audio("sounds/success01.mp3"),
 		},
 	}
 }

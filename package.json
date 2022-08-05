@@ -2,7 +2,7 @@
   "name": "vizapp",
   "version": "0.0.1",
   "description": "Soluciones a problemas comunes",
-  "productName": "Vizcarra Applications",
+  "productName": "VizApp",
   "author": "Lalo Dev <lalo.kob@gmail.com>",
   "private": true,
   "scripts": {

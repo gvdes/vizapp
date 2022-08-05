@@ -11,7 +11,7 @@
 					</div>
 				</q-card>
 			</q-header>
-
+			
 			<router-view />
 
 			<q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
@@ -41,6 +41,7 @@ export default {
 		/**
 		 * Desconecto el socket actual, para generar una nueva conexion
 		 */
+
 		this.psocket.disconnect();
 		this.psocket.connect();
 
@@ -95,15 +96,16 @@ export default {
 			let by = data.user.me;
 
 			console.log(`%c${by.nick} inicio la orden ${order.id}`,"background:#303952;color:#e66767;border-radius:10px;padding:8px;");
-			console.log(data);
 			this.$store.commit('Preventa/newOrder', order);
 		},
 		sktOrderUpdate(data){
+			console.log(data);
 			let order = data.order;
 			let newstate = data.newstate;
 
 			console.log(`%cLa orden ${data.order.id} cambio su status a ${data.newstate.name}`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
 			this.$store.commit('Preventa/updateState', { order, newstate });
+			this.$router.currentRoute.path == '/preventa/bodega' ? this.appsounds.supply.play() : null;
 		},
 		sktModuleUpdate({by,_msgstate,state}){
 			this.$store.commit('Preventa/setState',state);

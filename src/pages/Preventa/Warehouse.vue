@@ -1,5 +1,14 @@
 <template>
 	<q-page>
+		<q-banner v-if="soundAuth.state!='running'" inline-actions class="text-white bg-red">
+			El permiso del sonido no esta habilitado!
+			<template v-slot:avatar>
+				<q-icon name="volume_off" color="white" />
+			</template>
+		</q-banner>
+		<!-- <div class="row items-center">
+			<q-icon name="fas fa-exclamation" /> <h6> </h6>
+		</div> -->
 		<div class="row">
 			<div class="col-md-6 col-xs-12 q-pa-md">
 				<q-table dark
@@ -115,42 +124,41 @@ export default {
 	name: 'PreventaWarehouse',
 	components:{ OrdersList, PrinterSelect },
 		data() {
-		return {
-            wndPrinters:{ state:false },
-            orderselected:null,
-			printerselected:null,
-			socket:this.$sktPreventa,
-			tableforsupply:{
-				filtrator:'',
-				columns:[
-					{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
-					{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
-					// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
-					{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
-					{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
-				],
-				pagination:{
-					rowsPerPage: 20
-				}
-			},
-			tablesupply:{
-				filtrator:'',
-				columns:[
-					{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
-					{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
-					// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
-					{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
-					{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
-				],
-				pagination:{
-					rowsPerPage: 20
+			return {
+				soundAuth: new AudioContext(),
+				wndPrinters:{ state:false },
+				orderselected:null,
+				printerselected:null,
+				socket:this.$sktPreventa,
+				tableforsupply:{
+					filtrator:'',
+					columns:[
+						{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
+						{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
+						// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
+						{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
+						{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
+					],
+					pagination:{
+						rowsPerPage: 20
+					}
+				},
+				tablesupply:{
+					filtrator:'',
+					columns:[
+						{ name:'id', field:'id', sortable:true, label:'Folio', align:'center' },
+						{ name:'client', field:'name', sortable:true, label:'Cliente', align:'center' },
+						// { name:'tktday', field:'num_ticket', sortable:true, label:'Folio', align:'center' },
+						{ name:'cstate', field:(row)=>row.status.id, sortable:true, label:'Estado', align:'center' },
+						{ name:'createdby', field:(row)=>row.created_by.nick, sortable:true, label:'Agente', align:'center' },
+					],
+					pagination:{
+						rowsPerPage: 20
+					}
 				}
 			}
-		}
-	},
-	beforeMount(){
-		this.$store.commit('Preventa/setHeaderTitle',"Preventa | Surtido");
-	},
+		},
+		beforeMount(){ this.$store.commit('Preventa/setHeaderTitle',"Preventa | Surtido"); },
     methods:{
 		orderclicked(order){
 			this.orderselected = order;

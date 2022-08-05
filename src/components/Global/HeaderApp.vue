@@ -42,7 +42,7 @@
 		},
 		data () {
 			return {
-				vsocket:false
+				vsocket:false,
 			}
 		},
 		mounted(){ this.vsocket = this.$vSocket; },

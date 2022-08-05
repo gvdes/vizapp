@@ -1,6 +1,5 @@
 <template>
 	<q-page padding>
-
 		<div class="text-center q-pt-md">
 			<input type="number" :class="socket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model" 
 				@keypress.enter="search"
