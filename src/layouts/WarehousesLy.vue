@@ -1,11 +1,19 @@
 <template>
 	<q-layout view="hHh lpR fFf">
 		<q-page-container class="exo bg-darkl0 text-grey-5">
-			<router-view />
+			<!-- <router-view /> -->
 
-			<q-footer reveal class="bg-darktransl0">
+			<q-page class=" row items-center justify-center" padding>
+				<div class="text-center">
+					<q-img src="~/src/assets/jhony.gif" style="width:200px"></q-img>
+					<h6>Los almacenes no estan disponibles de forma local.</h6>
+					<q-btn icon="fas fa-arrow-left" color="primary" @click="$router.replace('/')"></q-btn>
+				</div>
+			</q-page>
+
+			<!-- <q-footer reveal class="bg-darktransl0">
 				<ToolbarModule/>
-			</q-footer>
+			</q-footer> -->
 		</q-page-container>
 	</q-layout>
 </template>

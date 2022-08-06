@@ -1,7 +1,7 @@
 <template>
 	<q-page padding>
 		<div class="text-center q-pt-md">
-			<input type="number" :class="socket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model" 
+			<input type="number" :class="psocket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model" 
 				@keypress.enter="search"
 				autocomplete="off"
 				id="ipt_search"
@@ -40,7 +40,7 @@ export default {
 			gstate:'listen',
 			searching:false,
 			target:undefined,
-			socket:this.$sktPreventa
+			psocket:this.$sktPreventa
 		}
 	},
 	beforeMount(){
@@ -95,25 +95,27 @@ export default {
 				this.$refs.ipt_search.focus();
 				this.target = undefined;
 				this.searching = false;
+
+				this.psocket.emit('order_update', { newstate:newstate, order:order });
 			}
 		},
-		skt_add_update_order(data){
-			console.log("%cUna orden ha cambiado el","background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
-			let order = data.order;
-			let newstate = data.newstate;
+		// skt_add_update_order(data){
+		// 	console.log("%cUna orden ha cambiado el","background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
+		// 	let order = data.order;
+		// 	let newstate = data.newstate;
 
-			let idx = this.orders.findIndex( ord => ord.id == order.id );
+		// 	let idx = this.orders.findIndex( ord => ord.id == order.id );
 
-			if(idx>=0){
-				console.log(`%cActualizar la orden ${order.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
-				this.appsounds.created.play();
-				this.$store.commit('Preventa/updateState', {order, newstate});
-			}else{
-				console.log(`%cAgregar la orden ${order.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
-				this.appsounds.created.play();
-				this.$store.commit('Preventa/newOrder', order);
-			}
-		},
+		// 	if(idx>=0){
+		// 		console.log(`%cActualizar la orden ${order.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
+		// 		this.appsounds.created.play();
+		// 		this.$store.commit('Preventa/updateState', {order, newstate});
+		// 	}else{
+		// 		console.log(`%cAgregar la orden ${order.id}...`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
+		// 		this.appsounds.created.play();
+		// 		this.$store.commit('Preventa/newOrder', order);
+		// 	}
+		// },
 		orderclicked(order){
 			console.log(order);
 		}
