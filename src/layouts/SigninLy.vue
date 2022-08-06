@@ -112,6 +112,7 @@
 
 <script>
 import vizapi from '../API/signin.js'
+
 export default {
 	// name: 'LayoutName',
 	data () {
