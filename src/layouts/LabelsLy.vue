@@ -1440,14 +1440,14 @@ export default {
               Math.floor(convert) == products[i].prices[0].price
                 ? convert + 1
                 : convert;
-            pdf.text(
-              `De $${Math.floor(convert) + 1} a`,
-              width / 2,
-              290 + counterCodeShort,
-              null,
-              null,
-              "center"
-            );
+            // pdf.text(
+            //   `De $${Math.floor(convert) + 1} a`,
+            //   width / 2,
+            //   290 + counterCodeShort,
+            //   null,
+            //   null,
+            //   "center"
+            // );
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(35);
             pdf.text(
@@ -1472,14 +1472,14 @@ export default {
               "left"
             );
             pdf.setFontSize(40);
-            pdf.text(
-              `-${products[i].discount}%`,
-              width / 2,
-              260 + counterCodeShort,
-              null,
-              null,
-              "center"
-            );
+            // pdf.text(
+            //   `-${products[i].discount}%`,
+            //   width / 2,
+            //   260 + counterCodeShort,
+            //   null,
+            //   null,
+            //   "center"
+            // );
             // pdf.text(products[i].prices[0].alias, width / 3.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
             pdf.setFontSize(30);
             pdf.setFont("Montserrat-Semi");
@@ -1682,14 +1682,14 @@ export default {
               Math.floor(convert) == products[i].prices[0].price
                 ? convert + 1
                 : convert;
-            pdf.text(
-              `De $${Math.floor(convert) + 1} a`,
-              width / 2,
-              290 + counterCodeShort,
-              null,
-              null,
-              "center"
-            );
+            // pdf.text(
+            //   `De $${Math.floor(convert) + 1} a`,
+            //   width / 2,
+            //   290 + counterCodeShort,
+            //   null,
+            //   null,
+            //   "center"
+            // );
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(35);
             pdf.text(
@@ -1714,14 +1714,14 @@ export default {
               "left"
             );
             pdf.setFontSize(40);
-            pdf.text(
-              `-${products[i].discount}%`,
-              width / 2,
-              260 + counterCodeShort,
-              null,
-              null,
-              "center"
-            );
+            // pdf.text(
+            //   `-${products[i].discount}%`,
+            //   width / 2,
+            //   260 + counterCodeShort,
+            //   null,
+            //   null,
+            //   "center"
+            // );
             // pdf.text(products[i].prices[0].alias, width / 3.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
             pdf.setFontSize(30);
             pdf.setFont("Montserrat-Semi");
@@ -2000,14 +2000,14 @@ export default {
                   ? convert + 1
                   : convert;
               // CREAMOS UNA OFERTA CON DESCUENTO DEL PRECIO AGREGADO
-              pdf.text(
-                `De $${Math.floor(convert) + 1} a`,
-                width * (y == 0 ? 0 : y) + 95,
-                105 + (countY == 1 ? 0 : counterCodeShort) + aux,
-                null,
-                null,
-                "left"
-              );
+              // pdf.text(
+              //   `De $${Math.floor(convert) + 1} a`,
+              //   width * (y == 0 ? 0 : y) + 95,
+              //   105 + (countY == 1 ? 0 : counterCodeShort) + aux,
+              //   null,
+              //   null,
+              //   "left"
+              // );
               pdf.setTextColor(0);
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(10);
@@ -2033,14 +2033,14 @@ export default {
                 "left"
               );
               pdf.setFontSize(15);
-              pdf.text( // pinta la leyeda del porcentade descuento; -15% || -10% || -5% etc.
-                `-${products[i].discount}%`,
-                width * (y == 0 ? 0 : y) + 45,
-                125 + (countY == 1 ? 0 : counterCodeShort) + aux,
-                null,
-                null,
-                "left"
-              );
+              // pdf.text( // pinta la leyeda del porcentade descuento; -15% || -10% || -5% etc.
+              //   `-${products[i].discount}%`,
+              //   width * (y == 0 ? 0 : y) + 45,
+              //   125 + (countY == 1 ? 0 : counterCodeShort) + aux,
+              //   null,
+              //   null,
+              //   "left"
+              // );
               pdf.setFontSize(30);
               pdf.setFont("Montserrat-Semi");
               aux += aux + 30;
@@ -3143,14 +3143,14 @@ export default {
                 Math.floor(convert) == products[i].prices[0].price
                   ? convert + 1
                   : convert;
-              pdf.text(
-                `De $${Math.floor(convert) + 1} a`,
-                width * (y == 0 ? 0 : y) + 115,
-                147 + (countY == 1 ? 0 : counterCodeShort) + aux,
-                null,
-                null,
-                "left"
-              );
+              // pdf.text(
+              //   `De $${Math.floor(convert) + 1} a`,
+              //   width * (y == 0 ? 0 : y) + 115,
+              //   147 + (countY == 1 ? 0 : counterCodeShort) + aux,
+              //   null,
+              //   null,
+              //   "left"
+              // );
               pdf.setTextColor(0);
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(16);
@@ -3176,14 +3176,14 @@ export default {
                 "left"
               );
               pdf.setFontSize(26);
-              pdf.text(
-                `-${products[i].discount}%`,
-                width * (y == 0 ? 0 : y) + 47,
-                174 + (countY == 1 ? 0 : counterCodeShort) + aux,
-                null,
-                null,
-                "left"
-              );
+              // pdf.text(
+              //   `-${products[i].discount}%`,
+              //   width * (y == 0 ? 0 : y) + 47,
+              //   174 + (countY == 1 ? 0 : counterCodeShort) + aux,
+              //   null,
+              //   null,
+              //   "left"
+              // );
               aux += aux + 30;
             } else {
               switch (products[i].prices.length) {
@@ -3461,14 +3461,14 @@ export default {
                 Math.floor(convert) == products[i].prices[0].price
                   ? convert + 1
                   : convert;
-              pdf.text(
-                `De $${Math.floor(convert) + 1} a`,
-                width * (y == 0 ? 0 : y) + 60,
-                138 + (countY == 1 ? 0 : counterCodeShort) + aux,
-                null,
-                null,
-                "left"
-              );
+              // pdf.text(
+              //   `De $${Math.floor(convert) + 1} a`,
+              //   width * (y == 0 ? 0 : y) + 60,
+              //   138 + (countY == 1 ? 0 : counterCodeShort) + aux,
+              //   null,
+              //   null,
+              //   "left"
+              // );
               pdf.setTextColor(0);
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(11);
@@ -3883,14 +3883,14 @@ export default {
               Math.floor(convert) == products[i].prices[0].price
                 ? convert + 1
                 : convert;
-            pdf.text(
-              `De $${Math.floor(convert) + 1} a`,
-              width / 2.2,
-              123 + (countY == 1 ? 0 : counterCodeShort) + aux,
-              null,
-              null,
-              "left"
-            );
+            // pdf.text(
+            //   `De $${Math.floor(convert) + 1} a`,
+            //   width / 2.2,
+            //   123 + (countY == 1 ? 0 : counterCodeShort) + aux,
+            //   null,
+            //   null,
+            //   "left"
+            // );
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(12);
             pdf.text(
@@ -3915,14 +3915,14 @@ export default {
               "left"
             );
             pdf.setFontSize(20);
-            pdf.text(
-              `-${products[i].discount}%`,
-              width / 3.6,
-              145 + (countY == 1 ? 0 : counterCodeShort) + aux,
-              null,
-              null,
-              "left"
-            );
+            // pdf.text(
+            //   `-${products[i].discount}%`,
+            //   width / 3.6,
+            //   145 + (countY == 1 ? 0 : counterCodeShort) + aux,
+            //   null,
+            //   null,
+            //   "left"
+            // );
             pdf.setFontSize(30);
             pdf.setFont("Montserrat-Semi");
             aux += aux + 30;
@@ -4158,14 +4158,14 @@ export default {
               Math.floor(convert) == products[i].prices[0].price
                 ? convert + 1
                 : convert;
-            pdf.text(
-              `De $${Math.floor(convert) + 1} a`,
-              width * 1.46,
-              123 + (countX == 1 ? 0 : counterCodeShortX) + aux,
-              null,
-              null,
-              "left"
-            );
+            // pdf.text(
+            //   `De $${Math.floor(convert) + 1} a`,
+            //   width * 1.46,
+            //   123 + (countX == 1 ? 0 : counterCodeShortX) + aux,
+            //   null,
+            //   null,
+            //   "left"
+            // );
             // pdf.setTextColor(0);
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(12);
@@ -4191,14 +4191,14 @@ export default {
               "left"
             );
             pdf.setFontSize(20);
-            pdf.text(
-              `-${products[i].discount}%`,
-              width * 1.28,
-              145 + (countX == 1 ? 0 : counterCodeShortX) + aux,
-              null,
-              null,
-              "left"
-            );
+            // pdf.text(
+            //   `-${products[i].discount}%`,
+            //   width * 1.28,
+            //   145 + (countX == 1 ? 0 : counterCodeShortX) + aux,
+            //   null,
+            //   null,
+            //   "left"
+            // );
             // pdf.text(products[i].prices[0].alias, width / 3.8, 140 + (countY == 1 ? 0 : counterCodeShort) + aux, null, null, 'left');
             pdf.setFontSize(30);
             pdf.setFont("Montserrat-Semi");

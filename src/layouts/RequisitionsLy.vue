@@ -15,7 +15,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-page-container class="exo bg-darkl0 text-grey-5">
-      <!-- <q-header class="bg-none" v-if="layout.header.state">
+      <q-header class="bg-none" v-if="layout.header.state">
         <q-card class="bg-darkl1">
           <HeaderApp :title="layout.header.title" />
           <div class="bg-darkl1 q-pa-sm col row justify-between">
@@ -30,14 +30,15 @@
       
       <q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
         <ToolbarModule :with_home="true" />
-      </q-footer> -->
-      <q-page class=" row items-center justify-center" padding>
+      </q-footer>
+
+      <!-- <q-page class=" row items-center justify-center" padding>
 				<div class="text-center">
 					<q-img src="~/src/assets/jhony.gif" style="width:200px"></q-img>
 					<h6>El resurtido no esta disponible de forma local.</h6>
 					<q-btn icon="fas fa-arrow-left" color="primary" @click="$router.replace('/')"></q-btn>
 				</div>
-			</q-page>
+			</q-page> -->
     </q-page-container>
   </q-layout>
 </template>
