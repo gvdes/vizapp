@@ -105,7 +105,12 @@ export default {
 
 			console.log(`%cLa orden ${data.order.id} cambio su status a ${data.newstate.name}`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
 			this.$store.commit('Preventa/updateState', { order, newstate });
-			this.$router.currentRoute.path == '/preventa/bodega' ? this.appsounds.supply.play() : null;
+			if(this.$router.currentRoute.path == '/preventa/bodega'){
+				console.log("El sonido ha sonado porque estoy en la bodega");
+				this.appsounds.supply.play();
+			}else{
+				console.log("El sonido no sono, porque no estoy en la bodega");
+			}
 		},
 		sktModuleUpdate({by,_msgstate,state}){
 			this.$store.commit('Preventa/setState',state);
