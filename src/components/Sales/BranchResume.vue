@@ -132,7 +132,7 @@ export default {
         cashdesks(){ return this.branch.store.workpoint.cajas; },
         ticketLists(){
             let list = [];
-            this.cashdesks.filter( c => c.id!=61 ).forEach(item=>{
+            this.cashdesks.forEach(item=>{
                 item.sales.forEach(_item=>{
                     _item.cashdesk = item.name;
                     _item.paymet = this.branch.main.metodos_pago.filter(pm=>{return pm.id==_item._paid_by})[0];
