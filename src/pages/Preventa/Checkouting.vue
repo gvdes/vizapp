@@ -33,7 +33,7 @@
                     <div class="q-px-md">
                         <div class="text--2">Unidades</div>
                         <span class="text-green-13 text-bold">{{pzsBasket}}</span>
-                    </div>               
+                    </div>
                 </div>
 
                 <div class="col text-right q-px-sm">
@@ -48,7 +48,7 @@
                 <template v-slot:avatar>
                     <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
                 </template>
-                
+
                 Esto ya esta en la lista
 
                 <template v-slot:action inline-actions>
@@ -165,7 +165,7 @@
                     <ProductAOE
                         showprices
                         :product="wndEditor.product"
-                        :client="order.client" 
+                        :client="order.client"
                         @confirm="productEdit"
                         @cancel="cancelAOEs"
                         @remove="productDelete"
@@ -326,6 +326,7 @@ export default {
         this.$q.loading.show({ message: 'Cargando...' });
 
         this.order = await PreventaDB.order(this.ordercatch);
+        console.log(this.order);
         this.$q.loading.hide();
 
         setTimeout(() => {
@@ -337,11 +338,11 @@ export default {
         setSettings(){ localStorage.setItem('checkout_adder',JSON.stringify(this.wndAdder.settings) ) },
         toogleIptSearch(){
 			switch (this.iptsearch.type) {
-				case "text": 
+				case "text":
 					this.iptsearch.type="number";
 					this.iptsearch.icon="fas fa-font";
 				break;
-				case "number": 
+				case "number":
 					this.iptsearch.type="text";
 					this.iptsearch.icon="fas fa-hashtag";
 				break;
@@ -417,7 +418,7 @@ export default {
                 let newProduct = result.data;
                 console.log(newProduct);
                 this.order.products.unshift(newProduct);
-                
+
                 this.wndAdder.product = undefined;
 
                 if(this.wndAdder.settings.stillAdding){
@@ -432,7 +433,7 @@ export default {
             this.$q.loading.show({message:`Aplicando cambios ${params.product.code}...`});
             console.log(params);
             let product = this.wndEditor.product;
-            
+
             let data = {
                 "_product": params.product.id,
                 "_order": this.ordercatch.id,
@@ -471,7 +472,7 @@ export default {
             this.$q.loading.show({message:`Devolviendo ${params.product.code}...`});
 
             let product = this.wndEditor.product;
-            
+
             let data = {
                 "_product": params.product.id,
                 "_order": this.ordercatch.id,
@@ -510,7 +511,7 @@ export default {
                         product = this.listProducts[0];
                         product.ordered.toDelivered ? this.edit(product) : this.confirm(product);
                         break;
-                
+
                     default:
                         this.$q.notify({
                             message:`Seleccionamos el producto en el filtro, aseguarte de que sea el correcto ...`,
@@ -584,7 +585,7 @@ export default {
             }
         },
         async printNotCounted(printer){
-            
+
             let data = {
                 "_order": this.order.id,
                 "_printer": printer.id
@@ -598,7 +599,7 @@ export default {
                     icon:'done',
                     color:'positive',
                     position:'center'
-                });                
+                });
             }else{
                 this.$q.notify({
                     message:'Sin conexion a la impresora',
@@ -615,7 +616,7 @@ export default {
     },
     computed:{
         ordercatch(){ return this.$route.params },
-        originProducts(){ 
+        originProducts(){
             if (this.order) {
                 return this.order.products.map( p => {
                     p.ipack = p.pieces ? p.pieces : 1;
@@ -630,7 +631,7 @@ export default {
                     })(p);
                     p.units = ( p => {
                         switch (p.ordered._supply_by) {
-                            case 2: return p.ordered.amount*12; //cantidad * 12 
+                            case 2: return p.ordered.amount*12; //cantidad * 12
                             case 3: return p.ordered.amount*p.ipack; //cantidad por piezas por caja
                             default: return p.ordered.amount;// retornar cantidad
                         }
@@ -640,7 +641,7 @@ export default {
                         switch (p.ordered._supply_by) {
                             case 2: return p.prices.find( pl => pl.id==3 ); // se utilizara el precio Docena
                             case 3: return p.prices.find( pl => pl.id==4 ); // se utilizara el precio Caja
-                            default: 
+                            default:
                                 if(p.productType=='off'){//es oferta?
                                     return p.prices.find( pl => pl.id==1 );
                                 }else if(p.ordered.amount<3){//es menudeo ?
@@ -650,7 +651,7 @@ export default {
                                 }
                             break;
                         }
-                    })(p);                    
+                    })(p);
                     p.total = p.units*p.usedprice.price;
 
                     return p;
@@ -659,8 +660,13 @@ export default {
         },
         listProducts(){
             if(this.definitor.length){
+                console.log(this.definitor);
+                // return this.originProducts;
                 let _target = this.definitor.toUpperCase().trim();
-                let similars = this.originProducts.filter( p => ( p.barcode.match(_target) || p.code.match(_target) || p.name.match(_target) || p.description.match(_target) ) );
+                let similars = this.originProducts.filter( p => p.barcode ?
+                  ( p.barcode.match(_target) || p.code.match(_target) || p.name.match(_target) || p.description.match(_target) ) :
+                  ( p.code.match(_target) || p.name.match(_target) || p.description.match(_target) )
+                );
                 return similars.length ? similars : [];
             }else{ return this.originProducts; }
         },

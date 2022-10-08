@@ -3,13 +3,13 @@
      * @App VizApp <org.grupovizcarra.vizapp>
      * @copyright Grupo Vizacarra - 2020-2021
      * @version v.1.0.0
-     * @Description 
+     * @Description
      *  Este modulo genera las etiquetas de los productos que se añaden para su posterior impresión
      *  existen diferentes modelos de etiquetas, todo de acuerdo a lo que la sucursal
-     *  requiera. El almacenamiento de las etiquetas ya no tiene relacion con el Back-End, si no con 
+     *  requiera. El almacenamiento de las etiquetas ya no tiene relacion con el Back-End, si no con
      *  el Storage del navegador, todas las etiquetas se generan en el Front-End
-     *  
-     *  
+     *
+     *
      */
 -->
 
@@ -181,7 +181,7 @@
             v-for="(code, idx) in wndImport.repeat"
             :key="'crp_' + idx"
           >
-            
+
           </div>
         </q-card-section>
         <q-card-actions align="center">
@@ -651,6 +651,7 @@ export default {
      * @description Añade el producto al bucket de las etiquetas.
      */
     add(opt) {
+      console.log(opt);
       let newLabel = JSON.parse(JSON.stringify(opt));
       console.log(newLabel);
       let flag =
@@ -773,7 +774,7 @@ export default {
     },
     /**
      * @param { number } code ID del producto.
-     * @param { string } opt Opción para añadir o decrementar copias. 
+     * @param { string } opt Opción para añadir o decrementar copias.
      * @description Actualiza las copias del producto.
      */
     updateCopies(code, opt) {
@@ -797,7 +798,7 @@ export default {
      * @param { Object[] } ipack Piezas del producto.
      * @description Realiza el procedimiento.
      * @returns { Object[] } Tipo de precios que se le asigna al producto (STD/OFF).
-     * 
+     *
      */
     labelType(_prices, ipack) {
       let natprices = [..._prices];
@@ -904,11 +905,11 @@ export default {
               this.wndImportJSON.state = !this.wndImportJSON.state;
               this.wndImportJSON.wndGetAdded = data.add;
               this.wndImportJSON.wndNoDataFound = _data.notFound;
-              
+
               if (this.wndImportJSON.wndNoDataFound.length > 0) {
                 let long = this.wndImportJSON.wndNoDataFound.length;
                 this.wndImportJSON.message = long <= 1 ? "El producto no contiene precios." : "Los productos no contienen precios."
-              } 
+              }
               _data.add.map((item) => {
                 let _labelType = this.labelType(item.prices, item.pieces);
                 item.copies = 1;
@@ -1265,7 +1266,7 @@ export default {
             Math.round(counter / 2) < pdf.internal.getNumberOfPages() ? null : pdf.addPage();
           }
           this.exportstate.state = !this.exportstate.state;
-          
+
           _delete =
             Math.round(counter / 2) < pdf.internal.getNumberOfPages()
               ? pdf.internal.getNumberOfPages()
@@ -1991,7 +1992,7 @@ export default {
               //   140,
               //   95
               // ); //210,140
-              // REALIZAMOS LA CONVERSION A PORCENTAJE Y LE AUMENTAMOS AL PRECIO AGREGADO 
+              // REALIZAMOS LA CONVERSION A PORCENTAJE Y LE AUMENTAMOS AL PRECIO AGREGADO
               let convert =
                 products[i].prices[0].price +
                 (products[i].prices[0].price * products[i].discount) / 100;
@@ -4429,7 +4430,7 @@ export default {
      * @param { Array } prices Precio del producto.
      * @returns { Array } Devuelve true o false dependiendo si cuenta con precio.
      * @description Metodo que retorna un valor condicional que evalua el precio del producto.
-     * 
+     *
      */
     getPrices() {
       return (prices) => {
