@@ -149,9 +149,15 @@
         <q-dialog v-model="wndCounter.state" position="bottom" @hide="cancelAOEs">
             <template v-if="wndCounter.product">
                 <q-card class="bg-darkl1 text-white exo">
-                    <q-card-section class="bg-blue-grey-9 text-white text-overline">CONFIRMAR PRODUCTO</q-card-section>
+                    <q-card-section class="bg-blue-grey-9 text-white text-overline row items-center justify-between">CONFIRMAR PRODUCTO <q-btn color="amber-13" icon="close" flat dense round @click="wndCounter.state=false"/></q-card-section>
                     <q-separator/>
-                    <ProductAOE :product="wndCounter.product" :client="order.client" showprices @confirm="productConfirm" @cancel="cancelAOEs"/>
+                    <OrdersAOE
+                      :product="wndCounter.product"
+                      :client="order.client"
+                      showprices
+                      @confirm="productConfirm"
+                      @remove="productDelete"
+                    />
                 </q-card>
             </template>
         </q-dialog>
@@ -160,15 +166,16 @@
         <q-dialog v-model="wndEditor.state" position="bottom" @hide="cancelAOEs" class="exo">
             <template v-if="wndEditor.product">
                 <q-card class="bg-darkl1 text-white exo">
-                    <q-card-section class="bg-blue-grey-9 text-white text-overline">EDITAR PRODUCTO</q-card-section>
+                    <q-card-section class="bg-blue-grey-9 text-white text-overline row items-center justify-between">EDITAR PRODUCTO  <q-btn color="amber-13" icon="close" flat dense round @click="wndEditor.state=false"/></q-card-section>
                     <q-separator/>
-                    <ProductAOE
-                        showprices
+                    <OrdersAOE showprices
                         :product="wndEditor.product"
                         :client="order.client"
                         @confirm="productEdit"
                         @cancel="cancelAOEs"
+                        @devolve="productDevolve"
                         @remove="productDelete"
+                        work="edit"
                     />
                 </q-card>
             </template>
@@ -266,10 +273,11 @@
 import PreventaDB from '../../API/preventa.js'
 import ProductAutocomplete from '../../components/Global/ProductAutocomplete.vue'
 import PrinterSelect from '../../components/Global/PrinterSelect.vue'
+import OrdersAOE from '../../components/Global/OrdersAOE.vue'
 import ProductAOE from '../../components/Global/ProductAOE.vue'
 
 export default {
-    components:{ ProductAutocomplete, ProductAOE, PrinterSelect },
+    components:{ ProductAutocomplete, ProductAOE, OrdersAOE, PrinterSelect },
     data(){
         return {
             psocket:this.$sktPreventa,
@@ -469,6 +477,13 @@ export default {
             this.$q.loading.hide();
         },
         async productDelete(params){
+          console.log(params);
+          this.$q.loading.show({message:`Removiendo ${params.product.code}...`});
+
+          let resp = await PreventaDB.checkoutRemoveProduct(params);
+
+        },
+        async productDevolve(params){
             this.$q.loading.show({message:`Devolviendo ${params.product.code}...`});
 
             let product = this.wndEditor.product;
