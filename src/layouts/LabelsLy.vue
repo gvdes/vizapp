@@ -2992,7 +2992,7 @@ export default {
             pdf.setFontSize(11);
             pdf.text(
               `${products[i].pieces}pz`,
-              width * (y == 0 ? 0 : y) + 55,
+              width * (y == 0 ? 0 : y) + 50,
               160 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
@@ -3001,7 +3001,7 @@ export default {
             pdf.setFont("Montserrat-Bold");
             pdf.text(
               `${products[i].large}`,
-              width * (y == 0 ? 0 : y) + 85,
+              width * (y == 0 ? 0 : y) + 81,
               160 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
@@ -3011,7 +3011,7 @@ export default {
             pdf.setFontSize(9);
             pdf.text(
               `${products[i].code}`,
-              width * (y == 0 ? 0 : y) + 115,
+              width * (y == 0 ? 0 : y) + 135,
               160 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
