@@ -2200,7 +2200,7 @@ export default {
             pdf.setFontSize(12);
             pdf.text(
               `${products[i].code}`,
-              width * (y == 0 ? 0 : y) + 110,
+              (width * (y == 0 ? 0 : y) + 120),
               163 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
@@ -2716,7 +2716,7 @@ export default {
             pdf.setFontSize(8);
             pdf.text(
               `${products[i].code}`,
-              width * (y == 0 ? 0 : y) + 90,
+              width * (y == 0 ? 0 : y) + 106,
               112 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
@@ -3414,32 +3414,21 @@ export default {
             pdf.setFont("Montserrat-Semi");
             pdf.rect(20, 20, width * (y + 1), height * countY);
             pdf.text(
-              "Grupo Vizcarra",
+              "Grupo VizcarraTE",
               width * (y == 0 ? 0 : y) + 95,
               32 + (countY == 1 ? 0 : counterCodeShort),
-              null,
-              null,
-              "center"
-            ); //18.3 12.5 6.75
+              null, null, "center"); //18.3 12.5 6.75
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(30);
             this.useIpack
               ? pdf.text(
                   products[i].name,
                   width * (y == 0 ? 0 : y) + 50,
-                  70 + (countY == 1 ? 0 : counterCodeShort),
-                  null,
-                  null,
-                  "left"
-                )
+                  70 + (countY == 1 ? 0 : counterCodeShort), null, null, "left" )
               : pdf.text(
                   products[i].name,
                   width * (y == 0 ? 0 : y) + 50,
-                  70 + (countY == 1 ? 0 : counterCodeShort),
-                  null,
-                  null,
-                  "left"
-                );
+                  70 + (countY == 1 ? 0 : counterCodeShort), null, null, "left" );
             pdf.setFontSize(9);
             pdf.setFont("Montserrat-Semi");
             let splitter = pdf.splitTextToSize(products[i].label, 120);
@@ -3606,15 +3595,15 @@ export default {
             );
             pdf.setFont("Montserrat");
             if (products[i].pieces >= 100) {
-              pdf.setFontSize(10);
-            } else if (products[i].pieces >= 1000) {
               pdf.setFontSize(9);
+            } else if (products[i].pieces >= 1000) {
+              pdf.setFontSize(8);
             } else {
-              pdf.setFontSize(11);
+              pdf.setFontSize(10);
             }
             let large = products[i].large != undefined;
             pdf.text(
-              `${products[i].pieces}PZ`,
+              `${products[i].pieces}pz`,
               width * (y == 0 ? 0 : y) + (large ? 25 : 30),
               223 + (countY == 1 ? 0 : counterCodeShort),
               null,
@@ -3624,7 +3613,7 @@ export default {
             pdf.setFont("Montserrat-Bold");
             pdf.text(
               `${large ? products[i].large : ""}`,
-              width * (y == 0 ? 0 : y) + (products[i].pieces < 100 ? 58 : 68),
+              width * (y == 0 ? 0 : y) + (products[i].pieces < 100 ? 55 : 65),
               223 + (countY == 1 ? 0 : counterCodeShort),
               null,
               null,
@@ -3632,18 +3621,15 @@ export default {
             );
             pdf.setFont("Montserrat-Semi");
             if (products[i].code.length > 10) {
-              pdf.setFontSize(9);
+              pdf.setFontSize(6);
             } else {
-              pdf.setFontSize(10);
+              pdf.setFontSize(9);
             }
             pdf.text(
               `${products[i].code}`,
-              width * (y == 0 ? 0 : y) + (large ? 85 : 85),
-              223 + (countY == 1 ? 0 : counterCodeShort),
-              null,
-              null,
-              "left"
-            );
+              (width * (y == 0 ? 0 : y) + (large ? 105 : 105)),
+              (223 + (countY == 1 ? 0 : counterCodeShort)),
+              null, null, "left" );
             this.useIpack
               ? pdf.addImage(
                   this.convertTextToBase64Barcode(products[i].name),
@@ -3829,8 +3815,8 @@ export default {
           pdf.rect(20, 20, width, height * countY);
           pdf.text(
             "Grupo Vizcarra",
-            width / 1.75,
-            32 + (countY == 1 ? 0 : counterCodeShort),
+            (width / 1.75),
+            (32 + (countY == 1 ? 0 : counterCodeShort)),
             null,
             null,
             "center"
@@ -3848,12 +3834,8 @@ export default {
               )
             : pdf.text(
                 products[i].name,
-                width / 1.75,
-                70 + (countY == 1 ? 0 : counterCodeShort),
-                null,
-                null,
-                "center"
-              );
+                (width / 1.75),
+                (70 + (countY == 1 ? 0 : counterCodeShort)), null, null, "center" );
           pdf.setFontSize(10);
           pdf.setFont("Montserrat");
           let splitter = pdf.splitTextToSize(products[i].label, 270);
@@ -4077,9 +4059,9 @@ export default {
           pdf.setFont("Montserrat-Semi");
           pdf.setFontSize(16);
           pdf.text(
-            `${products[i].code}`,
-            width / 1.7,
-            195 + (countY == 1 ? 0 : counterCodeShort),
+            `${products[i].code}`,                        // text
+            (width / 1.4),                                // X
+            (195 + (countY == 1 ? 0 : counterCodeShort)), // Y
             null,
             null,
             "left"
@@ -4102,7 +4084,7 @@ export default {
           pdf.setFontSize(12);
           pdf.rect(width + 20, 20, width, height * countX);
           pdf.text(
-            "Grupo Vizcarra",
+            "Grupo VizcarrET",
             (width / 1.75) * 2.75,
             32 + (countX == 1 ? 0 : counterCodeShortX),
             null,
@@ -4356,7 +4338,7 @@ export default {
           pdf.setFontSize(16);
           pdf.text(
             `${products[i].code}`,
-            (width / 1.34) * 2.1,
+            (width / 1.3) * 2.1,
             195 + (countX == 1 ? 0 : counterCodeShortX),
             null,
             null,
