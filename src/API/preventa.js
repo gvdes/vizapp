@@ -59,9 +59,10 @@ export default{
             return done.data;
         }).catch( fail => { return { error: fail} });
     },
-    checkoutRemoveProduct(data){
-      console.log(data);
-      return true;
+    checkoutProductRemove(data){
+      return vizapi.post('order/checkoutremoveproduct',data).then( done => {
+          return done.data;
+      }).catch( fail => { return { error: fail} });
     },
     printNotDelivered(data){
         return vizapi.post('order/printNotDelivered',data).then( done => {

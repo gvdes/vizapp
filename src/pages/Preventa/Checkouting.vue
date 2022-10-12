@@ -283,6 +283,7 @@ export default {
             psocket:this.$sktPreventa,
             iptsearch:{ processing:false, type:"number", icon:'fas fa-font' },
             order:null,
+            productsdb:[],
             wndCounter:{
                 state:false,
                 product:undefined
@@ -477,10 +478,19 @@ export default {
             this.$q.loading.hide();
         },
         async productDelete(params){
-          console.log(params);
           this.$q.loading.show({message:`Removiendo ${params.product.code}...`});
 
-          let resp = await PreventaDB.checkoutRemoveProduct(params);
+          let data = {
+                "_product": params.product.id,
+                "_order": this.ordercatch.id,
+                "_supply_by": params.metsupply.id,
+                "amount": 0,
+                "comments": ""
+            }
+
+          let resp = await PreventaDB.checkoutProductRemove(data);
+          console.log(resp);
+          this.$q.loading.hide();
 
         },
         async productDevolve(params){
