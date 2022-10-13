@@ -1,84 +1,84 @@
 <template>
     <q-page>
         <q-header unelevated class="bg-darkl1">
-            <div class="row items-center justify-between">
-                <q-btn @click="$router.push('/preventa/checkout')" flat icon="close"/>
+          <div class="row items-center justify-between">
+              <q-btn @click="$router.push('/preventa/checkout')" flat icon="close"/>
 
-                <div class="row items-center col bg-dark divlcient _client">
-                    <div class="q-pa-sm col text-center">
-                        <div class="text--2">Cliente:</div>
-                        <div class="text-uppercase" v-if="order">
-                            <!-- <q-icon v-if="client.type!='STD'" name="fas fa-medal" class="q-mr-sm"/> {{ client.type == 'STD'? client.name : `${client.name} (${client.id})` }} -->
-                            {{order.name}}
-                        </div>
-                    </div>
+              <div class="row items-center col bg-dark divlcient _client">
+                  <div class="q-pa-sm col text-center">
+                      <div class="text--2">Cliente:</div>
+                      <div class="text-uppercase" v-if="order">
+                          <!-- <q-icon v-if="client.type!='STD'" name="fas fa-medal" class="q-mr-sm"/> {{ client.type == 'STD'? client.name : `${client.name} (${client.id})` }} -->
+                          {{order.name}}
+                      </div>
+                  </div>
 
-                    <!-- <div class="q-pa-sm col text-center" :class="haveparent ? 'ord_anx':''"> -->
-                    <div class="q-pa-sm col text-center">
-                        <div class="text--2">Checkout:</div>
-                        <div class="text-bold">{{ordercatch.id}}</div>
-                    </div>
-                </div>
+                  <!-- <div class="q-pa-sm col text-center" :class="haveparent ? 'ord_anx':''"> -->
+                  <div class="q-pa-sm col text-center">
+                      <div class="text--2">Checkout:</div>
+                      <div class="text-bold">{{ordercatch.id}}</div>
+                  </div>
+              </div>
 
-                <q-btn flat icon="menu"/>
-            </div>
+              <q-btn flat icon="menu"/>
+          </div>
 
-            <div class="row items-center justify-between q-mt-sm">
-                <div class="row text-center">
-                    <div class="q-px-md">
-                        <div class="text--2">Modelos</div>
-                        <span class="text-green-13 text-bold">{{inbasket.length}}</span>
-                    </div>
+          <div class="row items-center justify-between q-mt-sm">
+              <div class="row text-center">
+                  <div class="q-px-md">
+                      <div class="text--2">Modelos</div>
+                      <span class="text-green-13 text-bold">{{inbasket.length}}</span>
+                  </div>
 
-                    <div class="q-px-md">
-                        <div class="text--2">Unidades</div>
-                        <span class="text-green-13 text-bold">{{pzsBasket}}</span>
-                    </div>
-                </div>
+                  <div class="q-px-md">
+                      <div class="text--2">Unidades</div>
+                      <span class="text-green-13 text-bold">{{pzsBasket}}</span>
+                  </div>
+              </div>
 
-                <div class="col text-right q-px-sm">
-                    <div class="text--2">Total</div>
-                    <div class="text-green-13 text-h6 text-bold">$ {{totalBasket}}</div>
-                </div>
-            </div>
+              <div class="col text-right q-px-sm">
+                  <div class="text--2">Total</div>
+                  <div class="text-green-13 text-h6 text-bold">$ {{totalBasket}}</div>
+              </div>
+          </div>
         </q-header>
 
         <div v-if="artduplicate.state" class="q-pa-md q-mt-md">
-            <q-banner inline-actions squared rounded class="bg-amber-13 text-dark">
-                <template v-slot:avatar>
-                    <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
-                </template>
+          <q-banner inline-actions squared rounded class="bg-amber-13 text-dark">
+            <template v-slot:avatar>
+                <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
+            </template>
 
-                Esto ya esta en la lista
+            Esto ya esta en la lista
 
-                <template v-slot:action inline-actions>
-                    <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="artduplicate.state=false; artduplicate.state=undefined;"/>
-                </template>
-            </q-banner>
+            <template v-slot:action inline-actions>
+                <q-btn color="dark" class="text-bold text-amber-12" no-caps label="Ok" @click="artduplicate.state=false; artduplicate.state=undefined;"/>
+            </template>
+          </q-banner>
 
-            <transition appear enter-active-class="animated bounceInUp" leave-active-class="animated zoomOut">
-                <div  @click="edit(artduplicate.product)" class="q-py-lg q-px-sm wrapper_prod">
-                    <div class="row items-center">
-                        <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
-                        <div class="col q-pr-sm">
-                            <div>
-                                <span>{{ artduplicate.product.code }}</span> --
-                                <span>{{ artduplicate.product.name }}</span>
-                            </div>
-                            <div class="text--2 text-grey-5">{{ artduplicate.product.description }}</div>
-                            <div class="col text--2">{{artduplicate.product.metsupply.name}} {{artduplicate.product.ordered.amount}}{{ artduplicate.product.metsupply.id!=1 ? ` (${artduplicate.product.units} pzs)`:``}}, PU: ${{artduplicate.product.usedprice.price}}</div>
-                            <div class="text--2 text-amber-13">{{ artduplicate.product.ordered.comments }}</div>
-                        </div>
-                        <div class="text-right text-green-13">$ {{artduplicate.product.total}}</div>
+          <transition appear enter-active-class="animated bounceInUp" leave-active-class="animated zoomOut">
+            <div  @click="edit(artduplicate.product)" class="q-py-lg q-px-sm wrapper_prod">
+              <div class="row items-center">
+                <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
+                <div class="col q-pr-sm">
+                    <div>
+                        <span>{{ artduplicate.product.code }}</span> --
+                        <span>{{ artduplicate.product.name }}</span>
                     </div>
+                    <div class="text--2 text-grey-5">{{ artduplicate.product.description }}</div>
+                    <div class="col text--2">{{artduplicate.product.metsupply.name}} {{artduplicate.product.ordered.amount}}{{ artduplicate.product.metsupply.id!=1 ? ` (${artduplicate.product.units} pzs)`:``}}, PU: ${{artduplicate.product.usedprice.price}}</div>
+                    <div class="text--2 text-amber-13">{{ artduplicate.product.ordered.comments }}</div>
                 </div>
-            </transition>
+                <div class="text-right text-green-13">$ {{artduplicate.product.total}}</div>
+              </div>
+            </div>
+          </transition>
         </div>
 
         <div class="q-mb-xl" v-if="!artduplicate.state">
             <!-- LISTA INICIAL DE PRODUCTOS -->
-            <div>
-                <div class="q-py-sm q-px-md bg-blue-grey-8 row items-center justify-between">
+            <div class="q-mb-xl">
+                <div class="q-py-sm q-px-md text-blue row items-center justify-between">
                     <div class="row">
                         <div>
                             <div class="text-bold">Por Confirmar</div>
@@ -93,21 +93,22 @@
                             </q-menu>
                         </q-btn>
                     </div>
-                    <div>$ {{totalOutBasket}}</div>
+                    <div class="text-h6">$ {{totalOutBasket}}</div>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
                     <div v-for="prod in outbasket" :key="prod.id" @click="confirm(prod)" class="q-py-md q-px-sm wrapper_prod">
                         <div class="row items-center">
                             <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
                             <div class="col q-pr-sm">
-                                <div>
-                                    <span>{{ prod.code }}</span> --
-                                    <span>{{ prod.name }}</span>
-                                </div>
-                                <div class="text--3 text-uppercase text-italic">{{ prod.family }}</div>
-                                <div class="text--3 text-grey-5">{{ prod.description }}</div>
-                                <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
-                                <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
+                              <div class="text--3 text-uppercase text-italic">ID: {{ prod.id }}</div>
+                              <div>
+                                <span class="text-bold">{{ prod.code }}</span> --
+                                <span>{{ prod.name }}</span>
+                              </div>
+                              <div class="text--3 text-uppercase text-italic">{{ prod.family }}</div>
+                              <div class="text--3 text-grey-5">{{ prod.description }}</div>
+                              <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                              <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
                             </div>
                             <div class="text-right text-green-13">$ {{prod.total}}</div>
                         </div>
@@ -116,26 +117,28 @@
             </div>
 
             <!-- LISTA DE PRODUCTOS CONFIRMADOS -->
-            <div>
-                <div class="q-py-sm q-px-md bg-primary row items-center justify-between">
+            <div class="q-mb-xl">
+                <div class="q-py-sm q-px-md text-green row items-center justify-between">
                     <div>
                         <div class="text-bold">Confirmados</div>
                         <div class="text--2">{{inbasket.length}} productos <q-icon name="fas fa-caret-right" /> {{pzsInBasket}} pzs</div>
                     </div>
-                    <span>$ {{totalBasket}}</span>
+                    <span class="text-h6">$ {{totalBasket}}</span>
                 </div>
                 <transition-group appear enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
                     <div v-for="prod in inbasket" :key="prod.id" @click="edit(prod)" class="q-py-md q-px-sm wrapper_prod">
                         <div class="row items-center">
                             <div class="q-pr-sm"><q-img src="~/assets/_defprod_.png" width="50px" /></div>
                             <div class="col q-pr-sm">
+                                <div class="text--3 text-uppercase text-italic">ID: {{ prod.id }}</div>
                                 <div>
-                                    <span>{{ prod.code }}</span> --
+                                    <span class="text-bold">{{ prod.code }}</span> --
                                     <span>{{ prod.name }}</span>
                                 </div>
                                 <div class="text--3 text-uppercase text-italic">{{ prod.family }}</div>
                                 <div class="text--2 text-grey-5">{{ prod.description }}</div>
                                 <div class="text--2 text-amber-13">{{ prod.ordered.comments }}</div>
+                                <div class="text-red-13">{{ prod.ordered.deleted_at }}</div>
                                 <div class="col text--2">{{prod.metsupply.name}} {{prod.ordered.amount}}{{ prod.metsupply.id!=1 ? ` (${prod.units} pzs)`:``}}, PU: ${{prod.usedprice.price}}</div>
                             </div>
                             <div class="text-right text-green-13">$ {{prod.total}}</div>
@@ -151,7 +154,7 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline row items-center justify-between">CONFIRMAR PRODUCTO <q-btn color="amber-13" icon="close" flat dense round @click="wndCounter.state=false"/></q-card-section>
                     <q-separator/>
-                    <OrdersAOE
+                    <OrdersAOE allow_innerpack
                       :product="wndCounter.product"
                       :client="order.client"
                       showprices
@@ -168,7 +171,8 @@
                 <q-card class="bg-darkl1 text-white exo">
                     <q-card-section class="bg-blue-grey-9 text-white text-overline row items-center justify-between">EDITAR PRODUCTO  <q-btn color="amber-13" icon="close" flat dense round @click="wndEditor.state=false"/></q-card-section>
                     <q-separator/>
-                    <OrdersAOE showprices
+                    <OrdersAOE allow_innerpack
+                        showprices
                         :product="wndEditor.product"
                         :client="order.client"
                         @confirm="productEdit"
@@ -346,23 +350,23 @@ export default {
     methods:{
         setSettings(){ localStorage.setItem('checkout_adder',JSON.stringify(this.wndAdder.settings) ) },
         toogleIptSearch(){
-			switch (this.iptsearch.type) {
-				case "text":
-					this.iptsearch.type="number";
-					this.iptsearch.icon="fas fa-font";
-				break;
-				case "number":
-					this.iptsearch.type="text";
-					this.iptsearch.icon="fas fa-hashtag";
-				break;
-			}
+          switch (this.iptsearch.type) {
+            case "text":
+              this.iptsearch.type="number";
+              this.iptsearch.icon="fas fa-font";
+            break;
+            case "number":
+              this.iptsearch.type="text";
+              this.iptsearch.icon="fas fa-hashtag";
+            break;
+          }
 
-            this.$refs.searcher.focus();
+          this.$refs.searcher.focus();
 
             // localStorage.setItem('typeiptsearch',JSON.stringify(this.iptsearch));
         },
         async productConfirm(params){
-            console.log(params);
+          console.log(params);
             this.$q.loading.show({message:`Confirmando ${params.product.code}...`});
             let product = this.wndCounter.product;
 
@@ -375,6 +379,7 @@ export default {
             }
 
             let result = await PreventaDB.makeCheckout(data);
+            console.log(result);
 
             if(result.error){
                 console.log(result.error);
@@ -388,7 +393,6 @@ export default {
                 product.ordered.amount = params.amount;
                 product.ordered.toDelivered = params.amount;
                 product.ordered.comments = params.comments;
-                product.ordered.toDelivered = params.amount;
                 product.ordered._supply_by = params.metsupply.id;
 
                 this.$q.notify({
@@ -488,8 +492,24 @@ export default {
                 "comments": ""
             }
 
-          let resp = await PreventaDB.checkoutProductRemove(data);
-          console.log(resp);
+            let idx = this.order.products.findIndex( p => p.id == params.product.id );
+            console.log(idx);
+            this.order.products.slice(idx,1);
+
+          let resp = await PreventaDB.removeProduct(data);
+
+            if(resp.success){
+              let idx = this.order.products.findIndex( p => p.id == params.product.id );
+
+              console.log(idx);
+              this.order.products.splice(idx,1);
+            }
+
+            this.wndEditor.state = false;
+            this.wndEditor.product = undefined;
+            this.wndCounter.state = false;
+            this.wndCounter.product = undefined;
+
           this.$q.loading.hide();
 
         },
@@ -696,13 +716,17 @@ export default {
             }else{ return this.originProducts; }
         },
         outbasket(){ return this.listProducts.filter( prod => !prod.ordered.toDelivered ) },
-        pzsOutBasket(){ return this.outbasket.length ? this.outbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
         inbasket(){ return this.listProducts.filter( prod => prod.ordered.toDelivered ) },
+
+        pzsOutBasket(){ return this.outbasket.length ? this.outbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
         pzsInBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
+
         totalBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => { return p.total+am },0) : 0; },
         totalOutBasket(){ return this.outbasket.length ? this.outbasket.reduce((am,p) => { return p.total+am },0) : 0; },
+
         pzsBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.units)+am, 0) : 0; },
         bxsBasket(){ return this.inbasket.length ? this.inbasket.reduce((am,p) => parseInt(p.boxes)+am, 0) : 0; },
+
         currentStep(){ return this.order ? this.order.status : null },
     }
 }

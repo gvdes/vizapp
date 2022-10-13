@@ -79,7 +79,7 @@
                                   <tr>
                                       <td>Piezas X Caja</td>
                                       <td v-if="allow_innerpack" align="right">
-                                          <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none"/>
+                                          <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none" />
                                       </td>
                                       <td v-else align="right">{{ipack}}</td>
                                   </tr>
@@ -130,25 +130,25 @@ export default {
       allow_innerpack:{ type:Boolean, default:false }
   },
   data(){
-      return {
-          amount:1,
-          comments:"",
-          innerpack:undefined,
-          metsupply:{
-              model:{alias:'PZS', name:'Piezas', id: 1},
-              opts:[
-                  {alias:'PZS', name:'Piezas', id:1},
-                  {alias:'DOC', name:'Docenas', id:2},
-                  {alias:'CJS', name:'Cajas', id:3}
-              ]
-          },
-          pricelists:[
-              { id:1, alias:'MEN', name:'MENUDEO' },
-              { id:2, alias:'MAY', name:'MAYOREO' },
-              { id:3, alias:'DOC', name:'DOCENA' },
-              { id:4, alias:'CAJ', name:'CAJA' },
-          ],
-      }
+    return {
+      amount:1,
+      comments:"",
+      innerpack:undefined,
+      metsupply:{
+          model:{alias:'PZS', name:'Piezas', id: 1},
+          opts:[
+              {alias:'PZS', name:'Piezas', id:1},
+              {alias:'DOC', name:'Docenas', id:2},
+              {alias:'CJS', name:'Cajas', id:3}
+          ]
+      },
+      pricelists:[
+          { id:1, alias:'MEN', name:'MENUDEO' },
+          { id:2, alias:'MAY', name:'MAYOREO' },
+          { id:3, alias:'DOC', name:'DOCENA' },
+          { id:4, alias:'CAJ', name:'CAJA' },
+      ],
+    }
   },
   mounted(){
       if(this.work == 'add'){
@@ -160,12 +160,13 @@ export default {
            */
           this.metsupply.model = this.deftunitsupply ?
                                   this.metsupply.opts.find( ms => ms.id == this.deftunitsupply ) :
-                                  this.product.units;
+                                  this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
       }else{
           /**
            * Si el producto es para editar, seteamos los datos que ya vienen con el producto
            */
           console.log("El producto es para editar");
+          console.log(this.product);
           this.amount = this.product.ordered.amount;
           this.comments = this.product.ordered.comments;
           this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
@@ -180,7 +181,7 @@ export default {
           console.log(this.params);
           this.$emit('confirm',this.params);
       },
-      confirm(){ this.$emit('confirm',this.params); },
+      confirm(){ console.log(this.params); this.$emit('confirm',this.params); },
       // cancel(){ this.$emit('cancel',this.params); },
       devolve(){ this.$emit('devolve', this.params); },
       remove(){ this.$emit('remove',this.params); },
