@@ -77,9 +77,9 @@
                                       </td>
                                   </tr>
                                   <tr>
-                                      <td>Piezas X Caja</td>
+                                      <td>Piezas X Caja ({{product.pieces}})</td>
                                       <td v-if="allow_innerpack" align="right">
-                                          <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none" />
+                                        <q-input filled type="number" min=1 v-model="innerpack" dense dark color="green-13" input-class="text-right q-pb-none" />
                                       </td>
                                       <td v-else align="right">{{ipack}}</td>
                                   </tr>
@@ -152,15 +152,16 @@ export default {
   },
   mounted(){
       if(this.work == 'add'){
-          console.log("El producto es para agregar");
-          console.log(this.product);
-          /**
-           * seteamos la propiedad de "unidad de surtido por default" si viene depfinida,
-           * si no, tomara la unidad del producto por default
-           */
-          this.metsupply.model = this.deftunitsupply ?
-                                  this.metsupply.opts.find( ms => ms.id == this.deftunitsupply ) :
-                                  this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
+        /**
+         * seteamos la propiedad de "unidad de surtido por default" si viene depfinida,
+         * si no, tomara la unidad del producto por default
+         */
+        console.log("El producto es para agregar");
+        console.log(this.product);
+        this.metsupply.model =
+          this.deftunitsupply ?
+            this.metsupply.opts.find( ms => ms.id == this.deftunitsupply ) :
+            this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
       }else{
           /**
            * Si el producto es para editar, seteamos los datos que ya vienen con el producto
@@ -172,7 +173,11 @@ export default {
           this.metsupply.model = this.metsupply.opts.find( ms => ms.id == this.product.metsupply.id );
       }
 
-      this.innerpack = this.product.pieces ? this.product.pieces : 1 ;
+      // this.innerpack = this.product.pieces ? this.product.pieces : 1 ;
+      this.innerpack =
+        this.product.ordered.ripack ?
+          this.product.ordered.ripack :
+          (this.product.pieces ? this.product.pieces : 1);
   },
   methods:{
       ctrlPzsUp(){ this.amount++; },

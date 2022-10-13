@@ -375,6 +375,7 @@ export default {
                 "_order": this.ordercatch.id,
                 "_supply_by": params.metsupply.id,
                 "amount": params.amount,
+                "ripack": params.innerpack,
                 "comments": ""
             }
 
@@ -394,6 +395,7 @@ export default {
                 product.ordered.toDelivered = params.amount;
                 product.ordered.comments = params.comments;
                 product.ordered._supply_by = params.metsupply.id;
+                product.ordered.ripack = params.innerpack;
 
                 this.$q.notify({
                     message:'Producto Confirmado!!',
@@ -452,6 +454,7 @@ export default {
                 "_order": this.ordercatch.id,
                 "_supply_by": params.metsupply.id,
                 "amount": params.amount,
+                "ripack": params.innerpack,
                 "comments": ""
             }
 
@@ -469,6 +472,7 @@ export default {
                 product.ordered.comments = params.comments;
                 product.ordered.toDelivered = params.amount;
                 product.ordered._supply_by = params.metsupply.id;
+                product.ordered.ripack = params.innerpack;
 
                 this.$q.notify({
                     message:'Producto Actualizado!!',
