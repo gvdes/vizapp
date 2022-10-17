@@ -436,8 +436,7 @@
                 ></div>
                 <div
                   class="q-pt-md"
-                  v-if="validateCEDIS(wndLog.order.status.id, log.id) && wndLog.order.status.id == log.id
-                  "
+                  v-if="validateCEDIS(wndLog.order.status.id, log.id) && wndLog.order.status.id == log.id"
                 >
                   <!-- <q-btn
                     class="q-mr-sm"
@@ -450,15 +449,14 @@
                   <q-btn
                     v-if="wndLog.order.status.id <= 6"
                     outline
-                    color="teal-13"
+                    color="green-13"
                     :label="msgCEDIS"
                     @click="
-                      checkState(wndLog.order.status.id)
-                        ? ((wndStore.state = !wndStore.state),
-                          (wndLog.state = !wndLog.state))
-                        : wndLog.order.status.id == 3 ? changeState(7)
-                        : wndLog.order.status.id == 5 ? $router.push(`/pedidos/checkout/${wndLog.order.id}`)
-                        : changeState(wndLog.order.status.id + 1)
+                      // checkState(wndLog.order.status.id) ? ( (wndStore.state = !wndStore.state), (wndLog.state = !wndLog.state) )
+                          checkState(wndLog.order.status.id) ? changeState(3)
+                            : wndLog.order.status.id == 3 ? changeState(7)
+                            : wndLog.order.status.id == 5 ? $router.push(`/pedidos/checkout/${wndLog.order.id}`)
+                            : changeState(wndLog.order.status.id + 1)
                         "
                     :disable="moving"
                     :loading="moving"
@@ -483,11 +481,11 @@
         </q-card-section>
         <q-separator color="green-13" />
         <q-card-section>
-          <div class="row items-center justify-center">
-            <div class="col-md-7 col-xs-5 col-7">
+          <div>
+            <!-- <div class="col-md-7 col-xs-5 col-7">
               <img width="100%" src="../../assets/jhony.gif" alt />
-            </div>
-            <div class="col-md-5 col-xs-5 col-5 text-center">
+            </div> -->
+            <div >
               Las siguientes {{timeElapsed.length}} ordenes no se han surtido:
               <q-scroll-area
                 :thumb-style="thumbStyle"
@@ -534,9 +532,9 @@
         <q-separator color="green-13" />
         <q-card-section>
           <div class="row items-center justify-center">
-            <div class="col-md-7 col-xs-5 col-7">
+            <!-- <div class="col-md-7 col-xs-5 col-7">
               <img width="100%" src="../../assets/jhony.gif" alt />
-            </div>
+            </div> -->
             <div class="col-md-5 col-xs-5 col-5 text-center">
               Las siguientes {{timeOrdersFirst.length}} ordenes no se han surtido:
               <q-scroll-area
@@ -894,9 +892,7 @@ export default {
       // // console.log(this.wndLog.order);
       if (this.wndLog.order.log.length > 2) {
         try {
-          let index = this.grocerAccnt.findIndex(item => {
-            return item.id == this.wndLog.order.log[2].details.actors.id;
-          });
+          let index = this.grocerAccnt.findIndex(item => { return item.id == this.wndLog.order.log[2].details.actors.id; });
           console.log(index);
           let ord = this.structuredDataDelivery(
             this.wndLog.order,
@@ -919,68 +915,60 @@ export default {
       this.wndLog.state = true;
     },
     changeState(_atstate = null) {
+      // console.log(_atstate);
       this.moving = true;
-      // debugger
-      let atstate = _atstate
-        ? _atstate
-        : parseInt(this.wndLog.order.status.id) + 1;
+      let atstate = _atstate ? _atstate : parseInt(this.wndLog.order.status.id) + 1;
+
       let data = {
         id: this.wndLog.order.id,
         _status: atstate,
         _actors: this.dataOrder
       };
+
       let message = "";
       let newstatus = { id: atstate, name: undefined };
       let ntfsound = this.sounds.moved;
 
       this.wndStore.state = this.wndLog.order.id == 2 ? true : false;
+      console.log(atstate, data, this.wndLog.order.id);
 
-      dbreqs
-        .nextstep(data)
-        .then(success => {
-          let resp = success.data.updates;
-          this.wndLog.state = false;
-          this.moving = false;
+      dbreqs.nextstep(data).then(success => {
+        console.log(success.data);
+        let resp = success.data.updates;
+        this.wndLog.state = false;
+        this.moving = false;
 
-          let idx = this.ordersdb.findIndex(item => {
-            return item.id == this.wndLog.order.id;
-          });
-          // debugger
-          let newStateLog = [];
-          let settingsOrder = [];
-          let newStateSend = undefined;
-          // settingsOrder = this.ordersdb[idx];
-          newStateSend = resp.status;
-          newStateLog = this.ordersdb[idx].log.concat(resp.log);
-          console.log(newStateLog);
-          // this.ordersdb[idx].log = newStateLog;
-          // this.ordersdb[idx].status = newStateSend;
-          // console.log(settingsOrder);
-          // this.ordersdb[idx] = settingsOrder;
-          this.$q.notify({
-            message: message,
-            color: "positive",
-            icon: "done",
-            position: "bottom-right"
-          });
-          atstate == 5
-            ? this.$router.push(`/pedidos/checkout/${this.wndLog.order.id}`)
-            : "";
-          this.$sktRestock.emit("order_changestate", {
-            state: newStateSend,
-            profile: this.profile,
-            log: newStateLog,
-            order: this.ordersdb[idx],
-            from: this.workin,
-            room: this.socketroom
-          });
-          // this.$store.commit("Requisitions/updateState", { settingsOrder, newStateSend });
+        let idx = this.ordersdb.findIndex( item => item.id == this.wndLog.order.id );
+        let newStateLog = [];
+        let settingsOrder = [];
+        let newStateSend = undefined;
+        settingsOrder = this.ordersdb[idx];
 
-          // this.$sktRestock.emit('order_changestate',{ state:newstatus, profile:this.profile, order:this.ordersdb[idx] });
-        })
-        .catch(fail => {
-          console.log(fail);
+        newStateSend = resp.status;
+        newStateLog = this.ordersdb[idx].log.concat(resp.log);
+        console.log(newStateLog);
+        // this.ordersdb[idx].log = newStateLog;
+        // this.ordersdb[idx].status = newStateSend;
+        // console.log(settingsOrder);
+        // this.ordersdb[idx] = settingsOrder;
+        this.$q.notify({
+          message: message,
+          color: "positive",
+          icon: "done",
+          position: "bottom-right"
         });
+        atstate == 5 ? this.$router.push(`/pedidos/checkout/${this.wndLog.order.id}`) : "";
+        this.$sktRestock.emit("order_changestate", {
+          state: newStateSend,
+          profile: this.profile,
+          log: newStateLog,
+          order: this.ordersdb[idx],
+          from: this.workin,
+          room: this.socketroom
+        });
+          // this.$store.commit("Requisitions/updateState", { settingsOrder, newStateSend });
+          // this.$sktRestock.emit('order_changestate',{ state:newstatus, profile:this.profile, order:this.ordersdb[idx] });
+      }).catch(fail => { console.log(fail); });
     },
     async alertOrders() {
       return new Promise(resolve => {
@@ -1317,7 +1305,7 @@ export default {
           // "Enviar a validación",
           // "Iniciar CheckOut",
           // "CheckOut",
-          "Iniciar Surtido"
+          "Iniciar Envio"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
           ? msgDisplay[stateCEDIS.indexOf(status)]

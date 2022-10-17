@@ -167,8 +167,8 @@ export default {
     };
   },
   async beforeMount() {
-    this.index = await this.loadIndex();
     // console.log("%cRevisando index","font-size:;2em;color:yellow");
+    this.index = await this.loadIndex();
     // console.log(this.index);
     // this.dialog = this.index.requisitions.length <= 0 ? true : false;
   },
