@@ -3,13 +3,13 @@
      * @App VizApp <org.grupovizcarra.vizapp>
      * @copyright Grupo Vizacarra - 2020-2021
      * @version v.1.0.0
-     * @Description 
-     *  Integra y añade productos a las ordenes de Resurtido para enviar a CEDIS, 
+     * @Description
+     *  Integra y añade productos a las ordenes de Resurtido para enviar a CEDIS,
      *  da pauta a que gestione de manera bilateral, mediante el manejo de estados del componente
      *  y este de seguimiento desde cuando envia solicitud, hasta cuando culmina el surtido en Sucursal.
-     *  
-     *  
-     *  
+     *
+     *
+     *
      */
 -->
 
@@ -564,15 +564,10 @@
 
         <q-card-section class="q-pt-none">
           <q-input
-            dark
-            dense
-            color="green-13"
+            dark dense color="green-13"
             v-model="saveNameExport"
             autofocus
-            @keyup.enter="
-              exportExcel;
-              flagPrompt = !flagPrompt;
-            "
+            @keyup.enter="exportExcel(); flagPrompt=!flagPrompt; "
           />
         </q-card-section>
 
@@ -662,9 +657,7 @@
           </template>
           <template v-else>
             <span>
-              <q-btn
-                flat
-                dense
+              <q-btn flat dense
                 color="green-13"
                 label="Confirmar entrega"
                 @click="changeState(10)"
@@ -971,11 +964,13 @@ export default {
       }
     },
     changeState(_atstate = null) {
-      this.stateDone = this.order.status.id == 9 ? !this.stateDone : false;
+      this.stateDone = this.order.status.id == 9 ? !this.stateDone : false;// si el status es VALIDANDO RECEPCION
       let atstate = _atstate ? _atstate : parseInt(this.order.status.id) + 1;
+      console.log(`Current state: ${this.order.status.id} => Nex State: ${atstate}`);
       let data = { id: this.params.id, _status: atstate };
-      let message = "";
-      let newstatus = { id: atstate, name: undefined };
+      console.log("Sending... ",data);
+      let message = "";// mensaje a mostrar en la ventana modal (QDialog)
+      let newstatus = { id: atstate, name: undefined }; // prepara el arreglo de los datos que se mostraran en la ventana modal (nombre d ID del siguiente status)
       this.$q.loading.show({ message: "Enviando orden, favor de esperar..." });
       switch (atstate) {
         case 2:
@@ -991,41 +986,41 @@ export default {
           break;
       }
 
-      dbreqs
-        .nextstep(data)
-        .then(success => {
-          console.log(
-            "%cEl pedido ha cambiado de status...",
-            "font-size:1.5em;color:yellow;"
-          );
-          console.log(success);
-          this.$q.loading.hide();
-          let resp = success.data.updates;
-          let newState = [];
-          // debugger
-          let newStateSend = undefined;
-          newStateSend = resp.status;
-          console.log(this._getorders.log);
-          newState = this._getorders.log.concat(resp.log);
-          
-          this.$q.notify({
-            color: "positive",
-            icon: "done",
-            position: "center"
-          });
-          // atstate != 10 ? this.appsounds.moved.play() : "";
-          this.rsocket.emit("order_changestate", {
-            state: newStateSend,
-            log: newState,
-            user: this.profile,
-            from: this.workin,
-            order: this.order,
-            room: this.socketroom
-          });
-        })
-        .catch(fail => {
-          console.error(fail);
+      dbreqs.nextstep(data).then(success => {
+        console.log(success.data);
+        console.log( "%cEl pedido ha cambiado de status...", "font-size:1.5em;color:yellow;");
+        console.log(success.data);
+        let resp = success.data.updates;
+        let newState = [];
+        let newStateSend = undefined;
+        newStateSend = resp.status;
+        console.log(this._getorders.log);
+        newState = this._getorders.log.concat(resp.log);
+        console.log(newStateSend, newState);
+        this.$q.loading.hide();
+
+        this.$q.notify({
+          color: "positive",
+          icon: "done",
+          position: "center"
         });
+        // atstate != 10 ? this.appsounds.moved.play() : "";
+        this.rsocket.emit("order_changestate", {
+          state: newStateSend,
+          log: newState,
+          user: this.profile,
+          from: this.workin,
+          order: this.order,
+          room: this.socketroom
+        });
+      }).catch(fail => {
+        console.error(fail);
+        this.$q.notify({
+          color:"negative",
+          icon:"fas fa-bug",
+          message:fail
+        });
+      });
     },
     wndSetItemReset() {
       this.wndSetItem.idxlist = undefined;
@@ -1520,10 +1515,7 @@ export default {
   computed: {
     _getorders() {
       return this.$store.getters["Requisitions/getOrders"]
-        ? this.$store.getters["Requisitions/getOrders"].find(
-            idx => idx.id == this.params.id
-          )
-        : null;
+        ? this.$store.getters["Requisitions/getOrders"].find( idx => idx.id==this.params.id ) : null;
     },
     filterAvailable() {
       switch (this.selectAvailable.value) {

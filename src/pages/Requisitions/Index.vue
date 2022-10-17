@@ -3,11 +3,11 @@
      * @App VizApp <org.grupovizcarra.vizapp>
      * @copyright Grupo Vizacarra - 2020-2021
      * @version v.1.0.0
-     * @Description 
-     *  Genera ordenes de Resurtido y abre camino al seguimiento 
+     * @Description
+     *  Genera ordenes de Resurtido y abre camino al seguimiento
      *  y flujo de transicion entre CEDIS y Sucursal. Tambien aqui se visualizan las ordenes que se han levantado
      *  El Levantamiento de Orden se divide en 4 opciones:
-     *  - Manual 
+     *  - Manual
      *  - Automatica
      *  - Preventa
      *  - Venta
@@ -168,6 +168,7 @@ export default {
   },
   async beforeMount() {
     this.index = await this.loadIndex();
+    // console.log("%cRevisando index","font-size:;2em;color:yellow");
     // console.log(this.index);
     // this.dialog = this.index.requisitions.length <= 0 ? true : false;
   },
@@ -202,9 +203,7 @@ export default {
       );
       this.$store.commit("Requisitions/updateState", { order, newState });
     },
-    loadIndex() {
-      return dbreqs.index();
-    },
+    loadIndex() { return dbreqs.index(); },
     orderclicked(order) {
       this.$router.push(`/pedidos/${order.id}`);
     },
@@ -233,13 +232,11 @@ export default {
               "Tu pedido se esta generando, por favor espera mientras consultamos existencias"
           });
           cancreate = true;
-          break;
+        break;
 
         case 3:
           data.folio = this.neworder.folio;
-          data.store = this.soldValidate.length
-            ? this.neworder.origin.value
-            : this.workin.workpoint.id;
+          data.store = this.soldValidate.length ? this.neworder.origin.value : this.workin.workpoint.id;
           console.log(data);
 
           if (data.folio || data.store) {
@@ -258,6 +255,8 @@ export default {
               message: `Sucursal y folio son obligatorios`
             });
           }
+        break;
+
         case 4:
           data.folio = this.neworder.folio;
           data.store = this.neworder.origin.value;
@@ -278,12 +277,12 @@ export default {
               message: `Sucursal y folio son obligatorios`
             });
           }
-          break;
+        break;
 
-        default:
+        default: // (1, pedido normal)
           cancreate = true;
           this.wndSetOrder.creating = true;
-          break;
+        break;
       }
 
       if (cancreate) {
@@ -309,6 +308,7 @@ export default {
               order: resp.order,
               to: this.neworder.dest
             });
+
             this.$router.push("/pedidos/" + resp.order.id);
           })
           .catch(fail => {

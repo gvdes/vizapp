@@ -3,7 +3,7 @@
      * @App VizApp <org.grupovizcarra.vizapp>
      * @copyright Grupo Vizacarra - 2020-2021
      * @version v.1.0.0
-     * @Description 
+     * @Description
      *  Esqueleto y composición general del modulo de Resurtido
      *  Este Layout se compone de 3 principales componentes:
      *  - Nav Header => Cabecera dinamica que se activa o desactiva mediante states de VUEX
@@ -27,7 +27,7 @@
       </q-header>
 
       <router-view />
-      
+
       <q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
         <ToolbarModule :with_home="true" />
       </q-footer>
@@ -92,8 +92,10 @@ export default {
       );
 
       let data = { params: dbranges };
-      this.index = await RequisitionsDB.index();  
+      this.index = await RequisitionsDB.index();
       this.$store.commit("Requisitions/startState", this.index);
+      console.log("%cLayout Loaded!!","font-size:2em;color:yellow;font-weight:bold;");
+      // console.log(this.index);
 
       if(this.dashAccess){
         console.log("USUARIO CON ACCESO AL DASHBOARD, OBTENIENDO PEDIDOS");
@@ -183,10 +185,10 @@ export default {
       );
       data.state.id == 10 && this.getValidateSounds(data.order) != -1
         ? this.appsounds.ok.play()
-        : "";
+        : null;
       data.state.id == 2 && this.getValidateSounds(data.order) != -1
         ? this.appsounds.created.play()
-        : "";
+        : null;
       // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
       if (
         data.state.id >= 3 &&
@@ -274,7 +276,7 @@ export default {
     },
     dashAccess(){
       let workpoint = JSON.parse(localStorage.getItem("workin"));
-      console.log(workpoint);
+      // console.log(workpoint);
       return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
     },
     checkPermissions() {

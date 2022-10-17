@@ -3,11 +3,11 @@
      * @App VizApp <org.grupovizcarra.vizapp>
      * @copyright Grupo Vizacarra - 2020-2021
      * @version v.1.0.0
-     * @Description 
+     * @Description
      *  Recibe las ordenes de surtido que generan en cada Sucursal,
      *  gestiona y da seguimiento al flujo de cada estado para poder
      *  culminar un proceso de surtido a Sucursal.
-     *  Gestiona la disponibilidad de los encargados en realizar el 
+     *  Gestiona la disponibilidad de los encargados en realizar el
      *  surtido, hasta el transporte que lo enviara.
      */
 -->
@@ -179,7 +179,7 @@
       </div>
     </div>
 
-    <div v-else> 
+    <div v-else>
       <div class="col-md-12 col-xs-12 col-12 row self-center items-center q-pa-md">
         <div class="col-md-4 col-4 q-pr-xs">
           <q-select
@@ -764,6 +764,8 @@ export default {
     this.$store.commit("Requisitions/setFooterState", true);
     let params = { _rol: [7] };
     this.grocerAccnt = await dbAccount.get(params);
+    // console.log("$c","font-size:2em;color:yellow;");
+    // console.log(this.grocerAccnt);
     // this.index = this.orders;
     // this.$store.commit("Requisitions/getAllCleanDuplicates", this.orders);
     this.$store.commit("Requisitions/setHeaderTitle", this.title);
@@ -773,12 +775,8 @@ export default {
     let getMarkets = await dbworpoints.index();
     this.workpoints.push({ label: "Todos", value: -1 });
     getMarkets
-      .filter(idx => {
-        return idx.type.id == 2;
-      })
-      .map(idx => {
-        return this.workpoints.push({ label: idx.name, value: idx.id });
-      });
+      .filter(idx => idx.type.id == 2)
+      .map(idx => this.workpoints.push({ label: idx.name, value: idx.id } ));
 
     for (let index = 0; index < this.getStatesLog.length; index++) {
       aux = this.checkPermissions ? this.isCEDIS(index) : this.isMarket(index);
@@ -894,7 +892,7 @@ export default {
       // this.$store.commit("Requisitions/getCleanDuplicates", this.ordersdb[idx]);
       this.wndLog.order = this.ordersdb[idx];
       // // console.log(this.wndLog.order);
-      // if (this.wndLog.order.log.length > 2) {
+      if (this.wndLog.order.log.length > 2) {
         try {
           let index = this.grocerAccnt.findIndex(item => {
             return item.id == this.wndLog.order.log[2].details.actors.id;
@@ -916,7 +914,7 @@ export default {
           //   timeout: 1000
           // });
         }
-      // }
+      }
       // console.log(this.wndLog.order);
       this.wndLog.state = true;
     },
@@ -1319,7 +1317,7 @@ export default {
           // "Enviar a validación",
           // "Iniciar CheckOut",
           // "CheckOut",
-          "Iniciar Envio"
+          "Iniciar Surtido"
         ];
         this.msgCEDIS = stateCEDIS.includes(status)
           ? msgDisplay[stateCEDIS.indexOf(status)]

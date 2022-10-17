@@ -6,7 +6,7 @@ export default {
     return vizapi
       .get("/requisition", data)
       .then(success => {
-        console.log(success.data);
+        // console.log(success.data);
         return success.data;
       })
       .catch(fail => {
@@ -50,6 +50,7 @@ export default {
     return vizapi.post("/requisition/remove", data);
   },
   nextstep(data) {
+    // console.log(data);
     return vizapi.post("/requisition/next", data);
   },
   dashboard(data) {
