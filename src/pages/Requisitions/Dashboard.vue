@@ -113,9 +113,7 @@
               {{ header }}
               <q-space />
               <span class="text-white items-end q-pr-sm text-weight-bold">
-                {{
-                orderManagement(header).length
-                }}
+                {{ orderManagement(header).length }}
               </span>
               <q-avatar class="q-pl-sm" size="sm" rounded>
                 <img :src="avatar(key, 'toolbar')" />

@@ -7,13 +7,12 @@ export function startState(state, data) {
 export function setOrdersIn(state,data){ state.orders_in = data; }
 
 export function newOrder(state, order) {
-    console.log(`%cOrden ${order.id} creada!`, "background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
-    state.orders.push(order);
+  console.log(`%cOrden ${order.id} creada!`, "background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
+  state.orders_in.push(order);
+  console.log(`%cOrden agregada a la lista!`, "background:#3ae374;color:#3d3d3d;border-radius:10px;padding:6px;");
 }
 
-export function todayState(state, newState) {
-    state.today = newState;
-}
+export function todayState(state, newState) { state.today = newState; }
 
 export function printed(state, order) {
     let idx = state.orders.findIndex(ord => order.id == ord.id);
@@ -23,11 +22,10 @@ export function printed(state, order) {
 export function updateState(state, { order, newState }) {
     console.log(newState);
     console.log(`Buscando orden ${order.id} para actualizarla...`);
-    // debugger
+
     let idx = state.orders.findIndex(ord => order.id == ord.id);
     console.log(idx);
-    
-    // debugger
+
     if (idx != -1) {
         state.orders[idx].status = newState.state;
         state.orders[idx].log = newState.log;

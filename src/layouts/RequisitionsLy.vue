@@ -44,253 +44,241 @@
 </template>
 
 <script>
-import ToolbarModule from "../components/Global/ToolbarModule.vue";
-import RangeDates from "../components/Global/RangeDates.vue";
-import HeaderApp from "../components/Global/HeaderApp.vue";
-import RequisitionsDB from "../API/requisitions.js";
+  import ToolbarModule from "../components/Global/ToolbarModule.vue";
+  import RangeDates from "../components/Global/RangeDates.vue";
+  import HeaderApp from "../components/Global/HeaderApp.vue";
+  import RequisitionsDB from "../API/requisitions.js";
 
-export default {
-  name: "Resurtido",
-  components: { ToolbarModule, RangeDates, HeaderApp },
-  data() {
-    return {
-      flagPermissions: true,
-      flag: true,
-      dialog: false,
-      date: undefined,
-      index: [],
-      rsocket: this.$sktRestock
-    };
-  },
-  created() {
-    this.rsocket.disconnect();
-    this.rsocket.connect();
-
-    this.rsocket.on("joineddashreq", data => { this.sktJoinatRes(data); });
-    this.rsocket.on("creating", data => { this.sktCreateOrd(data); });
-    this.rsocket.on("order_update", data => { this.sktUpdateOrd(data); });
-    this.rsocket.on("order_changestate", data => { this.sktChangeState(data); });
-
-    this.rsocket.emit("joinat", {
-      profile: this.profile,
-      workpoint: this.workin.workpoint,
-      room: this.socketroom
-    });
-  },
-  methods: {
-    async loadView(ranges) {
-      this.$q.loading.show({ message: "Cargando vista..." });
-
-      let dbranges = {
-        date_from: ranges.dbranges.from,
-        date_to: ranges.dbranges.to
+  export default {
+    name: "Resurtido",
+    components: { ToolbarModule, RangeDates, HeaderApp },
+    data() {
+      return {
+        flagPermissions: true,
+        flag: true,
+        dialog: false,
+        date: undefined,
+        index: [],
+        rsocket: this.$sktRestock
       };
-
-      this.$store.commit(
-        "Requisitions/todayState",
-        this.timeToday(ranges.ranges.date.from)
-      );
-
-      let data = { params: dbranges };
-      this.index = await RequisitionsDB.index();
-      this.$store.commit("Requisitions/startState", this.index);
-      console.log("%cLayout Loaded!!","font-size:2em;color:yellow;font-weight:bold;");
-      // console.log(this.index);
-
-      if(this.dashAccess){
-        console.log("USUARIO CON ACCESO AL DASHBOARD, OBTENIENDO PEDIDOS");
-        let ordersreq = await RequisitionsDB.dashboard(data);
-        // console.log(ordersreq.requisitions);
-        this.$store.commit("Requisitions/setOrdersIn",ordersreq.requisitions);
-      }
-
-      // if (this.checkPermissions) {
-      //   let arr = await RequisitionsDB.dashboard(data);
-      //   this.index.requisitions = [];
-      //   arr.requisitions.forEach(element => {
-      //     return this.index.requisitions.push(element);
-      //   });
-
-      //   this.flag = validateOrders.length > 0 ? false : true;
-
-      //   if (validateOrders.length <= 0) {
-      //     this.dialog = true;
-      //     this.$store.commit("Requisitions/startState", this.index);
-      //   } else {
-      //     this.dialog = false;
-      //     this.$store.commit("Requisitions/startState", this.index);
-      //   }
-      // } else {
-      //   // arr.requisitions.forEach(element => {
-      //   //   return this.index.requisitions.push(element);
-      //   // });
-
-      //   this.flag = validateOrders.length > 0 ? false : true;
-
-      //   if (validateOrders.length <= 0) {
-      //     this.dialog = true;
-      //     this.$store.commit("Requisitions/startState", this.index);
-      //   } else {
-      //     this.dialog = false;
-      //     this.$store.commit("Requisitions/startState", this.index);
-      //   }
-      // }
-
-      this.$q.loading.hide();
     },
-    sktJoinatRes(data) {
-      console.log(
-        `%cSe unio a Resurtido ${data.user.me.nick}`,
-        "background:#076F3E;color:#f5f6fa;border-radius:10px;padding:10px;font-size:1.1em;"
-      );
+    created() {
+      this.rsocket.disconnect();
+      this.rsocket.connect();
+
+      this.rsocket.on("joineddashreq", data => { this.sktJoinatRes(data); });
+      this.rsocket.on("creating", data => { this.sktCreateOrd(data); });
+      this.rsocket.on("order_update", data => { this.sktUpdateOrd(data); });
+      this.rsocket.on("order_changestate", data => { this.sktChangeState(data); });
+
+      this.rsocket.emit("joinat", {
+        profile: this.profile,
+        workpoint: this.workin.workpoint,
+        room: this.socketroom
+      });
     },
-    sktCreateOrd(data) {
-      let order = data.order;
-      let by = data.user.me;
-      // this.appsounds.created.play();
-      console.log(
-        `%c${by.nick} esta creando la orden ${order.id}`,
-        "background:#303952;color:#e66767;border-radius:10px;padding:8px;"
-      );
-      let flag = false;
-      // console.log(data.order.from.id == this.workin.workpoint.id);
-      console.log(this.cedisValidate(this.workin).length);
-      data.order.status.id == 1 && this.getValidateSounds(data.order) != -1
-        ? this.appsounds.ok.play()
-        : "";
-      if (data.order.from.id == this.workin.workpoint.id) {
-        this.$store.commit("Requisitions/newOrder", order);
-        flag = true;
-      } else {
-        [];
-      }
-      this.cedisValidate(this.workin).length && !flag
-        ? this.$store.commit("Requisitions/newOrder", order)
-        : [];
-    },
-    sktChangeState(data) {
-      console.log(data);
-      let newState = {
-        state: data.state,
-        log: data.log
-      };
-      let order = data.order;
-      order.log = data.log;
-      order.status = data.state;
-      console.log(data.order.from.id);
-      console.log(data.from.workpoint.id);
-      // console.log(this.getValidateSounds(data.order));
-      console.log(
-        data.state.id <= 9 && data.order.from.id == data.from.workpoint.id
-      );
-      data.state.id == 10 && this.getValidateSounds(data.order) != -1
-        ? this.appsounds.ok.play()
-        : null;
-      data.state.id == 2 && this.getValidateSounds(data.order) != -1
-        ? this.appsounds.created.play()
-        : null;
-      // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
-      if (
-        data.state.id >= 3 &&
-        data.state.id <= 9 &&
-        this.getValidateSounds(data.order) != -1
-      ) {
-        this.appsounds.added.play();
-        this.$q.notify({
-          message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
-          color: "positive",
-          icon: "done",
-          position: "top-right"
-        });
-      }
-      console.log(
-        `%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,
-        "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
-      );
-      this.$store.commit("Requisitions/updateState", { order, newState });
-    },
-    sktUpdateOrd(data) {
-      console.log(data);
-      if (data.product == null) {
-        let order = data.order;
+    methods: {
+      async loadView(ranges) {
+        this.$q.loading.show({ message: "Cargando vista..." });
+
+        let dbranges = {
+          date_from: ranges.dbranges.from,
+          date_to: ranges.dbranges.to
+        };
+
+        this.$store.commit("Requisitions/todayState", this.timeToday(ranges.ranges.date.from) );
+
+        let data = { params: dbranges };
+        this.index = await RequisitionsDB.index();
+        this.$store.commit("Requisitions/startState", this.index);
+        console.log("%cLayout Loaded!!","font-size:2em;color:yellow;font-weight:bold;");
+        console.log(this.index);
+
+        if(this.dashAccess){
+          console.log("USUARIO CON ACCESO AL DASHBOARD, OBTENIENDO PEDIDOS");
+          let ordersreq = await RequisitionsDB.dashboard(data);
+          console.log(ordersreq.requisitions);
+          this.$store.commit("Requisitions/setOrdersIn",ordersreq.requisitions);
+        }
+
+        // if (this.checkPermissions) {
+        //   let arr = await RequisitionsDB.dashboard(data);
+        //   this.index.requisitions = [];
+        //   arr.requisitions.forEach(element => {
+        //     return this.index.requisitions.push(element);
+        //   });
+
+        //   this.flag = validateOrders.length > 0 ? false : true;
+
+        //   if (validateOrders.length <= 0) {
+        //     this.dialog = true;
+        //     this.$store.commit("Requisitions/startState", this.index);
+        //   } else {
+        //     this.dialog = false;
+        //     this.$store.commit("Requisitions/startState", this.index);
+        //   }
+        // } else {
+        //   // arr.requisitions.forEach(element => {
+        //   //   return this.index.requisitions.push(element);
+        //   // });
+
+        //   this.flag = validateOrders.length > 0 ? false : true;
+
+        //   if (validateOrders.length <= 0) {
+        //     this.dialog = true;
+        //     this.$store.commit("Requisitions/startState", this.index);
+        //   } else {
+        //     this.dialog = false;
+        //     this.$store.commit("Requisitions/startState", this.index);
+        //   }
+        // }
+
+        this.$q.loading.hide();
+      },
+      sktJoinatRes(data) {
         console.log(
-          `%cLa orden ${order.id} no añadio el producto seleccionado.`,
+          `%cSe unio a Resurtido ${data.user.me.nick}`,
+          "background:#076F3E;color:#f5f6fa;border-radius:10px;padding:10px;font-size:1.1em;"
+        );
+      },
+      sktCreateOrd(data) {
+        let order = data.order;
+        let by = data.user.me;
+        let flag = false;
+        let cedises = [1,2,16];
+
+        console.log(`%c${by.nick} esta creando la orden ${order.id}`, "background:#303952;color:#e66767;border-radius:10px;padding:8px;" );
+
+        let isNewOrder = (data.order.status.id==1 && !this.getValidateSounds(data.order)); // define si es una orden nueva, o ya existe en el store de requisitions
+        let imACedis = cedises.includes(this.workin.workpoint.id);
+
+        console.log(imACedis ? "Soy un CEDIS":"Soy una TIENDA");
+        console.log("Orden nueva? : "+isNewOrder);
+
+        isNewOrder ? this.appsounds.ok.play() : null;
+
+        if(data.order.from.id == this.workin.workpoint.id){
+          console.log("Es una orden de mi misma tienda");
+          this.$store.commit("Requisitions/newOrder", order);
+          flag = true;
+        }
+
+        (imACedis && !flag) ? this.$store.commit("Requisitions/newOrder", order) : null;
+      },
+      sktChangeState(data) {
+        console.log(data);
+        let newState = {
+          state: data.state,
+          log: data.log
+        };
+        let order = data.order;
+        order.log = data.log;
+        order.status = data.state;
+        console.log(data.order.from.id);
+        console.log(data.from.workpoint.id);
+        // console.log(this.getValidateSounds(data.order));
+        console.log(
+          data.state.id <= 9 && data.order.from.id == data.from.workpoint.id
+        );
+        data.state.id == 10 && this.getValidateSounds(data.order) != -1
+          ? this.appsounds.ok.play()
+          : null;
+        data.state.id == 2 && this.getValidateSounds(data.order) != -1
+          ? this.appsounds.created.play()
+          : null;
+        // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
+        if (
+          data.state.id >= 3 &&
+          data.state.id <= 9 &&
+          this.getValidateSounds(data.order) != -1
+        ) {
+          this.appsounds.added.play();
+          this.$q.notify({
+            message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
+            color: "positive",
+            icon: "done",
+            position: "top-right"
+          });
+        }
+        console.log(
+          `%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,
           "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
         );
-      } else {
-        let order = data.order;
-        let product = data.product;
-        let cmd = data.cmd == "remove" ? "removio" : "añadio";
-        console.log(
-          `%cLa orden ${order.id} ${cmd} ${product.description}`,
-          "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
-        );
-      }
+        this.$store.commit("Requisitions/updateState", { order, newState });
+      },
+      sktUpdateOrd(data) {
+        console.log(data);
+        if (data.product == null) {
+          let order = data.order;
+          console.log(
+            `%cLa orden ${order.id} no añadio el producto seleccionado.`,
+            "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
+          );
+        } else {
+          let order = data.order;
+          let product = data.product;
+          let cmd = data.cmd == "remove" ? "removio" : "añadio";
+          console.log(
+            `%cLa orden ${order.id} ${cmd} ${product.description}`,
+            "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
+          );
+        }
 
-      // this.$store.commit("Requisitions/updateState", { order, newState });
+        // this.$store.commit("Requisitions/updateState", { order, newState });
+      }
+    },
+    beforeDestroy() {
+      console.log(
+        "%cDesconectando de resurtido...",
+        "background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"
+      );
+      this.rsocket.emit("unjoin", {
+        profile: this.profile,
+        workpoint: this.workin.workpoint,
+        room: "main"
+      });
+      this.rsocket.off();
+    },
+    computed: {
+      timeToday() {
+        return ranges => this.$moment().format("YYYY-MM-DD") === ranges;
+      },
+      cedisValidate() {
+        return order => [order].filter( item => item.workpoint.id==1 || item.workpoint.id==2 || item.workpoint.id==16 );
+      },
+      getValidateSounds() {
+        return order => this.$store.getters["Requisitions/getIDX"](order);
+      },
+      appsounds() {
+        return this.$store.getters["Multimediapp/sounds"];
+      },
+      workin() {
+        return this.$store.getters["Account/workin"];
+      },
+      socketroom() {
+        return this.profile.me._rol <= 3 ? "admin" : "orders";
+      },
+      profile() {
+        return this.$store.getters["Account/profile"];
+      },
+      layout() {
+        return this.$store.state.Requisitions.layout;
+      },
+      dashAccess(){
+        let workpoint = JSON.parse(localStorage.getItem("workin"));
+        // console.log(workpoint);
+        return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
+      },
+      checkPermissions() {
+        let workpoint = JSON.parse(localStorage.getItem("workin"));
+        let done = [1, 2, 16, 18, 13];
+        // console.log(workpoint.workpoint.id)
+        return done.includes(workpoint.workpoint.id) ? true : false;
+      }
     }
-  },
-  beforeDestroy() {
-    console.log(
-      "%cDesconectando de resurtido...",
-      "background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"
-    );
-    this.rsocket.emit("unjoin", {
-      profile: this.profile,
-      workpoint: this.workin.workpoint,
-      room: "main"
-    });
-    this.rsocket.off();
-  },
-  computed: {
-    timeToday() {
-      return ranges => this.$moment().format("YYYY-MM-DD") === ranges;
-    },
-    cedisValidate() {
-      // return this.workin;
-      return order =>
-        [order].filter(
-          item =>
-            item.workpoint.id == 1 ||
-            item.workpoint.id == 2 ||
-            item.workpoint.id == 16
-        );
-    },
-    getValidateSounds() {
-      return order => this.$store.getters["Requisitions/getIDX"](order);
-    },
-    appsounds() {
-      return this.$store.getters["Multimediapp/sounds"];
-    },
-    workin() {
-      return this.$store.getters["Account/workin"];
-    },
-    socketroom() {
-      return this.profile.me._rol <= 3 ? "admin" : "orders";
-    },
-    profile() {
-      return this.$store.getters["Account/profile"];
-    },
-    layout() {
-      return this.$store.state.Requisitions.layout;
-    },
-    dashAccess(){
-      let workpoint = JSON.parse(localStorage.getItem("workin"));
-      // console.log(workpoint);
-      return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
-    },
-    checkPermissions() {
-      let workpoint = JSON.parse(localStorage.getItem("workin"));
-      let done = [1, 2, 16, 18, 13];
-      // console.log(workpoint.workpoint.id)
-      return done.includes(workpoint.workpoint.id) ? true : false;
-    }
-  }
-};
+  };
 </script>
 
 <style lang="scss">
-.text--2 {
-  font-size: 0.8em !important;
-}
+  .text--2{ font-size: 0.8em !important; }
 </style>
