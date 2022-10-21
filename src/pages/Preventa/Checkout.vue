@@ -44,7 +44,7 @@
 								<div class="text--2 text-grey-5">{{humantime(props.row.updated_at)}}</div>
 							</q-td>
 							<q-td key="createdby" align="center">
-								<div><q-img src="~/assets/_usdeft.png" width="20px" height="20px" class="imguser2"/></div>
+								<div><q-img src="~/assets/_usdeftchris.png" width="20px" height="20px" class="imguser2"/></div>
 								<div class="text--1">{{props.row.created_by.nick}}</div>
 							</q-td>
 						</q-tr>
@@ -56,15 +56,15 @@
 
 		<q-dialog v-model="wndInit.state" class="exo" position="bottom">
 			<q-btn-group spread class="exo">
-				<q-btn color="primary" label="Iniciar Checkout" 
+				<q-btn color="primary" label="Iniciar Checkout"
 					icon="fas fa-check"
 					@click="initCheckout"
-					autofocus stack no-caps 
+					autofocus stack no-caps
 					class="q-py-md"
 				/>
-				<q-btn color="negative" label="Archivar Pedido" 
+				<q-btn color="negative" label="Archivar Pedido"
 					icon="fas fa-archive"
-					autofocus stack no-caps 
+					autofocus stack no-caps
 				/>
 			</q-btn-group>
 		</q-dialog>
@@ -111,7 +111,7 @@ export default {
 			if(id){
 				order = this.orders.find(ord => ord.id == id);
 				sfolio = id;
-			}else{		
+			}else{
 				order = this.orders.find( ord => ord.id == this.tableorders.filtrator );
 				sfolio = this.tableorders.filtrator;//folio buscado
 			}
@@ -167,7 +167,7 @@ export default {
 		profile(){ return this.$store.getters['Account/profile'];},
 		workin(){ return this.$store.getters['Account/workin'];},
 		filltkt(){
-			return id => { 
+			return id => {
 				let rounds = 4;
 				let len = id.toString().length;
 				let fill = '';
@@ -176,8 +176,8 @@ export default {
 				return `${fill}${id}`;
 			}
 		},
-		humantime(){ return time =>{ 
-				let now = Date.now(); 
+		humantime(){ return time =>{
+				let now = Date.now();
 				let timecalc = Date.parse(time);
 				let diff = date.getDateDiff(now, timecalc, 'days');
 

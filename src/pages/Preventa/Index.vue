@@ -39,7 +39,7 @@
 								<div class="text--2">{{props.row.status.name}}</div>
 							</q-td>
 							<q-td key="createdby" align="center">
-								<div><q-img src="~/assets/_usdeft.png" width="20px" height="20px" class="imguser2"/></div>
+								<div><q-img src="~/assets/_usdeftchris.png" width="20px" height="20px" class="imguser2"/></div>
 								<div class="text--1">{{props.row.created_by.nick}}</div>
 							</q-td>
 						</q-tr>
@@ -78,7 +78,7 @@
 						<q-tr>
 							<q-td key="nick">
 								<div class="row items-center overflow-hidden">
-									<q-img src="~/assets/_usdeft.png" width="40px" height="40px" :class="props.row.socket?'useron':'useroff'"/>
+									<q-img src="~/assets/_usdeftchris.png" width="40px" height="40px" :class="props.row.socket?'useron':'useroff'"/>
 									<div class="q-pl-md">
 										<div>{{props.row.profile.nick}}</div>
 										<div class="text--2 row items-center" :class="props.row.salesib ? 'text-light-blue-3':'text-grey-6'">
@@ -164,7 +164,7 @@ export default {
 		orders(){ return this.$store.state.Preventa.orders; },
 		agents_orders(){ return this.$store.getters['Preventa/agents_orders']; },
 		filltkt(){
-			return id => { 
+			return id => {
 				let rounds = 4;
 				let len = id.toString().length;
 				let fill = '';

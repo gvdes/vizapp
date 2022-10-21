@@ -12,15 +12,21 @@
 
 				<q-card flat class="bg-none q-pa-md" style="min-width:300px;" v-if="workIn.workpoint">
 					<div class="row items-center justify-center">
-						<q-img src="~/src/assets/867875.png" spinner-color="white" style="height: 140px; max-width: 140px"/>
+						<q-img src="~/src/assets/chris1.png" spinner-color="white" style="height: 140px; max-width: 140px"/>
 					</div>
 
 					<div class="text-center">
 						<div class="text-h4 q-py-sm"> <span>Hola </span><span :class="vsocket.connected ? 'text-green-13':''">{{ session.me.nick }}</span></div>
 						<div class="q-mb-md">¿por donde iniciamos?</div>
 					</div>
-					
-					<q-card class="bg-whitetrans" :class="{'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
+
+          <q-card class="bg-whitetrans cursor-pointer" @click="wndGuide=true">
+            <q-card-section class="text-center">
+              <q-icon name="img:serie.png" size="30px"/> Guia de luces
+            </q-card-section>
+          </q-card>
+
+					<q-card class="bg-whitetrans q-mt-md" :class="{'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
 						<q-card-section>
 							<div class="text-grey-6">Punto de Trabajo:</div>
 							<div>{{ workIn.workpoint.name }}</div>
@@ -40,11 +46,15 @@
 				</q-card>
 			</q-page>
 
+      <q-dialog v-model="wndGuide">
+        <LGuide />
+      </q-dialog>
+
 			<q-dialog
-				v-model="wndSetWorkpoint.state" 
+				v-model="wndSetWorkpoint.state"
 				:maximized="ismobile"
 				transition-show="slide-up"
-      			transition-hide="slide-down"
+      	transition-hide="slide-down"
 			>
 				<q-layout view="Lhh lpR fff" container class="bg-darkl0 exo" v-if="workIn.workpoint">
 					<q-header elevated class="bg-darkl1 text-grey-6">
@@ -61,7 +71,7 @@
 										<q-card-section :class="wkp.workpoint.id==workIn.workpoint.id?'text-green-13':''">
 											<div class="text-h5">{{ wkp.workpoint.alias }}</div>
 											<div>{{ wkp.workpoint.name }}</div>
-										</q-card-section> 
+										</q-card-section>
 									</q-card>
 								</div>
 							</div>
@@ -75,7 +85,7 @@
 			</q-dialog>
 
 			<q-dialog
-				v-model="wndSetModule.state" 
+				v-model="wndSetModule.state"
 				:maximized="ismobile"
 				transition-show="slide-up"
       			transition-hide="slide-down">
@@ -95,7 +105,7 @@
 									<q-card bordered flat class="bg-darkl1 cursor-pointer" @click="setModule(mdl)">
 										<q-card-section >
 											<div class="text-h5">{{mdl.name}}</div>
-										</q-card-section> 
+										</q-card-section>
 									</q-card>
 								</div>
 							</div>
@@ -114,27 +124,29 @@
 
 <script>
 import apiwkp from '../API/workpoint.js'
+import LGuide from "src/components/Guide.vue";
 export default {
-	// name: 'LayoutName',
+  components: { LGuide },
 	data () {
-		return { 
+		return {
 			vsocket:null,
 			workIn:{workpoint:undefined,module:undefined},
 			modules:undefined,
 			wndSetWorkpoint:{state:false},
 			wndSetModule:{state:false},
-			printers:undefined
+			printers:undefined,
+      wndGuide:false
 		}
 	},
 	async beforeMount(){
 		localStorage.removeItem("dbranges");
 		this.vsocket = this.$vSocket;
 		console.log(this.$vizapi.defaults.headers.common['Authorization']);
-		
+
 
 		// por default selecciona el workpoint base
 		this.workIn.workpoint = this.session.workpoint;
-		
+
 		//p acceso a un solo punto de trabajo
 		if(this.workpoints.length==1){
 			// console.log("%cAcceso a un solo workpoint, listando modulos disponibles","color:gold;font-size:1.3em;");
@@ -157,7 +169,7 @@ export default {
 				console.log("%cAcceso a un solo modulo, autoseleccionar","color:gold;font-size:1.3em;");
 				console.log(this.modules);
 				this.workIn.module=this.modules[0];
-			}else if(this.modules.length>1){ 
+			}else if(this.modules.length>1){
 				console.log("%cAcceso a mas de un modulo","color:gold;font-size:1.3em;");
 			}
 		}

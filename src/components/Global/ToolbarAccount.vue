@@ -9,8 +9,11 @@
             <span>{{title}}</span>
         </span>
         <span class="text-right">
+          <q-btn @click="wndGuide=true" round outline color="grey-8" class="q-mr-sm">
+                <q-icon name="img:serie.png" size="30px"/>
+              </q-btn>
             <q-btn rounded dense :color="sockstate?'green-13':''">
-                <q-img src="~/src/assets/1049387.png" spinner-color="white" style="height: 30px; width: 30px"/>
+                <q-img src="~/src/assets/user1.png" spinner-color="white" style="height: 30px; width: 30px"/>
 
                 <q-menu dark
                     transition-show="flip-right"
@@ -30,13 +33,22 @@
                 </q-menu>
             </q-btn>
         </span>
+
+        <q-dialog v-model="wndGuide"> <LGuide /> </q-dialog>
     </q-toolbar>
 </template>
 
 <script>
+    import LGuide from "src/components/Guide.vue";
     export default{
         name: 'ToolbarAccount',
-        props:{ 
+        components: { LGuide },
+        data() {
+          return {
+            wndGuide:false
+          }
+        },
+        props:{
             title:{type:String, default:''},
             iconlauncher:{ type:Boolean, default:true },
             sockstate:{ type:Boolean, default:false },
