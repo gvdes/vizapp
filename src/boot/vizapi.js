@@ -5,14 +5,14 @@ import axios from 'axios'
 // const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/public';
 // const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/files';
 
-// const URLBackend = 'http://192.168.12.183/vizapi/public/';
-// const URLFiles = 'http://192.168.12.183/vizapi/files/';
+const URLBackend = 'http://192.168.12.183/vizapi/public/';
+const URLFiles = 'http://192.168.12.183/vizapi/files/';
 
 // const URLBackend = 'http://192.168.1.65/vizapi/public/';
 // const URLFiles = 'http://192.168.1.65/vizapi/files/';
 
-const URLBackend = 'http://192.168.10.15/vizapi/public/';
-const URLFiles = 'http://192.168.10.15/vizapi/files/';
+// const URLBackend = 'http://192.168.10.15/vizapi/public/';
+// const URLFiles = 'http://192.168.10.15/vizapi/files/';
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
 // const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/public';
