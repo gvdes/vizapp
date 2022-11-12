@@ -13,6 +13,7 @@ export default function () {
 			download: new Audio("sounds/download.mp3"),
 			download_label: new Audio("sounds/download_label.mp3"),
 			supply: new Audio("sounds/success01.mp3"),
+			pop: new Audio("sounds/pop1.mp3"),
 		},
 	}
 }

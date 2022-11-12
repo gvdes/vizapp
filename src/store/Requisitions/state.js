@@ -1,7 +1,7 @@
 export default function() {
   return {
-    orders: [],
-    orders_in:[],
+    orders: [], // pedidos que el usuairo levanta
+    orders_in:[], // pedidos que las tiendas levantan
     printers:[],
     process: [],
     today: false,

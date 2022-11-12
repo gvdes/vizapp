@@ -90,15 +90,16 @@
 
         let data = { params: dbranges };
         this.index = await RequisitionsDB.index();
-        this.$store.commit("Requisitions/startState", this.index);
+        this.$store.commit("Requisitions/startState", this.index); // pedidos que el usuairo levanta
         console.log("%cLayout Loaded!!","font-size:2em;color:yellow;font-weight:bold;");
         console.log(this.index);
 
         if(this.dashAccess){
           console.log("USUARIO CON ACCESO AL DASHBOARD, OBTENIENDO PEDIDOS");
           let ordersreq = await RequisitionsDB.dashboard(data);
+          console.log("%cRequisitions Dashboard loaded!","font-size:2em;color:brown;font-weight:bold;");
+          this.$store.commit("Requisitions/setOrdersIn",ordersreq.requisitions); // son los pedidos que las tiendas levantan
           console.log(ordersreq.requisitions);
-          this.$store.commit("Requisitions/setOrdersIn",ordersreq.requisitions);
         }
 
         // if (this.checkPermissions) {
@@ -149,13 +150,10 @@
 
         console.log(`%c${by.nick} esta creando la orden ${order.id}`, "background:#303952;color:#e66767;border-radius:10px;padding:8px;" );
 
-        let isNewOrder = (data.order.status.id==1 && !this.getValidateSounds(data.order)); // define si es una orden nueva, o ya existe en el store de requisitions
+        let isNewOrder = (data.order.status.id==2 && !this.getValidateSounds(data.order)); // define si es una orden nueva, o ya existe en el store de requisitions
         let imACedis = cedises.includes(this.workin.workpoint.id);
 
-        console.log(imACedis ? "Soy un CEDIS":"Soy una TIENDA");
-        console.log("Orden nueva? : "+isNewOrder);
-
-        isNewOrder ? this.appsounds.ok.play() : null;
+        isNewOrder ? this.appsounds.ok.play() : this.appsounds.pop.play();
 
         if(data.order.from.id == this.workin.workpoint.id){
           console.log("Es una orden de mi misma tienda");
@@ -167,31 +165,18 @@
       },
       sktChangeState(data) {
         console.log(data);
-        let newState = {
-          state: data.state,
-          log: data.log
-        };
+        let newState = { state:data.state, log:data.log };
         let order = data.order;
         order.log = data.log;
         order.status = data.state;
         console.log(data.order.from.id);
         console.log(data.from.workpoint.id);
         // console.log(this.getValidateSounds(data.order));
-        console.log(
-          data.state.id <= 9 && data.order.from.id == data.from.workpoint.id
-        );
-        data.state.id == 10 && this.getValidateSounds(data.order) != -1
-          ? this.appsounds.ok.play()
-          : null;
-        data.state.id == 2 && this.getValidateSounds(data.order) != -1
-          ? this.appsounds.created.play()
-          : null;
-        // data.state.id <= 9 && this.getValidateSounds(data.order) != -1 ? this.appsounds.moved.play() : "";
-        if (
-          data.state.id >= 3 &&
-          data.state.id <= 9 &&
-          this.getValidateSounds(data.order) != -1
-        ) {
+        console.log( data.state.id<=9 && data.order.from.id==data.from.workpoint.id );
+        (data.state.id == 10 && this.getValidateSounds(data.order) != -1) ? this.appsounds.ok.play() : null;
+        (data.state.id == 2 && this.getValidateSounds(data.order) != -1) ? this.appsounds.created.play() : null;
+
+        if ( (data.state.id>=3 && data.state.id<=9 && this.getValidateSounds(data.order) != -1) ) {
           this.appsounds.added.play();
           this.$q.notify({
             message: `La Orden ${data.order.id} ha cambiado su estatus a ${data.state.name}.`,
@@ -200,28 +185,19 @@
             position: "top-right"
           });
         }
-        console.log(
-          `%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,
-          "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
-        );
+        console.log(`%cLa orden ${data.order.id} cambio su status a ${data.state.name}`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;" );
         this.$store.commit("Requisitions/updateState", { order, newState });
       },
       sktUpdateOrd(data) {
         console.log(data);
         if (data.product == null) {
           let order = data.order;
-          console.log(
-            `%cLa orden ${order.id} no añadio el producto seleccionado.`,
-            "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
-          );
+          console.log(`%cLa orden ${order.id} no añadio el producto seleccionado.`, "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
         } else {
           let order = data.order;
           let product = data.product;
           let cmd = data.cmd == "remove" ? "removio" : "añadio";
-          console.log(
-            `%cLa orden ${order.id} ${cmd} ${product.description}`,
-            "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;"
-          );
+          console.log(`%cLa orden ${order.id} ${cmd} ${product.description}`, "background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
         }
 
         // this.$store.commit("Requisitions/updateState", { order, newState });
@@ -240,39 +216,21 @@
       this.rsocket.off();
     },
     computed: {
-      timeToday() {
-        return ranges => this.$moment().format("YYYY-MM-DD") === ranges;
-      },
-      cedisValidate() {
-        return order => [order].filter( item => item.workpoint.id==1 || item.workpoint.id==2 || item.workpoint.id==16 );
-      },
-      getValidateSounds() {
-        return order => this.$store.getters["Requisitions/getIDX"](order);
-      },
-      appsounds() {
-        return this.$store.getters["Multimediapp/sounds"];
-      },
-      workin() {
-        return this.$store.getters["Account/workin"];
-      },
-      socketroom() {
-        return this.profile.me._rol <= 3 ? "admin" : "orders";
-      },
-      profile() {
-        return this.$store.getters["Account/profile"];
-      },
-      layout() {
-        return this.$store.state.Requisitions.layout;
-      },
+      timeToday() { return ranges => this.$moment().format("YYYY-MM-DD") === ranges; },
+      cedisValidate() { return order => [order].filter( item => item.workpoint.id==1 || item.workpoint.id==2 || item.workpoint.id==16 ); },
+      getValidateSounds() { return order => this.$store.getters["Requisitions/getIDX"](order); },
+      appsounds() { return this.$store.getters["Multimediapp/sounds"]; },
+      workin() { return this.$store.getters["Account/workin"]; },
+      socketroom() { return this.profile.me._rol <= 3 ? "admin" : "orders"; },
+      profile() { return this.$store.getters["Account/profile"]; },
+      layout() { return this.$store.state.Requisitions.layout; },
       dashAccess(){
         let workpoint = JSON.parse(localStorage.getItem("workin"));
-        // console.log(workpoint);
         return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
       },
       checkPermissions() {
         let workpoint = JSON.parse(localStorage.getItem("workin"));
         let done = [1, 2, 16, 18, 13];
-        // console.log(workpoint.workpoint.id)
         return done.includes(workpoint.workpoint.id) ? true : false;
       }
     }

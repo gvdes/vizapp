@@ -20,16 +20,12 @@ export function printed(state, order) {
 }
 
 export function updateState(state, { order, newState }) {
-    console.log(newState);
-    console.log(`Buscando orden ${order.id} para actualizarla...`);
-
-    let idx = state.orders.findIndex(ord => order.id == ord.id);
-    console.log(idx);
+    let idx = state.orders_in.findIndex(ord => order.id == ord.id);
 
     if (idx != -1) {
-        state.orders[idx].status = newState.state;
-        state.orders[idx].log = newState.log;
-        state.orders[idx].products = order.products;
+        state.orders_in[idx].status = newState.state;
+        state.orders_in[idx].log = newState.log;
+        state.orders_in[idx].products = order.products;
     }
 
     // state.orders[idx].log = newStateLog;

@@ -30,21 +30,14 @@
             <div class="text-bold">{{ setupToolbar.verify }}</div>
           </div>
         </div>
-        <q-btn
-          v-if="_getorders&&_getorders.status.id <= 2"
-          flat
-          icon="menu"
-          @click="ldrawer.state = !ldrawer.state"
-        />
+        <q-btn v-if="_getorders&&_getorders.status.id <= 2" flat icon="menu" @click="ldrawer.state = !ldrawer.state" />
       </div>
       <div class="row items-center justify-between q-mt-sm">
         <div class="row text-center">
           <div class="q-px-md">
             <div class="text--2">Modelos</div>
             <span class="text-green-13 text-bold">
-              {{
-              bucketToolbar.length
-              }}
+              {{ bucketToolbar.length }}
             </span>
           </div>
 
@@ -144,7 +137,7 @@
     </q-drawer>
 
     <div class="q-mb-xl q-mt-sm">
-      <!-- {{_getorders.status}} -->
+      <!-- <pre class="text-white" style="border: 4px solid yellow"> {{ this.order ? this.order.log : "NADA de LOG" }} </pre> -->
       <div class="col-md-4 col-xs-8 q-mb-sm" style="max-width: 300px" v-if="__basket.length">
           <q-input
             dense
@@ -160,9 +153,7 @@
           </q-input>
       </div>
       <q-table
-        grid
-        flat
-        dark
+        grid flat dark
         row-key="id"
         :columns="tableproducts.columns"
         :data.sync="filterAvailable"
@@ -340,7 +331,7 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" icon="close" color="red-5" v-close-popup />
-          <q-btn flat label="Terminar" icon="done" color="green-13" @click="changeState()" />
+          <q-btn flat label="Terminar" icon="done" color="green-13" @click="changeState()"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -578,28 +569,25 @@
       </q-card>
     </q-dialog>
 
-    <q-footer class="bg-darkl1 text-white" elevated v-if="order">
+    <q-footer class="bg-darkl1 text-white" elevated v-if="order&&isThisStore">
       <div class="q-pa-xs row justify-center items-center" v-show="stateDelete">
+        <!-- Muestra el boton de descargar el pedido -->
         <template v-if="order.products.length != 0">
           <div>
             <q-btn
-              class="no-shadow"
-              flat
+              class="no-shadow" flat color="green-13"
               @click="flagPrompt = !flagPrompt"
-              color="green-13"
-              icon="fas fa-download"
-            />
+              icon="fas fa-download" />
           </div>
         </template>
-        <template v-if="_getorders&&_getorders.status.id == 1">
+
+        <!-- Estatus de la orden == 1 -->
+        <!-- <template v-if="_getorders&&_getorders.status.id == 1"> -->
+        <template v-if="this.orderState && this.orderState==1">
           <div>
             <q-btn
-              dense
-              class="q-mr-sm no-shadow"
-              flat
-              @click="
-                wndSelectSupply.wndDialogState = !wndSelectSupply.wndDialogState
-              "
+              dense class="q-mr-sm no-shadow" flat
+              @click="wndSelectSupply.wndDialogState = !wndSelectSupply.wndDialogState"
               color="green-13"
               icon="fas fa-upload"
             />
@@ -619,10 +607,8 @@
           </div>
           <div class="text-right">
             <q-btn
-              dense
+              dense flat color="green-13"
               v-show="products.length"
-              flat
-              color="green-13"
               icon="fas fa-arrow-right"
               @click="stateDone = !stateDone"
               :disable="nextstep.state"
@@ -638,7 +624,8 @@
             />
           </div>
         </template>
-        <template v-else-if="_getorders&&_getorders.status.id == 7">
+
+        <template v-else-if="this.orderState && this.orderState==7">
           <!-- El pedido esta en camino -->
           <template v-if="!tostock.state">
             <span class="text-grey-4 q-pl-md">{{_getorders&&_getorders.status.name }}</span>
@@ -666,15 +653,15 @@
             </span>
           </template>
         </template>
+
         <template v-else>
           <!-- El pedido puede mostrar el log -->
           <span class="text-grey-4 q-pl-md">{{ _getorders&&_getorders.status.name }}</span>
           <q-btn flat color="green-13" icon="history" @click="showLog" />
         </template>
+
         <q-btn
-          icon="print"
-          flat
-          dense
+          icon="print" flat dense
           v-if="_getorders&&_getorders.status.id >= 2"
           color="green-13"
           @click="reprint"
@@ -737,7 +724,7 @@ export default {
         { label: "piezas", value: 2 }
       ],
       products: [],
-      order: undefined,
+      order: null,
       iptsearch: {
         value: "",
         processing: false,
@@ -875,20 +862,22 @@ export default {
       ]
     };
   },
-  beforeDestroy() {
-    this.$store.commit("Layout/showToolbarModule");
-  },
-  async mounted() {
+  beforeDestroy() { this.$store.commit("Layout/showToolbarModule"); },
+  async beforeMount(){
     this.$store.commit("Requisitions/setHeaderState", false);
     this.$store.commit("Requisitions/setFooterState", false);
 
     this.params.id = this.$route.params.id;
     this.params.data = this.$route.params;
-    // console.log(this.owner);
-    this.$store.commit("Layout/hideToolbarModule");
-    this.$q.loading.show({ message: "..." });
+
+    console.log("Pedido: "+this.params.id,this.params.data);
+    console.log(this.owner);
+    // this.$store.commit("Layout/hideToolbarModule");
+    // this.$q.loading.show({ message: "..." });
     this.order = await dbreqs.find(this.params.id);
+    console.log(this.order);
     this.products = this.order.products;
+
     this.flagArchive = this.order.status.id <= 2 ? true : false;
     // this.stateOrder = this._getorders.status.id == 1 ? true : false;
     // console.log(this._getorders);
@@ -902,6 +891,9 @@ export default {
     this.setupToolbar.verify = this.order.id;
     this.alias = this.workin.workpoint.alias;
     this.saveNameExport = `${this.alias}_${this.setupToolbar.verify}_RES`;
+  },
+  async mounted() {
+
   },
   methods: {
     sktOrderHere(data) {
@@ -964,14 +956,18 @@ export default {
       }
     },
     changeState(_atstate = null) {
+
+      // console.log("%cEntraste","font-size:2em;color:blue;");
+
       this.stateDone = this.order.status.id == 9 ? !this.stateDone : false;// si el status es VALIDANDO RECEPCION
-      let atstate = _atstate ? _atstate : parseInt(this.order.status.id) + 1;
+      console.log(this.stateDone);
+      let atstate = _atstate ? _atstate : parseInt(this.orderState) + 1;
       console.log(`Current state: ${this.order.status.id} => Nex State: ${atstate}`);
       let data = { id: this.params.id, _status: atstate };
       console.log("Sending... ",data);
       let message = "";// mensaje a mostrar en la ventana modal (QDialog)
       let newstatus = { id: atstate, name: undefined }; // prepara el arreglo de los datos que se mostraran en la ventana modal (nombre d ID del siguiente status)
-      this.$q.loading.show({ message: "Enviando orden, favor de esperar..." });
+      this.$q.loading.show({ message: "Pereparando pedido..." });
       switch (atstate) {
         case 2:
           console.log("Moviendo a por surtir");
@@ -987,27 +983,23 @@ export default {
       }
 
       dbreqs.nextstep(data).then(success => {
-        console.log(success.data);
-        console.log( "%cEl pedido ha cambiado de status...", "font-size:1.5em;color:yellow;");
+        console.log("%cEl pedido ha cambiado de status...", "font-size:1.5em;color:yellow;");
         console.log(success.data);
         let resp = success.data.updates;
-        let newState = [];
-        let newStateSend = undefined;
-        newStateSend = resp.status;
-        console.log(this._getorders.log);
-        newState = this._getorders.log.concat(resp.log);
-        console.log(newStateSend, newState);
-        this.$q.loading.hide();
+        let newLog = resp.log;
+        let newState = resp.status;
+        console.log(newLog, newState);
+        console.log(this._getorders);
+        this.order.status = newState;
+        this.order.log.push(newLog);
 
-        this.$q.notify({
-          color: "positive",
-          icon: "done",
-          position: "center"
-        });
+        this.$q.loading.hide();
+        this.$q.notify({ color:"positive", icon:"done", position:"center" });
         // atstate != 10 ? this.appsounds.moved.play() : "";
+
         this.rsocket.emit("order_changestate", {
-          state: newStateSend,
-          log: newState,
+          state: newState,
+          log: this.order.log,
           user: this.profile,
           from: this.workin,
           order: this.order,
@@ -1173,35 +1165,30 @@ export default {
         data._supply_by = params.metsupply.id;
         // product.status = params.product.status;
 
-        this.$q.loading.show({ message: "Enviando archivo, espera..." });
+        this.$q.loading.show({ message: "Agregando..." });
 
         dbreqs
           .add(data)
           .then(success => {
             let resp = success.data;
             console.log(resp);
-            let artidx = this.products.findIndex(item => {
-              return resp.id == item.id;
-            });
+            let artidx = this.products.findIndex( item => resp.id == item.id );
             let sktproduct = null;
             let cmd = null;
             this.$q.loading.hide();
             console.log(artidx);
+
             if (artidx >= 0) {
-              // el articulo fue editado
               console.log("Articulo editado");
-              // let _product = this.products[artidx];
+
               sktproduct = this.products[artidx];
-              this.products[
-                artidx
-              ].ordered._supply_by = this.wndSetItem.metsupply.id;
+              this.products[artidx].ordered._supply_by = this.wndSetItem.metsupply.id;
               this.products[artidx].ordered.amount = this.wndSetItem.amount;
               this.products[artidx].ordered.comments = this.wndSetItem.notes;
               cmd = "edit";
               this.flagDuplicate = false;
             } else {
               console.log("Articulo agregado");
-              // console.log(product.prices);
               let _prices = { prices: product.prices };
               if (resp.success == false) {
                 this.messageDuplicate = `El producto ${this.wndSetItem.art.description} con código ${this.wndSetItem.art.code} no tiene costo.`;
@@ -1229,9 +1216,7 @@ export default {
               product: sktproduct
             });
           })
-          .catch(fail => {
-            console.log(fail);
-          });
+          .catch(fail => { console.log(fail); });
     //   }
     },
     async selItem(opt, id) {
@@ -1513,9 +1498,14 @@ export default {
     }
   },
   computed: {
+    appsounds() { return this.$store.getters["Multimediapp/sounds"]; },
+    profile() { return this.$store.getters["Account/profile"]; },
+    workin() { return this.$store.getters["Account/workin"]; },
+    isThisStore(){ return this.order ? this.order.from.id == this.workin.workpoint.id : null; }, // es un pedido de esta tienda ?...
+    orderState(){ return this.order ? this.order.status.id : null; },
     _getorders() {
       return this.$store.getters["Requisitions/getOrders"]
-        ? this.$store.getters["Requisitions/getOrders"].find( idx => idx.id==this.params.id ) : null;
+        ? this.$store.getters["Requisitions/getOrders"].find( ord => ord.id==this.params.id ) : null;
     },
     filterAvailable() {
       switch (this.selectAvailable.value) {
@@ -1527,9 +1517,7 @@ export default {
           return this.__basket;
       }
     },
-    getState() {
-      return articles => (articles == -1 ? true : false);
-    },
+    getState() { return articles => (articles == -1 ? true : false); },
     __basket() {
       /**
        * DEFINIR PRODUCTOS
@@ -1662,18 +1650,7 @@ export default {
         return newMetSupply;
       };
     },
-    appsounds() {
-      return this.$store.getters["Multimediapp/sounds"];
-    },
-    profile() {
-      return this.$store.getters["Account/profile"];
-    },
-    workin() {
-      return this.$store.getters["Account/workin"];
-    },
-    socketroom() {
-      return `${this.workin.workpoint.alias}`;
-    },
+    socketroom() { return `${this.workin.workpoint.alias}`; },
     bucketToolbar() {
       // console.log(this.products);
       return this.products.map(item => {
@@ -1750,11 +1727,7 @@ export default {
         }
       };
     },
-    owner() {
-      return this.order
-        ? this.order.created_by._rol == this.profile.me._rol
-        : false;
-    },
+    owner() { return this.order ? this.order.created_by._rol == this.profile.me._rol : false},
     isduplicate() {
       return code => {
         return (
