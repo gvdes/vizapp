@@ -1,13 +1,13 @@
 <template>
 	<q-page padding>
 		<div class="text-center q-pt-md">
-			<input type="number" :class="psocket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model" 
+			<input type="number" :class="psocket.connected?'son':'soff'" ref="ipt_search" v-model="iptsearch.model"
 				@keypress.enter="search"
 				autocomplete="off"
 				id="ipt_search"
 				:disabled="searching"
 			/>
-			<div :class="checkinstate ? 'text-green-13 text-italic':'text--1 text-grey-6'" class="q-pt-sm">Servicio {{checkinstate ?'Encendido':'Apagado'}}</div>			
+			<div :class="checkinstate ? 'text-green-13 text-italic':'text--2 text-grey-6'" class="q-pt-sm">Servicio {{checkinstate ?'en linea':'Apagado'}}</div>
 
 			<div class="q-pt-lg">
 				<!-- <div class="q-pa-md">Pedidos por llegar: <span class="text-h6 text-white">{{orders.length}}</span></div> -->
@@ -18,7 +18,7 @@
 						</q-card-section>
 					</q-card>
 				</div>
-			</div> 
+			</div>
 		</div>
 	</q-page>
 </template>

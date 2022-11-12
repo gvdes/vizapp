@@ -17,7 +17,7 @@
 
 					<div class="text-center">
 						<div class="text-h4 q-py-sm"> <span>Hola </span><span :class="vsocket.connected ? 'text-green-13':''">{{ session.me.nick }}</span></div>
-						<div class="q-mb-md">¿por donde iniciamos?</div>
+						<div class="q-mb-md">comencemos ...</div>
 					</div>
 
           <q-card class="bg-whitetrans cursor-pointer" @click="wndGuide=true">
