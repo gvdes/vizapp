@@ -7,7 +7,7 @@
 				<q-card-section>
 					<ProductAutocomplete @input="selectedProd" :check-state="false" :workpoint-status="[1,2]" :val-state-cedis="1" />
 				</q-card-section>
-			</q-card>		
+			</q-card>
 		</q-header>
 
 		<div class="QuickRegular text-white q-pt-sm" v-if="product">
@@ -59,6 +59,15 @@
 						</q-card>
 					</div>
 				</template>
+
+        <div class="q-mt-md q-pt-md row items-center justify-around" v-if="storeExtensions.length">
+          <q-card v-for="(ext,idx) in storeExtensions" :key="idx" dark class="bg-darkl2">
+            <q-card-section>
+              <div class="text-overline">{{ext.name}}</div>
+							<div>Stock: {{ext.stock}}</div>
+            </q-card-section>
+          </q-card>
+        </div>
 			</q-card>
 		</div>
     </q-page>
@@ -74,12 +83,12 @@ export default{
 	components:{ ProductAutocomplete, HeaderApp },
     data(){
         return {
-			listStates:null,
-			product:undefined,
-			state:undefined,
-			cmin:undefined,
-			cmax:undefined,
-			showSave:false
+          listStates:null,
+          product:undefined,
+          state:undefined,
+          cmin:undefined,
+          cmax:undefined,
+          showSave:false
         }
 	},
 	async mounted() {
@@ -142,12 +151,24 @@ export default{
 		},
     },
     computed:{
-		ismobile(){ return this.$q.platform.is.mobile; },
-		profile(){ return this.$store.getters['Account/profile']; },
-		workin(){ return this.$store.getters['Account/workin']; },
-		wkpData(){ return this.product ? this.product.stocks.find( b => this.workin.workpoint.id == b._workpoint) : undefined; },
-		stocksWkps(){ return this.product ? this.product.stocks.filter( b => this.workin.workpoint.id != b._workpoint) : undefined; },
-		optionStates(){ return this.listStates ? this.listStates.filter( s => s.id<=3||s.id==6) : []; }
-    }
+      ismobile(){ return this.$q.platform.is.mobile; },
+      profile(){ return this.$store.getters['Account/profile']; },
+      workin(){ return this.$store.getters['Account/workin']; },
+      wkpData(){ return this.product ? this.product.stocks.find( b => this.workin.workpoint.id == b._workpoint) : undefined; },
+      stocksWkps(){ return this.product ? this.product.stocks.filter( b => this.workin.workpoint.id != b._workpoint) : undefined; },
+      optionStates(){ return this.listStates ? this.listStates.filter( s => s.id<=3||s.id==6) : []; },
+      storeExtensions(){
+        if(this.product){
+          let exts = this.product.stocks.find( s => s._workpoint=1);
+
+          return exts ?
+            [
+              { name:"Vallejo 236", stock: exts.V23 },
+              { name:"Los Reyes", stock: exts.LRY },
+              { name:"Santa Clara", stock: exts.STC },
+            ] : [];
+        } return [];
+      }
+    },
 }
 </script>
