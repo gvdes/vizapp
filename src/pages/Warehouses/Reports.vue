@@ -20,61 +20,67 @@
 		<div v-else class="q-py-xl text-center text-green-13">
 			Calculando, porfavor espera...
 		</div>
+
+    <div class="q-pt-md">
+      <ProductSales />
+    </div>
     </q-page>
 </template>
 
 <script>
 import ToolbarAccount from '../../components/Global/ToolbarAccount.vue'
 import warehousesdb from '../../API/warehouses'
+import ProductSales from 'src/components/ProductsSales.vue';
+
 export default {
+  components:{ ToolbarAccount:ToolbarAccount, ProductSales },
     data() {
         return {
             stats:null,
-			clases:{
-				1:"text-h4 text-left text-light-blue-13",
-				2:"text-h4 text-left text-green-13",
-				3:"text-h4 text-left text-green-13",
-				4:"text-h4 text-left text-orange-14",
-				5:"text-h4 text-left text-orange-14",
-				6:"text-h4 text-left text-orange-14",
-				7:"text-h4 text-left text-pink-14",
-				8:"text-h4 text-left text-pink-14",
-				9:"text-h4 text-left text-pink-14",
-				10:"text-h4 text-left text-pink-14",
-				11:"text-h4 text-left text-pink-14",
-				12:"text-h4 text-left text-light-blue-13",
-			}
+            clases:{
+              1:"text-h4 text-left text-light-blue-13",
+              2:"text-h4 text-left text-green-13",
+              3:"text-h4 text-left text-green-13",
+              4:"text-h4 text-left text-orange-14",
+              5:"text-h4 text-left text-orange-14",
+              6:"text-h4 text-left text-orange-14",
+              7:"text-h4 text-left text-pink-14",
+              8:"text-h4 text-left text-pink-14",
+              9:"text-h4 text-left text-pink-14",
+              10:"text-h4 text-left text-pink-14",
+              11:"text-h4 text-left text-pink-14",
+              12:"text-h4 text-left text-light-blue-13",
+            },
         }
     },
-    components:{ ToolbarAccount:ToolbarAccount },
     async beforeMount(){
 		this.stats = await warehousesdb.index();
 	},
     methods: {
-        genReport(report){
-			this.$vizapi.defaults.responseType = 'blob';//convertir el tipo de retorno a strweam para póderlo descargar
-			let namereport = `${report.description} - ${this.workin.workpoint.alias}`;
-			this.$q.loading.show({message:`Generando reporte (${namereport}), porfavor espera...`});
-			let data = {"_type":report._excel}
-			console.log(data);
-			warehousesdb.report(data).then(success=>{
-				console.log(success);
-				const url = window.URL.createObjectURL(new Blob([success.data]));
-				const link = document.createElement('a');
-				link.href = url;
-				link.setAttribute('download', namereport+".xlsx"); //or any other extension
-				document.body.appendChild(link);
-				link.click();
-				this.$vizapi.defaults.responseType = 'json';//convertir el tipo de retorno a json para todas las peticiones futuras
-				this.$q.loading.hide();
-			}).catch(fail=>{
-				console.log(fail);
-				this.$q.notify({
-					icon:"fas fa-bug", color:"negative",
-					message:"Vaya, algo salio mal "
-				});
-			});
-		}
+      genReport(report){
+        this.$vizapi.defaults.responseType = 'blob';//convertir el tipo de retorno a strweam para póderlo descargar
+        let namereport = `${report.description} - ${this.workin.workpoint.alias}`;
+        this.$q.loading.show({message:`Generando reporte (${namereport}), porfavor espera...`});
+        let data = {"_type":report._excel}
+        console.log(data);
+        warehousesdb.report(data).then(success=>{
+          console.log(success);
+          const url = window.URL.createObjectURL(new Blob([success.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', namereport+".xlsx"); //or any other extension
+          document.body.appendChild(link);
+          link.click();
+          this.$vizapi.defaults.responseType = 'json';//convertir el tipo de retorno a json para todas las peticiones futuras
+          this.$q.loading.hide();
+        }).catch(fail=>{
+          console.log(fail);
+          this.$q.notify({
+            icon:"fas fa-bug", color:"negative",
+            message:"Vaya, algo salio mal "
+          });
+        });
+		  }
     },
 	computed:{
 		reports(){

@@ -162,9 +162,8 @@
                       <div>{{ buildlog(order, "resp") }}</div>
                       <div>
                         <span class="text-white text-bold">
-                          {{
-                          buildlog(order, "time")
-                          }}
+                          <!-- {{ buildlog(order, "time") }} -->
+                          {{ atTime(order) }}
                         </span>
                       </div>
                     </div>
@@ -804,11 +803,11 @@ export default {
     this.dialogOrders ? this.alertOrders() : null;
   },
   methods: {
-    /**
-     * @description Recibe la data del componente 'DeliveryOpt' y la transforma para gestionar los cambios estado.
-     * @param { Object[] } newState - Objeto que recibe la data del componente DeliveryOpt
-     */
     stateDxDiag(newState) {
+      /**
+       * @description Recibe la data del componente 'DeliveryOpt' y la transforma para gestionar los cambios estado.
+       * @param { Object[] } newState - Objeto que recibe la data del componente DeliveryOpt
+       */
       // console.log();
       if (newState._data.id == undefined) {
         this.wndStore.state = newState._state;
@@ -822,14 +821,14 @@ export default {
         this.changeState();
       }
     },
-    /**
-     * Aun no se utiliza.
-     * @description Asigna un valor dependiendo su estado y retorna un objeto.
-     * @param { string } storage - Valor que obtenemos del componente DeliveryOpt
-     * @param { number } step - Valor que obtenemos del componente DeliveryOpt
-     * @returns Object[]
-     */
     setStorage(storage, step) {
+      /**
+       * Aun no se utiliza.
+       * @description Asigna un valor dependiendo su estado y retorna un objeto.
+       * @param { string } storage - Valor que obtenemos del componente DeliveryOpt
+       * @param { number } step - Valor que obtenemos del componente DeliveryOpt
+       * @returns Object[]
+       */
       this.step = step;
       console.log(step);
       step == 3 ? (this.selectWarehouse = storage) : undefined;
@@ -838,12 +837,12 @@ export default {
 
       return this.getObject();
     },
-    /**
-     * Aun no se utiliza.
-     * @description Asigna valor y agrega a un nuevo objeto que retornara del componente DeliveryOpt.
-     * @returns Object[]
-     */
     getObject() {
+      /**
+       * Aun no se utiliza.
+       * @description Asigna valor y agrega a un nuevo objeto que retornara del componente DeliveryOpt.
+       * @returns Object[]
+       */
       let object = {
         store: this.selectWarehouse,
         delivery: this.selectDelivery,
@@ -852,10 +851,10 @@ export default {
       console.log(object);
       return object;
     },
-    /**
-     * @description Función que reimprime un ticket.
-     */
     reprint() {
+      /**
+       * @description Función que reimprime un ticket.
+       */
       console.log("reimprimiendo");
       let data = { _requisition: this.wndLog.order.id };
 
@@ -874,11 +873,11 @@ export default {
           console.log(fail);
         });
     },
-    /**
-     * @description Mostramos el timeline del flujo de surtido a Sucursal.
-     * @param { number } orderid ID de la orden
-     */
     showLog(orderid) {
+      /**
+       * @description Mostramos el timeline del flujo de surtido a Sucursal.
+       * @param { number } orderid ID de la orden
+       */
       console.log(`==============================================`);
       console.log(`===============>> ${orderid} <<===============`);
       console.log(`==============================================`);
@@ -1021,28 +1020,18 @@ export default {
         this.findCards = false;
       }, 3000);
     },
-    appsounds() {
-      return this.$store.getters["Multimediapp/sounds"];
-    },
-    workin() {
-      return this.$store.getters["Account/workin"];
-    },
-    orders() {
-      return this.$store.getters["Requisitions/ordersDash"];
-    },
-    profile() {
-      return this.$store.getters["Account/profile"];
-    },
-    appconnected() {
-      return this.$sktRestock ? this.$sktRestock.connected : false;
-    },
-    /**
-     * @description Nos retorna el Objeto del Actor para el Campo Libre
-     * @param { Object } Orden Order
-     * @param { Object } Objeto_Bodegueros OptDelivery
-     * @param { Number } State Estado de Disponibilidad
-     */
+    appsounds() { return this.$store.getters["Multimediapp/sounds"]; },
+    workin() { return this.$store.getters["Account/workin"]; },
+    orders() { return this.$store.getters["Requisitions/ordersDash"]; },
+    profile() { return this.$store.getters["Account/profile"]; },
+    appconnected() { return this.$sktRestock ? this.$sktRestock.connected : false; },
     structuredDataDelivery() {
+      /**
+       * @description Nos retorna el Objeto del Actor para el Campo Libre
+       * @param { Object } Orden Order
+       * @param { Object } Objeto_Bodegueros OptDelivery
+       * @param { Number } State Estado de Disponibilidad
+       */
       return (order, optDelivery, state) => {
         let date = this.$moment();
         console.log(optDelivery);
@@ -1174,6 +1163,13 @@ export default {
           ? "https://cdn-icons-png.flaticon.com/512/1570/1570717.png"
           : "https://image.flaticon.com/icons/png/512/1674/1674229.png";
       };
+    },
+    atTime(){
+      return order => {
+        let clog = order.log.find( l => order.status.id==l.id );
+        let timecalc = (clog.id==1 || clog.id==3) ? Date.parse(clog.created_at) : Date.parse(clog.updated_at);
+        return date.formatDate(timecalc, "hh:mm a");
+      }
     },
     buildlog() {
       return (order, data) => {
@@ -1312,24 +1308,24 @@ export default {
         return stateCEDIS.includes(status);
       };
     },
-    /**
-     * @description Obtenemos la evaluacion de la condición para mostrar DxDialog de la Seleccioón de Bodegueros, Vehículos y Respartidores.
-     * @returns Retorna Booleano
-     * @param { number }  Id
-     */
     checkState() {
+      /**
+       * @description Obtenemos la evaluacion de la condición para mostrar DxDialog de la Seleccioón de Bodegueros, Vehículos y Respartidores.
+       * @returns Retorna Booleano
+       * @param { number }  Id
+       */
       return state => {
         // let resp = state == 2 || state == 6;
         let resp = state == 2;
         return resp;
       };
     },
-    /**
+    isCEDIS() {
+          /**
      * @description Retorna la configuración del tablero si solo es CEDIS
      * @returns Configuración del tablero por selección de items
      * @param {number} index
      */
-    isCEDIS() {
       return index => {
         let settings =
           index == 1 || index == 2 || index == 4 || index == 5 || index == 6 || index == 9
@@ -1339,12 +1335,13 @@ export default {
         return settings;
       };
     },
-    /**
-     * @description Retorna la configuración del tablero si solo es Sucursal
-     * @returns Configuración del tablero por selección de items
-     * @param {number} index
-     */
     isMarket() {
+      /**
+       * @description Retorna la configuración del tablero si solo es Sucursal
+       * @returns Configuración del tablero por selección de items
+       * @param {number} index
+       */
+
       return index => {
         let settings =
           index == 0 || index == 1 || index == 7 || index == 8 || index == 9
@@ -1398,65 +1395,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.noprinted {
-  border: 2px solid #fe982a !important;
-}
-.my-card {
-  width: 100%;
-  max-width: 250px;
-}
+  .noprinted { border: 2px solid #fe982a !important; }
+  .my-card {
+    width: 100%;
+    max-width: 250px;
+  }
 
-.alertOrders {
-  border: 1px dashed #ce6b02 !important;
-  animation: taadaa 5s;
-}
+  .alertOrders {
+    border: 1px dashed #ce6b02 !important;
+    animation: taadaa 5s;
+  }
 
-@keyframes maskBorder {
-  0% {
-    clip: rect(0, 50px, 10px, 0);
+  @keyframes maskBorder {
+    0% { clip: rect(0, 50px, 10px, 0); }
+    20% { clip: rect(0, 200px, 10px, 0); }
+    35% { clip: rect(0, 200px, 10px, 190px); }
+    50% { clip: rect(10px, 200px, 50px, 190px); }
+    60% { clip: rect(40px, 200px, 50px, 190px); }
+    70% { clip: rect(40px, 200px, 50px, 0px); }
+    85% { clip: rect(40px, 10px, 50px, 0px); }
+    90% { clip: rect(0, 10px, 50px, 0px); }
+    100% { clip: rect(0, 10px, 10px, 0px); }
   }
-  20% {
-    clip: rect(0, 200px, 10px, 0);
-  }
-  35% {
-    clip: rect(0, 200px, 10px, 190px);
-  }
-  50% {
-    clip: rect(10px, 200px, 50px, 190px);
-  }
-  60% {
-    clip: rect(40px, 200px, 50px, 190px);
-  }
-  70% {
-    clip: rect(40px, 200px, 50px, 0px);
-  }
-  85% {
-    clip: rect(40px, 10px, 50px, 0px);
-  }
-  90% {
-    clip: rect(0, 10px, 50px, 0px);
-  }
-  100% {
-    clip: rect(0, 10px, 10px, 0px);
-  }
-}
-.thing {
-  box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11),
-    0 5px 15px 0 rgba(0, 0, 0, 0.08);
-  border-radius: 0.5rem;
-  border-left: 0 solid hsl(69, 100%, 50%);
-  transition: border-left 300ms ease-in-out, padding-left 300ms ease-in-out;
-}
 
-.thing:hover {
-  border-left: 0.5rem solid hsl(110, 100%, 50%);
-}
+  .thing {
+    box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11),
+      0 5px 15px 0 rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    border-left: 0 solid hsl(69, 100%, 50%);
+    transition: border-left 300ms ease-in-out, padding-left 300ms ease-in-out;
+  }
 
-.thing > :first-child {
-  margin-top: 0;
-}
+  .thing:hover {
+    border-left: 0.5rem solid hsl(110, 100%, 50%);
+  }
 
-.thing > :last-child {
-  margin-bottom: 0;
-}
+  .thing > :first-child {
+    margin-top: 0;
+  }
+
+  .thing > :last-child {
+    margin-bottom: 0;
+  }
 </style>
