@@ -13,7 +13,7 @@
     </div> -->
 
     <div class="row q-pa-md q-gutter-md justify-center">
-      <q-card class="bg-darkl1">
+      <q-card class="bg-darkl1 col-xs-12">
         <q-table dark flat class="transparent"
           row-key="id"
           :data="sales"
@@ -35,7 +35,7 @@
         </q-table>
       </q-card>
 
-      <q-card class="bg-darkl1">
+      <q-card class="bg-darkl1 col-xs-12">
         <q-table dark flat class="transparent"
           row-key="id"
           :data="nosales"
