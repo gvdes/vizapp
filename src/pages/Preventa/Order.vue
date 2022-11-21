@@ -114,7 +114,7 @@
                 <template v-slot:avatar>
                     <q-img src="~/assets/baiabaia.png" width="90px" class="dinobebe"/>
                 </template>
-                
+
                 Esto ya esta en la lista
 
                 <template v-slot:action inline-actions>
@@ -275,13 +275,13 @@
                     <q-card-section class="bg-darkl2 text-white text-overline">EDITAR PRODUCTO</q-card-section>
                     <q-separator/>
                     <ProductAOE
-                        ref="paoe_editor" 
+                        ref="paoe_editor"
                         showprices
-                        :product="wndEditor.product" 
-                        :client="index.client" 
+                        :product="wndEditor.product"
+                        :client="index.client"
                         @confirm="productEdit"
                         @cancel="cancelAOE"
-                        @remove="remove" 
+                        @remove="remove"
                     />
                 </q-card>
             </template>
@@ -302,7 +302,7 @@
             </q-card>
         </q-dialog>
 
-        <q-footer class="bg-darkl1 text-white">            
+        <q-footer class="bg-darkl1 text-white">
             <div class="q-pa-xs row items-center" v-if="currentStep&&(currentStep.id==1)">
                 <div class="col text-center">
                     <ProductAutocomplete with_image with_prices with_stock @input="setProduct" @similarcodes="similarCodes" ref="patc"/>
@@ -413,6 +413,8 @@ export default {
 
         this.$q.loading.show({ message:'...' });
         this.index = await preventadb.order(this.ordercatch);
+        console.log("%cPedido Cargado...","font-size:2em;color:#1e90ff;text-shadow:1px 1px 4px #ff6b81;");
+        console.log(this.index);
         this.$q.loading.hide();
     },
     destroyed(){
@@ -424,7 +426,7 @@ export default {
         setProduct(product){
             if(this.currentStep.id==1){
                 let artexist = this.index.products.find(art=>art.code==product.code);
-                
+
                 if(artexist){
                     this.artduplicate.state=true;
                     this.artduplicate.product=artexist;
@@ -441,7 +443,7 @@ export default {
 
             const workbook = new ExcelJS.Workbook();
             let sheet1 = workbook.addWorksheet('Sheet One');
-            
+
             sheet1.columns = [
                 { header:'id', key:'id', width:10 },
                 { header:'Codigo', key:'code', width:15 },
@@ -461,7 +463,7 @@ export default {
             console.log(this.gBasket);
 
             this.gBasket.forEach( p => {
-                sheet1.addRow({ 
+                sheet1.addRow({
                     id:p.id,
                     code:p.code,
                     scode:p.name,
@@ -543,7 +545,7 @@ export default {
             this.$q.loading.show({message:`Guardando ${params.product.code}...`});
 
             let product = this.wndEditor.product;
-            
+
             let data = {
                 "_product": params.product.id,
                 "_order": this.ordercatch.id,
@@ -597,7 +599,7 @@ export default {
 
                 this.index.products.splice(idx,1);
                 this.$q.notify({message:`${params.product.code} eliminado!`,icon:'done',color:'positive',timeout:1000,position:'center'});
-                
+
                 this.wndEditor.product = undefined;
                 this.wndEditor.state = false;
             }
@@ -623,13 +625,13 @@ export default {
                     message:'Error de impresion :(',
                     color:'negative',
                     icon:'fas fa-bug',
-                    timeout:1500, 
+                    timeout:1500,
                     position:'center'
                 });
             }else{
                 this.$q.notify({ message:'Reimpresion correcta', color:'positive', icon:'done' });
             }
-            
+
             // this.wndPrinters.job = 'print';
             // this.wndPrinters.state = false;
             this.$q.loading.hide();
@@ -647,7 +649,7 @@ export default {
             if(resp.err){
                 this.$q.notify({ message:resp.err, color:'negative', icon:'fas fa-exclamation-triangle' });
             }else{
-                console.log(resp.status);
+                this.index.log = this.index.log.concat(resp.status);
                 let newstate = resp.status[resp.status.length-1];
                 let ordersend = Object.assign({}, this.index);
                 ordersend.status = newstate;
@@ -660,30 +662,30 @@ export default {
             }
         },
         createanx(){
-			this.$q.loading.show({ message:'Creando anexo, espera...' });
-			// this.windCreate.blocked=true;
-			let data = { name:this.index.name, "_order":this.index.id };
-            console.log(data);
+          this.$q.loading.show({ message:'Creando anexo, espera...' });
+          // this.windCreate.blocked=true;
+          let data = { name:this.index.name, "_order":this.index.id };
+                console.log(data);
 
-            preventadb.create(data).then( done =>{
-                let resp = done.data;
-                console.log(resp);
+                preventadb.create(data).then( done =>{
+                    let resp = done.data;
+                    console.log(resp);
 
-                this.$q.notify({
-                    message:`Anexo creado con Folio <b>${resp.id}</b>`,
-                    color:'positive', icon:'done', html:true
+                    this.$q.notify({
+                        message:`Anexo creado con Folio <b>${resp.id}</b>`,
+                        color:'positive', icon:'done', html:true
+                    });
+                    this.$store.commit('Preventa/newOrder', resp);
+            this.psocket.emit('order_add',{ user:this.profile, order:resp });
+            this.$router.push(`/preventa/pedidos/${resp.id}`);
+                    this.$router.go();
+                    this.$q.loading.hide();
+
+                }).catch( fail => {
+                    console.log(fail);
+              this.$q.notify({ icon:'bug', message:fail, color:'negative' });
                 });
-                this.$store.commit('Preventa/newOrder', resp);
-				this.psocket.emit('order_add',{ user:this.profile, order:resp });
-				this.$router.push(`/preventa/pedidos/${resp.id}`);
-                this.$router.go();
-                this.$q.loading.hide();
-
-            }).catch( fail => {
-                console.log(fail);
-			    this.$q.notify({ icon:'bug', message:fail, color:'negative' });
-            });
-		},
+        },
         cancelAOE(){
             this.wndAdder.product = undefined;
             this.wndAdder.state = false;
@@ -696,12 +698,12 @@ export default {
     },
     computed: {
         profile(){ return this.$store.getters['Account/profile'];},// perfil del usuario
-		workin(){ return this.$store.getters['Account/workin'];},// token de sucursal
+		    workin(){ return this.$store.getters['Account/workin'];},// token de sucursal
         printers(){ return this.$store.getters['Preventa/printersSale'];},// impresoras de la sucursal
-        ordercatch(){ return this.$route.params },// id de la orden 
-        client(){ 
+        ordercatch(){ return this.$route.params },// id de la orden
+        client(){
             if(this.index){
-                return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name }; 
+                return this.index._client ? { type:'REG', name:'Peter Parker', id:115 } : { type:'STD', name:this.index.name };
             }else{ return {type:'STD'}; }
         },
         pfams(){ return this.index ? this.index.products.map( p => p.family) : []; },
@@ -721,7 +723,7 @@ export default {
                     })(p);
                     p.units = ( p => {
                         switch (p.ordered._supply_by) {
-                            case 2: return p.ordered.amount*12; //cantidad * 12 
+                            case 2: return p.ordered.amount*12; //cantidad * 12
                             case 3: return p.ordered.amount*p.ipack; //cantidad por piezas por caja
                             default: return p.ordered.amount;// retornar cantidad
                         }
@@ -734,7 +736,7 @@ export default {
                         if(siblings.length){
                             units_fam = siblings.reduce( (amm,s) => {//obtener las unidades totales de los productos integrantes de la familia de este producto
                                 switch (s.ordered._supply_by) {
-                                    case 2: return (s.ordered.amount*12)+amm;//cantidad * 12 
+                                    case 2: return (s.ordered.amount*12)+amm;//cantidad * 12
                                     case 3: return (s.ordered.amount*s.pieces)+amm;//cantidad por piezas por caja
                                     default: return (s.ordered.amount)+amm;// retornar cantidad
                                 }
@@ -744,7 +746,7 @@ export default {
                         switch (p.ordered._supply_by) {
                             case 2: return p.prices.find( pl => pl.id==3 ); // se utilizara el precio Docena
                             case 3: return p.prices.find( pl => pl.id==4 ); // se utilizara el precio Caja
-                            default: 
+                            default:
                                 if((p.productType=='off') || (units_fam<3)){//es oferta o menudeo
                                     return p.prices.find( pl => pl.id==1 );//devuelve el primer precio
                                 }else if(units_fam>=3 && p.ordered.amount<p.ipack){//es mayoreo ?
@@ -754,9 +756,9 @@ export default {
                                 }
                             break;
                         }
-                    })(p);                    
+                    })(p);
                     p.total = p.units*p.usedprice.price;
-                    
+
                     return p;
                 });
             }else { return []; }
@@ -783,17 +785,17 @@ export default {
         haveparent(){ return this.index ? this.index._order : false; },
         havechildren(){ return this.index ? this.index.children : false; },
         orderlog(){ return this.index ? this.index.log:[] },
-        humantime(){ return time =>{ 
-				let now = Date.now(); 
-				let timecalc = Date.parse(time);
-				let diff = date.getDateDiff(now, timecalc, 'days');
+        humantime(){ return time =>{
+            let now = Date.now();
+            let timecalc = Date.parse(time);
+            let diff = date.getDateDiff(now, timecalc, 'days');
 
-				switch (diff) {
-					case 0: return date.formatDate(timecalc, 'hh:mm a'); break;
-					case 1: return 'Ayer, '+date.formatDate(timecalc, 'hh:mm a'); break;
-					default: return `Hace ${diff} dias, `+date.formatDate(timecalc, 'hh:mm a'); break;
-				}
-			}
+            switch (diff) {
+              case 0: return date.formatDate(timecalc, 'hh:mm a'); break;
+              case 1: return 'Ayer, '+date.formatDate(timecalc, 'hh:mm a'); break;
+              default: return `Hace ${diff} dias, `+date.formatDate(timecalc, 'hh:mm a'); break;
+            }
+          }
         },
     },
 }
@@ -811,7 +813,7 @@ export default {
         max-height: 300px;
         overflow: scroll;
     }
-    
+
     //header expantion item
     .hei{ border-bottom:2px solid grey; }
 </style>

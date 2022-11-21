@@ -9,14 +9,15 @@
 			/>
 			<div :class="checkinstate ? 'text-green-13 text-italic':'text--2 text-grey-6'" class="q-pt-sm">Servicio {{checkinstate ?'en linea':'Apagado'}}</div>
 
-			<div class="q-pt-lg">
-				<!-- <div class="q-pa-md">Pedidos por llegar: <span class="text-h6 text-white">{{orders.length}}</span></div> -->
-				<div class="row items-center q-gutter-sm">
-					<q-card v-for="ord in orders" :key="ord.id" class="bg-darkl1">
-						<q-card-section>
-							{{ord.name}} (<span class="text-bold text-white">{{ord.id}}</span>)
-						</q-card-section>
-					</q-card>
+			<div class="q-pt-lg q-gutter-md">
+				<div class="row items-center justify-center q-gutter-sm">
+          <q-btn v-for="ord in orders" :key="ord.id" no-caps class="bg-darkl1">
+            <div class="column text-justify">
+              <div class="text-h6"><b>{{ord.id}}</b></div>
+              <div class="q-py-xs"><b>{{ord.name}}</b></div>
+              <div style="font-size:.8em;">{{ord.log.find( l => l.id==3).created_at ?? "undefined"}}</div>
+            </div>
+          </q-btn>
 				</div>
 			</div>
 		</div>
@@ -77,10 +78,11 @@ export default {
 			 * ¯\_(ツ)_/¯
 			 */
 			let resp = await preventadb.nextStep({ "_order": this.target.id });
+      console.log(resp);
 
 			if(resp.success){
-                let order = Object.assign({}, this.target);
-                let newstate = resp.status[resp.status.length-1];
+        let order = Object.assign({}, this.target);
+        let newstate = resp.status[resp.status.length-1];
 
 				this.iptsearch.model = '';
 

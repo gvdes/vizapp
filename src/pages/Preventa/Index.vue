@@ -144,6 +144,7 @@ export default {
 		}
 	},
 	created(){
+    console.log("%c Index Preventa Loaded!!", "font-size:1.5em; color:orange;");
 		console.log(this.agents_orders);
 		switch (this.profile.me._rol) {
 			case 1: case 2: case 3: console.log("Te quedaste en el INDEX"); this.$store.commit('Preventa/setHeaderTitle',"Preventa"); break;

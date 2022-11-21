@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-// const URLSocket = 'http://192.168.12.183:4141/';
+// const URLSocket = 'http://192.168.12.183:4141';
 const URLSocket = 'http://192.168.10.15:4444';
 // const URLSocket = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4548';
 // const URLSocket = 'http://localhost:7171/';
@@ -25,6 +25,7 @@ export default ({ Vue }) => {
 	if(profile){
 		if(Vue.prototype.$vSocket.disconnected){
 			Vue.prototype.$vSocket.connect();
+			// Vue.prototype.$sktPreventa.connect();
 			// Vue.prototype.$vSocket.on('socketid', data => {
 			console.log(`%cUnido al canal global (by bootfile)`,"background:#1B9CFC;color:white;border-radius:10px;padding:6px;");
 			// 	Vue.prototype.$vSocket.emit('session_start',{profile,socketid:data.socketid,from:workin});

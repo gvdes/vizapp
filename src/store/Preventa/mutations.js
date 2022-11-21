@@ -23,7 +23,7 @@ export function startState (state,data) {
 
     state.orders = data.index.orders; //almacena las ordenes que viene de la BDD
     // state.agents = data.agents;// almacena los perfiles de los vendedores
-    
+
      // Obtengo todos los perfiles de los pedidos obtenidos (incluyen los repetidos)
     let listProfilesInit = state.orders.map( o => o.created_by );
     // obtengo los ids unicos de la lista de perfiles
@@ -54,12 +54,12 @@ export function startState (state,data) {
 
     // Construir perfiles+pedidos para crear lista de usuarios en sucursal
     state.agents = allunicids.map( pid => {
-        
+
         let agent = new Object();
         agent.socket = null;
 
         let profinbranch = data.agents.find( a => a.id == pid );
-        
+
         if(profinbranch){// seteamos cuando el usuairo pertenece a la sucursal
             agent.profile = profinbranch;
             agent.salesib = true;
@@ -98,8 +98,9 @@ export function newOrder(state, order){
 export function updateState(state, { order, newstate }){
     // console.log(order);
     let idx = state.orders.findIndex( ord => order.id == ord.id);
-    // console.log(idx);
+    console.log(state.orders[idx]);
     state.orders[idx].status = newstate;
+    state.orders[idx].log = order.log;
     state.orders[idx].updated_at = newstate.created_at;
 }
 
@@ -123,7 +124,7 @@ export function orderAOU(state, data){
     let order = data.order;
 
     let idx = state.orders.findIndex( o => o.id == order.id);
-    
+
     if(idx>=0){
         console.log("El pedido EXISTE, hay que ACTUALIZARLO!!");
         state.orders[idx].status = data.newstate;

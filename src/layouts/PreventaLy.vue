@@ -11,7 +11,7 @@
 					</div>
 				</q-card>
 			</q-header>
-			
+
 			<router-view />
 
 			<q-footer reveal class="bg-darktransl0" v-if="layout.footer.state">
@@ -29,19 +29,20 @@ import HeaderApp from '../components/Global/HeaderApp.vue'
 import PreventaDB from '../API/preventa.js'
 import AccountsDB from '../API/account.js'
 
+console.log("%c Layout Preventa Loaded!!", "font-size:2em; color:yellow;");
 export default {
 	name: 'Preventa',
 	components:{ ToolbarModule, RangeDates, HeaderApp },
 	data(){
 		return {
-			psocket:this.$sktPreventa
+			psocket:this.$sktPreventa,
+      mainsocket:this.$vSocket
 		}
 	},
 	created (){
 		/**
 		 * Desconecto el socket actual, para generar una nueva conexion
 		 */
-
 		this.psocket.disconnect();
 		this.psocket.connect();
 
@@ -74,7 +75,7 @@ export default {
 		 * obligatorioamente, todos se unen a cfg, canal de emision de configuraciones de la preventa
 		 */
 		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:room });
-		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'cfg' });		
+		this.psocket.emit('join', { profile:this.profile, workpoint:this.workin.workpoint, room:'cfg' });
 	},
 	methods:{
 		async loadView(ranges){
@@ -99,7 +100,6 @@ export default {
 			this.$store.commit('Preventa/newOrder', order);
 		},
 		sktOrderUpdate(data){
-			console.log(data);
 			let order = data.order;
 			let newstate = data.newstate;
 
