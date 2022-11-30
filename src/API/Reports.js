@@ -1,7 +1,7 @@
 import { vizapi } from 'boot/vizapi'
 
 export default{
-  salesStore(){
-    return vizapi.get("C/salesstore").then( done => done).catch( fail => fail.response);
+  salesStore(data){
+    return vizapi.post("C/salesstore",data).then( done => done).catch( fail => fail.response);
   }
 }

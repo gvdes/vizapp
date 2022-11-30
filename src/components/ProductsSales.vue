@@ -4,13 +4,13 @@
   </div>
   <div v-else class="q-mt-md">
     <q-separator dark />
-    <!-- <div class="row items-start justify-between q-pt-md">
-      <div class="text-h6">Ventas</div>
+    <div class="row items-start justify-between q-pt-md">
+      <div class="text-h6">Venta (pzs)</div>
       <div class="row">
-        <q-btn flat color="green-13" icon="sync" />
-        <q-select dense v-model="range" dark :options="optRanges" label="Vista" filled />
+        <q-btn flat color="green-13" icon="sync" @click="getSales" />
+        <q-select dense v-model="range" dark :options="optRanges" label="Vista" filled @input="getSales"/>
       </div>
-    </div> -->
+    </div>
 
     <div class="row q-pa-md q-gutter-md justify-center">
       <q-card class="bg-darkl1 col-xs-12">
@@ -49,7 +49,7 @@
             <div class="full-width row items-center">
               <div class="col text-grey-5">ARTICULOS SIN VENTAS ({{nosales.length}})</div>
               <div class="row">
-                <q-btn flat icon="fas fa-file-excel" color="green-13" rounded @click="downNoSales"/>
+                <q-btn flat icon="fas fa-file-excel" color="green-13" rounded @click="downNoSales" />
                 <q-input rounded dark color="green-13" dense v-model="table1.filter" type="text" label="Buscar" />
               </div>
             </div>
@@ -70,7 +70,7 @@ export default {
   // name: 'ComponentName',
   data () {
     return {
-      loadingSales:true,
+      loadingSales:false,
       optRanges:[
         { id:"day", label:"Dia" },
         { id:"week", label:"Semana" },
@@ -132,9 +132,10 @@ export default {
   },
   methods: {
     async getSales(){
+      // console.log(this.range);
       this.loadingSales = true;
-      console.log("Vamo a traer las ventas");
-      const response = await ReportsApi.salesStore();
+      console.log("Vamo a traer las ventas", this.range.id);
+      const response = await ReportsApi.salesStore({view:this.range.id});
       console.log(response);
 
       if(response.status==200){
@@ -189,6 +190,10 @@ export default {
       }).catch( err => {
         console.error(err);
       });
+    },
+    async setRanges(opt){
+      console.log(opt.id);
+      console.log("Se actualiza el date ranges");
     }
   },
   computed: {
