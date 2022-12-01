@@ -8,12 +8,12 @@ import axios from 'axios'
 // const URLBackend = 'http://192.168.12.183/vizapi/public/';
 // const URLFiles = 'http://192.168.12.183/vizapi/files/';
 
-const URLBackend = 'http://192.168.10.15/vizapi/public/';
-const URLFiles = 'http://192.168.10.15/vizapi/files/';
+// const URLBackend = 'http://192.168.10.15/vizapi/public/';
+// const URLFiles = 'http://192.168.10.15/vizapi/files/';
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
-// const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/public';
-// const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/files';
+const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/public';
+const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N  I N  P U E B L A❱❱❱❱❱
 // const URLBackend = 'http://192.168.90.253:1619/vizapi/public/';
