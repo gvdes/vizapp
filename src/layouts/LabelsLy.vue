@@ -3587,6 +3587,19 @@ export default {
                   break;
               }
             }
+
+            pdf.setFont("Montserrat-Semi");
+            if (products[i].code.length > 10) {
+              pdf.setFontSize(6);
+            } else {
+              pdf.setFontSize(9);
+            }
+            pdf.text(
+              `${products[i].code}`,
+              (width * (y == 0 ? 0 : y) + 25 ),
+              (200 + (countY == 1 ? 0 : counterCodeShort)),
+              null, null, "left" );
+
             pdf.rect(
               20,
               205 + (countY == 1 ? 0 : counterCodeShort),
@@ -3619,17 +3632,17 @@ export default {
               null,
               "left"
             );
-            pdf.setFont("Montserrat-Semi");
-            if (products[i].code.length > 10) {
-              pdf.setFontSize(6);
-            } else {
-              pdf.setFontSize(9);
-            }
-            pdf.text(
-              `${products[i].code}`,
-              (width * (y == 0 ? 0 : y) + (large ? 105 : 105)),
-              (223 + (countY == 1 ? 0 : counterCodeShort)),
-              null, null, "left" );
+            // pdf.setFont("Montserrat-Semi");
+            // if (products[i].code.length > 10) {
+            //   pdf.setFontSize(6);
+            // } else {
+            //   pdf.setFontSize(9);
+            // }
+            // pdf.text(
+            //   `${products[i].code}`,
+            //   (width * (y == 0 ? 0 : y) + (large ? 105 : 105)),
+            //   (223 + (countY == 1 ? 0 : counterCodeShort)),
+            //   null, null, "left" );
             this.useIpack
               ? pdf.addImage(
                   this.convertTextToBase64Barcode(products[i].name),
