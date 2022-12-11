@@ -165,7 +165,7 @@ export default{
             [
               { name:"Vallejo 236", stock: exts.V23 },
               { name:"Los Reyes", stock: exts.LRY },
-              { name:"Santa Clara", stock: exts.STC },
+              { name:"Texcoco", stock: exts.STC },
             ] : [];
         } return [];
       }
