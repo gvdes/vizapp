@@ -5,7 +5,7 @@
 				<!-- <toolbar-account title="Ajuste"/> -->
 				<HeaderApp title="Ajuste"/>
 				<q-card-section>
-					<ProductAutocomplete @input="selectedProd" :check-state="false" :workpoint-status="[1,2]" :val-state-cedis="1" />
+					<ProductAutocomplete @input="selectedProd" :check-state="false" :workpoint-status="[1,2,13]" :val-state-cedis="1" />
 				</q-card-section>
 			</q-card>
 		</q-header>
