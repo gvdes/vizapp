@@ -5,61 +5,85 @@
 				<!-- <toolbar-account title="Ajuste"/> -->
 				<HeaderApp title="Ajuste"/>
 				<q-card-section>
-					<ProductAutocomplete @input="selectedProd" :check-state="false" :workpoint-status="[1,2,13]" :val-state-cedis="1" />
+					<!-- <ProductAutocomplete @input="selectedProd" :check-state="false" :val-state-cedis="1" /> -->
+					<ProductAutocomplete @input="selectedProd" :workpoint-status="'all'"/>
 				</q-card-section>
 			</q-card>
 		</q-header>
 
-		<div class="QuickRegular text-white q-pt-sm" v-if="product">
-			<q-card class="bg-darkl1 bg-none" flat>
-				<div class="q-pa-md text-center">
-					<div class="text-h5">{{product.code}}</div>
-					<div class="text--2">{{product.description}}</div>
-				</div>
-				<q-card-section>
-					<!-- <div class="col q-py-md" v-if="wkpData">{{wkpData.name}}</div> -->
-					<q-card class="bg-none row items-center">
-						<q-select dark color="green-13"
-							filled
-							:options="optionStates"
-							v-model="state"
-							option-value="id"
-							option-label="name"
-							@input="freshState"
-							label="Estatus"
-							class="col"
-						/>
+		<div class="QuickRegular text-white q-gutter-md q-pa-md row items-start justify-center" v-if="product">
+      <q-card class="bg-darkl1">
+        <q-card-section>
 
-						<template v-if="wkpData">
-							<q-input filled type="number" dark label="Minimo" class="col" color="green-13" v-model="wkpData.min" @change="setChanges" min="0"/>
-							<q-input filled type="number" dark label="Maximo" class="col" color="green-13" v-model="wkpData.max" @change="setChanges" min="0"/>
-						</template>
-					</q-card>
-					<q-btn v-if="showSave" color="primary" class="full-width q-py-md" label="Aplicar Cambios" no-caps icon="done" @click="saveChanges"/>
-					<div class="q-mt-md row justify-around" v-if="wkpData">
-						<div class="text-center q-px-md">
-							<div class="text-h5">{{product.pieces}}</div>
-							<div class="text--2">PxC</div>
-						</div>
-						<div class="text-center q-px-md">
-							<div class="text-h5">{{wkpData.stock}}</div>
-							<div class="text--2">Stock</div>
-						</div>
-					</div>
+          <q-list dark dense>
+            <q-item>
+              <q-item-section>Codigo</q-item-section>
+              <q-item-section>{{product.code}}</q-item-section>
+            </q-item>
 
-					<div v-else class="text-amber-13 q-mt-md">Producto sin Stocks</div>
-				</q-card-section>
+            <q-item>
+              <q-item-section>Descripcion</q-item-section>
+              <q-item-section class="text--2">{{product.description}}</q-item-section>
+            </q-item>
 
-				<template v-if="stocksWkps&&stocksWkps.length">
-					<div class="row justify-around">
-						<q-card class="q-pa-md bg-darkl2" v-for="wkp in stocksWkps" :key="wkp._workpoint">
-							<div class="text-overline">{{wkp.name}}</div>
-							<div>Stock: {{wkp.stock}}</div>
-							<div>Estatus: {{wkp.status.name}}</div>
-						</q-card>
-					</div>
-				</template>
+            <q-item>
+              <q-item-section>Piezas por Caja</q-item-section>
+              <q-item-section>{{product.pieces}}</q-item-section>
+            </q-item>
 
+            <q-item>
+              <q-item-section>Stock</q-item-section>
+              <q-item-section v-if="wkpData" >{{wkpData.gen}}</q-item-section>
+              <q-item-section v-else class="text-amber-13">Producto sin Stocks</q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-card-section>
+          <q-select dark color="green-13"
+            filled
+            :options="optionStates"
+            v-model="state"
+            option-value="id"
+            option-label="name"
+            @input="freshState"
+            label="Estatus"
+            class="col"
+          />
+
+          <template v-if="wkpData">
+            <div class="q-mt-xs row items-center q-gutter-md">
+              <q-input filled type="number" dark label="Minimo" color="green-13" v-model="wkpData.min" @change="setChanges" min="0"/>
+              <q-input filled type="number" dark label="Maximo" color="green-13" v-model="wkpData.max" @change="setChanges" min="0"/>
+            </div>
+            <q-btn v-if="showSave" color="primary" class="full-width q-py-md q-mt-md" label="Aplicar Cambios" no-caps icon="done" @click="saveChanges"/>
+          </template>
+        </q-card-section>
+        <q-separator dark />
+        <q-card-section>
+          <q-list>
+            <q-item v-for="(ext,idx) in storeExtensions" :key="idx">
+              <q-item-section>{{ ext.name }}</q-item-section>
+              <q-item-section>{{ ext.stock }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+
+      <q-card class="bg-darkl1">
+        <q-card-section v-if="storesStocks.length">
+          <q-table dark flat
+            :data="storesStocks"
+            :columns="tableStocks.cols"
+            row-key="id"
+            class="transparent"
+          >
+
+          </q-table>
+        </q-card-section>
+      </q-card>
+
+			<!-- <q-card class="bg-darkl1 bg-none" flat>
         <div class="q-mt-md q-pt-md row items-center justify-around" v-if="storeExtensions.length">
           <q-card v-for="(ext,idx) in storeExtensions" :key="idx" dark class="bg-darkl2">
             <q-card-section>
@@ -68,7 +92,7 @@
             </q-card-section>
           </q-card>
         </div>
-			</q-card>
+			</q-card> -->
 		</div>
     </q-page>
 </template>
@@ -88,7 +112,15 @@ export default{
           state:undefined,
           cmin:undefined,
           cmax:undefined,
-          showSave:false
+          showSave:false,
+          tableStocks:{
+            cols:[
+              // { name:"id", label:"IDWKP", field:"_workpoint" },
+              { name:"branch", label:"Sucursal", field:"name", align:"left", sortable:true },
+              { name:"stock", label:"Stock (pzs)", field:"stock", align:"center", sortable:true },
+              { name:"statename", label:"Estatus", field: row => row.status.name, align:"left" },
+            ]
+          }
         }
 	},
 	async mounted() {
@@ -154,8 +186,8 @@ export default{
       ismobile(){ return this.$q.platform.is.mobile; },
       profile(){ return this.$store.getters['Account/profile']; },
       workin(){ return this.$store.getters['Account/workin']; },
-      wkpData(){ return this.product ? this.product.stocks.find( b => this.workin.workpoint.id == b._workpoint) : undefined; },
-      stocksWkps(){ return this.product ? this.product.stocks.filter( b => this.workin.workpoint.id != b._workpoint) : undefined; },
+      wkpData(){ return this.product ? this.product.stocks.find( wkp => this.workin.workpoint.id == wkp._workpoint) : undefined; },
+      storesStocks(){ return this.product.stocks ? this.product.stocks.filter( wpk => wpk._workpoint!=this.workin.workpoint.id ) : [] },
       optionStates(){ return this.listStates ? this.listStates.filter( s => s.id<=3||s.id==6) : []; },
       storeExtensions(){
         if(this.product){
@@ -163,9 +195,9 @@ export default{
 
           return exts ?
             [
+              { name:"Texcoco", stock: exts.STC },
               { name:"Vallejo 236", stock: exts.V23 },
               { name:"Los Reyes", stock: exts.LRY },
-              { name:"Texcoco", stock: exts.STC },
             ] : [];
         } return [];
       }

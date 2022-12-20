@@ -1,13 +1,13 @@
 <template>
     <div class="QuickRegular row items-center">
         <template v-if="read_barcode">
-            <q-input 
+            <q-input
                 ref="iptatc"
                 :loading="iptsearch.processing"
                 :disable="iptsearch.processing"
-                v-model="target" dense dark filled 
-                color="green-13" 
-                class="text-uppercase col" 
+                v-model="target" dense dark filled
+                color="green-13"
+                class="text-uppercase col"
                 @keypress.enter="search"
                 autocomplete="off"
                 autofocus
@@ -30,7 +30,7 @@
                 behavior="menu"
                 v-model="target"
                 :value="target"
-                :input-debounce="3"
+                :input-debounce="400"
                 autofocus
                 :options="options"
                 :type="iptsearch.type"
@@ -56,7 +56,7 @@
                         <q-item-section avatar v-if="with_image">
                             <q-img src="~/assets/_boxprod.png" width="35px" />
                         </q-item-section>
-                        
+
                         <q-item-section>
                             <div class="row items-center justify-between no-wrap QuickRegular">
                                 <div class="col">
@@ -74,7 +74,7 @@
                         </q-item-section>
                     </q-item>
                 </template>
-            </q-select> 
+            </q-select>
         </template>
     </div>
 </template>
@@ -93,7 +93,7 @@ export default {
         "with_prices":{ default:null, type:Boolean },
         "with_stock":{ default:null, type:Boolean },
         "checkState":{ default:true, type:Boolean },
-        "workpointStatus":{ default:null, type:Array },
+        "workpointStatus":{ default:null, type:[Array,String] },
         "wkpToVal":{ default:null, type:Number },
         "blockStates":{ type:Array, default:()=>[4,5,6] }
     },
@@ -108,7 +108,7 @@ export default {
     mounted(){
         this.read_barcode = JSON.parse(localStorage.getItem('barcodereader'));
         let keyboard = JSON.parse(localStorage.getItem('typeiptsearch'));
-        
+
         if(keyboard){
             this.iptsearch.type=keyboard.type;
 			this.iptsearch.icon=keyboard.icon;
@@ -125,33 +125,34 @@ export default {
                 this.target = val.toUpperCase().trim();
 
                 dbproduct.autocomplete(this.attrs).then( done =>{
+                    console.log(done);
                     let options = done.data.map( p => {
-                        if(this.checkState){
-                            if(this.wkpToVal){
-                                let wkp = p.stocks.find( s => s._workpoint == this.wkpToVal);
-                                p.stateToVal = wkp ? { own:wkp,state:wkp.status } : { own:null,state:p.status };
-                            }else{ p.stateToVal = { own:true,state:p.status }; }
-                        }else{ p.stateToVal = { own:true,state:p.status }; }
+                      if(this.checkState){
+                          if(this.wkpToVal){
+                              let wkp = p.stocks.find( s => s._workpoint == this.wkpToVal);
+                              p.stateToVal = wkp ? { own:wkp,state:wkp.status } : { own:null,state:p.status };
+                          }else{ p.stateToVal = { own:true,state:p.status }; }
+                      }else{ p.stateToVal = { own:true,state:p.status }; }
 
-                        return p;
+                      return p;
                     });
                     update(
-                        () => { this.options=options; },
-                        ref => {
-                            ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
-                            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
-                        }
+                      () => { this.options=options; },
+                      ref => {
+                          ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+                          ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+                      }
                     );
                 }).catch(fail=>{ console.log(fail); });
             }
         },
         toogleIptSearch(){
 			switch (this.iptsearch.type) {
-				case "text": 
+				case "text":
 					this.iptsearch.type="number";
 					this.iptsearch.icon="fas fa-font";
 				break;
-				case "number": 
+				case "number":
 					this.iptsearch.type="text";
 					this.iptsearch.icon="fas fa-hashtag";
 				break;
@@ -168,44 +169,43 @@ export default {
             this.$emit('similarcodes',opts);
         },
         search(){
-            this.target.trim().toUpperCase();
+          this.target.trim().toUpperCase();
 
-            if(this.target.length){
-                this.iptsearch.processing = true;
+          if(this.target.length){
+            this.iptsearch.processing = true;
 
-                dbproduct.autocomplete(this.attrs).then( done => {
-                    let resp = done.data;
+            dbproduct.autocomplete(this.attrs).then( done => {
+                let resp = done.data;
 
-                    switch (resp.length) {
-                        case 0:
-                            let code = this.target;
-                            this.$q.notify({
-                                message:`Sin resultados para <b>${code}</b>`,
-                                color:'negative',
-                                icon:'fas fa-times',
-                                html:true,
-                                timeout:1000,
-                                position:'center'
-                            });
+                switch (resp.length) {
+                    case 0:
+                        let code = this.target;
+                        this.$q.notify({
+                            message:`Sin resultados para <b>${code}</b>`,
+                            color:'negative',
+                            icon:'fas fa-times',
+                            html:true,
+                            timeout:1000,
+                            position:'center'
+                        });
 
-                            this.putFocus();
-                        break;
+                        this.putFocus();
+                    break;
 
-                        case 1:
-                            console.log("Perfecto, aqui esta tu producto");
-                            this.selItem(resp[0]);
-                        break;
-                    
-                        default: 
-                            console.log(resp);
-                            this.similarCodes(resp);
-                        break;
-                    }
-                    this.target = "";
-                    this.iptsearch.processing = false;
-                }).catch( fail => { console.log(fail); });
+                    case 1:
+                        console.log("Perfecto, aqui esta tu producto");
+                        this.selItem(resp[0]);
+                    break;
 
-            }
+                    default:
+                        console.log(resp);
+                        this.similarCodes(resp);
+                    break;
+                }
+                this.target = "";
+                this.iptsearch.processing = false;
+            }).catch( fail => { console.log(fail); });
+          }
         },
         clear(){ this.target = ""; },
         putFocus(){
