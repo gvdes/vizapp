@@ -62,9 +62,9 @@
         <q-separator dark />
         <q-card-section>
           <q-list>
-            <q-item v-for="(ext,idx) in storeExtensions" :key="idx">
-              <q-item-section>{{ ext.name }}</q-item-section>
-              <q-item-section>{{ ext.stock }}</q-item-section>
+            <q-item v-for="(sto,idx) in cedisStocks" :key="idx">
+              <q-item-section>{{ sto.name }}</q-item-section>
+              <q-item-section>{{ sto.stock }}</q-item-section>
             </q-item>
           </q-list>
         </q-card-section>
@@ -187,7 +187,8 @@ export default{
       profile(){ return this.$store.getters['Account/profile']; },
       workin(){ return this.$store.getters['Account/workin']; },
       wkpData(){ return this.product ? this.product.stocks.find( wkp => this.workin.workpoint.id == wkp._workpoint) : undefined; },
-      storesStocks(){ return this.product.stocks ? this.product.stocks.filter( wpk => wpk._workpoint!=this.workin.workpoint.id ) : [] },
+      storesStocks(){ return this.product.stocks ? this.product.stocks.filter( wkp => (wkp._workpoint!=this.workin.workpoint.id&&wkp.typewkp==2) ) : [] },
+      cedisStocks(){ return this.product.stocks ? this.product.stocks.filter( wkp => (wkp._workpoint!=this.workin.workpoint.id&&wkp.typewkp==1) ) : [] },
       optionStates(){ return this.listStates ? this.listStates.filter( s => s.id<=3||s.id==6) : []; },
       storeExtensions(){
         if(this.product){
@@ -196,8 +197,8 @@ export default{
           return exts ?
             [
               { name:"Texcoco", stock: exts.STC },
-              { name:"Vallejo 236", stock: exts.V23 },
-              { name:"Los Reyes", stock: exts.LRY },
+              // { name:"Vallejo 236", stock: exts.V23 },
+              // { name:"Los Reyes", stock: exts.LRY },
             ] : [];
         } return [];
       }
