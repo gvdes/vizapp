@@ -11,11 +11,11 @@
 		</div>
 
 		<div class="col text-right">
-      <q-btn @click="wndGuide=true" round outline color="grey-8" class="q-mr-sm">
+      <!-- <q-btn @click="wndGuide=true" round outline color="grey-8" class="q-mr-sm">
         <q-icon name="img:serie.png" size="30px"/>
-      </q-btn>
+      </q-btn> -->
 			<q-btn rounded dense :color="vsocket.connected?'green-13':''">
-          <q-img src="~/src/assets/user1.png" spinner-color="white" style="height: 30px; width: 30px"/>
+          <q-img src="~/src/assets/1049387.png" spinner-color="white" style="height: 30px; width: 30px"/>
           <q-menu dark
               transition-show="flip-right"
               transition-hide="flip-left"
