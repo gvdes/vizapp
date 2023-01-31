@@ -1939,7 +1939,7 @@ export default {
             pdf.rect(20, 20, width * (y + 1), height * countY);
             // TEXTO DE LA EMPRESA ESTABLECIDO EN LA PARTE TOP DEL RECTANGULO
             pdf.text(
-              "Grupo Vizcarra",
+              "Candy Toys",
               width * (y == 0 ? 0 : y) + 120,
               32 + (countY == 1 ? 0 : counterCodeShort),
               null,
@@ -2515,7 +2515,7 @@ export default {
               125
             );
             pdf.text(
-              "Grupo Vizcarra",
+              "Candy Toys",
               width * (y == 0 ? 0 : y) + 95,
               40 + (countY == 1 ? 0 : counterCodeShort),
               null,
@@ -2799,7 +2799,7 @@ export default {
               125 * 1.5
             );
             pdf.text(
-              "Grupo Vizcarra",
+              "Candy Toys",
               width * (y == 0 ? 0 : y) + 112,
               50 + (countY == 1 ? 0 : counterCodeShort),
               null,
@@ -3088,7 +3088,7 @@ export default {
             pdf.setFont("Montserrat-Semi");
             pdf.rect(20, 20, width * (y + 1), height * countY);
             pdf.text(
-              "Grupo Vizcarra",
+              "Candy Toys",
               width * (y == 0 ? 0 : y) + 170,
               32 + (countY == 1 ? 0 : counterCodeShort),
               null,
@@ -3414,7 +3414,7 @@ export default {
             pdf.setFont("Montserrat-Semi");
             pdf.rect(20, 20, width * (y + 1), height * countY);
             pdf.text(
-              "Grupo Vizcarra",
+              "Candy Toys",
               width * (y == 0 ? 0 : y) + 95,
               32 + (countY == 1 ? 0 : counterCodeShort),
               null, null, "center"); //18.3 12.5 6.75
@@ -3827,7 +3827,7 @@ export default {
           pdf.setFont("Montserrat-Semi");
           pdf.rect(20, 20, width, height * countY);
           pdf.text(
-            "Grupo Vizcarra",
+            "Candy Toys",
             (width / 1.75),
             (32 + (countY == 1 ? 0 : counterCodeShort)),
             null,
@@ -4097,7 +4097,7 @@ export default {
           pdf.setFontSize(12);
           pdf.rect(width + 20, 20, width, height * countX);
           pdf.text(
-            "Grupo Vizcarra",
+            "Candy Toys",
             (width / 1.75) * 2.75,
             32 + (countX == 1 ? 0 : counterCodeShortX),
             null,
