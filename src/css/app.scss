@@ -46,11 +46,11 @@
 }
 
 .bg-none{ background:none!important;}
-.bg-darkl0{ background: #22252A; }
-.bg-darkl1{ background: #2D3035; }
+.bg-darkl0{ background: #12113c; }
+.bg-darkl1{ background: #2d1f54; }
 .bg-darkl2{ background: #3E4148; }
 
-.bg-gold{ 
+.bg-gold{
     background: linear-gradient(to right, #959595 0%,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#4e4e4e 76%,#383838 87%,#1b1b1b 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#959595', endColorstr='#1b1b1b',GradientType=1 );
 }

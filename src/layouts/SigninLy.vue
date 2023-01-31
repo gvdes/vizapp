@@ -11,13 +11,13 @@
 							<q-img src="~/assets/logo.png" spinner-color="white" style="width: 170px;"/>
 						</div>
 					</transition>
-					
+
 					<transition appear enter-active-class="animated fadeInUp delay-1s">
 						<q-card class="bg-darkl1 text-white exo" key="title">
 							<q-card-section class="row justify-between items-center">
 								<span class="text-h6">
 									<span class="text-pink-6"> Viz</span>
-									<span class="text-weight-thin">App</span>
+									<span class="text-weight-thin">Ak</span>
 								</span>
 							</q-card-section>
 						</q-card>
@@ -28,11 +28,11 @@
 							<q-card flat class="q-mt-sm bg-darkl1 text-white">
 								<q-card-section>
 									<div class="column">
-										<q-input dark color="green-13" label-color="grey-7" label="Usuario" class="ipt q-mb-xs" v-model="credentials.nick" autocapitalize="off" autocomplete="off">
-											<template v-slot:prepend> <q-icon name="account_circle" color="grey-8"/> </template>
+										<q-input dark color="green-14" label-color="cyan-12" label="Usuario" class="ipt q-mb-xs" v-model="credentials.nick" autocapitalize="off" autocomplete="off">
+											<template v-slot:prepend> <q-icon name="account_circle" color="deep-purple-3"/> </template>
 										</q-input>
-										<q-input :type="ipttypepass?'password':'text'" dark color="green-13" label-color="grey-7" label="Contraseña" class="ipt q-mb-xs" v-model="credentials.pass" autocapitalize="off" autocomplete="off">
-											<template v-slot:prepend> <q-icon name="lock" color="grey-8"/> </template>
+										<q-input :type="ipttypepass?'password':'text'" dark color="green-14" label-color="cyan-12" label="Contraseña" class="ipt q-mb-xs" v-model="credentials.pass" autocapitalize="off" autocomplete="off">
+											<template v-slot:prepend> <q-icon name="lock" color="deep-purple-3"/> </template>
 											<template v-slot:append>
 												<q-icon
 													:name="ipttypepass ? 'visibility_off' : 'visibility'"
@@ -45,7 +45,7 @@
 								</q-card-section>
 
 								<q-card-actions align="right" v-if="credentials.nick.length>=2&&credentials.pass.length>=4">
-									<q-btn flat dense class="q-pa-sm" color="green-13" type="submit" label="entrar" :loading="credentials.logging" :disable="credentials.logging" />
+									<q-btn flat dense class="q-pa-sm" color="green-14" type="submit" label="entrar" :loading="credentials.logging" :disable="credentials.logging" />
 								</q-card-actions>
 							</q-card>
 						</q-form>
@@ -54,11 +54,11 @@
 					<div v-if="resume.state" class="q-mt-sm text-grey-6 loginform">
 						<q-card flat class="bg-darkl1" v-if="resume.account.me.change_password">
 							<q-card-section>
-								Bienvenido <span class="text-green-13">{{ resume.account.me.names }}</span>.<br>Para continuar, porfavor establece una contraseña:
+								Bienvenido <span class="text-green-14">{{ resume.account.me.names }}</span>.<br>Para continuar, porfavor establece una contraseña:
 							</q-card-section>
 							<q-form @submit="setPass">
 								<q-card-section>
-									<q-input dark color="green-13"
+									<q-input dark color="green-14"
 										label-color="grey-7"
 										:type="ipttypepass?'password':'text'"
 										class="ipt q-mb-xs" autocapitalize="off"
@@ -74,8 +74,8 @@
 											/>
 										</template>
 									</q-input>
-									<q-input dark color="green-13"
-										label-color="grey-7" 
+									<q-input dark color="green-14"
+										label-color="grey-7"
 										:type="ipttypepass?'password':'text'"
 										class="ipt q-mb-xs" autocapitalize="off"
 										autocomplete="off" label="Confirmar Contraseña"
@@ -84,17 +84,17 @@
 									/>
 								</q-card-section>
 								<q-card-actions v-if="trysetpass" align="right">
-									<q-btn dark color="green-13" flat type="submit" label="continuar" :loading="setpass.state" :disabled="setpass.state"/>
+									<q-btn dark color="green-14" flat type="submit" label="continuar" :loading="setpass.state" :disabled="setpass.state"/>
 								</q-card-actions>
 							</q-form>
 						</q-card>
 
 						<q-card flat v-else class="bg-darkl1 text-center">
 							<q-card-section>
-								<div>Bienvenido <span class="text-green-13">{{ resume.account.me.names }}</span>, espera...</div> 
+								<div>Bienvenido <span class="text-green-14">{{ resume.account.me.names }}</span>, espera...</div>
 							</q-card-section>
 							<q-card-section>
-								<q-spinner-grid color="green-13" size="md"/>
+								<q-spinner-grid color="green-14" size="md"/>
 							</q-card-section>
 						</q-card>
 					</div>
@@ -102,9 +102,9 @@
 			</q-page>
 
             <q-footer class="bg-none">
-				<q-toolbar class="column justify-center text-grey-8 text-center text-caption">
+				<q-toolbar class="column justify-center text-cyan-12 text-center text-caption">
 					Grupo Vizcarra - 2020
-				</q-toolbar> 
+				</q-toolbar>
             </q-footer>
 		</q-page-container>
 	</q-layout>
@@ -184,14 +184,14 @@ export default {
 			}
 
 			this.$store.commit('Account/setsession',data);
-			
+
 			this.vsocket.connect();
 
 			this.vsocket.on('socketid', data => {
 				this.vsocket.emit('session_start',{profile:this.profile,socketid:data.socketid,from:this.workin});
 				console.log("%cUnido al Canal Global (by LogIn)","background:#1B9CFC;color:white;border-radius:10px;padding:6px;");
-			});	
-			
+			});
+
 			this.$router.push('/lanzador');
 		},
 	},
