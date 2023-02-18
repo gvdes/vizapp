@@ -50,6 +50,7 @@ export default {
               10:"text-h4 text-left text-pink-14",
               11:"text-h4 text-left text-pink-14",
               12:"text-h4 text-left text-light-blue-13",
+              13:"text-h4 text-left text-orange-14",
             },
         }
     },
