@@ -1,1 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([[25],{"0f54":function(n,l,u){"use strict";u.r(l);var o=function(){var n=this,l=n._self._c;return l("div",[n._v("\n    "+n._s(n.saludo)+"\n")])},s=[],t={data(){return{saludo:"Hello form CAT"}}},a=t,e=u("2877"),r=Object(e["a"])(a,o,s,!1,null,null,null);l["default"]=r.exports}}]);
