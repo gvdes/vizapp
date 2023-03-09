@@ -52,6 +52,7 @@ export default {
               12:"text-h4 text-left text-light-blue-13",
               13:"text-h4 text-left text-orange-14",
               14:"text-h4 text-left text-orange-14",
+              15:"text-h4 text-left text-orange-14",
             },
         }
     },
