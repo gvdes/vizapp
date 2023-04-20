@@ -1452,7 +1452,7 @@ export default {
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(35);
             pdf.text(
-              `¡¡OFERTA!!`,
+              `PRECIO UNICO`,
               width,
               225 + counterCodeShort,
               null,
@@ -1694,7 +1694,7 @@ export default {
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(35);
             pdf.text(
-              `¡¡OFERTA!!`,
+              `PRECIO UNICO`,
               width,
               225 + counterCodeShort,
               null,
@@ -2013,7 +2013,7 @@ export default {
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(10);
               pdf.text( //pinta la palabra OFERTA
-                `¡¡OFERTA!!`,
+                `PRECIO UNICO`,
                 width * (y == 0 ? 0 : y) + 87,
                 95 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -2539,7 +2539,7 @@ export default {
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(12);
               pdf.text(
-                `¡¡OFERTA!!`,
+                `PRECIO UNICO`,
                 width * (y == 0 ? 0 : y) + 60,
                 70 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -2834,7 +2834,7 @@ export default {
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(13);
               pdf.text(
-                `¡¡OFERTA!!`,
+                `PRECIO UNICO`,
                 width * (y == 0 ? 0 : y) + 70,
                 110 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -3156,7 +3156,7 @@ export default {
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(16);
               pdf.text(
-                `¡¡OFERTA!!`,
+                `PRECIO UNICO`,
                 width * (y == 0 ? 0 : y) + 105,
                 125 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -3463,7 +3463,7 @@ export default {
               pdf.setFont("Montserrat-Bold");
               pdf.setFontSize(11);
               pdf.text(
-                `¡¡OFERTA!!`,
+                `PRECIO UNICO`,
                 width * (y == 0 ? 0 : y) + 60,
                 125 + (countY == 1 ? 0 : counterCodeShort) + aux,
                 null,
@@ -3890,7 +3890,7 @@ export default {
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(12);
             pdf.text(
-              `¡¡OFERTA!!`,
+              `PRECIO UNICO`,
               width / 2,
               110 + (countY == 1 ? 0 : counterCodeShort) + aux,
               null,
@@ -4166,7 +4166,7 @@ export default {
             pdf.setFont("Montserrat-Bold");
             pdf.setFontSize(12);
             pdf.text(
-              `¡¡OFERTA!!`,
+              `PRECIO UNICO`,
               width * 1.42,
               110 + (countX == 1 ? 0 : counterCodeShortX) + aux,
               null,

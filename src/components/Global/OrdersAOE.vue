@@ -46,7 +46,7 @@
                   </q-card-section>
 
                   <q-card-section class="text-center text-bold text-orange" v-if="productType=='off'">
-                      <div>OFERTA</div>
+                      <div>PRECIO UNICO</div>
                       <div class="text-h4">$ {{prices[0].price}}</div>
                   </q-card-section>
               </template>
