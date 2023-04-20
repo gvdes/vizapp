@@ -226,7 +226,9 @@
       layout() { return this.$store.state.Requisitions.layout; },
       dashAccess(){
         let workpoint = JSON.parse(localStorage.getItem("workin"));
-        return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
+        let reqs = workpoint.module.submodules.find( s => s.id == 19 );
+        if(reqs){ return reqs; }else{ false }
+        // return workpoint.module.submodules.find( s => s.id == 19 ) ?? false;
       },
       checkPermissions() {
         let workpoint = JSON.parse(localStorage.getItem("workin"));

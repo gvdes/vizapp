@@ -15,7 +15,7 @@
             <div class="column text-justify">
               <div class="text-h6"><b>{{ord.id}}</b></div>
               <div class="q-py-xs"><b>{{ord.name}}</b></div>
-              <div style="font-size:.8em;">{{ord.log.find( l => l.id==3).created_at ?? "undefined"}}</div>
+              <!-- <div style="font-size:.8em;">{{ord.log.find( l => l.id==3).created_at ?? "undefined"}}</div> -->
             </div>
           </q-btn>
 				</div>
