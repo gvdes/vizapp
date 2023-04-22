@@ -1,19 +1,15 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-// ❰❰❰❰❰ O U T   T E S T ❱❱❱❱❱
-// const URLBackend = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/public';
-// const URLFiles = 'http://mx100-cedis-vtbbdhgjzk.dynamic-m.com:4544/files';
-
 // const URLBackend = 'http://192.168.12.183/vizapi/public/';
 // const URLFiles = 'http://192.168.12.183/vizapi/files/';
 
-const URLBackend = 'http://192.168.10.189/vizapi/public/';
-const URLFiles = 'http://192.168.10.189/vizapi/files/';
+// const URLBackend = 'http://192.168.10.189/vizapi/public/';
+// const URLFiles = 'http://192.168.10.189/vizapi/files/';
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
-// const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/public';
-// const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/files';
+const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/public';
+const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N  I N  P U E B L A❱❱❱❱❱
 // const URLBackend = 'http://192.168.90.253:1619/vizapi/public/';
