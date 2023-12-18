@@ -332,7 +332,8 @@ export default {
         item =>
           item.workpoint.id == 1 ||
           item.workpoint.id == 2 ||
-          item.workpoint.id == 16
+          item.workpoint.id == 16 ||
+          item.workpoint.id == 24
       );
     },
     appsounds() {
@@ -355,7 +356,7 @@ export default {
         return this.index.workpoints
           .map(item => {
             // console.log(item);
-            return item.id == 1 || item.id == 2 || item.id == 16 || item.id==13
+            return item.id == 1 || item.id == 2 || item.id == 16 || item.id==24
               ? { label: item.alias, value: item.id }
               : null;
           })
