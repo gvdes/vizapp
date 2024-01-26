@@ -12,7 +12,7 @@
 
 				<q-card flat class="bg-none q-pa-md" style="min-width:300px;" v-if="workIn.workpoint">
 					<div class="row items-center justify-center">
-						<q-img src="~/src/assets/chris1.png" spinner-color="white" style="height: 140px; max-width: 140px"/>
+						<q-img src="~/src/assets/iconbag.png" spinner-color="white" style="height: 140px; max-width: 140px"/>
 					</div>
 
 					<div class="text-center">
@@ -20,11 +20,11 @@
 						<div class="q-mb-md">comencemos ...</div>
 					</div>
 
-          <q-card class="bg-whitetrans cursor-pointer" @click="wndGuide=true">
+          <!-- <q-card class="bg-whitetrans cursor-pointer" @click="wndGuide=true">
             <q-card-section class="text-center">
               <q-icon name="img:serie.png" size="30px"/> Guia de luces
             </q-card-section>
-          </q-card>
+          </q-card> -->
 
 					<q-card class="bg-whitetrans q-mt-md" :class="{'cursor-pointer':workpoints.length>1}" @click="openSetWorkpoint" >
 						<q-card-section>
