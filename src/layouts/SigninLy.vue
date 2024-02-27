@@ -6,12 +6,8 @@
 			<!-- <router-view /> -->
 			<q-page class="row items-center justify-center overflow-hidden">
 				<div>
-					<transition appear enter-active-class="animated fadeInDownBig">
-						<div class="text-center q-mb-sm" key="img">
-							<q-img src="~/assets/logo.png" spinner-color="white" style="width: 170px;"/>
-						</div>
-					</transition>
-					
+
+
 					<transition appear enter-active-class="animated fadeInUp delay-1s">
 						<q-card class="bg-darkl1 text-white exo" key="title">
 							<q-card-section class="row justify-between items-center">
@@ -75,7 +71,7 @@
 										</template>
 									</q-input>
 									<q-input dark color="green-13"
-										label-color="grey-7" 
+										label-color="grey-7"
 										:type="ipttypepass?'password':'text'"
 										class="ipt q-mb-xs" autocapitalize="off"
 										autocomplete="off" label="Confirmar Contraseña"
@@ -91,7 +87,7 @@
 
 						<q-card flat v-else class="bg-darkl1 text-center">
 							<q-card-section>
-								<div>Bienvenido <span class="text-green-13">{{ resume.account.me.names }}</span>, espera...</div> 
+								<div>Bienvenido <span class="text-green-13">{{ resume.account.me.names }}</span>, espera...</div>
 							</q-card-section>
 							<q-card-section>
 								<q-spinner-grid color="green-13" size="md"/>
@@ -101,11 +97,6 @@
 				</div>
 			</q-page>
 
-            <q-footer class="bg-none">
-				<q-toolbar class="column justify-center text-grey-8 text-center text-caption">
-					Grupo Vizcarra - 2020
-				</q-toolbar> 
-            </q-footer>
 		</q-page-container>
 	</q-layout>
 </template>
@@ -184,14 +175,14 @@ export default {
 			}
 
 			this.$store.commit('Account/setsession',data);
-			
+
 			this.vsocket.connect();
 
 			this.vsocket.on('socketid', data => {
 				this.vsocket.emit('session_start',{profile:this.profile,socketid:data.socketid,from:this.workin});
 				console.log("%cUnido al Canal Global (by LogIn)","background:#1B9CFC;color:white;border-radius:10px;padding:6px;");
-			});	
-			
+			});
+
 			this.$router.push('/lanzador');
 		},
 	},
