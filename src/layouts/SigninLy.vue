@@ -99,7 +99,6 @@
 
             <q-footer class="bg-none">
 				<q-toolbar class="column justify-center text-grey-8 text-center text-caption">
-					Grupo Vizcarra - 2020
 				</q-toolbar>
             </q-footer>
 		</q-page-container>
