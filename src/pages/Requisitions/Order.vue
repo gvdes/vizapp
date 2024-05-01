@@ -1213,7 +1213,8 @@ export default {
               from: this.workin,
               cmd: cmd,
               order: this.params.data,
-              product: sktproduct
+              product: sktproduct,
+              basketsize:this.bucketToolbar.length
             });
           })
           .catch(fail => { console.log(fail); });
