@@ -100,9 +100,10 @@ export default {
 			this.$store.commit('Preventa/newOrder', order);
 		},
 		sktOrderUpdate(data){
-      console.log(data)
 			let order = data.order;
+      console.log(order);
 			let newstate = data.newstate;
+      console.log(newstate)
 
 			console.log(`%cLa orden ${data.order.id} cambio su status a ${data.newstate.name}`,"background:#7158e2;color:#fffa65;border-radius:10px;padding:8px;");
 			this.$store.commit('Preventa/updateState', { order, newstate });

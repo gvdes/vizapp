@@ -97,7 +97,10 @@ export function newOrder(state, order){
 
 export function updateState(state, { order, newstate }){
     // console.log(order);
+    console.log(order)
+    console.log(state.orders)
     let idx = state.orders.findIndex( ord => order.id == ord.id);
+    console.log(idx)
     console.log(state.orders[idx]);
     state.orders[idx].status = newstate;
     state.orders[idx].log = order.log;
