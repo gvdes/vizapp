@@ -4,6 +4,9 @@ import axios from 'axios'
 // const URLBackend = 'http://192.168.10.112:1619/vizapi/public/';
 // const URLFiles = 'http://192.168.10.112:1619/vizapi/files/';
 
+const localBackend = 'http://192.168.10.112:1619/vizapi/public/';
+const localFiles = 'http://192.168.10.112:1619/vizapi/files/';
+
 const URLBackend = 'http://192.168.10.189/vizapi/public/';
 const URLFiles = 'http://192.168.10.189/vizapi/files/';
 
@@ -16,10 +19,13 @@ const URLFiles = 'http://192.168.10.189/vizapi/files/';
 // const URLFiles = 'http://192.168.90.253:1619/vizapi/files/';
 
 const vizapi = axios.create({ baseURL: URLBackend });
+const local = axios.create({ baseURL: localBackend });
+
 
 // para usar dentro de componentes
 Vue.prototype.$vizapi = vizapi;
+Vue.prototype.$local = local;
 Vue.prototype.$routefiles = URLFiles;
 
 // para usar dentro de archivos JS
-export { vizapi }
+export { vizapi, local }

@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-// const URLSocket = 'http://192.168.12.183:4141';
+const URLprv = 'http://192.168.10.112:4141';
 const URLSocket = 'http://192.168.10.189:4444';
 // const URLSocket = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4548';
 // const URLSocket = 'http://localhost:7171/';
@@ -15,8 +15,9 @@ export default ({ Vue }) => {
 	let profile = JSON.parse(localStorage.getItem('profile'));
 
 	Vue.prototype.$vSocket = io(`${URLSocket}`, { autoConnect: false });
+	// Vue.prototype.$vSocket2 = io(`${URLprv}`, { autoConnect: false });
 	Vue.prototype.$sktCounters = io(`${URLSocket}/counters`, { autoConnect: false });
-	Vue.prototype.$sktPreventa = io(`${URLSocket}/preventa`, { autoConnect: false });
+	Vue.prototype.$sktPreventa = io(`${URLprv}/preventa`, { autoConnect: false });
 	Vue.prototype.$sktRestock = io(`${URLSocket}/resurtidos`, { autoConnect: false });
 
 	console.log("%cInstancias de socket listas para conexion: (boot/sockets.js)","font-size:1.2em;background:#58B19F;border-radius:10px;color:white;padding:5px;");
