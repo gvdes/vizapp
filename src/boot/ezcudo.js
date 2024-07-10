@@ -1,4 +1,4 @@
-import { local, vizapi } from '../boot/vizapi'; // Si necesitas mantener la instancia vizapi
+import {  local, vizapi } from '../boot/vizapi'; // Si necesitas mantener la instancia vizapi
 
 export default async ({ router, store }) => {
   router.beforeEach((to, from, next) => {
@@ -27,7 +27,7 @@ export default async ({ router, store }) => {
       store.commit('Account/setsession', session);
       if (workin) { store.commit('Account/setworkpoint', workin); }
     }
-
+    console.log(local.defaults.headers.common);
     if (to.path != '/acceso') {
       token ? next() : next('/acceso');
     } else {
