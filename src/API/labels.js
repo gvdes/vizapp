@@ -1,8 +1,8 @@
-import { vizapi } from 'boot/vizapi'
+import { local } from 'boot/vizapi'
 
 export default{
     index(){
-        return vizapi.get('/pdf').then(success=>{
+        return local.get('/pdf').then(success=>{
             let resp = success.data;
             return resp;
         }).catch(fail=>{
@@ -10,6 +10,6 @@ export default{
         });
     },
     generate(data){
-        return vizapi.post('pdf/etiquetas',data);
+        return local.post('pdf/etiquetas',data);
     }
 }
