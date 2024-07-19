@@ -8,8 +8,8 @@ import axios from 'axios'
 // const URLFiles = 'http://192.168.10.189/vizapi/files/';
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
-const URLBackend = 'http://10.20.10.21/vizapi/public';
-const URLFiles = 'http://10.20.10.21/vizapi/files';
+const URLBackend = 'http://vizuru-cedis-cjvmhnwzgk.dynamic-m.com:4646/vizapi/public';
+const URLFiles = 'http://vizuru-cedis-cjvmhnwzgk.dynamic-m.com:4646/vizapi/files';
 
 // ❰❰❰❰❰ P R O D U C C I O N  I N  P U E B L A❱❱❱❱❱
 // const URLBackend = 'http://192.168.90.253:1619/vizapi/public/';
