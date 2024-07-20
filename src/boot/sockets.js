@@ -15,6 +15,8 @@ export default ({ Vue }) => {
 	let profile = JSON.parse(localStorage.getItem('profile'));
 
 	Vue.prototype.$vSocket = io(`${URLSocket}`, { autoConnect: false });
+	Vue.prototype.$vSocketloc = io(`${URLprv}`, { autoConnect: false });
+
 	// Vue.prototype.$vSocket2 = io(`${URLprv}`, { autoConnect: false });
 	Vue.prototype.$sktCounters = io(`${URLSocket}/counters`, { autoConnect: false });
 	Vue.prototype.$sktPreventa = io(`${URLprv}/preventa`, { autoConnect: false });
@@ -26,6 +28,17 @@ export default ({ Vue }) => {
 	if(profile){
 		if(Vue.prototype.$vSocket.disconnected){
 			Vue.prototype.$vSocket.connect();
+			// Vue.prototype.$sktPreventa.connect();
+			// Vue.prototype.$vSocket.on('socketid', data => {
+			console.log(`%cUnido al canal global (by bootfile)`,"background:#1B9CFC;color:white;border-radius:10px;padding:6px;");
+			// 	Vue.prototype.$vSocket.emit('session_start',{profile,socketid:data.socketid,from:workin});
+			// });
+		}
+	}else{ console.log("%cNo hay sesion activa, union a socket cancelada","background:#F97F51;color:#2C3A47;border-radius:10px;padding:6px;"); }
+
+	if(profile){
+		if(Vue.prototype.$vSocketloc.disconnected){
+			Vue.prototype.$vSocketloc.connect();
 			// Vue.prototype.$sktPreventa.connect();
 			// Vue.prototype.$vSocket.on('socketid', data => {
 			console.log(`%cUnido al canal global (by bootfile)`,"background:#1B9CFC;color:white;border-radius:10px;padding:6px;");

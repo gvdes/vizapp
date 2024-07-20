@@ -121,7 +121,7 @@ export default {
 			resume:{ state:false, account:undefined, workpoints:undefined, text:"" },
 			setpass:{ pass:'', confirm:'', state:false },
 			ipttypepass:true,
-			vsocket:this.$vSocket
+			vsocket:this.$vSocketloc
 		}
 	},
 	methods:{

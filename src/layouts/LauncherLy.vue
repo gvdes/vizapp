@@ -140,7 +140,7 @@ export default {
 	},
 	async beforeMount(){
 		localStorage.removeItem("dbranges");
-		this.vsocket = this.$vSocket;
+		this.vsocket = this.$vSocketloc;
 		console.log(this.$vizapi.defaults.headers.common['Authorization']);
 
 

@@ -36,7 +36,7 @@ export default {
 	data(){
 		return {
 			psocket:this.$sktPreventa,
-      mainsocket:this.$vSocket
+      mainsocket:this.$vSocketloc
 		}
 	},
 	created (){
