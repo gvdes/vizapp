@@ -53,7 +53,7 @@ import LGuide from "src/components/Guide.vue";
         wndGuide:false
 			}
 		},
-		mounted(){ this.vsocket = this.$vSocket; },
+		mounted(){ this.vsocket = this.$vSocketloc; },
 		methods:{
 			sessionDestroy(){
 				this.$store.commit('Account/unsetsession');
