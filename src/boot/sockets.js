@@ -1,12 +1,12 @@
 import { io } from "socket.io-client";
 
-const URLprv = 'http://192.168.30.253:4141';
+const URLprv = 'http://192.168.10.42:4141';
 const URLSocket = 'http://192.168.10.189:4444';
 // const URLSocket = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4548';
 // const URLSocket = 'http://localhost:7171/';
 
 /**
- * remotive.io
+ * remotive
  *
  */
 
