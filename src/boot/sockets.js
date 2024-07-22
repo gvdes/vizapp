@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const URLprv = 'http://192.168.10.46:4141';
+const URLprv = 'http://192.168.32.130:4141';
 const URLSocket = 'http://192.168.10.189:4444';
 // const URLSocket = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4548';
 // const URLSocket = 'http://localhost:7171/';
