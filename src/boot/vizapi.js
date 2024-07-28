@@ -7,8 +7,8 @@ import axios from 'axios'
 const localBackend = 'http://192.168.62.159/vizapi/public/';
 const localFiles = 'http://192.168.62.159/vizapi/files/';
 
-const URLBackend = 'http://192.168.10.189/vizapi/public/';
-const URLFiles = 'http://192.168.10.189/vizapi/files/';
+const URLBackend = 'http://192.168.62.159/vizapi/public/';
+const URLFiles = 'http://192.168.62.159/vizapi/files/';
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
 // const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4547/vizapi/public';
