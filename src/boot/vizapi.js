@@ -10,8 +10,8 @@ import axios from 'axios'
 // const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4747/vizapi/public/';
 // const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4747/vizapi/files/';
 
-const URLBackend = 'http://192.168.10.174/vizapi/public/';
-const URLFiles = 'http://192.168.10.174/vizapi/files/';
+const URLBackend = 'http://192.85.14.7/vizapi/public/';
+const URLFiles = 'http://192.85.14.7/vizapi/files/';
 
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱
