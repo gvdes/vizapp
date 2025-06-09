@@ -5,7 +5,6 @@
 				<toolbar-account title="Reportes"/>
 			</q-card>
 		</q-header>
-
 		<div class="row q-pl-sm" v-if="stats">
 			<div class="col-md-3 col-xs-6 q-pb-sm q-pr-sm" v-for="(report,idx) in reports" :key="idx" @click="genReport(report)">
 				<q-card flat class="bg-darkl1">
@@ -21,7 +20,7 @@
 			Calculando, porfavor espera...
 		</div>
 
-    <div class="q-pt-md">
+    <div class="q-pt-md" v-if="diferent" >
       <ProductSales />
     </div>
     </q-page>
@@ -86,17 +85,29 @@ export default {
 		  }
     },
 	computed:{
-		reports(){
+
+		profile(){ return this.$store.getters['Account/profile'];},
+		workin(){ return this.$store.getters['Account/workin'];},
+    diferent(){ return  (this.profile.me._rol != 7 && this.profile.me._rol != 6) },
+    reports(){
 			if(this.stats){
-				console.log(this.stats);
-				return this.stats.map(item=>{
+        if(this.diferent){
+          console.log(this.diferent);
+          return this.stats.map(item=>{
 					item.clases = this.clases[item._excel];
 					return item;
 				});
+        }else{
+          console.log(this.stats);
+          let list = [3,4,5,9,10,11]
+          return this.stats.filter((_, index) => list.includes(index)).map(item=>{
+					item.clases = this.clases[item._excel];
+					return item;
+				});
+        }
+
 			}else{ return null; }
-		},
-		profile(){ return this.$store.getters['Account/profile'];},
-		workin(){ return this.$store.getters['Account/workin'];},
+		}
 	}
 }
 </script>
