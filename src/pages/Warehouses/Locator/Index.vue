@@ -12,9 +12,9 @@
 					<q-btn flat icon="more_vert" class="col"/>
 					<q-btn flat icon="add" class="col" @click="wndAddLoc.state=!wndAddLoc.state"/>
 				</q-toolbar>
-			</q-card>				
+			</q-card>
 		</q-header>
-		
+
 		<div v-if="product" class="q-px-sm q-pt-sm">
 			<!-- <q-card>
 				<q-card-section>
@@ -149,7 +149,6 @@ export default {
 		set(){
 			// console.log(this.locsave);
 			this.settingloc=true;
-			
 			let data = { "_product":this.product.id, "_section":this.pathtosave.id }
 
 			vizapi.toggle(data).then(success=>{
@@ -171,7 +170,7 @@ export default {
 			if (this.locsave) {
 				return this.locsave.path.filter(item=>{//filtrar elementos que si tienen contenido
 					return item ? item.value:null;
-				}).length ? true:false;	
+				}).length ? true:false;
 			}
 			return false;
 		},
