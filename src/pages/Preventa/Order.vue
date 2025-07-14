@@ -80,11 +80,11 @@
                             </div>
                         </template>
 
-                        <template v-if="currentStep&&(currentStep.id==3||currentStep.id==4)">
+                        <!-- <template v-if="currentStep&&(currentStep.id==3||currentStep.id==4)">
                             <q-btn icon="fas fa-pencil-alt" color="orange-14"/>
-                        </template>
+                        </template> -->
 
-                        <template v-if="currentStep&&currentStep.id==5" class="q-pa-md text-center">
+                        <template v-if="currentStep&&(currentStep.id==3||currentStep.id==4|| currentStep.id==5)" class="q-pa-md text-center">
                             <q-btn icon="fas fa-file-medical" color="primary" @click="startanx.state=true" v-if="!startanx.state"/>
                             <div v-else>
                                 <div class="q-ma-sm">Crear Anexo?</div>
