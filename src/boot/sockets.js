@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 // const URLSocket = 'http://192.168.12.183:4141';
 // const URLSocket = 'http://192.168.10.189:4444';
-const URLSocket = 'http://192.168.10.214:4141';
+const URLSocket = 'http://192.168.40.214:4141';
 
 // const URLSocket = 'http://192.168.10.238:4141';
 
