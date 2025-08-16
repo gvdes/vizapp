@@ -4,8 +4,12 @@ import axios from 'axios'
 // const URLBackend = 'http://192.168.10.112:1619/vizapi/public/';
 // const URLFiles = 'http://192.168.10.112:1619/vizapi/files/';
 
-const URLBackend = 'http://192.168.10.189/vizapi/public/';
-const URLFiles = 'http://192.168.10.189/vizapi/files/';
+// const URLBackend = 'http://192.168.10.189/vizapi/public/';
+// const URLFiles = 'http://192.168.10.189/vizapi/files/';
+
+const URLBackend = 'http://192.168.40.214:1619/vizapi/public/';
+const URLFiles = 'http://192.168.40.214:1619/vizapi/files/';
+
 
 // const URLBackend = 'http://192.168.10.160:1619/vizapi/public/';
 // const URLFiles = 'http://192.168.10.160:1619/vizapi/files/';
