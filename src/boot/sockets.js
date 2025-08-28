@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const URLSocket = 'http://192.168.10.55:4141';
+const URLSocket = 'http://192.168.20.253:4141';
 // const URLSocket = 'http://192.168.10.189:4444';
 // const URLSocket = 'http://192.168.40.214:4141';
 
