@@ -15,7 +15,7 @@ import axios from 'axios'
 
 
 const URLBackend = 'https://vizapp.gvizpru.com/api/';
-const URLFiles = 'https://vizapp.gvizpru.com/api/';
+// const URLFiles = 'https://vizapp.gvizpru.com/api/';
 
 
 // const URLBackend = 'http://192.168.10.238:1619/vizapi/public/';
@@ -33,7 +33,7 @@ const vizapi = axios.create({ baseURL: URLBackend });
 
 // para usar dentro de componentes
 Vue.prototype.$vizapi = vizapi;
-Vue.prototype.$routefiles = URLFiles;
+// Vue.prototype.$routefiles = URLFiles;
 
 // para usar dentro de archivos JS
 export { vizapi }
