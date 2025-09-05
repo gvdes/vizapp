@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 // const URLSocket = 'http://192.168.10.189:4444';
 // const URLSocket = 'http://192.168.10.238:4141'
 // const URLSocket = 'http://192.168.10.160:4141';
-const URLSocket = 'https://vizapp.gvizpru.com/socket';
+const URLSocket = 'https://vizapp.gvizpru.com';
 
 ;
 
