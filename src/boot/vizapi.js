@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-// const URLBackend = 'http://192.168.12.183/vizapi/public/';
-// const URLFiles = 'http://192.168.12.183/vizapi/files/';
+// const URLBackend = 'http://192.168.16.205:1619/vizapi/public/';
+// const URLFiles = 'http://192.168.16.205:1619/vizapi/files/';
 
 // const URLBackend = 'http://192.168.10.189/vizapi/public/';
 // const URLFiles = 'http://192.168.10.189/vizapi/files/';
@@ -10,8 +10,8 @@ import axios from 'axios'
 // const URLBackend = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4747/vizapi/public/';
 // const URLFiles = 'http://mx100-cedis-mkrqpwcczk.dynamic-m.com:4747/vizapi/files/';
 
-const URLBackend = 'http://192.168.220.45/vizapi/public/';
-const URLFiles = 'http://192.168.220.45/vizapi/files/';
+const URLBackend = 'http://192.168.220.111/vizapi/public/';
+const URLFiles = 'http://192.168.220.111/vizapi/files/';
 
 
 // ❰❰❰❰❰ P R O D U C C I O N   O U T ❱❱❱❱❱

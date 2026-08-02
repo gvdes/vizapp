@@ -27,6 +27,16 @@ const routes = [
 			{ path:'checkout/:id',component: () => import('pages/Requisitions/Checkout.vue') },
 		]
 	},
+  	{
+		path:'/products', component: () => import('layouts/ProductsLy.vue'),
+		children:[
+			{ path:'',component: () => import('pages/Products/Index.vue') },
+			// { path:'dashboard',component: () => import('pages/Requisitions/Dashboard.vue') },
+			// { path:':id',component: () => import('pages/Requisitions/Order.vue') },
+			// { path:'checkin/:id',component: () => import('pages/Requisitions/Checkin.vue') },
+			// { path:'checkout/:id',component: () => import('pages/Requisitions/Checkout.vue') },
+		]
+	},
 	{
 		path:'/preventa', component: () => import('layouts/PreventaLy.vue'),
 		children:[
@@ -53,7 +63,7 @@ const routes = [
 					{ path: 'top', component: () => import('pages/Cluster/Products/top.vue') },
 					{ path: 'vs', component: () => import('pages/Cluster/Products/vs.vue') },
 					{ path: 'cat', component: () => import('pages/Cluster/Products/cat.vue') }
-				]	
+				]
 			},
 		]
 	},
